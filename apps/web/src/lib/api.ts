@@ -16,13 +16,16 @@ async function request(
   body?: unknown,
 ): Promise<unknown> {
   const token = await getToken();
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+  };
+  if (body !== undefined) {
+    headers["Content-Type"] = "application/json";
+  }
   const res = await fetch(`${API_URL}${path}`, {
     method,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: body ? JSON.stringify(body) : undefined,
+    headers,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
   if (!res.ok) {
@@ -39,4 +42,6 @@ export const api = {
   get: (path: string) => request("GET", path),
   patch: (path: string, body: unknown) => request("PATCH", path, body),
   post: (path: string, body?: unknown) => request("POST", path, body),
+  put: (path: string, body: unknown) => request("PUT", path, body),
+  delete: (path: string) => request("DELETE", path),
 };

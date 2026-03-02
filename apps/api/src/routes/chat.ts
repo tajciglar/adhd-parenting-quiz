@@ -9,6 +9,82 @@ const chatBodySchema = z.object({
 type ChatBody = z.infer<typeof chatBodySchema>;
 
 export default async function chatRoutes(fastify: FastifyInstance) {
+  // GET /conversations — list user's conversations
+  fastify.get(
+    "/conversations",
+    { preHandler: [fastify.authenticate] },
+    async (request, reply) => {
+      const userId = request.user.id;
+
+      const conversations = await fastify.prisma.conversation.findMany({
+        where: { userId },
+        orderBy: { updatedAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      return reply.send({ conversations });
+    },
+  );
+
+  // GET /conversations/:id/messages — get all messages for a conversation
+  fastify.get<{ Params: { id: string } }>(
+    "/conversations/:id/messages",
+    { preHandler: [fastify.authenticate] },
+    async (request, reply) => {
+      const userId = request.user.id;
+      const { id } = request.params;
+
+      const conversation = await fastify.prisma.conversation.findFirst({
+        where: { id, userId },
+      });
+
+      if (!conversation) {
+        return reply.status(404).send({ error: "Conversation not found" });
+      }
+
+      const messages = await fastify.prisma.message.findMany({
+        where: { conversationId: id },
+        orderBy: { createdAt: "asc" },
+        select: {
+          id: true,
+          role: true,
+          content: true,
+          createdAt: true,
+        },
+      });
+
+      return reply.send({ messages });
+    },
+  );
+
+  // DELETE /conversations/:id — delete a conversation
+  fastify.delete<{ Params: { id: string } }>(
+    "/conversations/:id",
+    { preHandler: [fastify.authenticate] },
+    async (request, reply) => {
+      const userId = request.user.id;
+      const { id } = request.params;
+
+      const conversation = await fastify.prisma.conversation.findFirst({
+        where: { id, userId },
+      });
+
+      if (!conversation) {
+        return reply.status(404).send({ error: "Conversation not found" });
+      }
+
+      await fastify.prisma.conversation.delete({ where: { id } });
+
+      return reply.send({ success: true });
+    },
+  );
+
+  // POST /chat — send a message and get a response
   fastify.post<{ Body: ChatBody }>(
     "/chat",
     { preHandler: [fastify.authenticate] },
@@ -50,8 +126,12 @@ export default async function chatRoutes(fastify: FastifyInstance) {
 
         conversation = existing;
       } else {
+        // Generate title from the first message (truncate to 60 chars)
+        const title =
+          message.length > 60 ? message.substring(0, 57) + "..." : message;
+
         conversation = await fastify.prisma.conversation.create({
-          data: { userId },
+          data: { userId, title },
         });
       }
 
@@ -65,7 +145,7 @@ export default async function chatRoutes(fastify: FastifyInstance) {
 
       // TODO: integrate with AI service for actual response generation
       const assistantContent =
-        "I received your message. AI integration is pending.";
+        "I received your message. AI integration is pending — this is a placeholder response. Once the knowledge base is connected, I'll be able to help with ADHD-related questions!";
 
       const assistantMessage = await fastify.prisma.message.create({
         data: {
@@ -73,6 +153,12 @@ export default async function chatRoutes(fastify: FastifyInstance) {
           role: "ASSISTANT",
           content: assistantContent,
         },
+      });
+
+      // Touch updatedAt on conversation
+      await fastify.prisma.conversation.update({
+        where: { id: conversation.id },
+        data: { updatedAt: new Date() },
       });
 
       return reply.status(200).send({

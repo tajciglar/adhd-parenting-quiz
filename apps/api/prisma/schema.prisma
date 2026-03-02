@@ -18,6 +18,7 @@ enum MessageRole {
 model User {
   id            String         @id
   email         String         @unique
+  role          String         @default("user")
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
   profile       UserProfile?
@@ -47,6 +48,7 @@ model Conversation {
   id        String    @id @default(uuid())
   userId    String    @map("user_id")
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String    @default("New conversation")
   messages  Message[]
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
