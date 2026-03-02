@@ -5,6 +5,8 @@ import supabasePlugin from "./plugins/supabase.js";
 import healthRoutes from "./routes/health.js";
 import onboardingRoutes from "./routes/onboarding.js";
 import chatRoutes from "./routes/chat.js";
+import userRoutes from "./routes/user.js";
+import adminRoutes from "./routes/admin.js";
 
 const envToLogger: Record<string, object | boolean> = {
   development: {
@@ -39,6 +41,8 @@ async function buildServer() {
   await server.register(healthRoutes);
   await server.register(onboardingRoutes, { prefix: "/api" });
   await server.register(chatRoutes, { prefix: "/api" });
+  await server.register(userRoutes, { prefix: "/api" });
+  await server.register(adminRoutes, { prefix: "/api" });
 
   server.setErrorHandler((error: FastifyError, _request, reply) => {
     server.log.error(error);

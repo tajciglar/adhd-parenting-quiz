@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import AuthPage from "./components/auth/AuthPage";
 import OnboardingPage from "./components/onboarding/OnboardingPage";
+import ChatPage from "./components/chat/ChatPage";
+import AdminPage from "./components/admin/AdminPage";
 
 export default function App() {
   const { session, loading } = useAuth();
@@ -24,7 +26,7 @@ export default function App() {
       <Routes>
         <Route
           path="/auth"
-          element={session ? <Navigate to="/onboarding" /> : <AuthPage />}
+          element={session ? <Navigate to="/chat" /> : <AuthPage />}
         />
         <Route
           path="/onboarding"
@@ -33,9 +35,17 @@ export default function App() {
           }
         />
         <Route
+          path="/chat"
+          element={session ? <ChatPage /> : <Navigate to="/auth" />}
+        />
+        <Route
+          path="/admin"
+          element={session ? <AdminPage /> : <Navigate to="/auth" />}
+        />
+        <Route
           path="*"
           element={
-            <Navigate to={session ? "/onboarding" : "/auth"} />
+            <Navigate to={session ? "/chat" : "/auth"} />
           }
         />
       </Routes>

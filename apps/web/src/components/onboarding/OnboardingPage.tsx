@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useOnboarding } from "../../hooks/useOnboarding";
 import { ONBOARDING_STEPS, TOTAL_STEPS } from "../../lib/constants";
 import type { OnboardingResponses } from "../../types/onboarding";
@@ -44,6 +46,12 @@ export default function OnboardingPage() {
     goBack,
     complete,
   } = useOnboarding();
+  const navigate = useNavigate();
+
+  const handleComplete = useCallback(async () => {
+    await complete();
+    navigate("/chat");
+  }, [complete, navigate]);
 
   if (loading) {
     return (
@@ -59,7 +67,7 @@ export default function OnboardingPage() {
   }
 
   if (completed || currentStep > TOTAL_STEPS) {
-    return <FamilySnapshot responses={responses} onComplete={complete} />;
+    return <FamilySnapshot responses={responses} onComplete={handleComplete} />;
   }
 
   const canContinue = isStepValid(currentStep, responses);
