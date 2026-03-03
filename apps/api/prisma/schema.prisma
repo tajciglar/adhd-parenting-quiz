@@ -64,6 +64,7 @@ model Message {
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   role           MessageRole
   content        String
+  metadata       Json?
   createdAt      DateTime     @default(now()) @map("created_at")
 
   @@index([conversationId])
@@ -86,9 +87,25 @@ model KnowledgeEntry {
   title     String
   content   String
   category  String
+  chunks    KnowledgeChunk[]
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([category])
   @@map("knowledge_entries")
+}
+
+model KnowledgeChunk {
+  id         String         @id @default(uuid())
+  entryId    String         @map("entry_id")
+  entry      KnowledgeEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  chunkIndex Int            @map("chunk_index")
+  text       String
+  tokenCount Int            @map("token_count")
+  embedding  Unsupported("vector(1536)")
+  createdAt  DateTime       @default(now()) @map("created_at")
+  updatedAt  DateTime       @updatedAt @map("updated_at")
+
+  @@index([entryId])
+  @@map("knowledge_chunks")
 }

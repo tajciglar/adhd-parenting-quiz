@@ -9,6 +9,23 @@ export interface Message {
   id: string;
   role: "USER" | "ASSISTANT";
   content: string;
+  metadata?: {
+    model?: string;
+    grounded?: boolean;
+    errorCode?: string;
+    usage?: {
+      promptTokens?: number;
+      completionTokens?: number;
+      totalTokens?: number;
+    };
+    sources?: Array<{
+      entryId: string;
+      title: string;
+      category: string;
+      chunkIndex: number;
+      score: number;
+    }>;
+  };
   createdAt: string;
 }
 

@@ -1,5 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
+import { generateGroundedAnswer } from "../services/ai/answer.js";
 
 const chatBodySchema = z.object({
   message: z.string().min(1).max(5000),
@@ -54,6 +56,7 @@ export default async function chatRoutes(fastify: FastifyInstance) {
           id: true,
           role: true,
           content: true,
+          metadata: true,
           createdAt: true,
         },
       });
@@ -103,9 +106,16 @@ export default async function chatRoutes(fastify: FastifyInstance) {
 
       const user = await fastify.prisma.user.findUnique({
         where: { id: userId },
+        include: {
+          profile: {
+            select: {
+              onboardingCompleted: true,
+            },
+          },
+        },
       });
 
-      if (!user) {
+      if (!user?.profile?.onboardingCompleted) {
         return reply.status(403).send({
           error: "User has not completed onboarding",
         });
@@ -135,6 +145,16 @@ export default async function chatRoutes(fastify: FastifyInstance) {
         });
       }
 
+      const history = await fastify.prisma.message.findMany({
+        where: { conversationId: conversation.id },
+        orderBy: { createdAt: "desc" },
+        take: 8,
+        select: {
+          role: true,
+          content: true,
+        },
+      });
+
       const userMessage = await fastify.prisma.message.create({
         data: {
           conversationId: conversation.id,
@@ -143,15 +163,19 @@ export default async function chatRoutes(fastify: FastifyInstance) {
         },
       });
 
-      // TODO: integrate with AI service for actual response generation
-      const assistantContent =
-        "I received your message. AI integration is pending — this is a placeholder response. Once the knowledge base is connected, I'll be able to help with ADHD-related questions!";
+      const groundedAnswer = await generateGroundedAnswer({
+        fastify,
+        userId,
+        question: message,
+        history: history.reverse(),
+      });
 
       const assistantMessage = await fastify.prisma.message.create({
         data: {
           conversationId: conversation.id,
           role: "ASSISTANT",
-          content: assistantContent,
+          content: groundedAnswer.content,
+          metadata: groundedAnswer.metadata as unknown as Prisma.InputJsonValue,
         },
       });
 
@@ -174,6 +198,7 @@ export default async function chatRoutes(fastify: FastifyInstance) {
           role: assistantMessage.role,
           content: assistantMessage.content,
           createdAt: assistantMessage.createdAt,
+          metadata: assistantMessage.metadata,
         },
       });
     },

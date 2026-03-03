@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
+import { reindexKnowledgeEntry } from "../services/ai/knowledgeIndex.js";
 
 async function requireAdmin(
   fastify: FastifyInstance,
@@ -113,6 +114,16 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       data: parsed.data,
     });
 
+    try {
+      await reindexKnowledgeEntry(fastify, entry);
+    } catch (error) {
+      fastify.log.error({ error, entryId: entry.id }, "admin.indexing_failed");
+      await fastify.prisma.knowledgeEntry.delete({ where: { id: entry.id } });
+      return reply.status(500).send({
+        error: "Failed to index knowledge entry for retrieval",
+      });
+    }
+
     return reply.status(201).send({ entry });
   });
 
@@ -143,6 +154,15 @@ export default async function adminRoutes(fastify: FastifyInstance) {
         where: { id },
         data: parsed.data,
       });
+
+      try {
+        await reindexKnowledgeEntry(fastify, entry);
+      } catch (error) {
+        fastify.log.error({ error, entryId: entry.id }, "admin.indexing_failed");
+        return reply.status(500).send({
+          error: "Entry updated but failed to re-index for retrieval",
+        });
+      }
 
       return reply.send({ entry });
     },
@@ -183,12 +203,30 @@ export default async function adminRoutes(fastify: FastifyInstance) {
         });
       }
 
-      const created = await fastify.prisma.knowledgeEntry.createMany({
-        data: parsed.data.entries,
-      });
+      const createdEntryIds: string[] = [];
+
+      try {
+        for (const row of parsed.data.entries) {
+          const entry = await fastify.prisma.knowledgeEntry.create({
+            data: row,
+          });
+          createdEntryIds.push(entry.id);
+          await reindexKnowledgeEntry(fastify, entry);
+        }
+      } catch (error) {
+        fastify.log.error({ error }, "admin.bulk_indexing_failed");
+        if (createdEntryIds.length > 0) {
+          await fastify.prisma.knowledgeEntry.deleteMany({
+            where: { id: { in: createdEntryIds } },
+          });
+        }
+        return reply.status(500).send({
+          error: "Bulk import failed while indexing entries",
+        });
+      }
 
       return reply.status(201).send({
-        imported: created.count,
+        imported: createdEntryIds.length,
         total: parsed.data.entries.length,
       });
     },
