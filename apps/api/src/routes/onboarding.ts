@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 const TOTAL_STEPS = 16;
@@ -142,7 +143,7 @@ export default async function onboardingRoutes(fastify: FastifyInstance) {
       const updated = await fastify.prisma.userProfile.update({
         where: { userId },
         data: {
-          onboardingResponses: mergedResponses,
+          onboardingResponses: mergedResponses as Prisma.InputJsonValue,
           onboardingStep: nextStep,
         },
       });
