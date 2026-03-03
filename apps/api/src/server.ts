@@ -38,16 +38,21 @@ async function buildServer() {
     origin: corsOrigin,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
+    // Browsers cache preflight for 1 hour (avoids repeated OPTIONS requests)
+    maxAge: 3600,
+    // Handle preflight immediately, before other hooks/plugins
+    strictPreflight: false,
   });
 
   // Global rate limit: 100 requests/minute per IP
+  // Skip OPTIONS preflight requests — they don't need rate limiting
   await server.register(rateLimit, {
     max: 100,
     timeWindow: "1 minute",
     keyGenerator: (request) => {
-      // Use authenticated user ID if available, otherwise fall back to IP
       return (request as any).user?.id ?? request.ip;
     },
+    allowList: (request) => request.method === "OPTIONS",
   });
 
   await server.register(prismaPlugin);

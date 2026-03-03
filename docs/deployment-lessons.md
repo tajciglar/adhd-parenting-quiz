@@ -140,6 +140,23 @@ All route components (Auth, Onboarding, Chat, Admin) loaded upfront in a single 
 
 ---
 
+## 8. Railway Cold Starts — Slow First Request
+
+**Symptom:** First request after a period of inactivity takes 1-4+ seconds, even for a simple OPTIONS preflight (350ms+).
+
+**Root cause:** Railway sleeps idle services to save resources. When a request comes in, it has to wake up the container (cold start), which adds significant latency.
+
+**Fix:**
+- Set `sleepApplication = false` in `railway.toml` to keep the service always awake
+- Added `maxAge: 3600` to CORS config so browsers cache preflight responses for 1 hour (fewer OPTIONS requests)
+- Excluded OPTIONS requests from rate limiter (`allowList`) since they don't need it
+
+**Rule:** For production APIs that need fast responses, disable Railway sleep. The tradeoff is slightly higher cost but eliminates cold start latency.
+
+**Note:** If you're on Railway's free/hobby tier, sleeping may be forced. In that case, you can set up an external cron job (e.g., UptimeRobot, cron-job.org) to ping `/health` every 5 minutes to keep the service warm.
+
+---
+
 ## Environment Variables Checklist
 
 ### Vercel (Frontend)
