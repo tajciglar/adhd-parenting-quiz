@@ -21,11 +21,13 @@ function AppRoutes() {
   const [onboardingCompleted, setOnboardingCompleted] = useState<
     boolean | null
   >(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [onboardingLoading, setOnboardingLoading] = useState(false);
 
   useEffect(() => {
     if (!session) {
       setOnboardingCompleted(null);
+      setUserRole(null);
       setOnboardingLoading(false);
       return;
     }
@@ -37,12 +39,14 @@ function AppRoutes() {
       .get("/api/onboarding")
       .then((data) => {
         if (!active) return;
-        const d = data as { onboardingCompleted?: boolean };
+        const d = data as { onboardingCompleted?: boolean; role?: string };
         setOnboardingCompleted(Boolean(d.onboardingCompleted));
+        setUserRole(d.role ?? "user");
       })
       .catch(() => {
         if (!active) return;
         setOnboardingCompleted(false);
+        setUserRole(null);
       })
       .finally(() => {
         if (!active) return;
@@ -127,8 +131,10 @@ function AppRoutes() {
           session ? (
             needsOnboarding ? (
               <Navigate to="/onboarding" />
-            ) : (
+            ) : userRole === "admin" ? (
               <AdminPage />
+            ) : (
+              <Navigate to="/chat" />
             )
           ) : (
             <Navigate to="/auth" />

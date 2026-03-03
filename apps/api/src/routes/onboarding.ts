@@ -177,11 +177,13 @@ export default async function onboardingRoutes(fastify: FastifyInstance) {
     { preHandler: [fastify.authenticate] },
     async (request, reply) => {
       const { id: userId, email } = request.user;
-      const { profile, child } = await getOrCreateProfileWithChild(
-        fastify,
-        userId,
-        email,
-      );
+      const [{ profile, child }, user] = await Promise.all([
+        getOrCreateProfileWithChild(fastify, userId, email),
+        fastify.prisma.user.findUnique({
+          where: { id: userId },
+          select: { role: true },
+        }),
+      ]);
 
       const responses = buildResponsesObject(profile, child);
 
@@ -189,6 +191,7 @@ export default async function onboardingRoutes(fastify: FastifyInstance) {
         onboardingStep: child.onboardingStep,
         onboardingCompleted: profile.onboardingCompleted,
         responses,
+        role: user?.role ?? "user",
       });
     },
   );

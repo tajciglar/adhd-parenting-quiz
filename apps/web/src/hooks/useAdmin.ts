@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useReducer } from "react";
 import { api } from "../lib/api";
-import type { KnowledgeEntry, AdminStats } from "../types/admin";
+import type { KnowledgeEntry, AdminStats, TestQueryResult } from "../types/admin";
 
 interface AdminState {
   entries: KnowledgeEntry[];
@@ -9,6 +9,8 @@ interface AdminState {
   loading: boolean;
   saving: boolean;
   filter: string | null;
+  testQueryResults: TestQueryResult | null;
+  testQuerying: boolean;
 }
 
 type Action =
@@ -20,7 +22,9 @@ type Action =
   | { type: "ADD_ENTRY"; entry: KnowledgeEntry }
   | { type: "UPDATE_ENTRY"; entry: KnowledgeEntry }
   | { type: "REMOVE_ENTRY"; id: string }
-  | { type: "LOADED" };
+  | { type: "LOADED" }
+  | { type: "SET_TEST_RESULTS"; results: TestQueryResult | null }
+  | { type: "TEST_QUERYING"; querying: boolean };
 
 const initialState: AdminState = {
   entries: [],
@@ -29,6 +33,8 @@ const initialState: AdminState = {
   loading: true,
   saving: false,
   filter: null,
+  testQueryResults: null,
+  testQuerying: false,
 };
 
 function reducer(state: AdminState, action: Action): AdminState {
@@ -68,6 +74,10 @@ function reducer(state: AdminState, action: Action): AdminState {
       };
     case "LOADED":
       return { ...state, loading: false };
+    case "SET_TEST_RESULTS":
+      return { ...state, testQueryResults: action.results, testQuerying: false };
+    case "TEST_QUERYING":
+      return { ...state, testQuerying: action.querying };
     default:
       return state;
   }
@@ -173,6 +183,23 @@ export function useAdmin() {
     [fetchData],
   );
 
+  const testQuery = useCallback(async (query: string) => {
+    dispatch({ type: "TEST_QUERYING", querying: true });
+    try {
+      const result = (await api.post(
+        "/api/admin/test-query",
+        { query },
+      )) as TestQueryResult;
+      dispatch({ type: "SET_TEST_RESULTS", results: result });
+    } catch {
+      dispatch({ type: "TEST_QUERYING", querying: false });
+    }
+  }, []);
+
+  const clearTestResults = useCallback(() => {
+    dispatch({ type: "SET_TEST_RESULTS", results: null });
+  }, []);
+
   const filteredEntries = state.filter
     ? state.entries.filter((e) => e.category === state.filter)
     : state.entries;
@@ -191,5 +218,7 @@ export function useAdmin() {
     updateEntry,
     deleteEntry,
     bulkImport,
+    testQuery,
+    clearTestResults,
   };
 }

@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
 import { reindexKnowledgeEntry } from "../services/ai/knowledgeIndex.js";
+import { retrieveRelevantKnowledge } from "../services/ai/retrieval.js";
 
 async function requireAdmin(
   fastify: FastifyInstance,
@@ -229,6 +230,41 @@ export default async function adminRoutes(fastify: FastifyInstance) {
         imported: createdEntryIds.length,
         total: parsed.data.entries.length,
       });
+    },
+  );
+
+  // POST /admin/test-query — test retrieval without generating an answer
+  const testQuerySchema = z.object({
+    query: z.string().min(1).max(2000),
+  });
+
+  fastify.post(
+    "/admin/test-query",
+    { preHandler },
+    async (request, reply) => {
+      const parsed = testQuerySchema.safeParse(request.body);
+      if (!parsed.success) {
+        return reply.status(400).send({
+          error: "Validation failed",
+          details: parsed.error.flatten().fieldErrors,
+        });
+      }
+
+      const { query } = parsed.data;
+
+      try {
+        const sources = await retrieveRelevantKnowledge(fastify, query, 8);
+        return reply.send({
+          query,
+          sources,
+          totalRetrieved: sources.length,
+        });
+      } catch (error) {
+        fastify.log.error({ error }, "admin.test_query_failed");
+        return reply.status(500).send({
+          error: "Failed to run test query. Make sure the vector extension is enabled.",
+        });
+      }
     },
   );
 }
