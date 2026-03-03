@@ -30,8 +30,12 @@ async function buildServer() {
     logger: envToLogger[environment] ?? true,
   });
 
+  // Ensure CORS origin has a protocol prefix
+  const rawOrigin = process.env.CORS_ORIGIN ?? "http://localhost:3000";
+  const corsOrigin = rawOrigin.startsWith("http") ? rawOrigin : `https://${rawOrigin}`;
+
   await server.register(cors, {
-    origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
+    origin: corsOrigin,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   });
