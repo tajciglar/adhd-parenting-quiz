@@ -157,6 +157,21 @@ All route components (Auth, Onboarding, Chat, Admin) loaded upfront in a single 
 
 ---
 
+## 9. Region Mismatch — API and Database on Different Continents
+
+**Symptom:** Every API request takes 2-5+ seconds despite optimized code. Even simple queries are slow.
+
+**Root cause:** Railway (API server) was deployed in **Asia** while Supabase (database) was in **EU West**. Every database query had to travel across continents (~250ms round-trip per query). With 2-3 queries per request + auth verification, this added 1-3+ seconds of pure network latency.
+
+**Fix:** Changed Railway region to EU West to match Supabase. Request times dropped from 2-5s to ~100-300ms.
+
+**Rule:** Always deploy your API server in the same region as your database. This is the single biggest performance factor for any web app. Check regions before deploying:
+- Supabase: Dashboard → Settings → General → Region
+- Railway: Service → Settings → Region
+- Vercel: Automatically uses CDN, but serverless functions use the region you set
+
+---
+
 ## Environment Variables Checklist
 
 ### Vercel (Frontend)
