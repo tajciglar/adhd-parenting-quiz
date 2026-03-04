@@ -179,21 +179,36 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   }
 
   fastify.addHook("onReady", async () => {
-    await fastify.prisma.adminImportJob.updateMany({
-      where: { status: "processing" },
-      data: { status: "queued" },
-    });
+    try {
+      await fastify.prisma.adminImportJob.updateMany({
+        where: { status: "processing" },
+        data: { status: "queued" },
+      });
 
-    const jobs = await fastify.prisma.adminImportJob.findMany({
-      where: { status: "queued" },
-      select: { id: true },
-      orderBy: { createdAt: "asc" },
-      take: 100,
-    });
-    for (const job of jobs) {
-      queuedJobs.push(job.id);
+      const jobs = await fastify.prisma.adminImportJob.findMany({
+        where: { status: "queued" },
+        select: { id: true },
+        orderBy: { createdAt: "asc" },
+        take: 100,
+      });
+      for (const job of jobs) {
+        queuedJobs.push(job.id);
+      }
+      void processQueue();
+    } catch (error) {
+      // Keep API booting if local DB is behind migrations.
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2021"
+      ) {
+        fastify.log.warn(
+          "Skipping admin import queue bootstrap: missing admin_import_jobs table. Run prisma migrations.",
+        );
+        return;
+      }
+
+      throw error;
     }
-    void processQueue();
   });
 
   fastify.get(
