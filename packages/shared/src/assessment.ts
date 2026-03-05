@@ -175,6 +175,7 @@ export interface Archetype {
   animal: string;
   typeName: string;
   highDimensions: CategoryId[];
+  priority: number;
   explanation: string;
   traits: string;
   solution: string;
@@ -185,290 +186,277 @@ export const ARCHETYPES: Archetype[] = [
   {
     id: "koala",
     animal: "The Koala",
-    typeName: "The Deep Dreamer",
+    typeName: "The Dreamy Koala",
     highDimensions: ["filter", "time"],
-    explanation:
-      'High Inattention + High Time Blindness. Their brain struggles to stay "online" in the present moment.',
-    traits: 'Quiet, forgetful, "spacey," prone to staring out windows.',
-    solution:
-      'Visual Cues: Don\'t just say "get ready." Use a photo checklist of what "ready" looks like.',
-    childPerspective:
-      '"I forgot what I was doing before I even started."',
+    priority: 85,
+    explanation: "Inattentive + Executive Function profile.",
+    traits: "Reflective, imaginative, loses track of steps and time.",
+    solution: "Use visual structure and one-step instructions.",
+    childPerspective: "",
   },
   {
-    id: "deer",
-    animal: "The Deer",
-    typeName: "The Observer",
-    highDimensions: ["filter", "sensory"],
-    explanation:
-      'High Inattention + Sensory Avoiding. They use daydreaming as a shield.',
-    traits: "Withdrawn, avoids groups, daydreams to escape noise.",
-    solution:
-      "Safe Zones: Give them a quiet, low-stimulation corner to retreat to when they are overwhelmed.",
-    childPerspective:
-      '"It\'s safer and quieter inside my own head."',
+    id: "hummingbird",
+    animal: "The Hummingbird",
+    typeName: "The Flash Hummingbird",
+    highDimensions: ["filter", "engine"],
+    priority: 71,
+    explanation: "Inattentive + Hyperactive profile.",
+    traits: "Fast shifts in attention, very active, impulsive starts.",
+    solution: "Short task cycles, movement breaks, rapid feedback.",
+    childPerspective: "",
   },
   {
-    id: "owl",
-    animal: "The Owl",
-    typeName: "The Professor",
-    highDimensions: ["filter", "social"],
-    explanation:
-      'High Inattention + Social Blindness. They often "hyper-focus" on a specific topic and miss the cue that others aren\'t interested.',
-    traits:
-      'Hyper-focused on one hobby, misses social cues, "know-it-all."',
-    solution:
-      'Topic Timers: Use a "timer" for their favorite topic to teach them the "give and take" of conversation.',
-    childPerspective:
-      '"Did you know that sharks have no bones? Listen..."',
-  },
-  {
-    id: "border-collie",
-    animal: "The Border Collie",
-    typeName: "The Tornado",
-    highDimensions: ["engine", "sensory"],
-    explanation:
-      'High Engine + Sensory Seeking. They have "Low Proprioception," meaning they don\'t feel where their body is unless they are crashing or moving fast.',
-    traits: "Loud, crashing, constantly moving, high physical risk-taker.",
-    solution:
-      'Heavy Work: Have them carry groceries, push a weighted cart, or do "wall pushes" to ground their body.',
-    childPerspective:
-      '"I need to feel my body move to feel alive."',
-  },
-  {
-    id: "golden-retriever",
-    animal: "The Golden Retriever",
-    typeName: "The High-Wire",
-    highDimensions: ["engine", "fuse"],
-    explanation:
-      'High Engine + Emotional Dysregulation. They act on an emotion before the "logical brain" can intervene.',
-    traits: 'Impulsive, acts before thinking, frequent "accidents."',
-    solution:
-      'The "Pause" Button: Practice a physical "freeze" game during play to build the muscle of stopping mid-action.',
-    childPerspective:
-      '"I did it before I realized it was a bad idea."',
-  },
-  {
-    id: "butterfly",
-    animal: "The Butterfly",
-    typeName: "The Sparkler",
-    highDimensions: ["engine", "social"],
-    explanation:
-      "High Engine + Social Radar. They are desperate to connect but move too fast.",
-    traits:
-      'Interrupts, talks over people, "too much" for peers.',
-    solution:
-      'Wait-Stickers: Give them a physical object (like a fidget) to hold when someone else is talking to remind them to "hold" their thought.',
-    childPerspective:
-      '"I have so many ideas I have to say them NOW!"',
-  },
-  {
-    id: "hedgehog",
-    animal: "The Hedgehog",
-    typeName: "The High-Definition Soul",
-    highDimensions: ["sensory", "fuse"],
-    explanation:
-      'High Sensory Avoiding + Emotional Dysregulation. Their "volume knob" is turned up too high.',
-    traits:
-      'Prickly, hates loud noises/labels, "moody" in crowds.',
-    solution:
-      'Control: Let them choose their clothes/textures. Use noise-canceling headphones in public to lower the "threat" level.',
-    childPerspective:
-      '"Everything is too loud and my socks hurt."',
-  },
-  {
-    id: "panda",
-    animal: "The Panda",
-    typeName: "The Sensitive Perfectionist",
+    id: "tiger",
+    animal: "The Tiger",
+    typeName: "The Fierce Tiger",
     highDimensions: ["filter", "fuse"],
-    explanation:
-      'High Emotionality + Focus Gaps. When they can\'t do a task immediately, they experience "task paralysis."',
-    traits:
-      "Easily overwhelmed, cries or gets angry when frustrated.",
-    solution:
-      'Micro-Steps: Break a task down into something so small it\'s impossible to fail (e.g., "Just write your name on the paper").',
-    childPerspective:
-      '"This is too hard. I\'m not even going to try."',
+    priority: 70,
+    explanation: "Inattentive + Emotional profile.",
+    traits: "Fluctuating focus with big emotional reactions.",
+    solution: "Co-regulation first, then task re-entry.",
+    childPerspective: "",
   },
   {
-    id: "elephant",
-    animal: "The Elephant",
-    typeName: "The Justice Warrior",
-    highDimensions: ["fuse", "social"],
-    explanation:
-      'High Emotionality + Social Blindness. They have a rigid "moral" brain.',
-    traits:
-      "Argumentative about rules, hyper-aware of unfairness, blunt.",
-    solution:
-      '"My Truth vs. The Truth": Use social stories to explain that different people can have different rules or feelings at the same time.',
-    childPerspective:
-      '"That\'s not the rule! Why are you doing it wrong?"',
+    id: "meerkat",
+    animal: "The Meerkat",
+    typeName: "The Observing Meerkat",
+    highDimensions: ["filter", "sensory"],
+    priority: 55,
+    explanation: "Inattentive + Sensory profile.",
+    traits: "Easily overloaded, scanning environment, variable focus.",
+    solution: "Lower sensory load and add predictable routines.",
+    childPerspective: "",
   },
   {
-    id: "cheetah",
-    animal: "The Cheetah",
-    typeName: "The Sprint Finisher",
-    highDimensions: ["time", "fuse"],
-    explanation:
-      'High Time Blindness + Emotional Avoidance. They only feel the "Now."',
-    traits:
-      'Panic-driven, only works under pressure, hates transitions.',
-    solution:
-      'External Clocks: Use sand timers or "Time Timer" visual clocks so they can see time moving.',
-    childPerspective:
-      '"I\'ll do it later... [1 hour later] ...OH NO!"',
+    id: "stallion",
+    animal: "The Stallion",
+    typeName: "The Bold Stallion",
+    highDimensions: ["fuse", "time"],
+    priority: 60,
+    explanation: "Emotional + Executive Function profile.",
+    traits: "Strong feelings and friction around transitions/planning.",
+    solution: "External time supports plus calm transition rituals.",
+    childPerspective: "",
   },
   {
     id: "fox",
     animal: "The Fox",
-    typeName: "The Negotiator",
+    typeName: "The Clever Fox",
     highDimensions: ["time", "social"],
-    explanation:
-      'High Time Blindness + Social Skills. They use their high verbal intelligence to "talk their way out" of tasks.',
-    traits:
-      "Manipulates situations to avoid tasks, very charming.",
-    solution:
-      '"First/Then": Keep it simple. "First, socks. Then, iPad." Do not enter the debate; repeat the phrase calmly.',
-    childPerspective:
-      '"If I be extra nice, maybe they\'ll forget the chores."',
-  },
-  {
-    id: "bison",
-    animal: "The Bison",
-    typeName: "The Thunderstorm",
-    highDimensions: ["engine", "sensory", "fuse"],
-    explanation:
-      "High physical power mixed with a very low threshold for sensory irritation.",
-    traits:
-      'Intense, physically strong, prone to sudden "explosions."',
-    solution:
-      'Heavy Work: Pushing, pulling, or carrying heavy items to "ground" the nervous system.',
+    priority: 55,
+    explanation: "Executive Function + Social profile.",
+    traits: "Socially agile with timing/planning weak points.",
+    solution: "First/Then flows and clear social boundaries.",
     childPerspective: "",
   },
   {
-    id: "firefly",
-    animal: "The Firefly",
-    typeName: "The Starry-Eyed Scholar",
-    highDimensions: ["filter", "time", "social"],
-    explanation:
-      'A bright, creative mind that struggles to stay "lit" in social or timed settings.',
-    traits:
-      "Imaginative, socially drifting, loses track of time mid-sentence.",
-    solution:
-      'Visual Anchors: Using "Time Timers" and picture-based schedules to stay in the "Now."',
-    childPerspective: "",
-  },
-  {
-    id: "snow-leopard",
-    animal: "The Snow Leopard",
-    typeName: "The Stealth Fighter",
-    highDimensions: ["filter", "sensory", "time"],
-    explanation:
-      'An internalizer who hides their struggle by withdrawing or appearing "lazy."',
-    traits:
-      "Observant, easily overwhelmed by noise, avoids new tasks.",
-    solution:
-      'Low-Stim Zones: Creating a "sensory cave" where they can work without noise or bright light.',
-    childPerspective: "",
-  },
-  {
-    id: "peacock",
-    animal: "The Peacock",
-    typeName: "The Lead Singer",
-    highDimensions: ["engine", "fuse", "social"],
-    explanation:
-      "Driven by social connection and high-octane emotional energy.",
-    traits:
-      "Charismatic, dramatic, seeks constant feedback/attention.",
-    solution:
-      'Positive Redirection: Giving them a "stage" or leadership role to channel their energy.',
-    childPerspective: "",
-  },
-  {
-    id: "beaver",
-    animal: "The Beaver",
-    typeName: "The Architect",
-    highDimensions: ["filter", "social", "time", "sensory"],
-    explanation:
-      "Needs their environment to be perfectly structured to feel safe.",
-    traits:
-      "Rigid, detail-oriented, struggles deeply with transitions.",
-    solution:
-      'The "5-Minute Warning": Using clear, repetitive transition rituals before changing activities.',
+    id: "owl",
+    animal: "The Owl",
+    typeName: "The Keen Owl",
+    highDimensions: ["filter", "social"],
+    priority: 65,
+    explanation: "Inattentive + Social profile.",
+    traits: "Deep attention pockets, misses cues in fast exchanges.",
+    solution: "Practice turn-taking and cue labeling.",
     childPerspective: "",
   },
   {
     id: "jackrabbit",
     animal: "The Jackrabbit",
-    typeName: "The Fire-Cracker",
+    typeName: "The Bolt Jackrabbit",
+    highDimensions: ["engine", "time"],
+    priority: 65,
+    explanation: "Hyperactive + Executive Function profile.",
+    traits: "Fast action with trouble sequencing and finishing.",
+    solution: "Short sprints with explicit stop checkpoints.",
+    childPerspective: "",
+  },
+  {
+    id: "eagle",
+    animal: "The Eagle",
+    typeName: "The Sky Eagle",
+    highDimensions: ["filter", "engine", "time"],
+    priority: 60,
+    explanation: "Inattentive + Hyperactive + Executive profile.",
+    traits: "High-speed shifting attention with planning drag.",
+    solution: "Externalize priorities and chunk tasks tightly.",
+    childPerspective: "",
+  },
+  {
+    id: "elephant",
+    animal: "The Elephant",
+    typeName: "The Justice Elephant",
+    highDimensions: ["fuse", "social"],
+    priority: 50,
+    explanation: "Emotional + Social profile.",
+    traits: "Justice-driven, relationally intense, sensitive to fairness.",
+    solution: "Collaborative problem-solving with explicit social framing.",
+    childPerspective: "",
+  },
+  {
+    id: "dolphin",
+    animal: "The Dolphin",
+    typeName: "The Leap Dolphin",
+    highDimensions: ["engine", "social"],
+    priority: 55,
+    explanation: "Hyperactive + Social profile.",
+    traits: "Energetic social initiator, fast conversational jumps.",
+    solution: "Movement before social-demand tasks and pause cues.",
+    childPerspective: "",
+  },
+  {
+    id: "octopus",
+    animal: "The Octopus",
+    typeName: "The Vivid Octopus",
+    highDimensions: ["filter", "engine", "sensory", "fuse", "time", "social"],
+    priority: 15,
+    explanation: "High complexity across all six dimensions.",
+    traits: "Highly variable regulation across settings and demands.",
+    solution: "Reduce cognitive load and support multiple systems at once.",
+    childPerspective: "",
+  },
+  {
+    id: "hedgehog",
+    animal: "The Hedgehog",
+    typeName: "The Storm Hedgehog",
+    highDimensions: ["sensory", "fuse"],
+    priority: 45,
+    explanation: "Sensory + Emotional profile.",
+    traits: "Sensory-triggered emotional spikes and rapid escalation.",
+    solution: "Pre-empt overload and build recovery routines.",
+    childPerspective: "",
+  },
+  {
+    id: "bull",
+    animal: "The Bull",
+    typeName: "The Fearless Bull",
+    highDimensions: ["engine", "fuse"],
+    priority: 50,
+    explanation: "Hyperactive + Emotional profile.",
+    traits: "High-drive behavior with hot emotional reactivity.",
+    solution: "Movement channels with strong co-regulation anchors.",
+    childPerspective: "",
+  },
+  {
+    id: "cheetah",
+    animal: "The Cheetah",
+    typeName: "The Blaze Cheetah",
     highDimensions: ["engine", "fuse", "time"],
-    explanation:
-      'High-speed movement without a "braking system" for emotions or consequences.',
-    traits:
-      'Impulsive, impatient, gets "hot" fast when frustrated.',
-    solution:
-      'The "Pause" Button: Practicing physical "Stop/Go" games to build inhibitory control.',
+    priority: 45,
+    explanation: "Hyperactive + Emotional + Executive profile.",
+    traits: "Rapid action, stress spikes, late-stage panic completion.",
+    solution: "Time visuals and micro-deadlines before escalation.",
     childPerspective: "",
   },
   {
-    id: "blue-whale",
-    animal: "The Blue Whale",
-    typeName: "The Gentle Giant",
-    highDimensions: ["sensory", "social", "filter"],
-    explanation:
-      'Absorbs the emotions of everyone in the room; feels "too much."',
-    traits:
-      "Deeply empathetic, quiet, easily exhausted by crowds.",
-    solution:
-      'Emotional Shielding: Teaching them to identify "their" feelings vs. "other people\'s" feelings.',
+    id: "rhino",
+    animal: "The Rhino",
+    typeName: "The Thunder Rhino",
+    highDimensions: ["engine", "sensory"],
+    priority: 40,
+    explanation: "Hyperactive + Sensory profile.",
+    traits: "Seeks strong input, forceful pace, hard stops/transitions.",
+    solution: "Heavy-work routines and structured sensory outlets.",
     childPerspective: "",
   },
   {
-    id: "peregrine-falcon",
-    animal: "The Peregrine Falcon",
-    typeName: "The Speed-Reader",
-    highDimensions: ["engine", "filter", "time"],
-    explanation:
-      "Operates at such high speeds that details and safety are often left behind.",
-    traits:
-      'Fast-moving, forgetful, prone to "silly" mistakes in work.',
-    solution:
-      'The "Pit Stop": Forcing a mandatory 2-minute "review period" after every completed task.',
+    id: "deer",
+    animal: "The Deer",
+    typeName: "The Still Deer",
+    highDimensions: ["sensory", "time"],
+    priority: 40,
+    explanation: "Sensory + Executive Function profile.",
+    traits: "Cautious pacing, overload around transitions/unknowns.",
+    solution: "Preview changes early with consistent sequence cues.",
     childPerspective: "",
   },
   {
-    id: "german-shepherd",
-    animal: "The German Shepherd",
-    typeName: "The Guardian",
+    id: "red-panda",
+    animal: "The Red Panda",
+    typeName: "The Red Panda",
+    highDimensions: ["sensory", "social"],
+    priority: 35,
+    explanation: "Sensory + Social profile.",
+    traits: "Social interest with fast fatigue in noisy environments.",
+    solution: "Low-stim social scaffolding and planned breaks.",
+    childPerspective: "",
+  },
+  {
+    id: "bison",
+    animal: "The Bison",
+    typeName: "The Storm Bison",
+    highDimensions: ["engine", "sensory", "fuse"],
+    priority: 35,
+    explanation: "Hyperactive + Sensory + Emotional profile.",
+    traits: "Large energy with sensory/emotional volatility.",
+    solution: "Rhythmic movement and early downshift rituals.",
+    childPerspective: "",
+  },
+  {
+    id: "firefly",
+    animal: "The Firefly",
+    typeName: "The Spark Firefly",
+    highDimensions: ["filter", "time", "social"],
+    priority: 40,
+    explanation: "Inattentive + Executive + Social profile.",
+    traits: "Imaginative, socially bright, loses thread under demands.",
+    solution: "Visual anchors and conversational pacing supports.",
+    childPerspective: "",
+  },
+  {
+    id: "turtle",
+    animal: "The Turtle",
+    typeName: "The Deep Turtle",
+    highDimensions: ["filter", "sensory", "time"],
+    priority: 30,
+    explanation: "Inattentive + Sensory + Executive profile.",
+    traits: "Deliberate pace, overload vulnerability, transition friction.",
+    solution: "Calm workspace + visible task sequencing.",
+    childPerspective: "",
+  },
+  {
+    id: "macaw",
+    animal: "The Macaw",
+    typeName: "The Bold Macaw",
+    highDimensions: ["engine", "fuse", "social"],
+    priority: 30,
+    explanation: "Hyperactive + Emotional + Social profile.",
+    traits: "Expressive intensity in relationships and group settings.",
+    solution: "Channel social energy into defined helper/leader roles.",
+    childPerspective: "",
+  },
+  {
+    id: "whale",
+    animal: "The Whale",
+    typeName: "The Gentle Whale",
+    highDimensions: ["sensory", "fuse", "social"],
+    priority: 25,
+    explanation: "Sensory + Emotional + Social profile.",
+    traits: "Deeply affected by environments and interpersonal tone.",
+    solution: "Protective sensory boundaries and relational safety cues.",
+    childPerspective: "",
+  },
+  {
+    id: "beaver",
+    animal: "The Beaver",
+    typeName: "The Architect Beaver",
+    highDimensions: ["filter", "social", "time", "sensory"],
+    priority: 20,
+    explanation: "Inattentive + Sensory + Executive + Social profile.",
+    traits: "Needs high structure to feel safe and effective.",
+    solution: "Consistent routines and transition previews.",
+    childPerspective: "",
+  },
+  {
+    id: "hawk",
+    animal: "The Hawk",
+    typeName: "The Guardian Hawk",
     highDimensions: ["social", "fuse", "sensory", "engine"],
-    explanation:
-      'Always on "high alert" for rules, fairness, and potential threats.',
-    traits:
-      'Protective, blunt, hyper-aware, struggles with "authority."',
-    solution:
-      'Collaborative Problem Solving: Giving them a say in the rules so they feel like a "partner," not a "subject."',
+    priority: 25,
+    explanation: "Social + Emotional + Sensory + Hyperactive profile.",
+    traits: "Protective, alert, and highly reactive under social stress.",
+    solution: "Shared rules, predictable social scripts, and decompression.",
     childPerspective: "",
-  },
-  {
-    id: "chameleon",
-    animal: "The Chameleon",
-    typeName: "The Multi-Processor",
-    highDimensions: [
-      "filter",
-      "engine",
-      "sensory",
-      "fuse",
-      "time",
-      "social",
-    ],
-    explanation:
-      'A "Multi-Processor" who changes based on the overwhelming input of the world. High Scores in 4+ categories.',
-    traits:
-      "Vibrant, highly creative, but prone to total system burnout. High support needs.",
-    solution:
-      'Pacing & Rest: Reducing the daily "cognitive load" by 30% to prevent "The Crash."',
-    childPerspective:
-      '"The whole world is coming at me all at once."',
   },
 ];
 
@@ -603,49 +591,44 @@ export function computeScores(
 }
 
 /**
- * Match the best archetype based on which dimensions score "High" (13+).
- * Uses overlap scoring: archetype with highest match ratio wins.
- * Tie-break: prefer archetypes with fewer required dimensions (more specific).
+ * Match the best archetype using weighted-fit scoring:
+ * - Primary signal: average score across an archetype's required dimensions
+ * - Secondary signal: configured priority weight (from product ranking)
  */
 export function matchArchetype(scores: TraitScores): Archetype {
-  const highDimensions = CATEGORY_IDS.filter(
-    (id) => getIntensity(scores[id]) === "high",
-  );
-
   let bestArchetype = ARCHETYPES[0];
-  let bestScore = -1;
+  let bestFinalScore = Number.NEGATIVE_INFINITY;
+  let bestAverageScore = Number.NEGATIVE_INFINITY;
 
   for (const arch of ARCHETYPES) {
-    // Count how many of the archetype's required dimensions are High
-    const matchCount = arch.highDimensions.filter((d) =>
-      highDimensions.includes(d),
-    ).length;
-    const matchRatio = matchCount / arch.highDimensions.length;
+    const dimensionScores = arch.highDimensions.map((d) => scores[d]);
+    const avgScore =
+      dimensionScores.reduce((sum, value) => sum + value, 0) /
+      arch.highDimensions.length;
 
-    // Perfect match: all required dimensions are high
-    if (matchRatio === 1 && matchCount > bestScore) {
-      bestScore = matchCount;
+    // Main signal = avgScore; priority is used as a stable tie-break helper.
+    const finalScore = avgScore * 10 + arch.priority;
+
+    if (finalScore > bestFinalScore) {
+      bestFinalScore = finalScore;
+      bestAverageScore = avgScore;
       bestArchetype = arch;
+      continue;
     }
-  }
 
-  // If no perfect match, find best partial match
-  if (bestScore === -1) {
-    let bestPartial = -1;
-
-    for (const arch of ARCHETYPES) {
-      const matchCount = arch.highDimensions.filter((d) =>
-        highDimensions.includes(d),
-      ).length;
-
-      if (matchCount > bestPartial) {
-        bestPartial = matchCount;
+    if (finalScore === bestFinalScore) {
+      // Tie-break #1: prefer stronger direct score fit.
+      if (avgScore > bestAverageScore) {
+        bestAverageScore = avgScore;
         bestArchetype = arch;
-      } else if (
-        matchCount === bestPartial &&
+        continue;
+      }
+
+      // Tie-break #2: prefer more specific (fewer required dimensions).
+      if (
+        avgScore === bestAverageScore &&
         arch.highDimensions.length < bestArchetype.highDimensions.length
       ) {
-        // Prefer more specific archetype on tie
         bestArchetype = arch;
       }
     }

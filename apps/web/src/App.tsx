@@ -23,6 +23,7 @@ function AppRoutes() {
     boolean | null
   >(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [hasChatAccess, setHasChatAccess] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!session) {
@@ -35,14 +36,20 @@ function AppRoutes() {
       .get("/api/onboarding")
       .then((data) => {
         if (!active) return;
-        const d = data as { onboardingCompleted?: boolean; role?: string };
+        const d = data as {
+          onboardingCompleted?: boolean;
+          role?: string;
+          hasChatAccess?: boolean;
+        };
         setOnboardingCompleted(Boolean(d.onboardingCompleted));
         setUserRole(d.role ?? "user");
+        setHasChatAccess(Boolean(d.hasChatAccess));
       })
       .catch(() => {
         if (!active) return;
         setOnboardingCompleted(false);
         setUserRole(null);
+        setHasChatAccess(false);
       })
       .finally(() => {
         if (!active) return;
@@ -55,7 +62,7 @@ function AppRoutes() {
 
   const shouldWaitForOnboarding =
     Boolean(session) &&
-    (onboardingCompleted === null || userRole === null);
+    (onboardingCompleted === null || userRole === null || hasChatAccess === null);
 
   if (loading || shouldWaitForOnboarding) {
     return (
@@ -72,7 +79,9 @@ function AppRoutes() {
 
   const effectiveOnboardingCompleted = session ? onboardingCompleted : null;
   const effectiveUserRole = session ? userRole : null;
+  const effectiveHasChatAccess = session ? hasChatAccess : null;
   const isAdmin = effectiveUserRole === "admin";
+  const canUseChat = isAdmin || effectiveHasChatAccess === true;
   // Admins skip onboarding — it's for parents, not content managers
   const needsOnboarding =
     Boolean(session) && effectiveOnboardingCompleted === false && !isAdmin;
@@ -81,7 +90,9 @@ function AppRoutes() {
     ? "/onboarding"
     : isAdmin && !onboardingCompleted
       ? "/admin"
-      : "/report";
+      : canUseChat
+        ? "/chat"
+        : "/report";
 
   const pageFallback = (
     <div className="min-h-screen bg-harbor-bg flex items-center justify-center">
@@ -135,6 +146,8 @@ function AppRoutes() {
           session ? (
             needsOnboarding ? (
               <Navigate to="/onboarding" />
+            ) : !canUseChat ? (
+              <Navigate to="/report" />
             ) : (
               <ChatPage />
             )

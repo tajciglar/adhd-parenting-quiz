@@ -61,6 +61,19 @@ async function buildRenderedReport(
   });
 }
 
+function resolveRequesterId(request: FastifyRequest): string {
+  const authUser = (request as any).user as { id?: string } | null;
+  if (authUser?.id) return authUser.id;
+
+  const guestHeader = request.headers["x-guest-id"];
+  const guestRaw =
+    typeof guestHeader === "string" && guestHeader.trim().length > 0
+      ? guestHeader.trim().toLowerCase()
+      : (request.ip ?? "anonymous").toLowerCase().replace(/[^a-z0-9_-]/g, "-");
+
+  return `guest_${guestRaw}`;
+}
+
 async function getAuthorizedChild(
   fastify: FastifyInstance,
   request: FastifyRequest,
@@ -99,7 +112,8 @@ async function getAuthorizedChild(
     return null;
   }
 
-  if (child.profile.user.id !== request.user.id) {
+  const requesterId = resolveRequesterId(request);
+  if (child.profile.user.id !== requesterId) {
     await reply.status(403).send({ error: "Forbidden" });
     return null;
   }
@@ -117,7 +131,6 @@ async function getAuthorizedChild(
 export default async function reportRoutes(fastify: FastifyInstance) {
   fastify.get<{ Params: ChildParams }>(
     "/report/:childId",
-    { preHandler: [fastify.authenticate] },
     async (request, reply) => {
       const child = await getAuthorizedChild(fastify, request, reply);
       if (!child) return;
@@ -141,7 +154,6 @@ export default async function reportRoutes(fastify: FastifyInstance) {
   // downloads pdf version of the report
   fastify.get<{ Params: ChildParams }>(
     "/report/:childId/pdf",
-    { preHandler: [fastify.authenticate] },
     async (request, reply) => {
       const child = await getAuthorizedChild(fastify, request, reply);
       if (!child) return;
@@ -181,13 +193,19 @@ export default async function reportRoutes(fastify: FastifyInstance) {
         rateLimit: {
           max: 3,
           timeWindow: "1 hour",
-          keyGenerator: (request) => request.user.id,
+          keyGenerator: (request) => resolveRequesterId(request),
         },
       },
     },
     async (request, reply) => {
       const child = await getAuthorizedChild(fastify, request, reply);
       if (!child) return;
+
+      if (resolveRequesterId(request).startsWith("guest_")) {
+        return reply.status(401).send({
+          error: "Login required to email a report",
+        });
+      }
 
       const report = await buildRenderedReport(fastify, child);
       if (!report) {

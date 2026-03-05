@@ -92,7 +92,7 @@ export default function OnboardingPage() {
     );
   }
 
-  // If completed, redirect to report
+  // If completed, redirect to chat
   if (completed || currentStep > TOTAL_STEPS) {
     navigate("/report");
     return null;

@@ -1,6 +1,7 @@
 import { supabase } from "./supabase";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
+const GUEST_ID_STORAGE_KEY = "harbor_guest_id";
 
 // Cache the token to avoid calling getSession() on every request.
 // Supabase sessions are long-lived; we cache for 30s and refresh on auth changes.
@@ -30,15 +31,44 @@ async function getToken(): Promise<string> {
   return session.access_token;
 }
 
+function getGuestId(): string {
+  if (typeof window === "undefined") return "server";
+
+  let guestId = window.localStorage.getItem(GUEST_ID_STORAGE_KEY);
+  if (guestId) return guestId;
+
+  guestId = crypto.randomUUID();
+  window.localStorage.setItem(GUEST_ID_STORAGE_KEY, guestId);
+  return guestId;
+}
+
+type AuthMode = "required" | "optional" | "none";
+interface RequestOptions {
+  auth?: AuthMode;
+}
+
 async function request(
   method: string,
   path: string,
   body?: unknown,
+  options?: RequestOptions,
 ): Promise<unknown> {
-  const token = await getToken();
+  const authMode = options?.auth ?? "required";
   const headers: Record<string, string> = {
-    Authorization: `Bearer ${token}`,
+    "x-guest-id": getGuestId(),
   };
+
+  if (authMode !== "none") {
+    try {
+      const token = await getToken();
+      headers.Authorization = `Bearer ${token}`;
+    } catch (error) {
+      if (authMode === "required") {
+        throw error;
+      }
+    }
+  }
+
   if (body !== undefined) {
     headers["Content-Type"] = "application/json";
   }
@@ -59,9 +89,14 @@ async function request(
 }
 
 export const api = {
-  get: (path: string) => request("GET", path),
-  patch: (path: string, body: unknown) => request("PATCH", path, body),
-  post: (path: string, body?: unknown) => request("POST", path, body),
-  put: (path: string, body: unknown) => request("PUT", path, body),
-  delete: (path: string) => request("DELETE", path),
+  get: (path: string, options?: RequestOptions) =>
+    request("GET", path, undefined, options),
+  patch: (path: string, body: unknown, options?: RequestOptions) =>
+    request("PATCH", path, body, options),
+  post: (path: string, body?: unknown, options?: RequestOptions) =>
+    request("POST", path, body, options),
+  put: (path: string, body: unknown, options?: RequestOptions) =>
+    request("PUT", path, body, options),
+  delete: (path: string, options?: RequestOptions) =>
+    request("DELETE", path, undefined, options),
 };
