@@ -15,6 +15,16 @@ interface ReportResponse {
 }
 
 const API_URL = import.meta.env.VITE_API_URL || "";
+const GUEST_ID_STORAGE_KEY = "harbor_guest_id";
+
+function getGuestId(): string {
+  if (typeof window === "undefined") return "server";
+  let guestId = window.localStorage.getItem(GUEST_ID_STORAGE_KEY);
+  if (guestId) return guestId;
+  guestId = crypto.randomUUID();
+  window.localStorage.setItem(GUEST_ID_STORAGE_KEY, guestId);
+  return guestId;
+}
 
 export default function ReportPage() {
   const [loading, setLoading] = useState(true);
@@ -29,13 +39,16 @@ export default function ReportPage() {
     setError(null);
 
     try {
-      const onboarding = (await api.get("/api/onboarding")) as OnboardingResponse;
+      const onboarding = (await api.get("/api/onboarding", {
+        auth: "optional",
+      })) as OnboardingResponse;
       if (!onboarding.childId) {
         throw new Error("Missing child profile. Please complete onboarding.");
       }
 
       const report = (await api.get(
         `/api/report/${onboarding.childId}`,
+        { auth: "optional" },
       )) as ReportResponse;
       setReportData(report);
     } catch (err) {
@@ -59,15 +72,16 @@ export default function ReportPage() {
         data: { session },
       } = await supabase.auth.getSession();
 
-      if (!session) {
-        throw new Error("Not authenticated");
+      const headers: Record<string, string> = {
+        "x-guest-id": getGuestId(),
+      };
+      if (session?.access_token) {
+        headers.Authorization = `Bearer ${session.access_token}`;
       }
 
       const res = await fetch(`${API_URL}/api/report/${reportData.childId}/pdf`, {
         method: "GET",
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+        headers,
       });
 
       if (!res.ok) {
@@ -98,7 +112,9 @@ export default function ReportPage() {
     setError(null);
 
     try {
-      await api.post(`/api/report/${reportData.childId}/email`);
+      await api.post(`/api/report/${reportData.childId}/email`, undefined, {
+        auth: "optional",
+      });
       setEmailMessage("Report sent to your email.");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to send email");
