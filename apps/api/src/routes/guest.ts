@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { createHmac } from "crypto";
 import { z } from "zod";
 import {
   computeTraitProfile,
@@ -22,94 +23,35 @@ type AcLogger = {
   warn: (msg: string) => void;
 };
 
-// Upload PDF buffer to AC file manager, return public URL or null
-async function uploadPdfToAC(opts: {
-  pdfBuffer: Buffer;
-  filename: string;
-  apiUrl: string;
-  apiKey: string;
-  logger: AcLogger;
-}): Promise<string | null> {
-  try {
-    const formData = new FormData();
-    formData.append(
-      "file",
-      new Blob([opts.pdfBuffer.buffer as ArrayBuffer], { type: "application/pdf" }),
-      opts.filename,
-    );
+// Build a signed URL that encodes everything needed to regenerate the PDF on demand.
+// No file storage required — Railway generates the PDF when the link is clicked.
+function generatePdfUrl(opts: {
+  archetypeId: string;
+  childName: string;
+  childGender?: string;
+}): string {
+  const baseUrl = (process.env.API_BASE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  const secret = process.env.PDF_SIGNING_SECRET ?? "dev-secret";
 
-    const res = await fetch(`${opts.apiUrl}/api/3/files`, {
-      method: "POST",
-      headers: { "Api-Token": opts.apiKey },
-      body: formData,
-    });
+  const payload = JSON.stringify({
+    archetypeId: opts.archetypeId,
+    childName: opts.childName,
+    childGender: opts.childGender ?? "",
+  });
 
-    if (!res.ok) {
-      opts.logger.warn(`AC file upload failed: ${res.status}`);
-      return null;
-    }
+  const data = Buffer.from(payload).toString("base64url");
+  const sig = createHmac("sha256", secret).update(data).digest("hex");
 
-    const data = (await res.json()) as { file: { url: string } };
-    return data.file.url ?? null;
-  } catch (err) {
-    opts.logger.error({ err }, "guest.submit.ac_file_upload_failed");
-    return null;
-  }
+  return `${baseUrl}/api/guest/pdf?data=${data}&sig=${sig}`;
 }
 
-// Find or create a custom field by perstag, return its ID
-async function getOrCreateAcField(opts: {
-  apiUrl: string;
-  headers: Record<string, string>;
-  perstag: string;
-  title: string;
-  logger: AcLogger;
-}): Promise<string | null> {
-  try {
-    const searchRes = await fetch(
-      `${opts.apiUrl}/api/3/fields?search=${encodeURIComponent(opts.perstag)}`,
-      { headers: opts.headers },
-    );
-    const searchData = (await searchRes.json()) as {
-      fields: Array<{ id: number | string; perstag: string }>;
-    };
-
-    const existing = searchData.fields.find((f) => f.perstag === opts.perstag);
-    if (existing) return String(existing.id);
-
-    const createRes = await fetch(`${opts.apiUrl}/api/3/fields`, {
-      method: "POST",
-      headers: opts.headers,
-      body: JSON.stringify({
-        field: {
-          type: "text",
-          title: opts.title,
-          descript: "",
-          isrequired: "0",
-          perstag: opts.perstag,
-          visible: "1",
-        },
-      }),
-    });
-
-    const createData = (await createRes.json()) as {
-      field: { id: number | string };
-    };
-    return String(createData.field.id);
-  } catch (err) {
-    opts.logger.error({ err }, "guest.submit.ac_field_lookup_failed");
-    return null;
-  }
-}
-
-// Sync contact to AC, upload PDF, store URL as custom field, apply tags
+// Sync contact to AC: store PDF download URL as custom field, subscribe to list, apply tags
 async function syncToActiveCampaign(opts: {
   email: string;
   childName: string;
   archetypeId: string;
   archetypeName: string;
-  pdfBuffer: Buffer;
-  pdfFilename: string;
+  pdfUrl: string;
   logger: AcLogger;
 }): Promise<void> {
   const apiUrl = process.env.AC_API_URL?.replace(/\/$/, "");
@@ -122,16 +64,7 @@ async function syncToActiveCampaign(opts: {
   };
 
   try {
-    // 1. Upload PDF to AC file manager
-    const pdfUrl = await uploadPdfToAC({
-      pdfBuffer: opts.pdfBuffer,
-      filename: opts.pdfFilename,
-      apiUrl,
-      apiKey,
-      logger: opts.logger,
-    });
-
-    // 2. Create or update contact
+    // 1. Create or update contact
     const contactRes = await fetch(`${apiUrl}/api/3/contact/sync`, {
       method: "POST",
       headers,
@@ -148,34 +81,51 @@ async function syncToActiveCampaign(opts: {
     };
     const contactId = String(contactData.contact.id);
 
-    // 3. Store PDF URL as custom field %PDF_URL% on the contact
-    if (pdfUrl) {
-      const fieldId = await getOrCreateAcField({
-        apiUrl,
-        headers,
-        perstag: "PDF_URL",
-        title: "PDF URL",
-        logger: opts.logger,
-      });
+    // 2. Find or create PDF_URL custom field, then set the signed download URL
+    const searchRes = await fetch(
+      `${apiUrl}/api/3/fields?search=${encodeURIComponent("PDF_URL")}`,
+      { headers },
+    );
+    const searchData = (await searchRes.json()) as {
+      fields: Array<{ id: number | string; perstag: string }>;
+    };
 
-      if (fieldId) {
-        await fetch(`${apiUrl}/api/3/fieldValues`, {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            fieldValue: {
-              contact: contactId,
-              field: fieldId,
-              value: pdfUrl,
-            },
-          }),
-        }).catch((err: unknown) => {
-          opts.logger.error({ err }, "guest.submit.ac_field_value_failed");
-        });
-      }
+    let fieldId = String(searchData.fields.find((f) => f.perstag === "PDF_URL")?.id ?? "");
+
+    if (!fieldId || fieldId === "undefined") {
+      const createRes = await fetch(`${apiUrl}/api/3/fields`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          field: {
+            type: "text",
+            title: "PDF URL",
+            descript: "",
+            isrequired: "0",
+            perstag: "PDF_URL",
+            visible: "1",
+          },
+        }),
+      });
+      const createData = (await createRes.json()) as {
+        field?: { id: number | string };
+      };
+      if (createData.field?.id) fieldId = String(createData.field.id);
     }
 
-    // 4. Subscribe contact to master list so automations can fire
+    if (fieldId && fieldId !== "undefined") {
+      await fetch(`${apiUrl}/api/3/fieldValues`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          fieldValue: { contact: contactId, field: fieldId, value: opts.pdfUrl },
+        }),
+      }).catch((err: unknown) => {
+        opts.logger.error({ err }, "guest.submit.ac_field_value_failed");
+      });
+    }
+
+    // 3. Subscribe contact to list so automations fire
     const listId = process.env.AC_LIST_ID;
     if (listId) {
       await fetch(`${apiUrl}/api/3/contactLists`, {
@@ -189,24 +139,26 @@ async function syncToActiveCampaign(opts: {
       });
     }
 
-    // 5. Apply tags: "onboarding-completed" + archetype ID + archetype animal
+    // 4. Apply tags — deduplicated and lowercased to prevent AC duplicate key errors
     const tagNames = [
-      "onboarding-completed",
-      opts.archetypeId,
-      opts.archetypeName,
-    ].filter(Boolean);
+      ...new Set(
+        ["onboarding-completed", opts.archetypeId, opts.archetypeName]
+          .filter(Boolean)
+          .map((t) => t.toLowerCase()),
+      ),
+    ];
 
     for (const tagName of tagNames) {
-      const searchRes = await fetch(
+      const tagSearchRes = await fetch(
         `${apiUrl}/api/3/tags?search=${encodeURIComponent(tagName)}`,
         { headers },
       );
-      const searchData = (await searchRes.json()) as {
+      const tagSearchData = (await tagSearchRes.json()) as {
         tags: Array<{ id: number | string; tag: string }>;
       };
 
       let tagId = String(
-        searchData.tags.find((t) => t.tag === tagName)?.id ?? "",
+        tagSearchData.tags.find((t) => t.tag === tagName)?.id ?? "",
       );
 
       if (!tagId || tagId === "undefined") {
@@ -218,9 +170,9 @@ async function syncToActiveCampaign(opts: {
           }),
         });
         const createData = (await createRes.json()) as {
-          tag: { id: number | string };
+          tag?: { id: number | string };
         };
-        tagId = String(createData.tag.id);
+        if (createData.tag?.id) tagId = String(createData.tag.id);
       }
 
       if (tagId && tagId !== "undefined") {
@@ -255,7 +207,6 @@ async function sendMetaEvent(opts: {
   if (!accessToken || !pixelId) return;
 
   try {
-    // SHA-256 hash the email (required by Meta)
     const encoder = new TextEncoder();
     const data = encoder.encode(opts.email.toLowerCase().trim());
     const hashBuffer = await crypto.subtle.digest("SHA-256", data);
@@ -308,18 +259,18 @@ const submitBodySchema = z.object({
   responses: z.record(z.string(), z.unknown()),
   childName: z.string().min(1).max(100),
   childGender: z.string().optional(),
-  // Meta pixel data from client
   fbc: z.string().optional(),
   fbp: z.string().optional(),
   eventSourceUrl: z.string().optional(),
 });
 
-const pdfBodySchema = z.object({
-  report: z.record(z.string(), z.unknown()),
-  childName: z.string().min(1).max(100),
+const pdfQuerySchema = z.object({
+  data: z.string().min(1),
+  sig: z.string().min(1),
 });
 
 export default async function guestRoutes(fastify: FastifyInstance) {
+  // ── POST /api/guest/submit ──────────────────────────────────────────────────
   fastify.post(
     "/guest/submit",
     {
@@ -346,7 +297,7 @@ export default async function guestRoutes(fastify: FastifyInstance) {
       const traitProfile = computeTraitProfile(responses);
       const archetype = ARCHETYPES.find((a) => a.id === traitProfile.archetypeId);
 
-      // 2. Load report template
+      // 2. Load and render report template
       const rawTemplate = getReportTemplate(traitProfile.archetypeId);
       if (!rawTemplate) {
         request.log.error(
@@ -358,22 +309,19 @@ export default async function guestRoutes(fastify: FastifyInstance) {
         });
       }
 
-      // 3. Render template
       const rendered = renderReportTemplate(rawTemplate, {
         name: childName,
         gender: childGender ?? "Other",
       });
 
-      // 4. Generate PDF
-      let pdfBuffer: Buffer;
-      try {
-        pdfBuffer = await generateReportPdf(rendered, { name: childName });
-      } catch (err) {
-        request.log.error({ err }, "guest.submit.pdf_generation_failed");
-        return reply.status(500).send({ error: "Failed to generate report PDF" });
-      }
+      // 3. Generate signed PDF download URL (no file storage needed)
+      const pdfUrl = generatePdfUrl({
+        archetypeId: traitProfile.archetypeId,
+        childName,
+        childGender,
+      });
 
-      // 5a. Meta CAPI — Lead event (fire and forget, deduped with client-side fbq via event_id)
+      // 4. Meta CAPI — Lead event (fire and forget)
       void sendMetaEvent({
         eventName: "Lead",
         eventId: `lead_${email}_${Date.now()}`,
@@ -386,60 +334,73 @@ export default async function guestRoutes(fastify: FastifyInstance) {
         logger: request.log,
       });
 
-      // 5b. Upload PDF to AC + sync contact + set PDF_URL field + apply tags (fire and forget)
-      //    AC automation reads %PDF_URL% and sends the email after purchase
+      // 5. Sync to AC: store PDF URL, subscribe to list, apply tags (fire and forget)
       void syncToActiveCampaign({
         email,
         childName,
         archetypeId: traitProfile.archetypeId,
         archetypeName: archetype?.animal ?? "",
-        pdfBuffer,
-        pdfFilename: `${toSlug(childName)}-adhd-guide.pdf`,
+        pdfUrl,
         logger: request.log,
       });
 
-      // 6. Return rendered report for sales page (no PDF sent to user yet)
       return reply.send({ report: rendered });
     },
   );
 
-  fastify.post(
-    "/guest/pdf",
-    {
-      config: {
-        rateLimit: {
-          max: 10,
-          timeWindow: "1 hour",
-          keyGenerator: (req) => req.ip,
-        },
-      },
-    },
-    async (request, reply) => {
-      const parsed = pdfBodySchema.safeParse(request.body);
-      if (!parsed.success) {
-        return reply.status(400).send({ error: "Invalid request body" });
-      }
+  // ── GET /api/guest/pdf?data=...&sig=... ────────────────────────────────────
+  // Verifies signature and generates PDF on demand. This URL is stored in AC
+  // and emailed to the user after purchase by the AC automation.
+  fastify.get("/guest/pdf", async (request, reply) => {
+    const parsed = pdfQuerySchema.safeParse(request.query);
+    if (!parsed.success) {
+      return reply.status(400).send({ error: "Missing or invalid parameters" });
+    }
 
-      const { report, childName } = parsed.data;
+    const { data, sig } = parsed.data;
 
-      let pdfBuffer: Buffer;
-      try {
-        pdfBuffer = await generateReportPdf(
-          report as unknown as ArchetypeReportTemplate,
-          { name: childName },
-        );
-      } catch (err) {
-        request.log.error({ err }, "guest.pdf.generation_failed");
-        return reply.status(500).send({ error: "Failed to generate PDF" });
-      }
+    // Verify HMAC signature
+    const secret = process.env.PDF_SIGNING_SECRET ?? "dev-secret";
+    const expected = createHmac("sha256", secret).update(data).digest("hex");
+    if (sig !== expected) {
+      return reply.status(403).send({ error: "Invalid signature" });
+    }
 
-      const filename = `${toSlug(childName)}-adhd-guide.pdf`;
+    // Decode payload
+    let payload: { archetypeId: string; childName: string; childGender?: string };
+    try {
+      payload = JSON.parse(Buffer.from(data, "base64url").toString()) as typeof payload;
+    } catch {
+      return reply.status(400).send({ error: "Malformed token" });
+    }
 
-      reply
-        .header("Content-Type", "application/pdf")
-        .header("Content-Disposition", `attachment; filename="${filename}"`);
+    const { archetypeId, childName, childGender } = payload;
 
-      return reply.send(pdfBuffer);
-    },
-  );
+    // Regenerate report and PDF
+    const rawTemplate = getReportTemplate(archetypeId);
+    if (!rawTemplate) {
+      return reply.status(422).send({ error: "Report template not found" });
+    }
+
+    const rendered = renderReportTemplate(rawTemplate, {
+      name: childName,
+      gender: childGender || "Other",
+    });
+
+    let pdfBuffer: Buffer;
+    try {
+      pdfBuffer = await generateReportPdf(rendered as ArchetypeReportTemplate, { name: childName });
+    } catch (err) {
+      request.log.error({ err }, "guest.pdf.generation_failed");
+      return reply.status(500).send({ error: "Failed to generate PDF" });
+    }
+
+    const filename = `${toSlug(childName)}-adhd-guide.pdf`;
+
+    reply
+      .header("Content-Type", "application/pdf")
+      .header("Content-Disposition", `attachment; filename="${filename}"`);
+
+    return reply.send(pdfBuffer);
+  });
 }
