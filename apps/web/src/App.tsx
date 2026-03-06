@@ -1,7 +1,6 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-const LandingPage = lazy(() => import("./components/LandingPage"));
 const OnboardingPage = lazy(
   () => import("./components/onboarding/OnboardingPage"),
 );
@@ -22,11 +21,11 @@ export default function App() {
     <BrowserRouter>
       <Suspense fallback={pageFallback}>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<Navigate to="/onboarding" replace />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/results" element={<SalesPage />} />
           <Route path="/report" element={<ReportPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/onboarding" replace />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

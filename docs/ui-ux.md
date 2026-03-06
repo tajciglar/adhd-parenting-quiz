@@ -129,6 +129,8 @@ Encouraging italic text in `text-harbor-accent` at key transitions:
 
 ## Key Pages
 
+> **Note:** `LandingPage.tsx` has been archived to `components/_archived/`. The app now routes `/` directly to `/onboarding`.
+
 ### Auth Page
 - Harbor branding: "Harbor" heading + tagline
 - Toggle between Sign in / Sign up
