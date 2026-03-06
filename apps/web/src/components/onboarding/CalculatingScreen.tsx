@@ -100,7 +100,7 @@ export default function CalculatingScreen({
   // ─── Analyzing phase ──────────────────────────────────────────────────────
   if (phase === "analyzing") {
     return (
-      <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6">
+      <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6 py-12">
         <div className="max-w-sm w-full space-y-10 text-center">
           <div className="space-y-3">
             <div className="text-5xl animate-pulse">🧠</div>
@@ -139,9 +139,9 @@ export default function CalculatingScreen({
 
   // ─── Email capture phase ─────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6">
+    <div className="min-h-screen bg-harbor-bg flex items-start justify-center px-6 pt-16 pb-8">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-8 space-y-6">
+        <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-6 space-y-5">
           <div className="text-center space-y-2">
             <div className="text-4xl">🎯</div>
             <h2 className="text-2xl font-bold text-harbor-primary">We found it!</h2>
@@ -159,7 +159,6 @@ export default function CalculatingScreen({
                 if (e.key === "Enter" && isValid) void handleSubmit();
               }}
               placeholder="you@example.com"
-              autoFocus
               disabled={phase === "submitting"}
               className="w-full rounded-xl border border-harbor-text/20 bg-harbor-bg px-4 py-3 text-harbor-text placeholder:text-harbor-text/30 focus:outline-none focus:ring-2 focus:ring-harbor-primary/30 focus:border-harbor-primary transition"
             />

@@ -28,7 +28,7 @@ export default function NumberInput({
       {subtitle && (
         <p className="text-harbor-text/50 mb-8">{subtitle}</p>
       )}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-center gap-4">
         <button
           onClick={decrement}
           disabled={value === undefined || value <= 0}

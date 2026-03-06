@@ -43,9 +43,9 @@ function IntroScreen({
   onReady: () => void;
 }) {
   return (
-    <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-8 space-y-6">
+    <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6 py-8">
+      <div className="max-w-md w-full overflow-y-auto">
+        <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-6 space-y-5">
           <div className="text-center">
             <div className="text-4xl mb-4">🔍</div>
             <h2 className="text-xl font-bold text-harbor-primary leading-snug">

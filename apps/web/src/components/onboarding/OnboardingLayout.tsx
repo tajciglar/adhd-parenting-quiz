@@ -24,7 +24,7 @@ export default function OnboardingLayout({
     <div className="min-h-screen bg-harbor-bg">
       <ProgressBar current={currentStep} />
 
-      <div className="max-w-xl mx-auto px-6 py-12 pt-16">
+      <div className="max-w-xl mx-auto px-6 py-8 pt-12">
         <SaveIndicator status={saveStatus} />
 
         <div className="mt-4 mb-12">{children}</div>
