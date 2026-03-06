@@ -1,125 +1,178 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { api } from "../../lib/api";
+import { clearOnboardingStorage } from "../../hooks/useOnboarding";
+import type { ArchetypeReportTemplate } from "@adhd-ai-assistant/shared";
+import type { OnboardingResponses } from "../../types/onboarding";
 
-const STAGES = [
-  { label: "Reading response patterns", duration: 700 },
-  { label: "Mapping emotional regulation profile", duration: 900 },
-  { label: "Scoring executive function indicators", duration: 800 },
-  { label: "Cross-referencing attention markers", duration: 750 },
-  { label: "Analysing sensory processing signals", duration: 850 },
-  { label: "Identifying archetype match", duration: 1100 },
-  { label: "Generating personalised insights", duration: 950 },
+const LINES = [
+  "Reviewing attention patterns...",
+  "Mapping sensory responses...",
+  "Identifying emotional profile...",
+  "Matching executive function traits...",
+  "Cross-referencing social patterns...",
+  "Finding [NAME]'s Wildprint...",
 ];
 
-function ProgressBar({ duration, label, onComplete }: {
-  duration: number;
-  label: string;
-  onComplete: () => void;
-}) {
-  const [progress, setProgress] = useState(0);
-  const [done, setDone] = useState(false);
+type Phase = "analyzing" | "email" | "submitting";
 
+export default function CalculatingScreen({
+  responses,
+}: {
+  responses: OnboardingResponses;
+}) {
+  const navigate = useNavigate();
+  const childName = (responses.childName as string | undefined) ?? "your child";
+  const childGender = responses.childGender as string | undefined;
+
+  const [phase, setPhase] = useState<Phase>("analyzing");
+  const [lineIndex, setLineIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [email, setEmail] = useState("");
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const lines = LINES.map((l) => l.replace("[NAME]", childName));
+  const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  // Progress fills over 4.5–6s then transitions to email phase
   useEffect(() => {
-    // Fast initial surge to ~30%, then slower fill, brief pause before 100%
-    const steps = 60;
+    const duration = 4500 + Math.random() * 1500;
+    const steps = 100;
     const interval = duration / steps;
     let tick = 0;
 
     const timer = setInterval(() => {
       tick++;
-      // Ease-in-out curve: fast start, slows in middle, finishes cleanly
-      const t = tick / steps;
-      const eased = t < 0.5
-        ? 4 * t * t * t
-        : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      const jitter = (Math.random() - 0.5) * 3;
-      const val = Math.min(100, Math.max(0, eased * 100 + jitter));
-      setProgress(val);
-
+      setProgress(tick);
       if (tick >= steps) {
         clearInterval(timer);
-        setProgress(100);
-        setDone(true);
-        onComplete();
+        setTimeout(() => setPhase("email"), 400);
       }
     }, interval);
 
     return () => clearInterval(timer);
-  }, [duration, onComplete]);
-
-  return (
-    <div className="space-y-1.5">
-      <div className="flex justify-between items-center">
-        <span className="text-sm text-harbor-text/70">{label}</span>
-        <span className="text-xs font-mono text-harbor-primary/60">
-          {done ? "✓" : `${Math.round(progress)}%`}
-        </span>
-      </div>
-      <div className="h-1.5 bg-harbor-text/10 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-harbor-primary rounded-full transition-all"
-          style={{
-            width: `${progress}%`,
-            transitionDuration: "80ms",
-            transitionTimingFunction: "linear",
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-export default function CalculatingScreen({ onDone }: { onDone: () => void }) {
-  const [activeStage, setActiveStage] = useState(0);
-  const [completedCount, setCompletedCount] = useState(0);
-
-  // Show stages sequentially — each bar starts when the previous one is ~70% done
-  useEffect(() => {
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    let elapsed = 0;
-
-    STAGES.forEach((stage, i) => {
-      const delay = elapsed + (i === 0 ? 0 : Math.round(STAGES[i - 1].duration * 0.55));
-      elapsed += Math.round(stage.duration * 0.55);
-      timers.push(setTimeout(() => setActiveStage(i), delay));
-    });
-
-    return () => timers.forEach(clearTimeout);
   }, []);
 
-  const handleBarComplete = () => {
-    setCompletedCount((n) => {
-      const next = n + 1;
-      if (next === STAGES.length) {
-        setTimeout(onDone, 400);
-      }
-      return next;
-    });
-  };
+  // Rotate lines every 1.5s while analyzing
+  useEffect(() => {
+    if (phase !== "analyzing") return;
+    const timer = setInterval(() => {
+      setLineIndex((i) => (i + 1) % lines.length);
+    }, 1500);
+    return () => clearInterval(timer);
+  }, [phase, lines.length]);
 
+  const handleSubmit = useCallback(async () => {
+    if (!isValid || phase === "submitting") return;
+    setPhase("submitting");
+    setSubmitError(null);
+
+    try {
+      const result = (await api.post("/api/guest/submit", {
+        email,
+        responses,
+        childName,
+        childGender,
+      })) as { report: ArchetypeReportTemplate };
+
+      clearOnboardingStorage();
+      navigate("/results", {
+        state: { report: result.report, email, childName, childGender },
+        replace: true,
+      });
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again.",
+      );
+      setPhase("email");
+    }
+  }, [isValid, phase, email, responses, childName, childGender, navigate]);
+
+  // ─── Analyzing phase ──────────────────────────────────────────────────────
+  if (phase === "analyzing") {
+    return (
+      <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6">
+        <div className="max-w-sm w-full space-y-10 text-center">
+          <div className="space-y-3">
+            <div className="text-5xl animate-pulse">🧠</div>
+            <h2 className="text-2xl font-bold text-harbor-primary">
+              Analysing {childName}'s profile…
+            </h2>
+            <p
+              key={lineIndex}
+              className="text-sm text-harbor-text/60 min-h-[1.25rem]"
+              style={{ animation: "fadeIn 0.4s ease" }}
+            >
+              {lines[lineIndex]}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="h-2 bg-harbor-text/10 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-harbor-accent rounded-full"
+                style={{
+                  width: `${progress}%`,
+                  transition: "width 200ms linear",
+                }}
+              />
+            </div>
+            <p className="text-xs text-harbor-text/30 tabular-nums">{progress}%</p>
+          </div>
+        </div>
+
+        <style>{`
+          @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+        `}</style>
+      </div>
+    );
+  }
+
+  // ─── Email capture phase ─────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-8 space-y-6">
           <div className="text-center space-y-2">
-            <div className="text-3xl animate-pulse">🧠</div>
-            <h2 className="text-xl font-bold text-harbor-primary">
-              Preparing {String.fromCharCode(8203)}{/* zero-width keeps line short */}
-              your child's report
-            </h2>
-            <p className="text-sm text-harbor-text/50">
-              Analysing {completedCount} of {STAGES.length} dimensions…
+            <div className="text-4xl">🎯</div>
+            <h2 className="text-2xl font-bold text-harbor-primary">We found it!</h2>
+            <p className="text-harbor-text/70">
+              Enter your email to get {childName}'s Wildprint:
             </p>
           </div>
 
-          <div className="space-y-4">
-            {STAGES.slice(0, activeStage + 1).map((stage, i) => (
-              <ProgressBar
-                key={stage.label}
-                label={stage.label}
-                duration={stage.duration}
-                onComplete={i === activeStage ? handleBarComplete : () => {}}
-              />
-            ))}
+          <div className="space-y-3">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && isValid) void handleSubmit();
+              }}
+              placeholder="you@example.com"
+              autoFocus
+              disabled={phase === "submitting"}
+              className="w-full rounded-xl border border-harbor-text/20 bg-harbor-bg px-4 py-3 text-harbor-text placeholder:text-harbor-text/30 focus:outline-none focus:ring-2 focus:ring-harbor-primary/30 focus:border-harbor-primary transition"
+            />
+
+            {submitError ? (
+              <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">
+                {submitError}
+              </p>
+            ) : null}
+
+            <button
+              type="button"
+              onClick={() => void handleSubmit()}
+              disabled={!isValid || phase === "submitting"}
+              className="w-full rounded-xl bg-harbor-primary text-white px-5 py-3 font-medium hover:opacity-90 transition disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {phase === "submitting" ? "Preparing…" : "Show me the Wildprint →"}
+            </button>
+
+            <p className="text-xs text-center text-harbor-text/40">
+              Enter a valid email to save and access your results. We don't spam or sell data.
+            </p>
           </div>
         </div>
       </div>

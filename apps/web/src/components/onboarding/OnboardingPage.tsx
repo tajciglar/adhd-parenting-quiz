@@ -1,16 +1,16 @@
 import { useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useOnboarding, clearOnboardingStorage } from "../../hooks/useOnboarding";
+import { useOnboarding } from "../../hooks/useOnboarding";
 import { TOTAL_STEPS } from "../../lib/constants";
 import { getStepConfig } from "@adhd-ai-assistant/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
-import type { ArchetypeReportTemplate } from "@adhd-ai-assistant/shared";
-import { api } from "../../lib/api";
 import OnboardingLayout from "./OnboardingLayout";
 import AnimationWrapper from "./AnimationWrapper";
 import StepRenderer from "./StepRenderer";
 import MicroCopy from "./MicroCopy";
 import CalculatingScreen from "./CalculatingScreen";
+
+// Steps 1-6 are basic info; step 7 is the first Likert question
+const BASIC_INFO_COUNT = 6;
 
 function isStepValid(step: number, responses: OnboardingResponses): boolean {
   const config = getStepConfig(step);
@@ -35,78 +35,41 @@ function isStepValid(step: number, responses: OnboardingResponses): boolean {
   return typeof val === "number" && val >= 0 && val <= 3;
 }
 
-function EmailStep({
-  responses,
-  onSubmit,
-  submitting,
-  submitError,
+function IntroScreen({
+  childName,
+  onReady,
 }: {
-  responses: OnboardingResponses;
-  onSubmit: (email: string) => void;
-  submitting: boolean;
-  submitError: string | null;
+  childName: string;
+  onReady: () => void;
 }) {
-  const [email, setEmail] = useState("");
-  const childName = responses.childName ?? "your child";
-  const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
   return (
     <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-8">
-          <div className="mb-6 text-center">
-            <div className="text-4xl mb-3">🎉</div>
-            <h1 className="text-2xl font-bold text-harbor-primary mb-2">
-              Almost there!
-            </h1>
-            <p className="text-harbor-text/70">
-              Where should we send {childName}'s personalised ADHD guide?
-            </p>
+        <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-8 space-y-6">
+          <div className="text-center">
+            <div className="text-4xl mb-4">🔍</div>
+            <h2 className="text-xl font-bold text-harbor-primary leading-snug">
+              You're about to discover {childName}'s unique brain profile
+            </h2>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-harbor-text mb-1.5"
-              >
-                Email address
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && isValid && !submitting) {
-                    onSubmit(email);
-                  }
-                }}
-                placeholder="you@example.com"
-                autoFocus
-                className="w-full rounded-xl border border-harbor-text/20 bg-harbor-bg px-4 py-3 text-harbor-text placeholder:text-harbor-text/30 focus:outline-none focus:ring-2 focus:ring-harbor-primary/30 focus:border-harbor-primary transition"
-              />
-            </div>
+          <p className="text-harbor-text/70 leading-relaxed">
+            Their strengths, their struggles, and the hidden superpower most
+            people around them completely miss.
+          </p>
 
-            {submitError ? (
-              <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">
-                {submitError}
-              </p>
-            ) : null}
+          <p className="text-harbor-text/70 leading-relaxed">
+            Answer based on what you actually see. The more honest you are, the
+            more accurate {childName}'s profile will be.
+          </p>
 
-            <button
-              type="button"
-              onClick={() => onSubmit(email)}
-              disabled={!isValid || submitting}
-              className="w-full rounded-xl bg-harbor-primary text-white px-5 py-3 font-medium hover:opacity-90 transition disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {submitting ? "Preparing your guide..." : "Send my results →"}
-            </button>
-
-            <p className="text-xs text-center text-harbor-text/40">
-              We'll email you the PDF guide and show your results here.
-            </p>
-          </div>
+          <button
+            type="button"
+            onClick={onReady}
+            className="w-full rounded-xl bg-harbor-primary text-white px-5 py-3 font-medium hover:opacity-90 active:scale-[0.98] transition-all"
+          >
+            I'm ready →
+          </button>
         </div>
       </div>
     </div>
@@ -122,14 +85,13 @@ export default function OnboardingPage() {
     goNext,
     goBack,
   } = useOnboarding();
-  const navigate = useNavigate();
 
+  const [showIntro, setShowIntro] = useState(false);
   const [showCalculating, setShowCalculating] = useState(false);
-  const [showEmailStep, setShowEmailStep] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleShowEmailStep = useCallback(() => {
+  const childName = (responses.childName as string | undefined) ?? "your child";
+
+  const handleShowCalculating = useCallback(() => {
     setShowCalculating(true);
   }, []);
 
@@ -153,61 +115,30 @@ export default function OnboardingPage() {
       if (shouldAutoAdvance) {
         setTimeout(() => {
           if (step === TOTAL_STEPS) {
-            handleShowEmailStep();
+            handleShowCalculating();
+          } else if (step === BASIC_INFO_COUNT) {
+            setShowIntro(true);
           } else {
             goNext();
           }
         }, 50);
       }
     },
-    [saveAnswer, goNext, handleShowEmailStep],
+    [saveAnswer, goNext, handleShowCalculating],
   );
 
-  const handleSubmit = useCallback(
-    async (email: string) => {
-      setSubmitting(true);
-      setSubmitError(null);
-
-      try {
-        const result = (await api.post("/api/guest/submit", {
-          email,
-          responses,
-          childName: responses.childName ?? "Your child",
-          childGender: responses.childGender,
-        })) as { report: ArchetypeReportTemplate };
-
-        clearOnboardingStorage();
-        navigate("/report", {
-          state: { report: result.report, email },
-          replace: true,
-        });
-      } catch (err) {
-        setSubmitError(
-          err instanceof Error
-            ? err.message
-            : "Something went wrong. Please try again.",
-        );
-      } finally {
-        setSubmitting(false);
-      }
-    },
-    [responses, navigate],
-  );
-
-  // PDF download directly using the raw report JSON returned from submit
-  // (only used if user navigates back — normally goes to /report)
-
-  if (showCalculating && !showEmailStep) {
-    return <CalculatingScreen onDone={() => setShowEmailStep(true)} />;
+  if (showCalculating) {
+    return <CalculatingScreen responses={responses} />;
   }
 
-  if (showEmailStep) {
+  if (showIntro) {
     return (
-      <EmailStep
-        responses={responses}
-        onSubmit={(email) => void handleSubmit(email)}
-        submitting={submitting}
-        submitError={submitError}
+      <IntroScreen
+        childName={childName}
+        onReady={() => {
+          setShowIntro(false);
+          goNext();
+        }}
       />
     );
   }
@@ -222,7 +153,9 @@ export default function OnboardingPage() {
       onBack={goBack}
       onContinue={() => {
         if (currentStep === TOTAL_STEPS) {
-          handleShowEmailStep();
+          handleShowCalculating();
+        } else if (currentStep === BASIC_INFO_COUNT) {
+          setShowIntro(true);
         } else {
           goNext();
         }
