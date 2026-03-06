@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm run build:shared && pnpm --filter web build",
+  "buildCommand": "pnpm -w run build:shared && pnpm --filter web build",
   "outputDirectory": "apps/web/dist",
   "installCommand": "pnpm install",
   "framework": "vite",
