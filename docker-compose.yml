@@ -34,7 +34,7 @@ services:
       NODE_ENV: development
       PORT: "3001"
       HOST: "0.0.0.0"
-      CORS_ORIGIN: "http://localhost:3000"
+      CORS_ORIGIN: "http://localhost:3000,http://localhost:3002,http://localhost:5173"
     volumes:
       - ./apps/api/src:/app/apps/api/src
       - ./apps/api/prisma:/app/apps/api/prisma

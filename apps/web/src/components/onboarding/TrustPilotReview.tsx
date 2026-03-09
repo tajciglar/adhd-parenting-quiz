@@ -5,7 +5,7 @@ export function TrustPilotReview() {
       <img
         src="/adhd-parenting-logo.png"
         alt="ADHD Parenting"
-        className="h-10 object-contain"
+        className="h-16 object-contain"
       />
 
       {/* Trustpilot rating */}
