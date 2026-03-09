@@ -42,51 +42,38 @@ export interface BasicInfoQuestion {
 export const BASIC_INFO_QUESTIONS: BasicInfoQuestion[] = [
   {
     type: "single-select",
-    key: "parentGender",
-    title: "Your Gender",
+    key: "caregiverType",
+    title: "You are",
     emoji: "🧑",
-    options: ["Male", "Female", "Non-binary/Other"],
+    options: ["Mom", "Dad", "Grandma / Grandpa", "Other Caregiver"],
   },
   {
     type: "single-select",
-    key: "parentAgeRange",
-    title: "Your Age Range",
-    emoji: "📅",
-    options: ["18–30", "31–45", "46–60", "61+"],
-  },
-  {
-    type: "text",
-    key: "childName",
-    title: "Child's Name",
-    emoji: "🌟",
-    placeholder: "First name",
-  },
-  {
-    type: "number",
-    key: "childAge",
-    title: "Child's Age",
+    key: "childAgeRange",
+    title: "How old is your child?",
     emoji: "🎂",
-    min: 1,
-    max: 25,
+    options: ["3-5", "6-8", "9-11", "12-14", "15+"],
   },
   {
     type: "single-select",
     key: "childGender",
-    title: "Child's Gender",
+    title: "You are raising:",
     emoji: "🌈",
-    options: ["Male", "Female", "Non-binary/Other"],
+    options: ["A Boy", "A Girl", "A Non-binary/Other"],
   },
   {
     type: "single-select",
-    key: "householdStructure",
-    title: "Household Structure",
-    emoji: "🏠",
-    options: [
-      "Two-parent household",
-      "Single-parent household",
-      "Co-parenting (separate households)",
-      "Multi-generational (grandparents/relatives living in)",
-    ],
+    key: "adhdJourney",
+    title: "Where are you on the ADHD journey?",
+    emoji: "🧩",
+    options: ["Formally diagnosed", "Self-diagnosed", "Suspected — figuring it out"],
+  },
+  {
+    type: "text",
+    key: "childName",
+    title: "Your Child's Name",
+    emoji: "🌟",
+    placeholder: "First name",
   },
 ];
 
@@ -264,7 +251,7 @@ export const ARCHETYPES: Archetype[] = [
 
 // ─── Step Configuration ─────────────────────────────────────────────────────
 
-export const TOTAL_STEPS = 45;
+export const TOTAL_STEPS = 44;
 const BASIC_INFO_COUNT = BASIC_INFO_QUESTIONS.length; // 6
 
 /** Flat list of all Likert questions with their category info */

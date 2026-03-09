@@ -10,14 +10,14 @@ interface PronounSet {
 }
 
 function getPronounSet(gender: string): PronounSet {
-  switch (gender) {
-    case "Male":
-      return { subject: "he", possessive: "his", object: "him", reflexive: "himself" };
-    case "Female":
-      return { subject: "she", possessive: "her", object: "her", reflexive: "herself" };
-    default:
-      return { subject: "they", possessive: "their", object: "them", reflexive: "themselves" };
+  const g = gender.toLowerCase();
+  if (g === "male" || g.includes("boy")) {
+    return { subject: "he", possessive: "his", object: "him", reflexive: "himself" };
   }
+  if (g === "female" || g.includes("girl")) {
+    return { subject: "she", possessive: "her", object: "her", reflexive: "herself" };
+  }
+  return { subject: "they", possessive: "their", object: "them", reflexive: "themselves" };
 }
 
 /**

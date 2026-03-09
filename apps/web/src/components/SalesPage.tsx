@@ -12,18 +12,18 @@ interface LocationState {
 
 function getPronouns(gender?: string) {
   const g = (gender ?? "").toLowerCase();
-  if (g === "male" || g === "boy") return { sub: "He", obj: "him", pos: "his" };
-  if (g === "female" || g === "girl") return { sub: "She", obj: "her", pos: "her" };
+  if (g === "male" || g.includes("boy")) return { sub: "He", obj: "him", pos: "his" };
+  if (g === "female" || g.includes("girl")) return { sub: "She", obj: "her", pos: "her" };
   return { sub: "They", obj: "them", pos: "their" };
 }
 
 const WHATS_INSIDE = [
-  "The full breakdown of [NAME]'s ADHD archetype",
-  "What drains [NAME]'s energy — and what fills it back up",
-  "How to support [THEM] when [THEY] are overwhelmed",
-  "The exact phrases that help — and the ones that backfire",
-  "[NAME]'s hidden strengths most people around [THEM] miss",
-  "A personalised daily framework for school and home",
+  "The neuroscience behind [NAME]'s specific profile — in plain language",
+  "A Day in [NAME]'s Life — four scenarios that will make you say \"that's exactly us\"",
+  "What drains [NAME] and what fuels [THEM] — a practical reference you'll use every week",
+  "What to say — and what never to say — to [NAME] in hard moments",
+  "[NAME]'s hidden superpower — the thing most people miss entirely",
+  "What [NAME] needs to hear most",
 ];
 
 export default function SalesPage() {

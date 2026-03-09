@@ -16,9 +16,11 @@ interface StepRendererProps {
 function interpolate(template: string, responses: OnboardingResponses): string {
   const childName = (responses.childName as string) || "your child";
   const gender = ((responses.childGender as string) ?? "").toLowerCase();
-  const pos = gender === "male" ? "his" : gender === "female" ? "her" : "their";
-  const obj = gender === "male" ? "him" : gender === "female" ? "her" : "them";
-  const sub = gender === "male" ? "he" : gender === "female" ? "she" : "they";
+  const isMale = gender === "male" || gender.includes("boy");
+  const isFemale = gender === "female" || gender.includes("girl");
+  const pos = isMale ? "his" : isFemale ? "her" : "their";
+  const obj = isMale ? "him" : isFemale ? "her" : "them";
+  const sub = isMale ? "he" : isFemale ? "she" : "they";
 
   return template
     .replace(/\{childName\}/g, childName)

@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { useOnboarding } from "../../hooks/useOnboarding";
 import { TOTAL_STEPS } from "../../lib/constants";
-import { getStepConfig, ASSESSMENT_CATEGORIES } from "@adhd-ai-assistant/shared";
+import { getStepConfig, ASSESSMENT_CATEGORIES, BASIC_INFO_QUESTIONS } from "@adhd-ai-assistant/shared";
 import type { CategoryId } from "@adhd-ai-assistant/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
 import OnboardingLayout from "./OnboardingLayout";
@@ -11,8 +11,8 @@ import MicroCopy from "./MicroCopy";
 import CalculatingScreen from "./CalculatingScreen";
 import InterstitialScreen from "./InterstitialScreen";
 
-// Steps 1-6 are basic info; step 7 is the first Likert question
-const BASIC_INFO_COUNT = 6;
+// Derived from shared package so it stays in sync automatically
+const BASIC_INFO_COUNT = BASIC_INFO_QUESTIONS.length;
 
 // Last step of each category except the last → triggers an interstitial card
 // e.g. with 7+7+7+6+6+6 questions: steps 13, 20, 27, 33, 39
