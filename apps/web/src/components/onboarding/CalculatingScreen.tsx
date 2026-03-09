@@ -125,6 +125,16 @@ export default function CalculatingScreen({
             If you're here for a different child, just use a different email
             address and we'll create a brand new profile for them.
           </p>
+          <button
+            type="button"
+            onClick={() => {
+              setEmail("");
+              setPhase("email");
+            }}
+            className="w-full rounded-xl bg-harbor-primary text-white px-5 py-3 font-medium hover:opacity-90 active:scale-[0.98] transition-all"
+          >
+            Try a different email →
+          </button>
         </div>
       </div>
     );
