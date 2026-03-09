@@ -1,16 +1,29 @@
 import { useCallback, useState } from "react";
 import { useOnboarding } from "../../hooks/useOnboarding";
 import { TOTAL_STEPS } from "../../lib/constants";
-import { getStepConfig } from "@adhd-ai-assistant/shared";
+import { getStepConfig, ASSESSMENT_CATEGORIES } from "@adhd-ai-assistant/shared";
+import type { CategoryId } from "@adhd-ai-assistant/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
 import OnboardingLayout from "./OnboardingLayout";
 import AnimationWrapper from "./AnimationWrapper";
 import StepRenderer from "./StepRenderer";
 import MicroCopy from "./MicroCopy";
 import CalculatingScreen from "./CalculatingScreen";
+import InterstitialScreen from "./InterstitialScreen";
 
 // Steps 1-6 are basic info; step 7 is the first Likert question
 const BASIC_INFO_COUNT = 6;
+
+// Last step of each category except the last → triggers an interstitial card
+// e.g. with 7+7+7+6+6+6 questions: steps 13, 20, 27, 33, 39
+const INTERSTITIAL_TRIGGER_STEPS = new Map<number, CategoryId>();
+{
+  let offset = BASIC_INFO_COUNT;
+  for (let i = 0; i < ASSESSMENT_CATEGORIES.length - 1; i++) {
+    offset += ASSESSMENT_CATEGORIES[i].questions.length;
+    INTERSTITIAL_TRIGGER_STEPS.set(offset, ASSESSMENT_CATEGORIES[i].id as CategoryId);
+  }
+}
 
 function isStepValid(step: number, responses: OnboardingResponses): boolean {
   const config = getStepConfig(step);
@@ -88,6 +101,7 @@ export default function OnboardingPage() {
 
   const [showIntro, setShowIntro] = useState(false);
   const [showCalculating, setShowCalculating] = useState(false);
+  const [interstitialCategory, setInterstitialCategory] = useState<CategoryId | null>(null);
 
   const childName = (responses.childName as string | undefined) ?? "your child";
 
@@ -118,6 +132,8 @@ export default function OnboardingPage() {
             handleShowCalculating();
           } else if (step === BASIC_INFO_COUNT) {
             setShowIntro(true);
+          } else if (INTERSTITIAL_TRIGGER_STEPS.has(step)) {
+            setInterstitialCategory(INTERSTITIAL_TRIGGER_STEPS.get(step)!);
           } else {
             goNext();
           }
@@ -129,6 +145,18 @@ export default function OnboardingPage() {
 
   if (showCalculating) {
     return <CalculatingScreen responses={responses} />;
+  }
+
+  if (interstitialCategory) {
+    return (
+      <InterstitialScreen
+        categoryId={interstitialCategory}
+        onContinue={() => {
+          setInterstitialCategory(null);
+          goNext();
+        }}
+      />
+    );
   }
 
   if (showIntro) {
@@ -156,6 +184,8 @@ export default function OnboardingPage() {
           handleShowCalculating();
         } else if (currentStep === BASIC_INFO_COUNT) {
           setShowIntro(true);
+        } else if (INTERSTITIAL_TRIGGER_STEPS.has(currentStep)) {
+          setInterstitialCategory(INTERSTITIAL_TRIGGER_STEPS.get(currentStep)!);
         } else {
           goNext();
         }
