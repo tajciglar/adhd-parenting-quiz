@@ -82,10 +82,8 @@ async function syncToActiveCampaign(opts: {
     const contactId = String(contactData.contact.id);
 
     // 2. Find or create PDF_URL custom field, then set the signed download URL
-    const searchRes = await fetch(
-      `${apiUrl}/api/3/fields?search=${encodeURIComponent("PDF_URL")}`,
-      { headers },
-    );
+    // Fetch all fields (no search filter) and match by perstag — avoids title/search mismatch
+    const searchRes = await fetch(`${apiUrl}/api/3/fields?limit=100`, { headers });
     const searchData = (await searchRes.json()) as {
       fields: Array<{ id: number | string; perstag: string }>;
     };
