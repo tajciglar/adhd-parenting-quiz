@@ -1,3 +1,4 @@
+import React from "react";
 import { getStepConfig } from "@adhd-ai-assistant/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
 import SingleSelect from "./questions/SingleSelect";
@@ -37,9 +38,10 @@ export default function StepRenderer({
     const q = config.question;
     const title = interpolate(q.title, responses);
 
+    let inner: React.ReactNode = null;
     switch (q.type) {
       case "single-select":
-        return (
+        inner = (
           <SingleSelect
             title={title}
             value={(responses[q.key] as string) ?? ""}
@@ -47,9 +49,9 @@ export default function StepRenderer({
             options={q.options!.map((o) => ({ value: o, label: o }))}
           />
         );
-
+        break;
       case "text":
-        return (
+        inner = (
           <TextInput
             title={title}
             value={(responses[q.key] as string) ?? ""}
@@ -57,19 +59,28 @@ export default function StepRenderer({
             placeholder={q.placeholder}
           />
         );
-
+        break;
       case "number":
-        return (
+        inner = (
           <NumberInput
             title={title}
             value={responses[q.key] as number | undefined}
             onChange={(v) => onAnswer(step, q.key, v)}
           />
         );
-
+        break;
       default:
         return null;
     }
+
+    return (
+      <div>
+        {q.emoji && (
+          <div className="text-4xl mb-4">{q.emoji}</div>
+        )}
+        {inner}
+      </div>
+    );
   }
 
   // Likert question

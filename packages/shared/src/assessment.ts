@@ -32,6 +32,7 @@ export interface BasicInfoQuestion {
   type: "single-select" | "text" | "number";
   key: string;
   title: string;
+  emoji?: string;
   options?: string[];
   placeholder?: string;
   min?: number;
@@ -43,24 +44,28 @@ export const BASIC_INFO_QUESTIONS: BasicInfoQuestion[] = [
     type: "single-select",
     key: "parentGender",
     title: "Your Gender",
+    emoji: "🧑",
     options: ["Male", "Female", "Non-binary/Other"],
   },
   {
     type: "single-select",
     key: "parentAgeRange",
     title: "Your Age Range",
+    emoji: "📅",
     options: ["18–30", "31–45", "46–60", "61+"],
   },
   {
     type: "text",
     key: "childName",
     title: "Child's Name",
+    emoji: "🌟",
     placeholder: "First name",
   },
   {
     type: "number",
     key: "childAge",
     title: "Child's Age",
+    emoji: "🎂",
     min: 1,
     max: 25,
   },
@@ -68,12 +73,14 @@ export const BASIC_INFO_QUESTIONS: BasicInfoQuestion[] = [
     type: "single-select",
     key: "childGender",
     title: "Child's Gender",
+    emoji: "🌈",
     options: ["Male", "Female", "Non-binary/Other"],
   },
   {
     type: "single-select",
     key: "householdStructure",
     title: "Household Structure",
+    emoji: "🏠",
     options: [
       "Two-parent household",
       "Single-parent household",
