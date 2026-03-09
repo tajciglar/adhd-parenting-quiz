@@ -114,6 +114,7 @@ async function syncToActiveCampaign(opts: {
     }
 
     if (fieldId && fieldId !== "undefined") {
+      opts.logger.warn(`guest.submit.ac_setting_pdf_url fieldId=${fieldId} contactId=${contactId}`);
       const fvRes = await fetch(`${apiUrl}/api/3/fieldValues`, {
         method: "POST",
         headers,
@@ -130,6 +131,8 @@ async function syncToActiveCampaign(opts: {
           { status: fvRes.status, body, fieldId, contactId },
           "guest.submit.ac_field_value_http_error",
         );
+      } else if (fvRes?.ok) {
+        opts.logger.warn(`guest.submit.ac_pdf_url_set_ok contactId=${contactId}`);
       }
     } else {
       opts.logger.warn("guest.submit.ac_field_id_missing — could not find or create PDF_URL field");
