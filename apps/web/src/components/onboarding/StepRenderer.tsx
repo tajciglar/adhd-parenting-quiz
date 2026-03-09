@@ -88,7 +88,7 @@ export default function StepRenderer({
           </div>
         )}
         {q.emoji && (
-          <div className="text-4xl mb-4">{q.emoji}</div>
+          <div className="text-4xl mb-4 text-center">{q.emoji}</div>
         )}
         {inner}
       </div>
