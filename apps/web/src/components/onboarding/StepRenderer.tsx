@@ -75,6 +75,16 @@ export default function StepRenderer({
 
     return (
       <div>
+        {step === 1 && (
+          <div className="mb-6 space-y-2">
+            <h1 className="text-2xl font-bold text-harbor-primary leading-snug">
+              Discover Your Child's ADHD Wildprint
+            </h1>
+            <p className="text-sm text-harbor-text/60 leading-relaxed">
+              A 5-minute quiz backed by 40+ years of clinical experience — revealing who your child really is, why they do what they do, and the hidden superpower most people around them completely miss.
+            </p>
+          </div>
+        )}
         {q.emoji && (
           <div className="text-4xl mb-4">{q.emoji}</div>
         )}
