@@ -103,7 +103,7 @@ function CheckoutForm({
         </div>
         {email ? (
           <p className="text-sm text-harbor-text/50">
-            Receipt will be sent to <span className="font-medium text-harbor-text/70">{email}</span>
+            Will be sent to <span className="font-medium text-harbor-text/70">{email}</span>
           </p>
         ) : null}
       </div>
@@ -253,8 +253,12 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-harbor-bg overflow-y-auto">
       <div className="max-w-lg w-full mx-auto px-6 py-12 space-y-6">
-        <div className="text-center space-y-1">
-          <h1 className="text-2xl font-bold text-harbor-primary">Checkout</h1>
+        <div className="text-center space-y-2">
+          <img
+            src="/adhd-parenting-logo.png"
+            alt="ADHD Parenting"
+            className="h-14 object-contain mx-auto"
+          />
           <p className="text-sm text-harbor-text/50">
             Complete your purchase to unlock {name}'s full report
           </p>

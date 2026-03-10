@@ -57,11 +57,6 @@ export default function ThankYouPage() {
           </p>
         </div>
 
-        {sessionId ? (
-          <p className="text-xs text-center text-harbor-text/30">
-            Order ref: {sessionId.slice(0, 16)}...
-          </p>
-        ) : null}
       </div>
     </div>
   );
