@@ -24,4 +24,4 @@ RUN pnpm --filter @adhd-ai-assistant/api prisma:generate
 
 EXPOSE 3001
 
-CMD ["sh", "-c", "cd apps/api && npx prisma migrate deploy && cd /app && pnpm --filter @adhd-ai-assistant/api dev"]
+CMD ["sh", "-c", "cd apps/api && until npx prisma migrate deploy 2>/dev/null; do echo 'Waiting for database...'; sleep 2; done && cd /app && pnpm --filter @adhd-ai-assistant/api dev"]

@@ -194,7 +194,7 @@ export default function CalculatingScreen({
 
   // ─── Email capture phase ─────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-harbor-bg flex items-start justify-center px-6 pt-16 pb-8">
+    <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6 py-8">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-6 space-y-5">
           <div className="text-center space-y-2">

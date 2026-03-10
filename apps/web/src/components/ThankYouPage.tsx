@@ -1,8 +1,20 @@
+import { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
+import { trackPixelEvent, generateEventId } from "../lib/fbq";
+import { trackFunnelEvent } from "../lib/analytics";
 
 export default function ThankYouPage() {
   const [params] = useSearchParams();
   const sessionId = params.get("session_id");
+
+  // Fire Purchase pixel + funnel event once on load
+  const firedRef = useRef(false);
+  useEffect(() => {
+    if (firedRef.current || !sessionId) return;
+    firedRef.current = true;
+    trackPixelEvent("Purchase", { value: 17, currency: "USD" }, generateEventId());
+    trackFunnelEvent("purchase_completed", undefined, { stripeSessionId: sessionId });
+  }, [sessionId]);
 
   return (
     <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6 py-16">

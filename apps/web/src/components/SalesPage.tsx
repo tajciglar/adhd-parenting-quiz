@@ -53,8 +53,9 @@ export default function SalesPage() {
     setLoading(true);
     setCheckoutError(null);
 
-    // Track checkout_started event
+    // Track checkout events
     trackFunnelEvent("checkout_started");
+    trackPixelEvent("InitiateCheckout", { content_category: "adhd_report", value: 17, currency: "USD" }, generateEventId());
 
     try {
       const result = (await api.post("/api/stripe/create-checkout-session", {
@@ -125,6 +126,54 @@ export default function SalesPage() {
             {name}'s full report has everything you need to finally understand{" "}
             {obj.toLowerCase()}.
           </p>
+        </div>
+
+        {/* PDF Preview */}
+        <div className="relative rounded-2xl border border-harbor-text/10 shadow-sm overflow-hidden bg-white">
+          {/* Visible top portion — mimics the real report layout */}
+          <div className="p-6 pb-0 space-y-4">
+            <div className="flex items-center gap-2 text-xs text-harbor-text/40 uppercase tracking-widest font-semibold">
+              <span>Wildprint Report</span>
+              <span className="mx-1">·</span>
+              <span>{name}</span>
+            </div>
+            <h3 className="text-2xl font-bold text-harbor-primary leading-tight">
+              {report.title}
+            </h3>
+            <p className="text-harbor-text/60 italic text-sm leading-relaxed">
+              &ldquo;{report.innerVoiceQuote}&rdquo;
+            </p>
+            <div className="border-t border-harbor-text/8 pt-4">
+              <h4 className="text-sm font-semibold text-harbor-primary mb-1">About Your Child</h4>
+              <p className="text-harbor-text/70 text-sm leading-relaxed">
+                {report.aboutChild?.slice(0, 180)}...
+              </p>
+            </div>
+          </div>
+
+          {/* Blurred lower portion */}
+          <div className="relative h-40">
+            <div className="px-6 pt-3 space-y-3 text-sm text-harbor-text/70 leading-relaxed">
+              <div className="border-t border-harbor-text/8 pt-3">
+                <h4 className="text-sm font-semibold text-harbor-primary mb-1">Hidden Superpower</h4>
+                <p>{report.hiddenSuperpower?.slice(0, 120)}...</p>
+              </div>
+              <div className="border-t border-harbor-text/8 pt-3">
+                <h4 className="text-sm font-semibold text-harbor-primary mb-1">Understanding the Brain</h4>
+                <p>{report.brainSections?.[0]?.content?.slice(0, 100)}...</p>
+              </div>
+            </div>
+            {/* Gradient + blur overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/80 to-white backdrop-blur-[2px] flex flex-col items-center justify-end pb-5">
+              <div className="bg-harbor-primary/5 border border-harbor-primary/15 rounded-xl px-5 py-3 flex items-center gap-2">
+                <svg className="w-4 h-4 text-harbor-primary/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <span className="text-sm font-medium text-harbor-primary/70">Full report unlocked after purchase</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* What's inside */}

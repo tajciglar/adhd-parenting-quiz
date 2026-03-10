@@ -34,11 +34,26 @@ interface Submission {
   created_at: string;
 }
 
+interface ArchetypeDist {
+  archetypeId: string;
+  count: number;
+}
+
+interface AnswerDist {
+  questionKey: string;
+  topAnswer: string;
+  percentage: number;
+  totalResponses: number;
+}
+
 interface Analytics {
   funnelSummary: FunnelSummary;
   stepDropoff: StepDropoff[];
   dailyTrend: DailyTrend[];
   recentSubmissions: Submission[];
+  archetypeDistribution: ArchetypeDist[];
+  answerDistribution: AnswerDist[];
+  avgCompletionTime: number;
 }
 
 function MetricCard({
@@ -302,6 +317,89 @@ export default function AdminDashboard() {
                       <td className="py-2 px-4 text-right tabular-nums">{day.started}</td>
                       <td className="py-2 px-4 text-right tabular-nums text-harbor-accent">{day.completed}</td>
                       <td className="py-2 pl-4 text-right tabular-nums text-green-600 font-medium">{day.purchased}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : null}
+
+        {/* Avg Completion Time + Archetype Distribution */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Avg Completion Time */}
+          <div className="bg-white rounded-xl border border-harbor-text/10 p-5 space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-wider text-harbor-text/40">
+              Avg Completion Time
+            </p>
+            <p className="text-3xl font-bold text-harbor-primary">
+              {analytics?.avgCompletionTime
+                ? `${Math.floor(analytics.avgCompletionTime / 60)}m ${analytics.avgCompletionTime % 60}s`
+                : "—"}
+            </p>
+            <p className="text-sm text-harbor-text/50">quiz start to finish</p>
+          </div>
+
+          {/* Archetype Distribution */}
+          <div className="md:col-span-2 bg-white rounded-xl border border-harbor-text/10 p-6 space-y-3">
+            <h2 className="text-lg font-semibold text-harbor-primary">Archetype Distribution</h2>
+            {analytics?.archetypeDistribution.length ? (
+              <div className="space-y-2">
+                {(() => {
+                  const maxCount = Math.max(...analytics.archetypeDistribution.map((a) => a.count), 1);
+                  return analytics.archetypeDistribution.map((item) => (
+                    <div key={item.archetypeId} className="flex items-center gap-3 text-sm">
+                      <span className="w-28 text-right text-harbor-text/60 capitalize truncate">
+                        {item.archetypeId}
+                      </span>
+                      <div className="flex-1 h-6 bg-harbor-text/5 rounded overflow-hidden relative">
+                        <div
+                          className="h-full rounded bg-harbor-primary/60 transition-all"
+                          style={{ width: `${(item.count / maxCount) * 100}%` }}
+                        />
+                        <span className="absolute inset-y-0 left-2 flex items-center text-xs text-harbor-text/70">
+                          {item.count}
+                        </span>
+                      </div>
+                    </div>
+                  ));
+                })()}
+              </div>
+            ) : (
+              <p className="text-sm text-harbor-text/40">No data yet</p>
+            )}
+          </div>
+        </div>
+
+        {/* Answer Distribution */}
+        {analytics?.answerDistribution.length ? (
+          <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
+            <h2 className="text-lg font-semibold text-harbor-primary">Most Common Answers</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-harbor-text/10">
+                    <th className="text-left py-2 pr-4 text-harbor-text/50 font-medium">Question</th>
+                    <th className="text-left py-2 px-4 text-harbor-text/50 font-medium">Top Answer</th>
+                    <th className="text-right py-2 px-4 text-harbor-text/50 font-medium">%</th>
+                    <th className="text-right py-2 pl-4 text-harbor-text/50 font-medium">Responses</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {analytics.answerDistribution.map((item) => (
+                    <tr key={item.questionKey} className="border-b border-harbor-text/5">
+                      <td className="py-2 pr-4 text-harbor-text/70 font-mono text-xs truncate max-w-[180px]">
+                        {item.questionKey}
+                      </td>
+                      <td className="py-2 px-4 text-harbor-text/80 truncate max-w-[200px]">
+                        {item.topAnswer}
+                      </td>
+                      <td className="py-2 px-4 text-right tabular-nums text-harbor-accent font-semibold">
+                        {item.percentage}%
+                      </td>
+                      <td className="py-2 pl-4 text-right tabular-nums text-harbor-text/40">
+                        {item.totalResponses}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

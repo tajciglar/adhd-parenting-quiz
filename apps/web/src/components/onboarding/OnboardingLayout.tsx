@@ -7,6 +7,7 @@ interface OnboardingLayoutProps {
   currentStep: number;
   saveStatus: "idle" | "saving" | "saved" | "error";
   canContinue: boolean;
+  showContinue?: boolean;
   onBack: () => void;
   onContinue: () => void;
   children: ReactNode;
@@ -16,35 +17,40 @@ export default function OnboardingLayout({
   currentStep,
   saveStatus,
   canContinue,
+  showContinue = true,
   onBack,
   onContinue,
   children,
 }: OnboardingLayoutProps) {
   return (
-    <div className="min-h-screen bg-harbor-bg">
+    <div className="min-h-screen bg-harbor-bg flex flex-col">
       <ProgressBar current={currentStep} />
 
-      <div className="max-w-xl mx-auto px-6 py-8 pt-12">
+      <div className="flex-1 flex flex-col items-center justify-center max-w-xl mx-auto w-full px-6">
         <SaveIndicator status={saveStatus} />
 
-        <div className="mt-4 mb-12">{children}</div>
-
-        <div className="flex items-center justify-between">
-          {currentStep > 1 ? (
-            <Button variant="secondary" onClick={onBack}>
-              Back
-            </Button>
-          ) : (
-            <div />
-          )}
-          <Button
-            variant="primary"
-            disabled={!canContinue}
-            onClick={onContinue}
-          >
-            Continue
-          </Button>
+        <div className="w-full py-8">
+          {children}
         </div>
+
+        {showContinue && (
+          <div className="flex items-center justify-between w-full py-4">
+            {currentStep > 1 ? (
+              <Button variant="secondary" onClick={onBack}>
+                Back
+              </Button>
+            ) : (
+              <div />
+            )}
+            <Button
+              variant="primary"
+              disabled={!canContinue}
+              onClick={onContinue}
+            >
+              Continue
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

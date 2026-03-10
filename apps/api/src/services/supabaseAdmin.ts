@@ -123,6 +123,14 @@ export interface FunnelAnalytics {
     completed: number;
     purchased: number;
   }>;
+  archetypeDistribution: Array<{ archetypeId: string; count: number }>;
+  answerDistribution: Array<{
+    questionKey: string;
+    topAnswer: string;
+    percentage: number;
+    totalResponses: number;
+  }>;
+  avgCompletionTime: number; // seconds
 }
 
 const EMPTY_ANALYTICS: FunnelAnalytics = {
@@ -133,6 +141,9 @@ const EMPTY_ANALYTICS: FunnelAnalytics = {
   },
   recentSubmissions: [],
   dailyTrend: [],
+  archetypeDistribution: [],
+  answerDistribution: [],
+  avgCompletionTime: 0,
 };
 
 export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
@@ -244,5 +255,81 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
       purchased: sets.purchased.size,
     }));
 
-  return { stepDropoff, funnelSummary, recentSubmissions, dailyTrend };
+  // 5. Archetype distribution — count submissions per archetype
+  const { data: archetypeData } = await sb
+    .from("quiz_submissions")
+    .select("archetype_id")
+    .gte("created_at", sinceStr);
+
+  const archetypeCounts = new Map<string, number>();
+  for (const row of archetypeData ?? []) {
+    const id = row.archetype_id as string;
+    archetypeCounts.set(id, (archetypeCounts.get(id) ?? 0) + 1);
+  }
+
+  const archetypeDistribution = [...archetypeCounts.entries()]
+    .map(([archetypeId, count]) => ({ archetypeId, count }))
+    .sort((a, b) => b.count - a.count);
+
+  // 6. Answer distribution — most common answer per question from answer_submitted events
+  const { data: answerData } = await sb
+    .from("funnel_events")
+    .select("metadata")
+    .eq("event_type", "answer_submitted")
+    .gte("created_at", sinceStr);
+
+  const answerMap = new Map<string, Map<string, number>>();
+  for (const row of answerData ?? []) {
+    const meta = row.metadata as Record<string, unknown> | null;
+    if (!meta?.questionKey) continue;
+    const qKey = String(meta.questionKey);
+    const aVal = String(meta.answerValue ?? "");
+    if (!answerMap.has(qKey)) answerMap.set(qKey, new Map());
+    const counts = answerMap.get(qKey)!;
+    counts.set(aVal, (counts.get(aVal) ?? 0) + 1);
+  }
+
+  const answerDistribution = [...answerMap.entries()].map(([questionKey, counts]) => {
+    const totalResponses = [...counts.values()].reduce((a, b) => a + b, 0);
+    let topAnswer = "";
+    let topCount = 0;
+    for (const [answer, count] of counts) {
+      if (count > topCount) { topAnswer = answer; topCount = count; }
+    }
+    const percentage = totalResponses > 0 ? Number(((topCount / totalResponses) * 100).toFixed(1)) : 0;
+    return { questionKey, topAnswer, percentage, totalResponses };
+  });
+
+  // 7. Average completion time — time between first step_viewed and quiz_completed per session
+  const { data: completionData } = await sb
+    .from("funnel_events")
+    .select("session_id, event_type, created_at")
+    .in("event_type", ["step_viewed", "quiz_completed"])
+    .gte("created_at", sinceStr);
+
+  const sessionTimes = new Map<string, { firstStep?: Date; completed?: Date }>();
+  for (const row of completionData ?? []) {
+    const sid = row.session_id as string;
+    if (!sessionTimes.has(sid)) sessionTimes.set(sid, {});
+    const entry = sessionTimes.get(sid)!;
+    const ts = new Date(row.created_at as string);
+    if (row.event_type === "step_viewed" && (!entry.firstStep || ts < entry.firstStep)) {
+      entry.firstStep = ts;
+    }
+    if (row.event_type === "quiz_completed") {
+      entry.completed = ts;
+    }
+  }
+
+  let totalSeconds = 0;
+  let completedCount = 0;
+  for (const { firstStep, completed } of sessionTimes.values()) {
+    if (firstStep && completed) {
+      totalSeconds += (completed.getTime() - firstStep.getTime()) / 1000;
+      completedCount++;
+    }
+  }
+  const avgCompletionTime = completedCount > 0 ? Math.round(totalSeconds / completedCount) : 0;
+
+  return { stepDropoff, funnelSummary, recentSubmissions, dailyTrend, archetypeDistribution, answerDistribution, avgCompletionTime };
 }

@@ -1,9 +1,11 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useOnboarding } from "../../hooks/useOnboarding";
 import { TOTAL_STEPS } from "../../lib/constants";
 import { getStepConfig, ASSESSMENT_CATEGORIES, BASIC_INFO_QUESTIONS } from "@adhd-ai-assistant/shared";
 import type { CategoryId } from "@adhd-ai-assistant/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
+import { trackFunnelEvent } from "../../lib/analytics";
+import { trackPixelEvent, generateEventId } from "../../lib/fbq";
 import OnboardingLayout from "./OnboardingLayout";
 import AnimationWrapper from "./AnimationWrapper";
 import StepRenderer from "./StepRenderer";
@@ -114,6 +116,15 @@ export default function OnboardingPage() {
   const [showHalfway, setShowHalfway] = useState(false);
   const [interstitialCategory, setInterstitialCategory] = useState<CategoryId | null>(null);
 
+  // Fire FB Pixel ViewContent when quiz starts (step 1)
+  const pixelFiredRef = useRef(false);
+  useEffect(() => {
+    if (currentStep === 1 && !pixelFiredRef.current) {
+      pixelFiredRef.current = true;
+      trackPixelEvent("ViewContent", { content_type: "quiz", content_category: "adhd_assessment" }, generateEventId());
+    }
+  }, [currentStep]);
+
   const childName = (responses.childName as string | undefined) ?? "your child";
   const gender = ((responses.childGender as string) ?? "").toLowerCase();
   const objPronoun = gender.includes("boy") ? "him" : gender.includes("girl") ? "her" : "them";
@@ -131,8 +142,16 @@ export default function OnboardingPage() {
     ) => {
       saveAnswer(step, key, value, immediate);
 
+      // Track individual answer for analytics
       const config = getStepConfig(step);
       if (!config) return;
+
+      const questionType = config.type === "basic-info" ? config.question.type : "likert";
+      trackFunnelEvent("answer_submitted", step, {
+        questionKey: key,
+        answerValue: value,
+        questionType,
+      });
 
       const shouldAutoAdvance =
         (config.type === "basic-info" &&
@@ -201,11 +220,18 @@ export default function OnboardingPage() {
 
   const canContinue = isStepValid(currentStep, responses);
 
+  // Only show Continue button for text/number inputs (single-select and likert auto-advance)
+  const currentConfig = getStepConfig(currentStep);
+  const showContinue =
+    currentConfig?.type === "basic-info" &&
+    (currentConfig.question.type === "text" || currentConfig.question.type === "number");
+
   return (
     <OnboardingLayout
       currentStep={currentStep}
       saveStatus="idle"
       canContinue={canContinue}
+      showContinue={showContinue}
       onBack={goBack}
       onContinue={() => {
         if (currentStep === TOTAL_STEPS) {

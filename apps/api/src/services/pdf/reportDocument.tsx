@@ -2,6 +2,8 @@
 import React from "react";
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
+/* ─── Data Interfaces ─────────────────────────────────────────────────────── */
+
 export interface ReportTemplateData {
   archetypeId: string;
   title: string;
@@ -9,10 +11,7 @@ export interface ReportTemplateData {
   animalDescription: string;
   aboutChild: string;
   hiddenSuperpower: string;
-  brainSections: Array<{
-    title: string;
-    content: string;
-  }>;
+  brainSections: Array<{ title: string; content: string }>;
   dayInLife: {
     morning: string;
     school: string;
@@ -23,10 +22,7 @@ export interface ReportTemplateData {
   fuels: string[];
   overwhelm: string;
   affirmations: string[];
-  doNotSay: Array<{
-    insteadOf: string;
-    tryThis: string;
-  }>;
+  doNotSay: Array<{ insteadOf: string; tryThis: string }>;
   closingLine: string;
 }
 
@@ -35,241 +31,350 @@ interface ReportDocumentProps {
   childName: string;
 }
 
+/* ─── Theme ───────────────────────────────────────────────────────────────── */
+
 interface ReportTheme {
   bg: string;
-  text: "#24323A",
+  text: string;
   muted: string;
   border: string;
   accent: string;
+  accentDark: string;
   softAccent: string;
+  dangerAccent: string;
   dangerSoft: string;
+  successAccent: string;
   successSoft: string;
 }
 
 const DEFAULT_THEME: ReportTheme = {
-  bg: "#FAF7FC",
-  text: "#2D1B4E",
-  muted: "#6B4D7A",
-  border: "#D8CDE0",
+  bg: "#FFFFFF",
+  text: "#24323A",
+  muted: "#6B7B86",
+  border: "#D8DDE0",
   accent: "#7B2D8E",
+  accentDark: "#5A1D6A",
   softAccent: "#F0E6F6",
-  dangerSoft: "#FEF2F2",
-  successSoft: "#F0F9F6",
+  dangerAccent: "#C0392B",
+  dangerSoft: "#FDEDEC",
+  successAccent: "#27AE60",
+  successSoft: "#E8F8F0",
 };
 
-const ARCTYPE_THEMES: Record<string, Partial<ReportTheme>> = {
+const ARCHETYPE_THEMES: Record<string, Partial<ReportTheme>> = {
   koala: {
-    bg: "#F4F8F6",
     accent: "#5E7A73",
-    muted: "#5B6F69",
+    accentDark: "#3D5A53",
     softAccent: "#E8F1ED",
+    muted: "#5B6F69",
   },
   hummingbird: {
-    bg: "#FFF6F1",
     accent: "#D95F43",
-    muted: "#8C5040",
+    accentDark: "#B04530",
     softAccent: "#FFE7DF",
+    muted: "#8C5040",
   },
   tiger: {
-    bg: "#FFF7EE",
     accent: "#C97316",
-    muted: "#8A5A2F",
+    accentDark: "#A35D0F",
     softAccent: "#FFEFD9",
+    muted: "#8A5A2F",
   },
   meerkat: {
-    bg: "#FBF6EF",
     accent: "#A06A3C",
-    muted: "#7B5C42",
+    accentDark: "#7C5028",
     softAccent: "#F5E8DA",
+    muted: "#7B5C42",
   },
   stallion: {
-    bg: "#F3F5FB",
     accent: "#4B5D8A",
-    muted: "#4F5E7C",
+    accentDark: "#354468",
     softAccent: "#E8ECF8",
+    muted: "#4F5E7C",
   },
   fox: {
-    bg: "#FFF4EE",
     accent: "#B65A2C",
-    muted: "#7A4D37",
+    accentDark: "#8E4520",
     softAccent: "#FBE6DC",
+    muted: "#7A4D37",
   },
   owl: {
-    bg: "#F2F7FA",
     accent: "#3D5B73",
-    muted: "#4A6072",
+    accentDark: "#2A4052",
     softAccent: "#E5EEF4",
+    muted: "#4A6072",
   },
 };
 
 function getTheme(archetypeId: string): ReportTheme {
-  return {
-    ...DEFAULT_THEME,
-    ...(ARCTYPE_THEMES[archetypeId] ?? {}),
-  };
+  return { ...DEFAULT_THEME, ...(ARCHETYPE_THEMES[archetypeId] ?? {}) };
 }
 
-const styles = StyleSheet.create({
+/* ─── Styles ──────────────────────────────────────────────────────────────── */
+
+const s = StyleSheet.create({
+  /* Page defaults */
   page: {
-    paddingTop: 38,
-    paddingBottom: 38,
-    paddingHorizontal: 40,
-    fontSize: 10.6,
-    lineHeight: 1.5,
+    paddingTop: 50,
+    paddingBottom: 56,
+    paddingHorizontal: 48,
+    fontSize: 10.5,
+    lineHeight: 1.6,
+    fontFamily: "Helvetica",
   },
-  pageLabel: {
+  coverPage: {
+    paddingTop: 0,
+    paddingBottom: 56,
+    paddingHorizontal: 0,
+    fontSize: 10.5,
+    lineHeight: 1.6,
+    fontFamily: "Helvetica",
+  },
+
+  /* ── Cover Hero ──────────────────────────── */
+  heroSection: {
+    paddingTop: 60,
+    paddingBottom: 10,
+    paddingHorizontal: 48,
+    alignItems: "center",
+  },
+  heroBrandRow: {
+    position: "absolute",
+    top: 22,
+    right: 48,
+    alignItems: "flex-end",
+  },
+  heroBrand: {
     fontSize: 9,
-    marginBottom: 14,
+    fontWeight: 700,
+    letterSpacing: 2.5,
+    fontFamily: "Helvetica-Bold",
   },
-  hero: {
-    marginBottom: 14,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderStyle: "solid",
+  heroBrandSub: {
+    fontSize: 7.5,
+    marginTop: 1,
   },
-  title: {
-    fontSize: 24,
+  heroTitle: {
+    fontSize: 28,
+    fontWeight: 700,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+    letterSpacing: 2,
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  heroLine: {
+    height: 2,
+    width: "100%",
+    marginBottom: 20,
+  },
+  heroQuoteBox: {
+    width: "100%",
+    paddingVertical: 18,
+    paddingHorizontal: 24,
+    alignItems: "center",
+  },
+  heroQuote: {
+    fontSize: 11,
+    fontStyle: "italic",
+    textAlign: "center",
+    lineHeight: 1.6,
+  },
+  heroAttribution: {
+    fontSize: 10,
+    marginTop: 10,
+    textAlign: "center",
+  },
+  coverContent: {
+    paddingHorizontal: 48,
+    paddingTop: 24,
+  },
+
+  /* ── Header / Footer ─────────────────────── */
+  header: {
+    position: "absolute",
+    top: 20,
+    right: 48,
+    alignItems: "flex-end",
+  },
+  headerBrand: {
+    fontSize: 9,
+    fontWeight: 700,
+    letterSpacing: 2.5,
+    fontFamily: "Helvetica-Bold",
+  },
+  headerSub: {
+    fontSize: 7.5,
+    marginTop: 1,
+  },
+  footer: {
+    position: "absolute",
+    bottom: 22,
+    left: 48,
+    right: 48,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderTopWidth: 0.5,
+    borderTopStyle: "solid",
+    paddingTop: 8,
+  },
+  footerText: {
+    fontSize: 7.5,
+    letterSpacing: 0.5,
+  },
+  footerPage: {
+    fontSize: 8,
+    fontWeight: 700,
+    fontFamily: "Helvetica-Bold",
+  },
+
+  /* ── Section Labels ──────────────────────── */
+  sectionLabel: {
+    fontSize: 9.5,
     fontWeight: 700,
     textTransform: "uppercase",
-    marginBottom: 10,
+    letterSpacing: 2,
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 4,
+    marginTop: 24,
   },
-  centeredQuote: {
-    fontSize: 11,
-    fontStyle: "italic",
-    textAlign: "center",
-    marginBottom: 10,
+  sectionLabelFirst: {
+    marginTop: 0,
   },
-  divider: {
-    borderBottomWidth: 1,
-    borderBottomStyle: "solid",
+  sectionUnderline: {
+    height: 1.5,
     marginBottom: 12,
+    width: 40,
   },
-  section: {
-    marginBottom: 18,
-  },
-  sectionTitle: {
-    fontSize: 13.5,
-    fontWeight: 700,
-    marginBottom: 6,
-  },
+
+  /* ── Body Text ───────────────────────────── */
   paragraph: {
-    fontSize: 10.6,
-    lineHeight: 1.7,
+    fontSize: 10.5,
+    lineHeight: 1.6,
   },
   paragraphSpaced: {
-    fontSize: 10.6,
-    lineHeight: 1.7,
+    fontSize: 10.5,
+    lineHeight: 1.6,
     marginTop: 8,
   },
-  dayBlock: {
-    marginBottom: 10,
+
+  /* ── Sub-section ─────────────────────────── */
+  subSection: {
+    marginBottom: 14,
   },
-  dayTitle: {
-    fontSize: 11.2,
-    fontWeight: 700,
-    marginBottom: 2,
-  },
-  tableHeader: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomStyle: "solid",
-    paddingBottom: 4,
-    marginBottom: 4,
-    borderTopLeftRadius: 4,
-    borderTopRightRadius: 4,
-    paddingTop: 4,
-  },
-  tableHeaderCell: {
-    flex: 1,
-    fontSize: 10,
-    fontWeight: 700,
-    textAlign: "center",
-  },
-  twoColRow: {
-    flexDirection: "row",
-    marginBottom: 4,
-  },
-  twoColCellLeft: {
-    flex: 1,
-    paddingRight: 6,
-  },
-  twoColCellRight: {
-    flex: 1,
-    paddingLeft: 6,
-  },
-  rowText: {
-    fontSize: 10.4,
-    lineHeight: 1.4,
-  },
-  listItem: {
-    flexDirection: "row",
-    marginBottom: 2,
-  },
-  bullet: {
-    width: 9,
+  subTitle: {
     fontSize: 11,
+    fontWeight: 700,
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 3,
   },
-  listText: {
+
+  /* ── Drains / Fuels ──────────────────────── */
+  dfContainer: {
+    flexDirection: "row",
+  },
+  dfColumn: {
     flex: 1,
+  },
+  dfHeader: {
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  dfHeaderIcon: {
+    fontSize: 11,
+    fontWeight: 700,
+    fontFamily: "Helvetica-Bold",
+    marginRight: 6,
+  },
+  dfHeaderText: {
+    fontSize: 8.5,
+    fontWeight: 700,
+    textTransform: "uppercase",
+    letterSpacing: 1.5,
+    fontFamily: "Helvetica-Bold",
+  },
+  dfItem: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    fontSize: 9.5,
+    lineHeight: 1.45,
+  },
+
+  /* ── Affirmations ────────────────────────── */
+  affirmationItem: {
+    marginBottom: 5,
+    paddingLeft: 4,
+  },
+  affirmationText: {
     fontSize: 10.5,
-    lineHeight: 1.4,
+    lineHeight: 1.5,
     fontStyle: "italic",
   },
-  sayTableHeader: {
+
+  /* ── "What Not to Say" Table ─────────────── */
+  sayTable: {
+    marginTop: 4,
+  },
+  sayHeaderRow: {
     flexDirection: "row",
-    marginBottom: 4,
-    borderWidth: 1,
-    borderStyle: "solid",
   },
   sayHeaderCell: {
     flex: 1,
-    paddingVertical: 5,
-    textAlign: "center",
-    fontSize: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    fontSize: 8.5,
     fontWeight: 700,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    fontFamily: "Helvetica-Bold",
   },
   sayRow: {
     flexDirection: "row",
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderBottomWidth: 1,
-    borderStyle: "solid",
+    borderBottomWidth: 0.5,
+    borderBottomStyle: "solid",
   },
   sayCell: {
     flex: 1,
-    paddingVertical: 5,
-    paddingHorizontal: 7,
-    fontSize: 10.4,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+    fontSize: 10,
+    lineHeight: 1.45,
   },
-  closing: {
-    marginTop: 8,
-    fontSize: 11,
+
+  /* ── Closing ─────────────────────────────── */
+  closingWrapper: {
+    marginTop: 32,
+    alignItems: "center",
+  },
+  closingDivider: {
+    height: 1,
+    width: "100%",
+    marginBottom: 14,
+  },
+  closingDividerBottom: {
+    height: 1,
+    width: "100%",
+    marginTop: 14,
+  },
+  closingText: {
+    fontSize: 13,
     fontStyle: "italic",
+    textAlign: "center",
+    lineHeight: 1.6,
   },
 });
 
-function BulletList({ items }: { items: string[] }) {
-  return (
-    <View>
-      {items.map((item, index) => (
-        <View key={`${item}-${index}`} style={styles.listItem}>
-          <Text style={styles.bullet}>•</Text>
-          <Text style={styles.listText}>{item}</Text>
-        </View>
-      ))}
-    </View>
-  );
-}
+/* ─── Helper Components ───────────────────────────────────────────────────── */
 
-// Splits text by \n and renders each paragraph with spacing between them
 function ParagraphText({ text }: { text: string }) {
   const paragraphs = text.split("\n").filter((p) => p.trim().length > 0);
   return (
     <View>
       {paragraphs.map((para, i) => (
-        <Text key={i} style={i === 0 ? styles.paragraph : styles.paragraphSpaced}>
+        <Text key={i} style={i === 0 ? s.paragraph : s.paragraphSpaced}>
           {para}
         </Text>
       ))}
@@ -277,145 +382,256 @@ function ParagraphText({ text }: { text: string }) {
   );
 }
 
+function SectionLabel({
+  text,
+  theme,
+  first,
+}: {
+  text: string;
+  theme: ReportTheme;
+  first?: boolean;
+}) {
+  return (
+    <View wrap={false} minPresenceAhead={60}>
+      <Text
+        style={[
+          s.sectionLabel,
+          { color: theme.accent },
+          first ? s.sectionLabelFirst : {},
+        ]}
+      >
+        {text}
+      </Text>
+      <View style={[s.sectionUnderline, { backgroundColor: theme.accent }]} />
+    </View>
+  );
+}
+
+function Header({ theme }: { theme: ReportTheme }) {
+  return (
+    <View style={s.header} fixed>
+      <Text style={[s.headerBrand, { color: theme.accent }]}>WILDPRINT</Text>
+      <Text style={[s.headerSub, { color: theme.muted }]}>
+        Your child's unique profile
+      </Text>
+    </View>
+  );
+}
+
+function DynamicFooter({ theme }: { theme: ReportTheme }) {
+  return (
+    <View style={[s.footer, { borderTopColor: theme.border }]} fixed>
+      <Text style={[s.footerText, { color: theme.muted }]}>
+        WILDPRINT · A personalized profile for your child
+      </Text>
+      <Text
+        style={[s.footerPage, { color: theme.accent }]}
+        render={({ pageNumber, totalPages }) => `${pageNumber}`}
+      />
+    </View>
+  );
+}
+
+/* ─── Main Document ───────────────────────────────────────────────────────── */
+
 export function ReportDocument({ report, childName }: ReportDocumentProps) {
   const theme = getTheme(report.archetypeId);
+  const NAME = childName.toUpperCase();
 
   return (
     <Document title={`${childName} - ${report.title}`}>
-      <Page size="A4" style={[styles.page, { backgroundColor: theme.bg, color: theme.text }]}>
-        <Text style={[styles.pageLabel, { color: theme.muted }]}>PAGE 1</Text>
-        <View style={[styles.hero, { backgroundColor: theme.softAccent, borderColor: theme.border }]}>
-          <Text style={[styles.title, { color: theme.accent }]}>{report.title}</Text>
-          <Text style={[styles.centeredQuote, { color: theme.muted }]}>
-            "{report.innerVoiceQuote}" - {childName}
+      {/* ════════════════ PAGE 1 — COVER ════════════════ */}
+      <Page
+        size="A4"
+        style={[s.coverPage, { backgroundColor: theme.bg, color: theme.text }]}
+      >
+        {/* Hero Section */}
+        <View style={s.heroSection}>
+          <View style={s.heroBrandRow}>
+            <Text style={[s.heroBrand, { color: theme.accent }]}>WILDPRINT</Text>
+            <Text style={[s.heroBrandSub, { color: theme.muted }]}>
+              Your child's unique profile
+            </Text>
+          </View>
+          <Text style={[s.heroTitle, { color: theme.accent }]}>
+            {report.title}
           </Text>
+          <View style={[s.heroLine, { backgroundColor: theme.accent }]} />
+          <View style={[s.heroQuoteBox, { backgroundColor: theme.softAccent }]}>
+            <Text style={[s.heroQuote, { color: theme.text }]}>
+              {`\u201C${report.innerVoiceQuote.trim()}\u201D`}
+            </Text>
+            <Text style={[s.heroAttribution, { color: theme.muted }]}>
+              {`\u2014 ${childName}`}
+            </Text>
+          </View>
         </View>
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.accent }]}>The Animal</Text>
+
+        {/* Content below hero */}
+        <View style={s.coverContent}>
+          <SectionLabel text="THE ANIMAL" theme={theme} first />
           <ParagraphText text={report.animalDescription} />
-        </View>
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.accent }]}>About {childName}</Text>
+          <SectionLabel text={`ABOUT ${NAME}`} theme={theme} />
           <ParagraphText text={report.aboutChild} />
-        </View>
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.accent }]}>
-            {childName}'s Hidden Superpower
-          </Text>
+          <SectionLabel text={`${NAME}'S HIDDEN SUPERPOWER`} theme={theme} />
           <ParagraphText text={report.hiddenSuperpower} />
         </View>
+
+        <DynamicFooter theme={theme} />
       </Page>
 
-      <Page size="A4" style={[styles.page, { backgroundColor: theme.bg, color: theme.text }]}>
-        <Text style={[styles.pageLabel, { color: theme.muted }]}>PAGE 2</Text>
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.accent }]}>
-            Understanding {childName}'s Brain
-          </Text>
-          {report.brainSections.map((brainSection) => (
-            <View key={brainSection.title} style={styles.dayBlock}>
-              <Text style={[styles.dayTitle, { color: theme.accent }]}>{brainSection.title}</Text>
-              <ParagraphText text={brainSection.content} />
+      {/* ════════════════ PAGES 2+ — ALL REMAINING CONTENT (wraps automatically) ════════════════ */}
+      <Page
+        size="A4"
+        style={[s.page, { backgroundColor: theme.bg, color: theme.text }]}
+        wrap
+      >
+        <Header theme={theme} />
+        <DynamicFooter theme={theme} />
+
+        {/* ── Understanding Brain ── */}
+        <SectionLabel text={`UNDERSTANDING ${NAME}'S BRAIN`} theme={theme} first />
+        {report.brainSections.map((section) => (
+          <View key={section.title} style={s.subSection} wrap={false}>
+            <Text style={[s.subTitle, { color: theme.accent }]}>
+              {section.title}
+            </Text>
+            <ParagraphText text={section.content} />
+          </View>
+        ))}
+
+        {/* ── A Day in Life ── */}
+        <SectionLabel text={`A DAY IN ${NAME}'S LIFE`} theme={theme} />
+        {[
+          { label: "Morning", text: report.dayInLife.morning },
+          { label: "School", text: report.dayInLife.school },
+          { label: "After School", text: report.dayInLife.afterSchool },
+          { label: "Bedtime", text: report.dayInLife.bedtime },
+        ].map((block) => (
+          <View key={block.label} style={s.subSection}>
+            <Text style={[s.subTitle, { color: theme.accent }]}>
+              {block.label}
+            </Text>
+            <ParagraphText text={block.text} />
+          </View>
+        ))}
+
+        {/* ── Drains / Fuels ── */}
+        <SectionLabel
+          text={`CONNECTING WITH ${NAME} — AND WHAT FUELS THEM`}
+          theme={theme}
+        />
+        <View style={s.dfContainer} wrap={false}>
+          {/* Drains */}
+          <View style={s.dfColumn}>
+            <View style={[s.dfHeader, { backgroundColor: theme.dangerSoft }]}>
+              <Text style={[s.dfHeaderIcon, { color: theme.dangerAccent }]}>
+                ✕
+              </Text>
+              <Text style={[s.dfHeaderText, { color: theme.dangerAccent }]}>
+                WHAT DRAINS {NAME}
+              </Text>
             </View>
-          ))}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.accent }]}>
-            A Day in {childName}'s Life
-          </Text>
-          <View style={styles.dayBlock}>
-            <Text style={[styles.dayTitle, { color: theme.accent }]}>Morning</Text>
-            <ParagraphText text={report.dayInLife.morning} />
-          </View>
-          <View style={styles.dayBlock}>
-            <Text style={[styles.dayTitle, { color: theme.accent }]}>School</Text>
-            <ParagraphText text={report.dayInLife.school} />
-          </View>
-          <View style={styles.dayBlock}>
-            <Text style={[styles.dayTitle, { color: theme.accent }]}>After School</Text>
-            <ParagraphText text={report.dayInLife.afterSchool} />
-          </View>
-          <View style={styles.dayBlock}>
-            <Text style={[styles.dayTitle, { color: theme.accent }]}>Bedtime</Text>
-            <ParagraphText text={report.dayInLife.bedtime} />
-          </View>
-        </View>
-      </Page>
-
-      <Page size="A4" style={[styles.page, { backgroundColor: theme.bg, color: theme.text }]}>
-        <Text style={[styles.pageLabel, { color: theme.muted }]}>PAGE 3</Text>
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.accent }]}>
-            What Drains {childName} - and What Fuels Them
-          </Text>
-          <View
-            style={[
-              styles.tableHeader,
-              {
-                borderBottomColor: theme.accent,
-                backgroundColor: theme.softAccent,
-              },
-            ]}
-          >
-            <Text style={styles.tableHeaderCell}>Drains</Text>
-            <Text style={styles.tableHeaderCell}>Fuels</Text>
-          </View>
-          {Array.from({
-            length: Math.max(report.drains.length, report.fuels.length),
-          }).map((_, index) => (
-            <View key={`row-${index}`} style={styles.twoColRow}>
-              <View style={styles.twoColCellLeft}>
-                <Text style={styles.rowText}>{report.drains[index] ?? ""}</Text>
+            {report.drains.map((item, i) => (
+              <View
+                key={`d-${i}`}
+                style={[
+                  s.dfItem,
+                  { backgroundColor: i % 2 === 0 ? "transparent" : theme.dangerSoft },
+                ]}
+              >
+                <Text>{item}</Text>
               </View>
-              <View style={styles.twoColCellRight}>
-                <Text style={styles.rowText}>{report.fuels[index] ?? ""}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.accent }]}>
-            When {childName} Gets Overwhelmed
-          </Text>
-          <ParagraphText text={report.overwhelm} />
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.accent }]}>
-            What {childName} Needs to Hear Most
-          </Text>
-          <BulletList items={report.affirmations} />
-        </View>
-
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.accent }]}>
-            What NOT to Say - and What to Say Instead
-          </Text>
-          <View
-            style={[
-              styles.sayTableHeader,
-              {
-                borderColor: theme.accent,
-                backgroundColor: theme.softAccent,
-              },
-            ]}
-          >
-            <Text style={styles.sayHeaderCell}>Instead of...</Text>
-            <Text style={styles.sayHeaderCell}>Try...</Text>
+            ))}
           </View>
-          {report.doNotSay.map((pair, index) => (
-            <View key={`say-${index}`} style={[styles.sayRow, { borderColor: theme.border }]}>
-              <Text style={styles.sayCell}>{pair.insteadOf}</Text>
-              <Text style={styles.sayCell}>{pair.tryThis}</Text>
+          {/* Fuels */}
+          <View style={s.dfColumn}>
+            <View style={[s.dfHeader, { backgroundColor: theme.successSoft }]}>
+              <Text style={[s.dfHeaderIcon, { color: theme.successAccent }]}>
+                ✓
+              </Text>
+              <Text style={[s.dfHeaderText, { color: theme.successAccent }]}>
+                WHAT FUELS {NAME}
+              </Text>
+            </View>
+            {report.fuels.map((item, i) => (
+              <View
+                key={`f-${i}`}
+                style={[
+                  s.dfItem,
+                  { backgroundColor: i % 2 === 0 ? "transparent" : theme.successSoft },
+                ]}
+              >
+                <Text>{item}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* ── Overwhelm ── */}
+        <SectionLabel text={`WHEN ${NAME} GETS OVERWHELMED`} theme={theme} />
+        <ParagraphText text={report.overwhelm} />
+
+        {/* ── Affirmations ── */}
+        <SectionLabel text={`WHAT ${NAME} NEEDS TO HEAR MOST`} theme={theme} />
+        <View>
+          {report.affirmations.map((aff, i) => (
+            <View key={`aff-${i}`} style={s.affirmationItem}>
+              <Text style={[s.affirmationText, { color: theme.text }]}>
+                {aff}
+              </Text>
             </View>
           ))}
         </View>
 
-        <Text style={[styles.closing, { color: theme.accent }]}>{report.closingLine}</Text>
+        {/* ── What Not to Say ── */}
+        <SectionLabel text="WHAT NOT TO SAY — AND WHAT TO SAY INSTEAD" theme={theme} />
+        <View style={s.sayTable} wrap={false}>
+          <View style={s.sayHeaderRow}>
+            <Text
+              style={[
+                s.sayHeaderCell,
+                { backgroundColor: theme.dangerSoft, color: theme.dangerAccent },
+              ]}
+            >
+              INSTEAD OF...
+            </Text>
+            <Text
+              style={[
+                s.sayHeaderCell,
+                { backgroundColor: theme.successSoft, color: theme.successAccent },
+              ]}
+            >
+              TRY...
+            </Text>
+          </View>
+          {report.doNotSay.map((pair, i) => (
+            <View
+              key={`say-${i}`}
+              style={[
+                s.sayRow,
+                {
+                  borderBottomColor: theme.border,
+                  backgroundColor: i % 2 === 0 ? "transparent" : theme.softAccent,
+                },
+              ]}
+            >
+              <Text style={s.sayCell}>{pair.insteadOf}</Text>
+              <Text style={s.sayCell}>{pair.tryThis}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* ── Closing ── */}
+        <View style={s.closingWrapper} wrap={false}>
+          <View style={[s.closingDivider, { backgroundColor: theme.accent }]} />
+          <Text style={[s.closingText, { color: theme.accent }]}>
+            {report.closingLine}
+          </Text>
+          <View style={[s.closingDividerBottom, { backgroundColor: theme.accent }]} />
+        </View>
       </Page>
     </Document>
   );

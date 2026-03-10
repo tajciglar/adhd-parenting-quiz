@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import Stripe from "stripe";
 import { z } from "zod";
 import { updateSubmissionPayment, insertFunnelEvent } from "../services/supabaseAdmin.js";
+import { sendMetaEvent } from "../services/metaCapi.js";
 
 function getStripe(): Stripe {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -172,6 +173,20 @@ export default async function stripeRoutes(fastify: FastifyInstance) {
         // 3. Apply "wildprint-purchased" tag in ActiveCampaign
         if (customerEmail) {
           void applyPurchaseTag(customerEmail, request.log);
+        }
+
+        // 4. Server-side Meta CAPI Purchase event
+        if (customerEmail) {
+          void sendMetaEvent({
+            eventName: "Purchase",
+            eventId: `purchase_${session.id}`,
+            email: customerEmail,
+            customData: {
+              value: (session.amount_total ?? 0) / 100,
+              currency: session.currency ?? "usd",
+            },
+            logger: request.log,
+          });
         }
       }
 

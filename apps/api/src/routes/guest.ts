@@ -10,6 +10,7 @@ import {
 } from "@adhd-ai-assistant/shared";
 import { generateReportPdf } from "../services/pdf/generateReportPdf.js";
 import { insertQuizSubmission, insertFunnelEvent } from "../services/supabaseAdmin.js";
+import { sendMetaEvent } from "../services/metaCapi.js";
 
 function toSlug(value: string): string {
   return value
@@ -195,70 +196,6 @@ async function syncToActiveCampaign(opts: {
     }
   } catch (err) {
     opts.logger.error({ err }, "guest.submit.activecampaign_sync_failed");
-  }
-}
-
-// Send server-side event to Meta Conversions API
-async function sendMetaEvent(opts: {
-  eventName: string;
-  eventId: string;
-  email: string;
-  sourceUrl: string;
-  clientIp: string;
-  userAgent: string;
-  fbc?: string;
-  fbp?: string;
-  logger: AcLogger;
-}): Promise<void> {
-  const accessToken = process.env.META_ACCESS_TOKEN;
-  const pixelId = process.env.META_PIXEL_ID;
-  if (!accessToken || !pixelId) return;
-
-  try {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(opts.email.toLowerCase().trim());
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    const hashedEmail = Array.from(new Uint8Array(hashBuffer))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-
-    const userData: Record<string, unknown> = {
-      em: [hashedEmail],
-      client_ip_address: opts.clientIp,
-      client_user_agent: opts.userAgent,
-    };
-    if (opts.fbc) userData.fbc = opts.fbc;
-    if (opts.fbp) userData.fbp = opts.fbp;
-
-    const res = await fetch(
-      `https://graph.facebook.com/v18.0/${pixelId}/events`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          data: [
-            {
-              event_name: opts.eventName,
-              event_time: Math.floor(Date.now() / 1000),
-              event_id: opts.eventId,
-              event_source_url: opts.sourceUrl,
-              action_source: "website",
-              user_data: userData,
-            },
-          ],
-        }),
-      },
-    );
-
-    if (!res.ok) {
-      const err = await res.json();
-      opts.logger.warn(`Meta CAPI failed: ${JSON.stringify(err)}`);
-    }
-  } catch (err) {
-    opts.logger.error({ err }, "guest.submit.meta_capi_failed");
   }
 }
 
@@ -498,7 +435,7 @@ export default async function guestRoutes(fastify: FastifyInstance) {
   // Anonymous funnel event tracking for analytics dashboard
   const trackBodySchema = z.object({
     sessionId: z.string().min(1).max(128),
-    eventType: z.enum(["step_viewed", "quiz_completed", "checkout_started", "purchase_completed"]),
+    eventType: z.enum(["step_viewed", "quiz_completed", "checkout_started", "purchase_completed", "answer_submitted"]),
     stepNumber: z.number().int().min(1).max(100).optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),
   });
