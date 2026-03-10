@@ -32,9 +32,11 @@ const CARDS: Record<CategoryId, InterstitialCard> = {
   },
   emotional: {
     emoji: "💛",
-    headline: "Big emotions aren't bad behaviour.",
+    headline: "It's not just \"big feelings.\"",
     body: [
-      "Children with ADHD experience emotions more intensely than their peers. With the right support, they don't just cope, they learn to lead with it.",
+      "Research from the University of Cambridge found that 1 in 2 children with ADHD experience significant emotional dysregulation, reacting with an intensity that doesn't match the situation.",
+      "Source: University of Cambridge, 2023; Nature Mental Health",
+      "This is one of the most misunderstood parts of ADHD and one of the most important to get right.",
     ],
   },
   executive_function: {

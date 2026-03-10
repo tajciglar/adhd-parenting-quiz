@@ -26,16 +26,15 @@ const TOTAL_ASSESSMENT_QUESTIONS = ASSESSMENT_CATEGORIES.reduce(
 // Halfway step: basic info count + half of assessment questions
 const HALFWAY_STEP = BASIC_INFO_COUNT + Math.floor(TOTAL_ASSESSMENT_QUESTIONS / 2);
 
-// Only show interstitials after the first category (inattentive) and
-// the second-to-last category (executive_function). Others were placeholders.
+// Show interstitials after inattentive, emotional, and executive_function categories.
 const INTERSTITIAL_TRIGGER_STEPS = new Map<number, CategoryId>();
 {
   let offset = BASIC_INFO_COUNT;
   for (let i = 0; i < ASSESSMENT_CATEGORIES.length - 1; i++) {
     offset += ASSESSMENT_CATEGORIES[i].questions.length;
     const catId = ASSESSMENT_CATEGORIES[i].id as CategoryId;
-    // Only keep first (inattentive) and last (executive_function)
-    if (catId === "inattentive" || catId === "executive_function") {
+    // Show interstitials after inattentive, emotional, and executive_function
+    if (catId === "inattentive" || catId === "emotional" || catId === "executive_function") {
       INTERSTITIAL_TRIGGER_STEPS.set(offset, catId);
     }
   }

@@ -138,7 +138,7 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
       "Can go from happy to devastated over something that seems very small to others.",
       'Is hypersensitive to criticism or perceived "rejection."',
       'Has "explosive" meltdowns that seem out of proportion to the trigger.',
-      "Has trouble calming down once they are already upset.",
+      "Has trouble calming down once {sub} are already upset.",
       "Holds onto feelings from an argument or disappointment, long after others have moved on.",
     ],
   },
@@ -147,11 +147,11 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
     subtitle: "Executive Function",
     questions: [
       'Struggles to "get started" on a task even when they know how.',
-      "Forgets what they were doing mid-task (e.g., sent to get shoes, found playing instead).",
+      "Forgets what {sub} were doing mid-task (e.g., sent to get shoes, found playing instead).",
       'Seems to have no concept of "5 minutes" vs "30 minutes."',
       "Struggles with multi-step directions (e.g., 'Get your bag, put on shoes, and come downstairs').",
-      "Gets so absorbed in a favourite activity they are shocked when told how much time has passed.",
-      "Can't seem to start a task without someone sitting with {obj}, even when they know what to do.",
+      "Gets so absorbed in a favourite activity {sub} are shocked when told how much time has passed.",
+      "Can't seem to start a task without someone sitting with {obj}, even when {sub} know what to do.",
     ],
   },
   {
