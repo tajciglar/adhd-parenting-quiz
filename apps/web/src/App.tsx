@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react"
 
 /**
  * Wrap lazy() so a failed chunk load (stale deploy) triggers a full page reload.
@@ -41,6 +42,7 @@ const pageFallback = (
 export default function App() {
   return (
     <BrowserRouter>
+    <Analytics />
       <Suspense fallback={pageFallback}>
         <Routes>
           <Route path="/" element={<Navigate to="/onboarding" replace />} />
