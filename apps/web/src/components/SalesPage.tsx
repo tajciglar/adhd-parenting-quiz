@@ -128,13 +128,17 @@ export default function SalesPage() {
               </div>
             </div>
             <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/80 to-white backdrop-blur-[2px] flex flex-col items-center justify-end pb-5">
-              <div className="bg-harbor-primary/5 border border-harbor-primary/15 rounded-xl px-5 py-3 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleCheckout}
+                className="bg-harbor-primary/5 border border-harbor-primary/15 rounded-xl px-5 py-3 flex items-center gap-2 hover:bg-harbor-primary/10 active:scale-[0.98] transition-all cursor-pointer"
+              >
                 <svg className="w-4 h-4 text-harbor-primary/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
                 <span className="text-sm font-medium text-harbor-primary/70">Full report unlocked after purchase</span>
-              </div>
+              </button>
             </div>
           </div>
         </div>
