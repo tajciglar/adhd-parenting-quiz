@@ -7,6 +7,7 @@ const OnboardingPage = lazy(
 const SalesPage = lazy(() => import("./components/SalesPage"));
 const ReportPage = lazy(() => import("./components/report/ReportPage"));
 const ThankYouPage = lazy(() => import("./components/ThankYouPage"));
+const CheckoutPage = lazy(() => import("./components/CheckoutPage"));
 const AdminDashboard = lazy(() => import("./components/admin/AdminDashboard"));
 
 const pageFallback = (
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/" element={<Navigate to="/onboarding" replace />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/results" element={<SalesPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/report" element={<ReportPage />} />
           <Route path="/thank-you" element={<ThankYouPage />} />
           <Route path="/admin" element={<AdminDashboard />} />

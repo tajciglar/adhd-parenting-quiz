@@ -63,7 +63,7 @@ const createSessionSchema = z.object({
 });
 
 export default async function stripeRoutes(fastify: FastifyInstance) {
-  // ── POST /api/stripe/create-checkout-session ──────────────────────────────
+  // ── POST /api/stripe/create-checkout-session (legacy, kept for compatibility) ──
   fastify.post("/stripe/create-checkout-session", async (request, reply) => {
     const parsed = createSessionSchema.safeParse(request.body);
     if (!parsed.success) {
@@ -104,6 +104,42 @@ export default async function stripeRoutes(fastify: FastifyInstance) {
     } catch (err) {
       request.log.error({ err }, "stripe.create_checkout_session_failed");
       return reply.status(500).send({ error: "Failed to create checkout session" });
+    }
+  });
+
+  // ── POST /api/stripe/create-payment-intent ────────────────────────────────
+  fastify.post("/stripe/create-payment-intent", async (request, reply) => {
+    const parsed = createSessionSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.status(400).send({
+        error: "Validation failed",
+        details: parsed.error.flatten().fieldErrors,
+      });
+    }
+
+    const { email, childName, archetypeId, childGender, submissionId } = parsed.data;
+
+    try {
+      const stripe = getStripe();
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: 1700, // $17.00
+        currency: "usd",
+        receipt_email: email,
+        metadata: {
+          email,
+          childName,
+          archetypeId,
+          childGender: childGender ?? "",
+          submissionId: submissionId ?? "",
+        },
+        automatic_payment_methods: { enabled: true },
+      });
+
+      return reply.send({ clientSecret: paymentIntent.client_secret });
+    } catch (err) {
+      request.log.error({ err }, "stripe.create_payment_intent_failed");
+      return reply.status(500).send({ error: "Failed to initialize payment" });
     }
   });
 
@@ -184,6 +220,57 @@ export default async function stripeRoutes(fastify: FastifyInstance) {
             customData: {
               value: (session.amount_total ?? 0) / 100,
               currency: session.currency ?? "usd",
+            },
+            logger: request.log,
+          });
+        }
+      }
+
+      // Handle PaymentIntent succeeded (custom embedded checkout)
+      if (event.type === "payment_intent.succeeded") {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        const meta = paymentIntent.metadata ?? {};
+        const customerEmail = meta.email ?? paymentIntent.receipt_email ?? "";
+        const submissionId = meta.submissionId;
+
+        request.log.info({
+          event: "payment_intent_succeeded",
+          paymentIntentId: paymentIntent.id,
+          submissionId,
+          email: customerEmail,
+        }, "stripe.webhook.payment_intent_succeeded");
+
+        // 1. Update quiz_submissions in Supabase
+        if (submissionId) {
+          void updateSubmissionPayment(
+            submissionId,
+            paymentIntent.id,
+            paymentIntent.id,
+          );
+        }
+
+        // 2. Track purchase event in funnel_events
+        void insertFunnelEvent(
+          paymentIntent.id,
+          "purchase_completed",
+          undefined,
+          { submissionId, email: customerEmail },
+        );
+
+        // 3. Apply "wildprint-purchased" tag in ActiveCampaign
+        if (customerEmail) {
+          void applyPurchaseTag(customerEmail, request.log);
+        }
+
+        // 4. Server-side Meta CAPI Purchase event
+        if (customerEmail) {
+          void sendMetaEvent({
+            eventName: "Purchase",
+            eventId: `purchase_${paymentIntent.id}`,
+            email: customerEmail,
+            customData: {
+              value: (paymentIntent.amount ?? 0) / 100,
+              currency: paymentIntent.currency ?? "usd",
             },
             logger: request.log,
           });

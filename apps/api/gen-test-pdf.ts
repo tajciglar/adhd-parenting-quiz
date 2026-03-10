@@ -2,6 +2,7 @@ import React from "react";
 import { renderToBuffer, type DocumentProps } from "@react-pdf/renderer";
 import ReportDocument from "./src/services/pdf/reportDocument.js";
 import { getReportTemplate } from "../../packages/shared/src/reportTemplates.js";
+import { renderReportTemplate } from "../../packages/shared/src/templateRenderer.js";
 import fs from "fs";
 
 const archetypes = ["fox", "hummingbird", "koala", "meerkat", "stallion", "tiger"];
@@ -11,33 +12,14 @@ async function generatePdf(archetypeId: string) {
   if (!tpl) { console.error(`No ${archetypeId} template`); return; }
 
   const childName = "Taj";
-  const rendered = {
-    ...tpl,
-    title: tpl.title.replace(/\[NAME\]/g, childName),
-    innerVoiceQuote: tpl.innerVoiceQuote.replace(/\[NAME\]/g, childName),
-    animalDescription: tpl.animalDescription.replace(/\[NAME\]/g, childName),
-    aboutChild: tpl.aboutChild.replace(/\[NAME\]/g, childName),
-    hiddenSuperpower: tpl.hiddenSuperpower.replace(/\[NAME\]/g, childName),
-    brainSections: tpl.brainSections.map(s => ({
-      title: s.title.replace(/\[NAME\]/g, childName),
-      content: s.content.replace(/\[NAME\]/g, childName),
-    })),
-    dayInLife: {
-      morning: tpl.dayInLife.morning.replace(/\[NAME\]/g, childName),
-      school: tpl.dayInLife.school.replace(/\[NAME\]/g, childName),
-      afterSchool: tpl.dayInLife.afterSchool.replace(/\[NAME\]/g, childName),
-      bedtime: tpl.dayInLife.bedtime.replace(/\[NAME\]/g, childName),
-    },
-    drains: tpl.drains.map(d => d.replace(/\[NAME\]/g, childName)),
-    fuels: tpl.fuels.map(f => f.replace(/\[NAME\]/g, childName)),
-    overwhelm: tpl.overwhelm.replace(/\[NAME\]/g, childName),
-    affirmations: tpl.affirmations.map(a => a.replace(/\[NAME\]/g, childName)),
-    doNotSay: tpl.doNotSay.map(d => ({
-      insteadOf: d.insteadOf.replace(/\[NAME\]/g, childName),
-      tryThis: d.tryThis.replace(/\[NAME\]/g, childName),
-    })),
-    closingLine: tpl.closingLine.replace(/\[NAME\]/g, childName),
-  };
+  const childGender = "Female";
+
+  // Use the same renderReportTemplate used in production
+  // to properly replace [NAME], [HE/SHE/THEY], [HIS/HER/THEIR], etc.
+  const rendered = renderReportTemplate(tpl, {
+    name: childName,
+    gender: childGender,
+  });
 
   const doc = React.createElement(ReportDocument, {
     report: rendered,

@@ -1,14 +1,12 @@
 export default function HalfwayScreen({
   childName,
-  pronoun,
   onContinue,
 }: {
   childName: string;
-  pronoun: string;
   onContinue: () => void;
 }) {
   return (
-    <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6 py-12">
+    <div className="h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-12 overflow-hidden">
       <div className="max-w-md w-full space-y-6">
         <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-7 space-y-4 text-center">
           <div className="text-5xl">💜</div>
@@ -16,7 +14,12 @@ export default function HalfwayScreen({
             You're halfway there.
           </h2>
           <p className="text-harbor-text/70 leading-relaxed">
-            {childName} is lucky to have a parent who wants to understand {pronoun} this deeply.
+            Most parents never take the time to look this closely at how their
+            child's brain actually works. {childName} is lucky to have you.
+          </p>
+          <p className="text-harbor-text/60 text-sm leading-relaxed">
+            Join 12,000+ parents who've already discovered their child's
+            Wildprint.
           </p>
         </div>
 

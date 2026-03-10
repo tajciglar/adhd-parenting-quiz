@@ -26,14 +26,18 @@ const TOTAL_ASSESSMENT_QUESTIONS = ASSESSMENT_CATEGORIES.reduce(
 // Halfway step: basic info count + half of assessment questions
 const HALFWAY_STEP = BASIC_INFO_COUNT + Math.floor(TOTAL_ASSESSMENT_QUESTIONS / 2);
 
-// Last step of each category except the last → triggers an interstitial card
-// e.g. with 7+7+7+6+6+6 questions: steps 12, 19, 26, 32, 38
+// Only show interstitials after the first category (inattentive) and
+// the second-to-last category (executive_function). Others were placeholders.
 const INTERSTITIAL_TRIGGER_STEPS = new Map<number, CategoryId>();
 {
   let offset = BASIC_INFO_COUNT;
   for (let i = 0; i < ASSESSMENT_CATEGORIES.length - 1; i++) {
     offset += ASSESSMENT_CATEGORIES[i].questions.length;
-    INTERSTITIAL_TRIGGER_STEPS.set(offset, ASSESSMENT_CATEGORIES[i].id as CategoryId);
+    const catId = ASSESSMENT_CATEGORIES[i].id as CategoryId;
+    // Only keep first (inattentive) and last (executive_function)
+    if (catId === "inattentive" || catId === "executive_function") {
+      INTERSTITIAL_TRIGGER_STEPS.set(offset, catId);
+    }
   }
 }
 
@@ -62,30 +66,34 @@ function isStepValid(step: number, responses: OnboardingResponses): boolean {
 
 function IntroScreen({
   childName,
+  objPronoun,
   onReady,
 }: {
   childName: string;
+  objPronoun: string;
   onReady: () => void;
 }) {
   return (
-    <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6 py-8">
-      <div className="max-w-md w-full overflow-y-auto">
+    <div className="h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-8 overflow-hidden">
+      <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-6 space-y-5">
           <div className="text-center">
             <div className="text-4xl mb-4">🔍</div>
             <h2 className="text-xl font-bold text-harbor-primary leading-snug">
-              You're about to discover {childName}'s unique brain profile
+              Great! Let's find {childName}'s Wildprint.
             </h2>
           </div>
 
           <p className="text-harbor-text/70 leading-relaxed">
-            Their strengths, their struggles, and the hidden superpower most
-            people around them completely miss.
+            You're about to discover your child's unique brain profile, their
+            strengths, their struggles, and the hidden superpower most people
+            around {objPronoun} completely miss.
           </p>
 
           <p className="text-harbor-text/70 leading-relaxed">
-            Answer based on what you actually see. The more honest you are, the
-            more accurate {childName}'s profile will be.
+            Answer based on what you see at home, not what you hope for or what
+            happens on a good day. The more honest you are, the more accurate{" "}
+            {childName}'s profile will be.
           </p>
 
           <button
@@ -185,7 +193,6 @@ export default function OnboardingPage() {
     return (
       <HalfwayScreen
         childName={childName}
-        pronoun={objPronoun}
         onContinue={() => {
           setShowHalfway(false);
           goNext();
@@ -210,6 +217,7 @@ export default function OnboardingPage() {
     return (
       <IntroScreen
         childName={childName}
+        objPronoun={objPronoun}
         onReady={() => {
           setShowIntro(false);
           goNext();
@@ -232,6 +240,7 @@ export default function OnboardingPage() {
       saveStatus="idle"
       canContinue={canContinue}
       showContinue={showContinue}
+      hideBack={currentStep === 5}
       onBack={goBack}
       onContinue={() => {
         if (currentStep === TOTAL_STEPS) {

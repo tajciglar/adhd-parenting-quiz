@@ -85,7 +85,7 @@ export default function StepRenderer({
               Discover Your Child's ADHD Wildprint
             </h1>
             <p className="text-sm text-harbor-text/60 leading-relaxed">
-              A 5-minute quiz backed by 40+ years of clinical experience — revealing who your child really is, why they do what they do, and the hidden superpower most people around them completely miss.
+              A 5-minute quiz backed by 40+ years of clinical experience, revealing who your child really is, why they do what they do, and the hidden superpower most people around them completely miss.
             </p>
           </div>
         )}

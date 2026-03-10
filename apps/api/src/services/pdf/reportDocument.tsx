@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React from "react";
-import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Document, Page, StyleSheet, Text, View, Svg, Circle, Path } from "@react-pdf/renderer";
 
 /* ─── Data Interfaces ─────────────────────────────────────────────────────── */
 
@@ -325,11 +325,6 @@ const s = StyleSheet.create({
     flex: 1,
     paddingVertical: 7,
     paddingHorizontal: 10,
-    fontSize: 8.5,
-    fontWeight: 700,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-    fontFamily: "Helvetica-Bold",
   },
   sayRow: {
     flexDirection: "row",
@@ -367,6 +362,26 @@ const s = StyleSheet.create({
   },
 });
 
+/* ─── SVG Icons ──────────────────────────────────────────────────────────── */
+
+function CheckIcon({ size = 11, color = "#27AE60" }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Circle cx="12" cy="12" r="12" fill={color} />
+      <Path d="M7 12.5l3.5 3.5 7-7" stroke="white" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
+function XIcon({ size = 11, color = "#C0392B" }: { size?: number; color?: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Circle cx="12" cy="12" r="12" fill={color} />
+      <Path d="M8 8l8 8M16 8l-8 8" stroke="white" strokeWidth={3} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
 /* ─── Helper Components ───────────────────────────────────────────────────── */
 
 function ParagraphText({ text }: { text: string }) {
@@ -392,7 +407,7 @@ function SectionLabel({
   first?: boolean;
 }) {
   return (
-    <View wrap={false} minPresenceAhead={60}>
+    <View wrap={false} minPresenceAhead={200}>
       <Text
         style={[
           s.sectionLabel,
@@ -439,7 +454,7 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
   const NAME = childName.toUpperCase();
 
   return (
-    <Document title={`${childName} - ${report.title}`}>
+    <Document title={`${childName} ${report.title}`}>
       {/* ════════════════ PAGE 1 — COVER ════════════════ */}
       <Page
         size="A4"
@@ -474,9 +489,6 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
 
           <SectionLabel text={`ABOUT ${NAME}`} theme={theme} />
           <ParagraphText text={report.aboutChild} />
-
-          <SectionLabel text={`${NAME}'S HIDDEN SUPERPOWER`} theme={theme} />
-          <ParagraphText text={report.hiddenSuperpower} />
         </View>
 
         <DynamicFooter theme={theme} />
@@ -491,8 +503,12 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
         <Header theme={theme} />
         <DynamicFooter theme={theme} />
 
+        {/* ── Hidden Superpower ── */}
+        <SectionLabel text={`${NAME}'S HIDDEN SUPERPOWER`} theme={theme} first />
+        <ParagraphText text={report.hiddenSuperpower} />
+
         {/* ── Understanding Brain ── */}
-        <SectionLabel text={`UNDERSTANDING ${NAME}'S BRAIN`} theme={theme} first />
+        <SectionLabel text={`UNDERSTANDING ${NAME}'S BRAIN`} theme={theme} />
         {report.brainSections.map((section) => (
           <View key={section.title} style={s.subSection} wrap={false}>
             <Text style={[s.subTitle, { color: theme.accent }]}>
@@ -510,7 +526,7 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
           { label: "After School", text: report.dayInLife.afterSchool },
           { label: "Bedtime", text: report.dayInLife.bedtime },
         ].map((block) => (
-          <View key={block.label} style={s.subSection}>
+          <View key={block.label} style={s.subSection} wrap={false}>
             <Text style={[s.subTitle, { color: theme.accent }]}>
               {block.label}
             </Text>
@@ -519,11 +535,12 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
         ))}
 
         {/* ── Drains / Fuels ── */}
+        <View wrap={false}>
         <SectionLabel
-          text={`CONNECTING WITH ${NAME} — AND WHAT FUELS THEM`}
+          text={`CONNECTING WITH ${NAME} AND WHAT FUELS THEM`}
           theme={theme}
         />
-        <View style={s.dfContainer} wrap={false}>
+        <View style={s.dfContainer}>
           {/* Drains */}
           <View style={s.dfColumn}>
             <View style={[s.dfHeader, { backgroundColor: theme.dangerSoft }]}>
@@ -535,14 +552,9 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
               </Text>
             </View>
             {report.drains.map((item, i) => (
-              <View
-                key={`d-${i}`}
-                style={[
-                  s.dfItem,
-                  { backgroundColor: i % 2 === 0 ? "transparent" : theme.dangerSoft },
-                ]}
-              >
-                <Text>{item}</Text>
+              <View key={`d-${i}`} style={[s.dfItem, { flexDirection: "row", alignItems: "flex-start" }]}>
+                <View style={{ width: 18, paddingTop: 1 }}><XIcon size={10} color={theme.dangerAccent} /></View>
+                <Text style={{ flex: 1, fontSize: 9.5, lineHeight: 1.45 }}>{item}</Text>
               </View>
             ))}
           </View>
@@ -557,17 +569,13 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
               </Text>
             </View>
             {report.fuels.map((item, i) => (
-              <View
-                key={`f-${i}`}
-                style={[
-                  s.dfItem,
-                  { backgroundColor: i % 2 === 0 ? "transparent" : theme.successSoft },
-                ]}
-              >
-                <Text>{item}</Text>
+              <View key={`f-${i}`} style={[s.dfItem, { flexDirection: "row", alignItems: "flex-start" }]}>
+                <View style={{ width: 18, paddingTop: 1 }}><CheckIcon size={10} color={theme.successAccent} /></View>
+                <Text style={{ flex: 1, fontSize: 9.5, lineHeight: 1.45 }}>{item}</Text>
               </View>
             ))}
           </View>
+        </View>
         </View>
 
         {/* ── Overwhelm ── */}
@@ -587,25 +595,35 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
         </View>
 
         {/* ── What Not to Say ── */}
-        <SectionLabel text="WHAT NOT TO SAY — AND WHAT TO SAY INSTEAD" theme={theme} />
+        <SectionLabel text="WHAT NOT TO SAY AND WHAT TO SAY INSTEAD" theme={theme} />
         <View style={s.sayTable} wrap={false}>
           <View style={s.sayHeaderRow}>
-            <Text
+            <View
               style={[
                 s.sayHeaderCell,
-                { backgroundColor: theme.dangerSoft, color: theme.dangerAccent },
+                { backgroundColor: theme.dangerSoft, flexDirection: "row", alignItems: "center" },
               ]}
             >
-              INSTEAD OF...
-            </Text>
-            <Text
+              <Text style={{ fontSize: 9, fontWeight: 700, fontFamily: "Helvetica-Bold", color: theme.dangerAccent, marginRight: 5 }}>
+                ✕
+              </Text>
+              <Text style={{ fontSize: 8.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, fontFamily: "Helvetica-Bold", color: theme.dangerAccent }}>
+                INSTEAD OF...
+              </Text>
+            </View>
+            <View
               style={[
                 s.sayHeaderCell,
-                { backgroundColor: theme.successSoft, color: theme.successAccent },
+                { backgroundColor: theme.successSoft, flexDirection: "row", alignItems: "center" },
               ]}
             >
-              TRY...
-            </Text>
+              <Text style={{ fontSize: 9, fontWeight: 700, fontFamily: "Helvetica-Bold", color: theme.successAccent, marginRight: 5 }}>
+                ✓
+              </Text>
+              <Text style={{ fontSize: 8.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, fontFamily: "Helvetica-Bold", color: theme.successAccent }}>
+                TRY...
+              </Text>
+            </View>
           </View>
           {report.doNotSay.map((pair, i) => (
             <View
@@ -614,12 +632,17 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
                 s.sayRow,
                 {
                   borderBottomColor: theme.border,
-                  backgroundColor: i % 2 === 0 ? "transparent" : theme.softAccent,
                 },
               ]}
             >
-              <Text style={s.sayCell}>{pair.insteadOf}</Text>
-              <Text style={s.sayCell}>{pair.tryThis}</Text>
+              <View style={[s.sayCell, { flexDirection: "row", alignItems: "flex-start" }]}>
+                <View style={{ width: 18, paddingTop: 1 }}><XIcon size={10} color={theme.dangerAccent} /></View>
+                <Text style={{ flex: 1, fontSize: 10, lineHeight: 1.45 }}>{pair.insteadOf}</Text>
+              </View>
+              <View style={[s.sayCell, { flexDirection: "row", alignItems: "flex-start" }]}>
+                <View style={{ width: 18, paddingTop: 1 }}><CheckIcon size={10} color={theme.successAccent} /></View>
+                <Text style={{ flex: 1, fontSize: 10, lineHeight: 1.45 }}>{pair.tryThis}</Text>
+              </View>
             </View>
           ))}
         </View>

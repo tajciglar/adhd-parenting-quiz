@@ -1,6 +1,25 @@
 import { useCallback, useEffect, useState } from "react";
+import { ASSESSMENT_CATEGORIES } from "@adhd-ai-assistant/shared";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
+
+// Build a map from question keys like "inattentive_0" to real question text
+function buildQuestionMap(): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const cat of ASSESSMENT_CATEGORIES) {
+    for (let i = 0; i < cat.questions.length; i++) {
+      // Strip pronoun placeholders for display
+      const text = cat.questions[i]
+        .replace(/\{pos\}/g, "their")
+        .replace(/\{obj\}/g, "them")
+        .replace(/\{sub\}/g, "they");
+      map[`${cat.id}_${i}`] = text;
+    }
+  }
+  return map;
+}
+
+const QUESTION_MAP = buildQuestionMap();
 
 interface FunnelSummary {
   quizStarted: number;
@@ -388,8 +407,8 @@ export default function AdminDashboard() {
                 <tbody>
                   {analytics.answerDistribution.map((item) => (
                     <tr key={item.questionKey} className="border-b border-harbor-text/5">
-                      <td className="py-2 pr-4 text-harbor-text/70 font-mono text-xs truncate max-w-[180px]">
-                        {item.questionKey}
+                      <td className="py-2 pr-4 text-harbor-text/70 text-xs max-w-[300px]" title={item.questionKey}>
+                        {QUESTION_MAP[item.questionKey] ?? item.questionKey}
                       </td>
                       <td className="py-2 px-4 text-harbor-text/80 truncate max-w-[200px]">
                         {item.topAnswer}

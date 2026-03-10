@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../lib/api";
 import { clearOnboardingStorage } from "../../hooks/useOnboarding";
 import { getFbp, getFbc, generateEventId, trackPixelEvent } from "../../lib/fbq";
 import { trackFunnelEvent } from "../../lib/analytics";
+import { computeTraitProfile, ARCHETYPES } from "@adhd-ai-assistant/shared";
 import type { ArchetypeReportTemplate } from "@adhd-ai-assistant/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
 
@@ -16,7 +17,24 @@ const LINES = [
   "Finding [NAME]'s Wildprint...",
 ];
 
-type Phase = "analyzing" | "email" | "submitting" | "duplicate";
+const ANIMAL_EMOJI: Record<string, string> = {
+  koala: "🐨",
+  hummingbird: "🐦",
+  tiger: "🐯",
+  meerkat: "🦡",
+  stallion: "🐴",
+  fox: "🦊",
+  owl: "🦉",
+};
+
+type Phase = "analyzing" | "found" | "email" | "submitting" | "duplicate";
+
+function getPronouns(gender?: string) {
+  const g = (gender ?? "").toLowerCase();
+  if (g.includes("boy")) return { obj: "him", pos: "his" };
+  if (g.includes("girl")) return { obj: "her", pos: "her" };
+  return { obj: "them", pos: "their" };
+}
 
 export default function CalculatingScreen({
   responses,
@@ -26,6 +44,7 @@ export default function CalculatingScreen({
   const navigate = useNavigate();
   const childName = (responses.childName as string | undefined) ?? "your child";
   const childGender = responses.childGender as string | undefined;
+  const { obj: objPronoun } = getPronouns(childGender);
 
   const [phase, setPhase] = useState<Phase>("analyzing");
   const [lineIndex, setLineIndex] = useState(0);
@@ -33,12 +52,23 @@ export default function CalculatingScreen({
   const [email, setEmail] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Compute archetype client-side
+  const traitProfile = useMemo(
+    () => computeTraitProfile(responses as Record<string, unknown>),
+    [responses],
+  );
+  const archetype = useMemo(
+    () => ARCHETYPES.find((a) => a.id === traitProfile.archetypeId) ?? ARCHETYPES[0],
+    [traitProfile.archetypeId],
+  );
+  const animalEmoji = ANIMAL_EMOJI[archetype.id] ?? "🧠";
+
   const lines = LINES.map((l) => l.replace("[NAME]", childName));
   const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  // Progress fills over 4.5–6s then transitions to email phase
+  // Progress fills over 10-12s then transitions to "found" phase
   useEffect(() => {
-    const duration = 4500 + Math.random() * 1500;
+    const duration = 10000 + Math.random() * 2000;
     const steps = 100;
     const interval = duration / steps;
     let tick = 0;
@@ -48,21 +78,28 @@ export default function CalculatingScreen({
       setProgress(tick);
       if (tick >= steps) {
         clearInterval(timer);
-        setTimeout(() => setPhase("email"), 400);
+        setTimeout(() => setPhase("found"), 400);
       }
     }, interval);
 
     return () => clearInterval(timer);
   }, []);
 
-  // Rotate lines every 1.5s while analyzing
+  // Rotate lines every 1.8s while analyzing
   useEffect(() => {
     if (phase !== "analyzing") return;
     const timer = setInterval(() => {
       setLineIndex((i) => (i + 1) % lines.length);
-    }, 1500);
+    }, 1800);
     return () => clearInterval(timer);
   }, [phase, lines.length]);
+
+  // "We found it" frame holds for 2s then transitions to email
+  useEffect(() => {
+    if (phase !== "found") return;
+    const timer = setTimeout(() => setPhase("email"), 2000);
+    return () => clearTimeout(timer);
+  }, [phase]);
 
   const handleSubmit = useCallback(async () => {
     if (!isValid || phase === "submitting") return;
@@ -90,6 +127,11 @@ export default function CalculatingScreen({
         archetypeId: result.report?.archetypeId,
       });
 
+      // Store data in sessionStorage for ThankYouPage
+      sessionStorage.setItem("wildprint_childName", childName);
+      sessionStorage.setItem("wildprint_email", email);
+      sessionStorage.setItem("wildprint_childGender", childGender ?? "");
+
       clearOnboardingStorage();
       navigate("/results", {
         state: {
@@ -116,7 +158,7 @@ export default function CalculatingScreen({
   // ─── Duplicate email phase ────────────────────────────────────────────────
   if (phase === "duplicate") {
     return (
-      <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6 py-12">
+      <div className="h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-12 overflow-hidden">
         <div className="max-w-md w-full bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-7 space-y-5 text-center">
           <div className="text-4xl">👋</div>
           <h2 className="text-xl font-bold text-harbor-primary leading-snug">
@@ -124,7 +166,7 @@ export default function CalculatingScreen({
           </h2>
           <p className="text-harbor-text/70 leading-relaxed">
             We've sent your child's report to this email before. If you can't
-            find it, check your spam folder — or reach out to us directly at{" "}
+            find it, check your spam folder or reach out to us directly at{" "}
             <a
               href="mailto:info@adhdparenting.com"
               className="text-harbor-accent underline"
@@ -152,10 +194,27 @@ export default function CalculatingScreen({
     );
   }
 
+  // ─── "We found it" frame ────────────────────────────────────────────────
+  if (phase === "found") {
+    return (
+      <div className="h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-12 overflow-hidden">
+        <div className="max-w-sm w-full space-y-6 text-center">
+          <div className="text-7xl">{animalEmoji}</div>
+          <h2 className="text-2xl font-bold text-harbor-primary">
+            We found it.
+          </h2>
+        </div>
+        <style>{`
+          @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+        `}</style>
+      </div>
+    );
+  }
+
   // ─── Analyzing phase ──────────────────────────────────────────────────────
   if (phase === "analyzing") {
     return (
-      <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6 py-12">
+      <div className="h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-12 overflow-hidden">
         <div className="max-w-sm w-full space-y-10 text-center">
           <div className="space-y-3">
             <div className="text-5xl animate-pulse">🧠</div>
@@ -192,16 +251,32 @@ export default function CalculatingScreen({
     );
   }
 
-  // ─── Email capture phase ─────────────────────────────────────────────────
+  // ─── Email capture phase with archetype reveal ─────────────────────────
   return (
-    <div className="min-h-screen bg-harbor-bg flex items-center justify-center px-6 py-8">
+    <div className="h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-8 overflow-y-auto">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-6 space-y-5">
-          <div className="text-center space-y-2">
-            <div className="text-4xl">🎯</div>
-            <h2 className="text-2xl font-bold text-harbor-primary">We found it!</h2>
-            <p className="text-harbor-text/70">
-              Enter your email to get {childName}'s Wildprint:
+          {/* Archetype reveal */}
+          <div className="text-center space-y-3">
+            <div className="text-6xl">{animalEmoji}</div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-harbor-accent">
+              The Wildprint has been identified.
+            </p>
+            <h2 className="text-2xl font-bold text-harbor-primary leading-snug">
+              {childName} is {archetype.typeName}.
+            </h2>
+          </div>
+
+          <p className="text-harbor-text/70 leading-relaxed text-sm">
+            Your child's full Wildprint report is ready, including the neuroscience
+            behind {childName}'s specific profile, what drains {objPronoun}, what
+            fuels {objPronoun}, and the hidden superpower most people around{" "}
+            {objPronoun} completely miss.
+          </p>
+
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-harbor-text">
+              Enter your email to unlock {childName}'s results:
             </p>
           </div>
 
@@ -234,7 +309,7 @@ export default function CalculatingScreen({
             </button>
 
             <p className="text-xs text-center text-harbor-text/40">
-              Enter a valid email to save and access your results. We don't spam or sell data.
+              Your email is safe. We don't spam or sell data, ever.
             </p>
           </div>
         </div>

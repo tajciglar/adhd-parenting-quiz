@@ -70,7 +70,7 @@ export const BASIC_INFO_QUESTIONS: BasicInfoQuestion[] = [
     key: "adhdJourney",
     title: "Where are you on the ADHD journey?",
     emoji: "🧩",
-    options: ["Formally diagnosed", "Self-diagnosed", "Suspected — figuring it out"],
+    options: ["Formally diagnosed", "Self-diagnosed", "Suspected, figuring it out"],
     optionEmojis: ["📋", "🔍", "🤔"],
   },
   {
@@ -134,7 +134,7 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
     id: "emotional",
     subtitle: "Dysregulation",
     questions: [
-      "Has a very low frustration tolerance — gets upset quickly over small obstacles.",
+      "Has a very low frustration tolerance, gets upset quickly over small obstacles.",
       "Can go from happy to devastated over something that seems very small to others.",
       'Is hypersensitive to criticism or perceived "rejection."',
       'Has "explosive" meltdowns that seem out of proportion to the trigger.',
@@ -163,7 +163,7 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
       "Struggles to understand why a friendship ended or why a peer is upset with {obj}.",
       'Gets "stuck" on a topic they love, even if no one else is interested.',
       "Insists on controlling the rules of games and gets upset if others change {obj}.",
-      "Shares very personal thoughts or information with strangers — seems to have no 'filter'.",
+      "Shares very personal thoughts or information with strangers, seems to have no 'filter'.",
     ],
   },
 ];

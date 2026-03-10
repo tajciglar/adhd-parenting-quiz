@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState, useCallback } from "react";
-import { useLocation, Navigate } from "react-router-dom";
+import { useEffect, useRef, useCallback } from "react";
+import { useLocation, useNavigate, Navigate } from "react-router-dom";
 import type { ArchetypeReportTemplate } from "@adhd-ai-assistant/shared";
+import { ARCHETYPES } from "@adhd-ai-assistant/shared";
 import { trackPixelEvent, generateEventId } from "../lib/fbq";
 import { trackFunnelEvent } from "../lib/analytics";
-import { api } from "../lib/api";
 
 interface LocationState {
   report?: ArchetypeReportTemplate;
@@ -13,29 +13,28 @@ interface LocationState {
   submissionId?: string;
 }
 
+const ANIMAL_EMOJI: Record<string, string> = {
+  koala: "🐨",
+  hummingbird: "🐦",
+  tiger: "🐯",
+  meerkat: "🦡",
+  stallion: "🐴",
+  fox: "🦊",
+  owl: "🦉",
+};
+
 function getPronouns(gender?: string) {
   const g = (gender ?? "").toLowerCase();
-  if (g === "male" || g.includes("boy")) return { sub: "He", obj: "him", pos: "his" };
-  if (g === "female" || g.includes("girl")) return { sub: "She", obj: "her", pos: "her" };
-  return { sub: "They", obj: "them", pos: "their" };
+  if (g === "male" || g.includes("boy")) return { sub: "He", subLower: "he", obj: "him", pos: "his", self: "himself" };
+  if (g === "female" || g.includes("girl")) return { sub: "She", subLower: "she", obj: "her", pos: "her", self: "herself" };
+  return { sub: "They", subLower: "they", obj: "them", pos: "their", self: "themselves" };
 }
-
-const WHATS_INSIDE = [
-  "The neuroscience behind [NAME]'s specific profile — in plain language",
-  "A Day in [NAME]'s Life — four scenarios that will make you say \"that's exactly us\"",
-  "What drains [NAME] and what fuels [THEM] — a practical reference you'll use every week",
-  "What to say — and what never to say — to [NAME] in hard moments",
-  "[NAME]'s hidden superpower — the thing most people miss entirely",
-  "What [NAME] needs to hear most",
-];
 
 export default function SalesPage() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { report, email, childName, childGender, submissionId } =
     (location.state ?? {}) as LocationState;
-
-  const [loading, setLoading] = useState(false);
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const firedRef = useRef(false);
   useEffect(() => {
@@ -48,89 +47,56 @@ export default function SalesPage() {
     );
   }, [report]);
 
-  const handleCheckout = useCallback(async () => {
-    if (loading) return;
-    setLoading(true);
-    setCheckoutError(null);
-
+  const handleCheckout = useCallback(() => {
     // Track checkout events
     trackFunnelEvent("checkout_started");
     trackPixelEvent("InitiateCheckout", { content_category: "adhd_report", value: 17, currency: "USD" }, generateEventId());
 
-    try {
-      const result = (await api.post("/api/stripe/create-checkout-session", {
-        email,
-        childName,
-        archetypeId: report?.archetypeId,
-        childGender,
-        submissionId,
-      })) as { url: string };
+    // Store data in sessionStorage for ThankYouPage
+    if (childName) sessionStorage.setItem("wildprint_childName", childName);
+    if (email) sessionStorage.setItem("wildprint_email", email);
+    if (childGender) sessionStorage.setItem("wildprint_childGender", childGender);
 
-      if (result.url) {
-        window.location.href = result.url;
-      } else {
-        setCheckoutError("Failed to create checkout session. Please try again.");
-        setLoading(false);
-      }
-    } catch (err) {
-      setCheckoutError(
-        err instanceof Error ? err.message : "Something went wrong. Please try again.",
-      );
-      setLoading(false);
-    }
-  }, [loading, email, childName, childGender, report, submissionId]);
+    // Navigate to custom checkout
+    navigate("/checkout", {
+      state: { report, email, childName, childGender, submissionId },
+    });
+  }, [email, childName, childGender, report, submissionId, navigate]);
 
   if (!report) return <Navigate to="/" replace />;
 
   const name = childName ?? "Your child";
-  const { sub, obj, pos } = getPronouns(childGender);
+  const { subLower, obj, self } = getPronouns(childGender);
+  const archetype = ARCHETYPES.find((a) => a.id === report.archetypeId);
+  const typeName = archetype?.typeName ?? report.title;
+  const emoji = ANIMAL_EMOJI[report.archetypeId] ?? "🧠";
 
-  const bullets = WHATS_INSIDE.map((b) =>
-    b
-      .replace(/\[NAME\]/g, name)
-      .replace(/\[THEY\]/g, sub)
-      .replace(/\[THEM\]/g, obj)
-      .replace(/\[THEIR\]/g, pos),
-  );
+  const WHATS_INSIDE = [
+    `The neuroscience behind ${name}'s specific profile, explained in plain language, not clinical jargon`,
+    `"A Day in ${name}'s Life," four real scenarios (morning, school, after school, bedtime) that will make you say "that's exactly what happens in our house"`,
+    `What drains ${name} vs. what fuels ${obj}, a practical reference table you'll come back to every week`,
+    `What to say, and what never to say, when ${name} is struggling`,
+    `${name}'s hidden superpower, the quality most people around ${obj} completely miss`,
+    `"What ${name} needs to hear most," five sentences that will change how ${subLower} sees ${self}`,
+  ];
 
   return (
-    <div className="min-h-screen bg-harbor-bg flex flex-col items-center justify-center px-6 py-16">
-      <div className="max-w-lg w-full space-y-8">
-        {/* Header badge */}
-        <div className="text-center space-y-3">
-          <span className="inline-block bg-harbor-accent/10 text-harbor-accent text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full">
-            {name}'s Wildprint has been identified
-          </span>
+    <div className="min-h-screen bg-harbor-bg overflow-y-auto">
+      <div className="max-w-lg w-full mx-auto px-6 py-16 space-y-8">
+
+        {/* ── Section A: Report Teaser ── */}
+        <div className="text-center space-y-4">
+          <div className="text-7xl">{emoji}</div>
           <h1 className="text-3xl font-bold text-harbor-primary leading-tight">
-            {report.title}
+            {name} is {typeName}.
           </h1>
-          <p className="text-lg text-harbor-text/70 font-medium">
-            {sub} is a rare profile.
+          <p className="text-harbor-text/60 italic text-base leading-relaxed">
+            &ldquo;{report.innerVoiceQuote?.trim()}&rdquo;
           </p>
         </div>
 
-        {/* Body copy */}
-        <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-7 space-y-4">
-          <p className="text-harbor-text/80 leading-relaxed">
-            {name}'s brain works in a way that most people around{" "}
-            {obj.toLowerCase()} will never fully see — not because they aren't
-            looking, but because they don't know what to look for.
-          </p>
-          <p className="text-harbor-text/80 leading-relaxed">
-            This profile is rare. It comes with a very specific set of
-            strengths, a very specific set of struggles, and a very specific
-            blueprint for how to support {obj.toLowerCase()} — once you know
-            what you're working with.
-          </p>
-          <p className="text-harbor-text/80 leading-relaxed font-medium">
-            {name}'s full report has everything you need to finally understand{" "}
-            {obj.toLowerCase()}.
-          </p>
-        </div>
-
-        {/* PDF Preview */}
+        {/* Blurred PDF Preview */}
         <div className="relative rounded-2xl border border-harbor-text/10 shadow-sm overflow-hidden bg-white">
-          {/* Visible top portion — mimics the real report layout */}
           <div className="p-6 pb-0 space-y-4">
             <div className="flex items-center gap-2 text-xs text-harbor-text/40 uppercase tracking-widest font-semibold">
               <span>Wildprint Report</span>
@@ -140,30 +106,27 @@ export default function SalesPage() {
             <h3 className="text-2xl font-bold text-harbor-primary leading-tight">
               {report.title}
             </h3>
-            <p className="text-harbor-text/60 italic text-sm leading-relaxed">
-              &ldquo;{report.innerVoiceQuote}&rdquo;
-            </p>
             <div className="border-t border-harbor-text/8 pt-4">
-              <h4 className="text-sm font-semibold text-harbor-primary mb-1">About Your Child</h4>
+              <h4 className="text-sm font-semibold text-harbor-primary mb-1">About {name}</h4>
               <p className="text-harbor-text/70 text-sm leading-relaxed">
-                {report.aboutChild?.slice(0, 180)}...
+                {report.aboutChild?.slice(0, 300)}...
+              </p>
+            </div>
+            <div className="border-t border-harbor-text/8 pt-4">
+              <h4 className="text-sm font-semibold text-harbor-primary mb-1">Hidden Superpower</h4>
+              <p className="text-harbor-text/70 text-sm leading-relaxed">
+                {report.hiddenSuperpower?.slice(0, 150)}...
               </p>
             </div>
           </div>
 
-          {/* Blurred lower portion */}
-          <div className="relative h-40">
+          <div className="relative h-32">
             <div className="px-6 pt-3 space-y-3 text-sm text-harbor-text/70 leading-relaxed">
-              <div className="border-t border-harbor-text/8 pt-3">
-                <h4 className="text-sm font-semibold text-harbor-primary mb-1">Hidden Superpower</h4>
-                <p>{report.hiddenSuperpower?.slice(0, 120)}...</p>
-              </div>
               <div className="border-t border-harbor-text/8 pt-3">
                 <h4 className="text-sm font-semibold text-harbor-primary mb-1">Understanding the Brain</h4>
                 <p>{report.brainSections?.[0]?.content?.slice(0, 100)}...</p>
               </div>
             </div>
-            {/* Gradient + blur overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/80 to-white backdrop-blur-[2px] flex flex-col items-center justify-end pb-5">
               <div className="bg-harbor-primary/5 border border-harbor-primary/15 rounded-xl px-5 py-3 flex items-center gap-2">
                 <svg className="w-4 h-4 text-harbor-primary/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -176,30 +139,33 @@ export default function SalesPage() {
           </div>
         </div>
 
+        {/* ── Section B: Sales Copy ── */}
+        <div className="space-y-4">
+          <p className="text-harbor-text leading-relaxed">
+            {name}'s brain works in a way that most people around {obj} will never
+            fully understand, not because something is wrong, but because {name} is
+            operating on a frequency that most environments weren't built for.
+          </p>
+          <p className="text-harbor-text leading-relaxed">
+            Your full Wildprint report reveals exactly who {name} is, why {subLower} does
+            what {subLower} does, and what {subLower} needs from you to finally feel understood.
+          </p>
+        </div>
+
         {/* What's inside */}
         <div className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-widest text-harbor-text/40">
-            What's inside
+          <p className="text-sm font-semibold uppercase tracking-widest text-harbor-text/40">
+            What's inside {name}'s full Wildprint report
           </p>
           <ul className="space-y-2">
-            {bullets.map((bullet) => (
+            {WHATS_INSIDE.map((bullet) => (
               <li key={bullet} className="flex items-start gap-3">
                 <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-harbor-accent/15 flex items-center justify-center">
-                  <svg
-                    className="w-3 h-3 text-harbor-accent"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                  >
-                    <path
-                      d="M2 6l3 3 5-5"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
+                  <svg className="w-3 h-3 text-harbor-accent" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
-                <span className="text-harbor-text/80 text-sm leading-relaxed">
+                <span className="text-harbor-text text-sm leading-relaxed">
                   {bullet}
                 </span>
               </li>
@@ -207,30 +173,35 @@ export default function SalesPage() {
           </ul>
         </div>
 
-        {/* CTA */}
+        {/* ── Section C: Trust & Authority ── */}
+        <div className="space-y-3">
+          <div className="bg-white rounded-xl border border-harbor-text/10 p-5 space-y-2">
+            <p className="text-sm font-semibold text-harbor-primary">🧠 Built by specialists</p>
+            <p className="text-harbor-text/70 text-sm leading-relaxed">
+              Built by ADHD specialists with over 40 years of combined clinical
+              experience. This isn't a generic personality quiz. Every question,
+              every profile, and every recommendation is grounded in decades of
+              real work with real ADHD families.
+            </p>
+          </div>
+          <div className="bg-white rounded-xl border border-harbor-text/10 p-5 space-y-2">
+            <p className="text-sm font-semibold text-harbor-primary">✅ 100% satisfaction guarantee</p>
+            <p className="text-harbor-text/70 text-sm leading-relaxed">
+              If the report doesn't feel like it was written specifically about
+              your child, email us and we'll refund you, no questions asked.
+            </p>
+          </div>
+        </div>
+
+        {/* ── CTA ── */}
         <div className="space-y-3">
           <button
             type="button"
-            onClick={() => void handleCheckout()}
-            disabled={loading}
-            className="w-full rounded-xl bg-harbor-primary text-white px-5 py-4 font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-sm disabled:opacity-60 disabled:cursor-wait"
+            onClick={handleCheckout}
+            className="w-full rounded-xl bg-harbor-primary text-white px-5 py-4 font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-sm"
           >
-            {loading
-              ? "Redirecting to checkout..."
-              : `Unlock ${name}'s Full Wildprint Report — $17 →`}
+            {`Unlock ${name}'s Full Wildprint Report · $17 →`}
           </button>
-
-          {checkoutError ? (
-            <p className="text-sm text-center text-red-600 bg-red-50 rounded-lg px-4 py-2">
-              {checkoutError}
-            </p>
-          ) : null}
-
-          {email ? (
-            <p className="text-xs text-center text-harbor-text/40">
-              A summary has been sent to {email}
-            </p>
-          ) : null}
         </div>
       </div>
     </div>

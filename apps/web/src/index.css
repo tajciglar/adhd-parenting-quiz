@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --color-harbor-primary: #7B2D8E;
+  --color-harbor-primary: #7040ca;
   --color-harbor-bg: #FAF7FC;
   --color-harbor-accent: #9B59B6;
-  --color-harbor-text: #2D1B4E;
+  --color-harbor-text: #1a1a1a;
   --color-harbor-error: #C97B63;
   --color-harbor-primary-light: #9B59B6;
   --color-harbor-accent-light: #C39BD3;
   --font-family-sans: "Inter", system-ui, sans-serif;
 }
 
-body {
+html, body {
   background-color: var(--color-harbor-bg);
   color: var(--color-harbor-text);
   -webkit-font-smoothing: antialiased;
