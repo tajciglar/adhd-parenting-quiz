@@ -242,16 +242,6 @@ export const ARCHETYPES: Archetype[] = [
     solution: "First/Then flows and clear social boundaries.",
     childPerspective: "",
   },
-  {
-    id: "owl",
-    animal: "The Owl",
-    typeName: "The Keen Owl",
-    primaryTrait: ["inattentive", "social"],
-    explanation: "Inattentive + Social profile.",
-    traits: "Deep attention pockets, misses cues in fast exchanges.",
-    solution: "Practice turn-taking and cue labeling.",
-    childPerspective: "",
-  },
 ];
 
 // ─── Step Configuration ─────────────────────────────────────────────────────
