@@ -133,14 +133,8 @@ export default function CalculatingScreen({
       sessionStorage.setItem("wildprint_childGender", childGender ?? "");
 
       clearOnboardingStorage();
-      navigate("/results", {
-        state: {
-          report: result.report,
-          email,
-          childName,
-          childGender,
-          submissionId: result.submissionId,
-        },
+      // Test mode: skip sales page, go straight to thank you
+      navigate("/thank-you", {
         replace: true,
       });
     } catch (err) {
