@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "cd ../.. && pnpm --filter @adhd-parenting-quiz/shared build && pnpm --filter @adhd-parenting-quiz/api build"
+buildCommand = "pnpm --filter @adhd-parenting-quiz/shared build && pnpm --filter @adhd-parenting-quiz/api build"
 
 [deploy]
 startCommand = "node apps/api/dist/server.js"
