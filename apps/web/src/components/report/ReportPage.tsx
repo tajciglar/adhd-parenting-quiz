@@ -103,17 +103,17 @@ export default function ReportPage() {
         <div className="space-y-5">
           <section className="bg-white rounded-2xl border border-harbor-text/10 p-6">
             <h2 className="text-xl font-semibold text-harbor-primary mb-2">The Animal</h2>
-            <p className="text-harbor-text/80 leading-relaxed">{report.animalDescription}</p>
+            <p className="text-harbor-text/80 leading-relaxed whitespace-pre-line">{report.animalDescription}</p>
           </section>
 
           <section className="bg-white rounded-2xl border border-harbor-text/10 p-6">
             <h2 className="text-xl font-semibold text-harbor-primary mb-2">About Your Child</h2>
-            <p className="text-harbor-text/80 leading-relaxed">{report.aboutChild}</p>
+            <p className="text-harbor-text/80 leading-relaxed whitespace-pre-line">{report.aboutChild}</p>
           </section>
 
           <section className="bg-white rounded-2xl border border-harbor-text/10 p-6">
             <h2 className="text-xl font-semibold text-harbor-primary mb-2">Hidden Superpower</h2>
-            <p className="text-harbor-text/80 leading-relaxed">{report.hiddenSuperpower}</p>
+            <p className="text-harbor-text/80 leading-relaxed whitespace-pre-line">{report.hiddenSuperpower}</p>
           </section>
 
           <section className="bg-white rounded-2xl border border-harbor-text/10 p-6">
@@ -122,7 +122,7 @@ export default function ReportPage() {
               {report.brainSections.map((section) => (
                 <div key={section.title}>
                   <h3 className="font-semibold text-harbor-text mb-1">{section.title}</h3>
-                  <p className="text-harbor-text/80 leading-relaxed">{section.content}</p>
+                  <p className="text-harbor-text/80 leading-relaxed whitespace-pre-line">{section.content}</p>
                 </div>
               ))}
             </div>
@@ -131,10 +131,10 @@ export default function ReportPage() {
           <section className="bg-white rounded-2xl border border-harbor-text/10 p-6">
             <h2 className="text-xl font-semibold text-harbor-primary mb-3">A Day in Life</h2>
             <div className="space-y-3">
-              <p className="text-harbor-text/80"><span className="font-semibold text-harbor-text">Morning:</span> {report.dayInLife.morning}</p>
-              <p className="text-harbor-text/80"><span className="font-semibold text-harbor-text">School:</span> {report.dayInLife.school}</p>
-              <p className="text-harbor-text/80"><span className="font-semibold text-harbor-text">After School:</span> {report.dayInLife.afterSchool}</p>
-              <p className="text-harbor-text/80"><span className="font-semibold text-harbor-text">Bedtime:</span> {report.dayInLife.bedtime}</p>
+              <p className="text-harbor-text/80 whitespace-pre-line"><span className="font-semibold text-harbor-text">Morning:</span> {report.dayInLife.morning}</p>
+              <p className="text-harbor-text/80 whitespace-pre-line"><span className="font-semibold text-harbor-text">School:</span> {report.dayInLife.school}</p>
+              <p className="text-harbor-text/80 whitespace-pre-line"><span className="font-semibold text-harbor-text">After School:</span> {report.dayInLife.afterSchool}</p>
+              <p className="text-harbor-text/80 whitespace-pre-line"><span className="font-semibold text-harbor-text">Bedtime:</span> {report.dayInLife.bedtime}</p>
             </div>
           </section>
 
