@@ -73,7 +73,7 @@ function IntroScreen({
   onReady: () => void;
 }) {
   return (
-    <div className="h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-8 overflow-hidden">
+    <div className="min-h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-8 overflow-y-auto">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-6 space-y-5">
           <div className="text-center">

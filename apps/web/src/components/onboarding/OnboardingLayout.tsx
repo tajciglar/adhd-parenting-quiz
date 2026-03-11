@@ -25,7 +25,7 @@ export default function OnboardingLayout({
   children,
 }: OnboardingLayoutProps) {
   return (
-    <div className="h-[100dvh] overflow-hidden bg-harbor-bg flex flex-col">
+    <div className="min-h-[100dvh] overflow-y-auto bg-harbor-bg flex flex-col">
       <ProgressBar current={currentStep} />
 
       <div className="flex-1 flex flex-col items-center justify-center max-w-xl mx-auto w-full px-6">
