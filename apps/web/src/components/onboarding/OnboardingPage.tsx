@@ -74,17 +74,17 @@ function IntroScreen({
           <div className="text-center">
             <div className="text-4xl mb-4">🔍</div>
             <h2 className="text-xl font-bold text-harbor-primary leading-snug">
-              Great! Let's find {childName}'s ADHD Personality Report.
+              Great! Let's find {childName}'s ADHD Personality Type.
             </h2>
           </div>
 
-          <p className="text-harbor-text leading-relaxed ">
+          <p className="text-harbor-text leading-relaxed text-center">
             You're about to discover your child's unique brain profile, their
             strengths, their struggles, and the hidden superpower most people
             around {objPronoun} completely miss.
           </p>
 
-          <p className="text-harbor-text leading-relaxed">
+          <p className="text-harbor-text leading-relaxed text-center">
             Answer based on what you see at home, not what you hope for or what
             happens on a good day. The more honest you are, the more accurate{" "}
             {childName}'s profile will be.

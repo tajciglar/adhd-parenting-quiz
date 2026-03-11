@@ -147,7 +147,7 @@ export default function CalculatingScreen({
           <h2 className="text-xl font-bold text-harbor-primary leading-snug">
             It looks like you've already received your child's ADHD Personality Report.
           </h2>
-          <p className="text-harbor-text leading-relaxed">
+          <p className="text-harbor-text leading-relaxed text-center">
             We've sent your child's report to this email before. If you can't
             find it, check your spam folder or reach out to us directly at{" "}
             <a
@@ -158,7 +158,7 @@ export default function CalculatingScreen({
             </a>{" "}
             and we'll resend it right away.
           </p>
-          <p className="text-harbor-text leading-relaxed">
+          <p className="text-harbor-text leading-relaxed text-center">
             If you're here for a different child, just use a different email
             address and we'll create a brand new profile for them.
           </p>
@@ -250,7 +250,7 @@ export default function CalculatingScreen({
             </h2>
           </div>
 
-          <p className="text-harbor-text leading-relaxed text-sm">
+          <p className="text-harbor-text leading-relaxed text-sm text-center">
             Your child's full ADHD Personality Report is ready, including the neuroscience
             behind {childName}'s specific profile, what drains {objPronoun}, what
             fuels {objPronoun}, and the hidden superpower most people around{" "}
@@ -258,7 +258,7 @@ export default function CalculatingScreen({
           </p>
 
           <div className="space-y-1">
-            <p className="text-sm font-medium text-harbor-text">
+            <p className="text-sm font-medium text-harbor-text text-center">
               Enter your email to unlock {childName}'s results:
             </p>
           </div>
@@ -277,7 +277,7 @@ export default function CalculatingScreen({
             />
 
             {submitError ? (
-              <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">
+              <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2 text-center">
                 {submitError}
               </p>
             ) : null}
