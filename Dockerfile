@@ -58,6 +58,9 @@ COPY --from=base /app/packages/shared/dist ./packages/shared/dist
 # Copy built API JS
 COPY --from=base /app/apps/api/dist ./apps/api/dist
 
+# Copy animal images (used by PDF report generation)
+COPY apps/web/public/animals/ ./apps/web/public/animals/
+
 ENV NODE_ENV=production
 EXPOSE 3001
 

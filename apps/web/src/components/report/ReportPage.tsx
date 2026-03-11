@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { useLocation, Navigate } from "react-router-dom";
 import type { ArchetypeReportTemplate } from "@adhd-parenting-quiz/shared";
+import { AnimalIcon } from "../../lib/animalImages";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -18,7 +19,15 @@ interface RouterState {
 
 export default function ReportPage() {
   const location = useLocation();
-  const { report, email } = (location.state ?? {}) as RouterState;
+  const stateReport = (location.state as RouterState)?.report;
+  const stateEmail = (location.state as RouterState)?.email;
+
+  // Fall back to sessionStorage so the page survives a refresh
+  const report: ArchetypeReportTemplate | null = stateReport
+    ?? JSON.parse(sessionStorage.getItem("wildprint_report") ?? "null");
+  const email = stateEmail ?? sessionStorage.getItem("wildprint_email") ?? "";
+  const childName = sessionStorage.getItem("wildprint_childName") ?? "Your child";
+
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
 
@@ -28,10 +37,6 @@ export default function ReportPage() {
     setDownloadError(null);
 
     try {
-      const childName =
-        (report as unknown as { aboutChild?: string } & ArchetypeReportTemplate)
-          .title ?? "Your child";
-
       const res = await fetch(`${API_URL}/api/guest/pdf`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -84,10 +89,15 @@ export default function ReportPage() {
         ) : null}
 
         <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-6 md:p-8 mb-5">
-          <h1 className="text-3xl md:text-4xl font-bold text-harbor-primary mb-3">
-            {report.title}
-          </h1>
-          <p className="text-harbor-text/75 italic">"{report.innerVoiceQuote}"</p>
+          <div className="flex items-center gap-4 mb-3">
+            <AnimalIcon id={report.archetypeId} className="w-20 h-20 shrink-0" />
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-harbor-primary">
+                {report.title}
+              </h1>
+              <p className="text-harbor-text/75 italic mt-1">"{report.innerVoiceQuote}"</p>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-5">

@@ -116,15 +116,16 @@ export default function CalculatingScreen({
         archetypeId: result.report?.archetypeId,
       });
 
-      // Store data in sessionStorage for ThankYouPage
+      // Store data in sessionStorage for ReportPage (survives refresh)
       sessionStorage.setItem("wildprint_childName", childName);
       sessionStorage.setItem("wildprint_email", email);
       sessionStorage.setItem("wildprint_childGender", childGender ?? "");
+      sessionStorage.setItem("wildprint_report", JSON.stringify(result.report));
 
       clearOnboardingStorage();
-      // Test mode: skip sales page, go straight to thank you
-      navigate("/thank-you", {
+      navigate("/report", {
         replace: true,
+        state: { report: result.report, email },
       });
     } catch (err) {
       if (err instanceof Error && err.message === "already_submitted") {
