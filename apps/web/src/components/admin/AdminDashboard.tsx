@@ -28,7 +28,6 @@ const QUESTION_MAP: Record<string, string> = {
   childAgeRange: "How old is your child?",
   childGender: "You are raising",
   adhdJourney: "Where are you on the ADHD journey?",
-  childName: "Child's name",
   ...buildQuestionMap(),
 };
 
@@ -464,7 +463,8 @@ export default function AdminDashboard() {
         {/* Answer Distribution — split into onboarding vs scoring */}
         {(() => {
           if (!analytics?.answerDistribution.length) return null;
-          const BASIC_KEYS = new Set(["caregiverType", "childAgeRange", "childGender", "adhdJourney", "childName"]);
+          const BASIC_KEYS = new Set(["caregiverType", "childAgeRange", "childGender", "adhdJourney"]);
+          // Filter out childName entirely — it's unique per user and not useful for analytics
           const onboarding = analytics.answerDistribution.filter((a) => BASIC_KEYS.has(a.questionKey));
           const scoring = analytics.answerDistribution.filter((a) => !BASIC_KEYS.has(a.questionKey));
 
