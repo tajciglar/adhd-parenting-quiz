@@ -28,7 +28,7 @@ export default function SingleSelect({
             onClick={() => onChange(opt.value)}
             className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
               value === opt.value
-                ? "border-harbor-accent bg-harbor-accent/10"
+                ? "border-harbor-accent bg-harbor-accent/10 scale-[1.02]"
                 : "border-harbor-primary/15 hover:border-harbor-primary/30 bg-white"
             }`}
           >

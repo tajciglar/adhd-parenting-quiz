@@ -173,7 +173,7 @@ export default function OnboardingPage() {
           } else {
             goNext();
           }
-        }, 50);
+        }, 400);
       }
     },
     [saveAnswer, goNext, handleShowCalculating],

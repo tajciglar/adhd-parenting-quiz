@@ -66,7 +66,7 @@ export default function LikertSelect({
               <button
                 onClick={() => onChange(opt.value)}
                 className={`${style.size} rounded-full border-2 transition-all duration-200 cursor-pointer flex-shrink-0 ${
-                  isSelected ? style.selected : style.unselected
+                  isSelected ? `${style.selected} scale-110` : style.unselected
                 }`}
                 aria-label={opt.label}
               />
