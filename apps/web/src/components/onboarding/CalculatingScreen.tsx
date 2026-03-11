@@ -106,7 +106,7 @@ export default function CalculatingScreen({
         fbc: getFbc(),
         fbp: getFbp(),
         eventSourceUrl: window.location.href,
-      })) as { report: ArchetypeReportTemplate; submissionId?: string };
+      })) as { report: ArchetypeReportTemplate; submissionId?: string; pdfUrl?: string };
 
       // Client-side Lead event (deduped with CAPI via eventId)
       trackPixelEvent("Lead", {}, eventId);
@@ -121,11 +121,12 @@ export default function CalculatingScreen({
       sessionStorage.setItem("wildprint_email", email);
       sessionStorage.setItem("wildprint_childGender", childGender ?? "");
       sessionStorage.setItem("wildprint_report", JSON.stringify(result.report));
+      if (result.pdfUrl) sessionStorage.setItem("wildprint_pdfUrl", result.pdfUrl);
 
       clearOnboardingStorage();
       navigate("/report", {
         replace: true,
-        state: { report: result.report, email },
+        state: { report: result.report, email, pdfUrl: result.pdfUrl },
       });
     } catch (err) {
       if (err instanceof Error && err.message === "already_submitted") {

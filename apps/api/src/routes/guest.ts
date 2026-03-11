@@ -371,7 +371,7 @@ export default async function guestRoutes(fastify: FastifyInstance) {
         request.log.error({ err }, "guest.submit.supabase_insert_failed");
       }
 
-      return reply.send({ report: rendered, submissionId });
+      return reply.send({ report: rendered, submissionId, pdfUrl });
     },
   );
 
@@ -419,42 +419,6 @@ export default async function guestRoutes(fastify: FastifyInstance) {
       pdfBuffer = await generateReportPdf(rendered as ArchetypeReportTemplate, { name: childName });
     } catch (err) {
       request.log.error({ err }, "guest.pdf.generation_failed");
-      return reply.status(500).send({ error: "Failed to generate PDF" });
-    }
-
-    const filename = `${toSlug(childName)}-adhd-guide.pdf`;
-
-    reply
-      .header("Content-Type", "application/pdf")
-      .header("Content-Disposition", `attachment; filename="${filename}"`);
-
-    return reply.send(pdfBuffer);
-  });
-
-  // ── POST /api/guest/pdf ─────────────────────────────────────────────────────
-  // Accepts an already-rendered report from the web client and returns the PDF.
-  const postPdfBodySchema = z.object({
-    report: z.object({
-      archetypeId: z.string(),
-      title: z.string(),
-      innerVoiceQuote: z.string(),
-    }).passthrough(),
-    childName: z.string().max(100).default("Your child"),
-  });
-
-  fastify.post("/guest/pdf", async (request, reply) => {
-    const parsed = postPdfBodySchema.safeParse(request.body);
-    if (!parsed.success) {
-      return reply.status(400).send({ error: "Invalid request body" });
-    }
-
-    const { report, childName } = parsed.data;
-
-    let pdfBuffer: Buffer;
-    try {
-      pdfBuffer = await generateReportPdf(report as unknown as ArchetypeReportTemplate, { name: childName });
-    } catch (err) {
-      request.log.error({ err }, "guest.pdf.post_generation_failed");
       return reply.status(500).send({ error: "Failed to generate PDF" });
     }
 

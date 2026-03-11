@@ -1,75 +1,23 @@
-import { useCallback, useState } from "react";
 import { useLocation, Navigate } from "react-router-dom";
 import type { ArchetypeReportTemplate } from "@adhd-parenting-quiz/shared";
 import { AnimalIcon } from "../../lib/animalImages";
 
-const API_URL = import.meta.env.VITE_API_URL || "";
-
-function parseDownloadFilename(contentDisposition: string | null): string | null {
-  if (!contentDisposition) return null;
-  const match = contentDisposition.match(/filename="?([^"]+)"?/i);
-  if (!match?.[1]) return null;
-  return match[1].trim();
-}
-
 interface RouterState {
   report?: ArchetypeReportTemplate;
   email?: string;
+  pdfUrl?: string;
 }
 
 export default function ReportPage() {
   const location = useLocation();
-  const stateReport = (location.state as RouterState)?.report;
-  const stateEmail = (location.state as RouterState)?.email;
+  const state = location.state as RouterState | undefined;
 
   // Fall back to sessionStorage so the page survives a refresh
-  const report: ArchetypeReportTemplate | null = stateReport
+  const report: ArchetypeReportTemplate | null = state?.report
     ?? JSON.parse(sessionStorage.getItem("wildprint_report") ?? "null");
-  const email = stateEmail ?? sessionStorage.getItem("wildprint_email") ?? "";
+  const email = state?.email ?? sessionStorage.getItem("wildprint_email") ?? "";
   const childName = sessionStorage.getItem("wildprint_childName") ?? "Your child";
-
-  const [downloading, setDownloading] = useState(false);
-  const [downloadError, setDownloadError] = useState<string | null>(null);
-
-  const handleDownloadPdf = useCallback(async () => {
-    if (!report) return;
-    setDownloading(true);
-    setDownloadError(null);
-
-    try {
-      const res = await fetch(`${API_URL}/api/guest/pdf`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ report, childName }),
-      });
-
-      if (!res.ok) {
-        const body = (await res.json().catch(() => ({}))) as {
-          error?: string;
-        };
-        throw new Error(body.error ?? "Failed to download PDF");
-      }
-
-      const blob = await res.blob();
-      const filename =
-        parseDownloadFilename(res.headers.get("content-disposition")) ??
-        `harbor-${report.archetypeId || "report"}.pdf`;
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      setDownloadError(
-        err instanceof Error ? err.message : "Failed to download PDF",
-      );
-    } finally {
-      setDownloading(false);
-    }
-  }, [report]);
+  const pdfUrl = state?.pdfUrl ?? sessionStorage.getItem("wildprint_pdfUrl") ?? "";
 
   if (!report) {
     return <Navigate to="/" replace />;
@@ -195,21 +143,20 @@ export default function ReportPage() {
             <p className="text-lg text-harbor-text italic">{report.closingLine}</p>
           </section>
 
-          <section className="bg-white rounded-2xl border border-harbor-text/10 p-6 mb-10">
-            <h2 className="text-xl font-semibold text-harbor-primary mb-3">
-              Save Your Report
-            </h2>
-            {downloadError ? (
-              <p className="mb-3 text-sm text-red-600">{downloadError}</p>
-            ) : null}
-            <button
-              onClick={() => void handleDownloadPdf()}
-              disabled={downloading}
-              className="rounded-xl bg-harbor-primary text-white px-5 py-3 font-medium hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {downloading ? "Generating PDF..." : "Download PDF"}
-            </button>
-          </section>
+          {pdfUrl ? (
+            <section className="bg-white rounded-2xl border border-harbor-text/10 p-6 mb-10">
+              <h2 className="text-xl font-semibold text-harbor-primary mb-3">
+                Save Your Report
+              </h2>
+              <a
+                href={pdfUrl}
+                download={`${childName}-adhd-guide.pdf`}
+                className="inline-block rounded-xl bg-harbor-primary text-white px-5 py-3 font-medium hover:opacity-90 transition"
+              >
+                Download PDF
+              </a>
+            </section>
+          ) : null}
         </div>
       </div>
     </div>
