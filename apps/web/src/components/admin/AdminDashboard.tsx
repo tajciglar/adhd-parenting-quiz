@@ -146,6 +146,8 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [days, setDays] = useState(7);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   const fetchAnalytics = useCallback(
     async (key: string, numDays: number) => {
@@ -179,6 +181,25 @@ export default function AdminDashboard() {
     sessionStorage.setItem("admin_key", adminKey.trim());
     setAuthenticated(true);
     void fetchAnalytics(adminKey.trim(), days);
+  }, [adminKey, days, fetchAnalytics]);
+
+  const handleReset = useCallback(async () => {
+    setResetting(true);
+    try {
+      const res = await fetch(`${API_URL}/api/admin/reset`, {
+        method: "POST",
+        headers: { "x-admin-key": adminKey },
+      });
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+      const result = (await res.json()) as { deletedEvents: number; deletedSubmissions: number };
+      alert(`Reset complete. Deleted ${result.deletedEvents} events and ${result.deletedSubmissions} submissions.`);
+      setShowResetConfirm(false);
+      void fetchAnalytics(adminKey, days);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to reset analytics");
+    } finally {
+      setResetting(false);
+    }
   }, [adminKey, days, fetchAnalytics]);
 
   useEffect(() => {
@@ -507,6 +528,51 @@ export default function AdminDashboard() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        ) : null}
+
+        {/* Danger Zone — Reset */}
+        <div className="bg-white rounded-xl border border-red-200 p-6 space-y-3">
+          <h2 className="text-lg font-semibold text-red-600">Danger Zone</h2>
+          <p className="text-sm text-harbor-text/60">
+            Permanently delete all analytics data (funnel events and quiz submissions). This action cannot be undone.
+          </p>
+          <button
+            onClick={() => setShowResetConfirm(true)}
+            className="px-4 py-2 rounded-lg border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition"
+          >
+            Reset All Analytics
+          </button>
+        </div>
+
+        {/* Reset Confirmation Modal */}
+        {showResetConfirm ? (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-6">
+            <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-lg p-7 max-w-sm w-full space-y-4">
+              <div className="text-center">
+                <div className="text-4xl mb-2">⚠️</div>
+                <h3 className="text-lg font-bold text-red-600">Are you sure?</h3>
+              </div>
+              <p className="text-sm text-harbor-text/70 text-center">
+                This will permanently delete all funnel events and quiz submissions. This cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowResetConfirm(false)}
+                  disabled={resetting}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-harbor-text/20 text-harbor-text/70 text-sm font-medium hover:bg-harbor-text/5 transition disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => void handleReset()}
+                  disabled={resetting}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition disabled:opacity-50"
+                >
+                  {resetting ? "Deleting..." : "Yes, Delete Everything"}
+                </button>
+              </div>
             </div>
           </div>
         ) : null}

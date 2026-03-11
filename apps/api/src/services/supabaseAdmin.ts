@@ -355,3 +355,28 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
 
   return { stepDropoff, funnelSummary, recentSubmissions, dailyTrend, archetypeDistribution, traitPairDistribution, answerDistribution, avgCompletionTime };
 }
+
+// ─── Reset Analytics ──────────────────────────────────────────────────────────
+
+export async function resetAnalytics(): Promise<{ deletedEvents: number; deletedSubmissions: number }> {
+  const sb = getSupabaseAdmin();
+  if (!sb) throw new Error("Supabase not configured");
+
+  // Delete all funnel events
+  const { count: eventCount, error: eventError } = await sb
+    .from("funnel_events")
+    .delete({ count: "exact" })
+    .neq("id", "00000000-0000-0000-0000-000000000000"); // delete all rows
+
+  if (eventError) throw new Error(`Failed to delete funnel_events: ${eventError.message}`);
+
+  // Delete all quiz submissions
+  const { count: subCount, error: subError } = await sb
+    .from("quiz_submissions")
+    .delete({ count: "exact" })
+    .neq("id", "00000000-0000-0000-0000-000000000000"); // delete all rows
+
+  if (subError) throw new Error(`Failed to delete quiz_submissions: ${subError.message}`);
+
+  return { deletedEvents: eventCount ?? 0, deletedSubmissions: subCount ?? 0 };
+}

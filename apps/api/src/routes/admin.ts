@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { getAnalytics } from "../services/supabaseAdmin.js";
+import { getAnalytics, resetAnalytics } from "../services/supabaseAdmin.js";
 
 export default async function adminRoutes(fastify: FastifyInstance) {
   // Simple secret-key auth for admin endpoints
@@ -28,6 +28,18 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     } catch (err) {
       request.log.error({ err }, "admin.analytics.query_failed");
       return reply.status(500).send({ error: "Failed to fetch analytics" });
+    }
+  });
+
+  // ── POST /api/admin/reset ───────────────────────────────────────────────
+  fastify.post("/admin/reset", async (request, reply) => {
+    try {
+      const result = await resetAnalytics();
+      request.log.info(result, "admin.analytics.reset");
+      return reply.send(result);
+    } catch (err) {
+      request.log.error({ err }, "admin.analytics.reset_failed");
+      return reply.status(500).send({ error: "Failed to reset analytics" });
     }
   });
 }
