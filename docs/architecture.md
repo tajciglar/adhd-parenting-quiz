@@ -3,175 +3,197 @@
 ## System Overview
 
 ```
-┌─────────────┐     ┌──────────────────┐     ┌──────────────┐
-│   Frontend   │────▶│    API Server     │────▶│   Database   │
-│  (React/Vite)│     │    (Fastify)      │     │ (PostgreSQL) │
-│  Port 3000   │     │    Port 3001      │     │  Port 5432   │
-└──────┬───────┘     └────────┬─────────┘     └──────────────┘
-       │                      │
-       │  Supabase Auth       │  Supabase Auth
-       │  (sign up/in)        │  (verify JWT)
-       ▼                      ▼
-    ┌──────────────────────────┐
-    │     Supabase Cloud       │
-    │  (Auth service only)     │
-    └──────────────────────────┘
+┌─────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│   Frontend   │────▶│    API Server     │────▶│  Supabase        │
+│  (React/Vite)│     │    (Fastify)      │     │  PostgreSQL      │
+│  Port 3000   │     │    Port 3001      │     │  Port 5432       │
+└─────────────┘     └────────┬─────────┘     └──────────────────┘
+                             │
+                    ┌────────┴─────────┐
+                    │  External Services│
+                    │  Stripe, Meta CAPI│
+                    │  ActiveCampaign   │
+                    └──────────────────┘
 ```
+
+This is the **quiz/assessment** product. It shares a Supabase PostgreSQL instance with the [Harbor AI Assistant](https://github.com/tajciglar/adhd-parenting-ai-assistant). Quiz submissions are stored in Supabase-managed tables and can be auto-imported by the AI assistant on user signup.
 
 ## Tech Stack
 
 ### Frontend (`apps/web`) — Port 3000
 - **React 19** + **Vite 7**
 - **Tailwind CSS v4** — CSS-based `@theme` config (no `tailwind.config.ts`)
-- **Framer Motion** — page transitions, staggered animations
+- **Framer Motion** — step transitions, staggered animations
 - **react-router-dom** — client-side routing
-- **@supabase/supabase-js** — auth client (sign up, sign in, session)
+- **Stripe.js** — payment integration
+- **Vercel Analytics** — page view tracking
 
 ### API (`apps/api`) — Port 3001
-- **Fastify** — HTTP server
-- **Prisma** — ORM and database migrations
+- **Fastify 5** — HTTP server with rate limiting, CORS, Helmet
+- **Prisma 6** — ORM and database migrations
 - **Zod** — request validation
-- **@supabase/supabase-js** — JWT token verification
+- **Stripe SDK** — checkout sessions, webhooks
+- **@supabase/supabase-js** — admin client for quiz data storage
 
 ### Database
-- **PostgreSQL 16** (Docker locally, Railway/Supabase in production)
-- **Prisma** manages schema and migrations
+- **PostgreSQL 16** with pgvector (Docker locally, Supabase in production)
+- Prisma manages schema and migrations
+- Quiz submissions stored in Supabase `quiz_submissions` table
+- Funnel events stored in Supabase `funnel_events` table
 
 ### External Services
-- **Supabase** — authentication only (users, passwords, JWTs)
+- **Supabase** — database + auth
+- **Stripe** — payment processing
+- **ActiveCampaign** — email marketing
+- **Meta Conversions API** — ad attribution
 
-## Auth Flow
+## User Flow
 
 ```
-1. User signs up/in on the frontend
-   └─▶ supabase.auth.signUp() or signInWithPassword()
-       └─▶ Supabase Cloud returns a JWT access token
+1. User lands on /onboarding (no account required)
+   └─▶ Multi-step behavioral assessment
 
-2. Frontend stores the session (Supabase SDK → localStorage)
+2. User completes all questions
+   └─▶ POST /api/guest/submit
+       └─▶ Score responses, match archetype, store in quiz_submissions
 
-3. Frontend makes API request
-   └─▶ Authorization: Bearer <jwt-token>
+3. User sees results page with archetype
+   └─▶ /results — sales page with trait summary
 
-4. API receives the request
-   └─▶ fastify.authenticate preHandler
-       └─▶ supabase.auth.getUser(token)
-           └─▶ Returns { id, email } or 401
+4. User clicks "Get Report"
+   └─▶ /checkout — Stripe payment
 
-5. API uses the user ID with Prisma to query PostgreSQL
+5. Post-purchase
+   └─▶ /thank-you — confirmation + report access
+   └─▶ /report — detailed PDF report
 ```
 
-Supabase handles **only** authentication. All application data (profiles, onboarding, conversations) lives in our own PostgreSQL database.
+No authentication required for the quiz flow. Email is captured during submission for follow-up marketing.
 
 ## Project Structure
 
 ```
-adhd-ai-assistant/
+adhd-parenting-quiz/
 ├── apps/
-│   ├── api/                    # Fastify API server
+│   ├── api/
 │   │   ├── prisma/
-│   │   │   ├── schema.prisma   # Database schema
-│   │   │   └── migrations/     # Migration history
+│   │   │   ├── schema.prisma
+│   │   │   └── migrations/
 │   │   └── src/
-│   │       ├── server.ts       # Fastify setup, CORS, routes
+│   │       ├── server.ts            # Fastify setup, CORS, routes
 │   │       ├── plugins/
-│   │       │   ├── prisma.ts   # PrismaClient plugin
-│   │       │   └── supabase.ts # Auth plugin (JWT verification)
-│   │       └── routes/
-│   │           ├── health.ts
-│   │           ├── onboarding.ts
-│   │           └── chat.ts
+│   │       │   ├── prisma.ts        # PrismaClient plugin
+│   │       │   └── supabase.ts      # Auth plugin
+│   │       ├── routes/
+│   │       │   ├── health.ts        # Health check
+│   │       │   ├── guest.ts         # Quiz submission + results
+│   │       │   ├── stripe.ts        # Payment processing
+│   │       │   ├── report.ts        # PDF report generation
+│   │       │   └── admin.ts         # Analytics (secret-key auth)
+│   │       └── services/
+│   │           ├── supabaseAdmin.ts  # Supabase admin client + analytics
+│   │           ├── metaCapi.ts       # Meta Conversions API
+│   │           └── pdf/              # PDF generation
 │   │
-│   └── web/                    # React frontend
+│   └── web/
 │       ├── index.html
-│       ├── vite.config.ts      # Vite + Tailwind + /api proxy
+│       ├── vite.config.ts
 │       └── src/
-│           ├── App.tsx         # Router (auth vs onboarding)
-│           ├── index.css       # Tailwind @theme config
+│           ├── App.tsx              # Router: onboarding, results, checkout, report
+│           ├── index.css            # Tailwind @theme (Harbor purple palette)
 │           ├── lib/
-│           │   ├── supabase.ts # Supabase client
-│           │   ├── api.ts      # Fetch wrapper with Bearer token
-│           │   └── constants.ts# 16 onboarding question configs
+│           │   ├── supabase.ts
+│           │   ├── api.ts
+│           │   └── constants.ts     # Question configs
 │           ├── hooks/
 │           │   ├── useAuth.ts
-│           │   ├── useOnboarding.ts
-│           │   └── useDebounce.ts
-│           ├── components/
-│           │   ├── auth/AuthPage.tsx
-│           │   ├── onboarding/  # OnboardingPage, Layout, StepRenderer, etc.
-│           │   │   └── questions/ # SingleSelect, MultiSelect, etc.
-│           │   └── ui/          # Button, ProgressBar, SaveIndicator
-│           └── types/onboarding.ts
+│           │   └── useOnboarding.ts # Quiz state management
+│           └── components/
+│               ├── onboarding/      # Multi-step quiz UI
+│               │   └── questions/   # SingleSelect, MultiSelect, etc.
+│               └── ui/              # Button, ProgressBar
 │
-├── packages/shared/            # Shared types (future use)
-├── docker-compose.yml          # Local dev: PostgreSQL + API
-├── Dockerfile                  # Production build (Railway)
-├── Dockerfile.dev              # Dev build (hot reload)
+├── packages/shared/                 # Trait scoring, archetypes, templates
+├── docker-compose.yml
+├── Dockerfile
+├── Dockerfile.dev
 └── pnpm-workspace.yaml
 ```
 
-## Database Schema
+## Data Storage
 
-Key models (see `apps/api/prisma/schema.prisma` for full schema):
+### Prisma Tables (PostgreSQL)
+Standard user/profile tables managed by Prisma migrations. Used for authenticated features and knowledge base.
 
-### UserProfile
-```
-onboarding_responses  JSONB   — All 16 answers as a flat object
-onboarding_step       INT     — Next step to show (0=not started, 17=done)
-onboarding_completed  BOOLEAN — Whether onboarding is finished
-```
+### Supabase Tables (direct)
+- **quiz_submissions** — Raw quiz data: email, child info, trait scores, archetype ID, responses
+- **funnel_events** — Analytics: step completions, conversions, timestamps
 
-The JSONB column stores responses as `{ gender: "male", childName: "Leo", childAge: 8, ... }` — flexible and easy to extend without migrations.
+The AI assistant reads from `quiz_submissions` via Supabase admin client to auto-import quiz results on user signup.
 
 ## API Endpoints
 
-All routes are prefixed with `/api`.
+### Guest (no auth)
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/guest/submit` | Submit quiz, compute scores, store results |
+| GET | `/api/guest/results/:id` | Fetch submission results |
+| POST | `/api/guest/capture-email` | Capture email for marketing |
 
-### Onboarding
-| Method | Path | Purpose |
-|--------|------|---------|
-| `GET` | `/api/onboarding` | Fetch progress for resume |
-| `PATCH` | `/api/onboarding` | Save one step answer (autosave) |
-| `POST` | `/api/onboarding/complete` | Mark onboarding finished |
-| `GET` | `/api/onboarding/snapshot` | Grouped data for Family Snapshot |
+### Stripe
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/stripe/create-checkout` | Create Stripe checkout session |
+| POST | `/api/stripe/webhook` | Handle payment events (raw body) |
 
-### PATCH body
-```json
-{ "step": 1, "responses": { "gender": "male" } }
-```
-Per-step Zod validation ensures only valid values are accepted.
+### Report
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/report/:id` | Generate/serve PDF report |
+
+### Admin (secret-key auth)
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/admin/analytics` | Funnel analytics dashboard data |
 
 ## Environment Variables
 
-### API (`apps/api/.env` or Docker env)
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `DIRECT_URL` | Direct PostgreSQL URL (Prisma) |
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_ANON_KEY` | Supabase anonymous key |
-| `CORS_ORIGIN` | Allowed frontend origin |
-| `PORT` | API port (default: 3001) |
+### API (`apps/api/.env`)
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DATABASE_URL` | Yes | PostgreSQL connection |
+| `DIRECT_URL` | Yes | Direct PostgreSQL URL (Prisma) |
+| `SUPABASE_URL` | Yes | Supabase project URL |
+| `SUPABASE_ANON_KEY` | Yes | Supabase anonymous key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase service role key |
+| `STRIPE_SECRET_KEY` | Yes | Stripe secret key |
+| `STRIPE_WEBHOOK_SECRET` | Yes | Stripe webhook signing secret |
+| `STRIPE_PRICE_ID` | Yes | Stripe price ID for report product |
+| `ACTIVECAMPAIGN_API_KEY` | No | ActiveCampaign API key |
+| `ACTIVECAMPAIGN_BASE_URL` | No | ActiveCampaign API URL |
+| `META_PIXEL_ID` | No | Meta Pixel ID |
+| `META_ACCESS_TOKEN` | No | Meta Conversions API token |
+| `ADMIN_SECRET_KEY` | Yes | Secret key for admin dashboard |
+| `CORS_ORIGIN` | No | Allowed origins (default: localhost) |
+| `PORT` | No | API port (default: 3001) |
 
 ### Frontend (`apps/web/.env`)
-| Variable | Description |
-|----------|-------------|
-| `VITE_SUPABASE_URL` | Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key |
-| `VITE_API_URL` | API URL (empty in dev — uses Vite proxy) |
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `VITE_SUPABASE_URL` | Yes | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Yes | Supabase anonymous key |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | Yes | Stripe publishable key |
+| `VITE_META_PIXEL_ID` | No | Meta Pixel ID |
 
 ## Deployment
 
 ### Local (Docker Compose)
+```bash
+docker compose up       # PostgreSQL + API with hot reload
+pnpm run dev:web        # Frontend dev server
 ```
-docker compose up     # Starts PostgreSQL + API
-pnpm --filter web dev # Starts frontend separately
-```
 
-The API container runs `prisma migrate deploy` on startup, then `tsx watch` for hot reload. Source files are volume-mounted so changes reflect immediately.
-
-### Production (Railway)
-The production `Dockerfile` builds the API into a single-stage Node.js image:
-1. Installs deps, generates Prisma client, compiles TypeScript
-2. On startup: `prisma migrate deploy` → `node apps/api/dist/server.js`
-
-The frontend would be deployed separately (Vercel, Netlify, etc.) as a static Vite build with `VITE_API_URL` pointing to the Railway API URL.
+### Production
+- **API:** Railway — Dockerfile builds, migrations on startup
+- **Frontend:** Vercel — Static Vite build
+- **Database:** Supabase PostgreSQL (shared with AI assistant)
