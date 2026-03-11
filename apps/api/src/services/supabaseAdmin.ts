@@ -362,11 +362,11 @@ export async function resetAnalytics(): Promise<{ deletedEvents: number; deleted
   const sb = getSupabaseAdmin();
   if (!sb) throw new Error("Supabase not configured");
 
-  // Delete all funnel events
+  // Delete all funnel events (gte epoch to match all rows)
   const { count: eventCount, error: eventError } = await sb
     .from("funnel_events")
     .delete({ count: "exact" })
-    .neq("id", "00000000-0000-0000-0000-000000000000"); // delete all rows
+    .gte("created_at", "1970-01-01T00:00:00.000Z");
 
   if (eventError) throw new Error(`Failed to delete funnel_events: ${eventError.message}`);
 
@@ -374,7 +374,7 @@ export async function resetAnalytics(): Promise<{ deletedEvents: number; deleted
   const { count: subCount, error: subError } = await sb
     .from("quiz_submissions")
     .delete({ count: "exact" })
-    .neq("id", "00000000-0000-0000-0000-000000000000"); // delete all rows
+    .gte("created_at", "1970-01-01T00:00:00.000Z");
 
   if (subError) throw new Error(`Failed to delete quiz_submissions: ${subError.message}`);
 
