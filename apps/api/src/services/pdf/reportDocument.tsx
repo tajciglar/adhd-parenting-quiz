@@ -276,11 +276,11 @@ const s = StyleSheet.create({
 
   /* ── Body Text ───────────────────────────── */
   paragraph: {
-    fontSize: 10.5,
+    fontSize: 11.5,
     lineHeight: 1.6,
   },
   paragraphSpaced: {
-    fontSize: 10.5,
+    fontSize: 11.5,
     lineHeight: 1.6,
     marginTop: 8,
   },
@@ -290,7 +290,7 @@ const s = StyleSheet.create({
     marginBottom: 14,
   },
   subTitle: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: 700,
     fontFamily: "Helvetica-Bold",
     marginBottom: 3,
@@ -325,7 +325,7 @@ const s = StyleSheet.create({
   dfItem: {
     paddingVertical: 6,
     paddingHorizontal: 10,
-    fontSize: 9.5,
+    fontSize: 10.5,
     lineHeight: 1.45,
   },
 
@@ -335,7 +335,7 @@ const s = StyleSheet.create({
     paddingLeft: 4,
   },
   affirmationText: {
-    fontSize: 10.5,
+    fontSize: 11.5,
     lineHeight: 1.5,
     fontStyle: "italic",
   },
@@ -361,7 +361,7 @@ const s = StyleSheet.create({
     flex: 1,
     paddingVertical: 7,
     paddingHorizontal: 10,
-    fontSize: 10,
+    fontSize: 11,
     lineHeight: 1.45,
   },
 
@@ -585,7 +585,7 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
             {report.drains.map((item, i) => (
               <View key={`d-${i}`} style={[s.dfItem, { flexDirection: "row", alignItems: "flex-start" }]}>
                 <View style={{ width: 18, paddingTop: 1 }}><XIcon size={10} color={theme.dangerAccent} /></View>
-                <Text style={{ flex: 1, fontSize: 9.5, lineHeight: 1.45 }}>{item}</Text>
+                <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{item}</Text>
               </View>
             ))}
           </View>
@@ -602,7 +602,7 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
             {report.fuels.map((item, i) => (
               <View key={`f-${i}`} style={[s.dfItem, { flexDirection: "row", alignItems: "flex-start" }]}>
                 <View style={{ width: 18, paddingTop: 1 }}><CheckIcon size={10} color={theme.successAccent} /></View>
-                <Text style={{ flex: 1, fontSize: 9.5, lineHeight: 1.45 }}>{item}</Text>
+                <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{item}</Text>
               </View>
             ))}
           </View>
@@ -668,11 +668,11 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
             >
               <View style={[s.sayCell, { flexDirection: "row", alignItems: "flex-start" }]}>
                 <View style={{ width: 18, paddingTop: 1 }}><XIcon size={10} color={theme.dangerAccent} /></View>
-                <Text style={{ flex: 1, fontSize: 10, lineHeight: 1.45 }}>{pair.insteadOf}</Text>
+                <Text style={{ flex: 1, fontSize: 11, lineHeight: 1.45 }}>{pair.insteadOf}</Text>
               </View>
               <View style={[s.sayCell, { flexDirection: "row", alignItems: "flex-start" }]}>
                 <View style={{ width: 18, paddingTop: 1 }}><CheckIcon size={10} color={theme.successAccent} /></View>
-                <Text style={{ flex: 1, fontSize: 10, lineHeight: 1.45 }}>{pair.tryThis}</Text>
+                <Text style={{ flex: 1, fontSize: 11, lineHeight: 1.45 }}>{pair.tryThis}</Text>
               </View>
             </View>
           ))}
@@ -685,6 +685,13 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
             {report.closingLine}
           </Text>
           <View style={[s.closingDividerBottom, { backgroundColor: theme.accent }]} />
+        </View>
+
+        {/* ── Disclaimer ── */}
+        <View style={{ marginTop: 40 }} wrap={false}>
+          <Text style={{ fontSize: 8, lineHeight: 1.5, color: theme.muted, textAlign: "center" }}>
+            This report is for informational and educational purposes only. It is not a clinical assessment, diagnosis, or substitute for professional evaluation. If you have concerns about your child's development, please consult a qualified healthcare provider.
+          </Text>
         </View>
       </Page>
     </Document>
