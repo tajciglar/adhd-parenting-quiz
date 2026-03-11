@@ -1,6 +1,22 @@
 // @ts-nocheck
 import React from "react";
-import { Document, Page, StyleSheet, Text, View, Svg, Circle, Path } from "@react-pdf/renderer";
+import { Document, Page, StyleSheet, Text, View, Svg, Circle, Path, Image, Font } from "@react-pdf/renderer";
+
+Font.registerHyphenationCallback(word => [word]);
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const ANIMAL_IMAGE: Record<string, string> = {
+  koala: path.resolve(__dirname, "../../../../web/public/animals/Profile-Koala-jukebox-bg-removed.png"),
+  hummingbird: path.resolve(__dirname, "../../../../web/public/animals/Profile-Hummingbird-jukebox-bg-removed.png"),
+  tiger: path.resolve(__dirname, "../../../../web/public/animals/Profile-Tiger-jukebox-bg-removed.png"),
+  meerkat: path.resolve(__dirname, "../../../../web/public/animals/Profile-Meerkat-jukebox-bg-removed.png"),
+  stallion: path.resolve(__dirname, "../../../../web/public/animals/Profile-Stallion-jukebox-bg-removed.png"),
+  fox: path.resolve(__dirname, "../../../../web/public/animals/Profile-Fox-jukebox-bg-removed.png"),
+};
 
 /* ─── Data Interfaces ─────────────────────────────────────────────────────── */
 
@@ -170,20 +186,30 @@ const s = StyleSheet.create({
   },
   heroQuoteBox: {
     width: "100%",
-    paddingVertical: 18,
-    paddingHorizontal: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: "row",
     alignItems: "center",
   },
+  heroQuoteImage: {
+    width: 80,
+    height: 80,
+    marginRight: 14,
+    objectFit: "contain",
+  },
+  heroQuoteRight: {
+    flex: 1,
+  },
   heroQuote: {
-    fontSize: 11,
+    fontSize: 13,
     fontStyle: "italic",
-    textAlign: "center",
-    lineHeight: 1.6,
+    textAlign: "left",
+    lineHeight: 1.5,
   },
   heroAttribution: {
-    fontSize: 10,
-    marginTop: 10,
-    textAlign: "center",
+    fontSize: 11,
+    marginTop: 8,
+    textAlign: "left",
   },
   coverContent: {
     paddingHorizontal: 48,
@@ -473,12 +499,17 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
           </Text>
           <View style={[s.heroLine, { backgroundColor: theme.accent }]} />
           <View style={[s.heroQuoteBox, { backgroundColor: theme.softAccent }]}>
-            <Text style={[s.heroQuote, { color: theme.text }]}>
-              {`\u201C${report.innerVoiceQuote.trim()}\u201D`}
-            </Text>
-            <Text style={[s.heroAttribution, { color: theme.muted }]}>
-              {`\u2014 ${childName}`}
-            </Text>
+            {ANIMAL_IMAGE[report.archetypeId] && (
+              <Image src={ANIMAL_IMAGE[report.archetypeId]} style={s.heroQuoteImage} />
+            )}
+            <View style={s.heroQuoteRight}>
+              <Text style={[s.heroQuote, { color: theme.text }]}>
+                {`\u201C${report.innerVoiceQuote.trim()}\u201D`}
+              </Text>
+              <Text style={[s.heroAttribution, { color: theme.muted }]}>
+                {`\u2014 ${childName}`}
+              </Text>
+            </View>
           </View>
         </View>
 

@@ -18,10 +18,10 @@ COPY packages/shared/ ./packages/shared/
 COPY apps/api/ ./apps/api/
 
 # Build shared package first (api depends on it)
-RUN pnpm --filter @adhd-ai-assistant/shared build
+RUN pnpm --filter @adhd-parenting-quiz/shared build
 
-RUN pnpm --filter @adhd-ai-assistant/api prisma:generate
+RUN pnpm --filter @adhd-parenting-quiz/api prisma:generate
 
 EXPOSE 3001
 
-CMD ["sh", "-c", "cd apps/api && until npx prisma migrate deploy 2>/dev/null; do echo 'Waiting for database...'; sleep 2; done && cd /app && pnpm --filter @adhd-ai-assistant/api dev"]
+CMD ["sh", "-c", "cd apps/api && until npx prisma migrate deploy 2>/dev/null; do echo 'Waiting for database...'; sleep 2; done && cd /app && pnpm --filter @adhd-parenting-quiz/api dev"]

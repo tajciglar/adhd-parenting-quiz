@@ -1,5 +1,5 @@
 import React from "react";
-import { getStepConfig } from "@adhd-ai-assistant/shared";
+import { getStepConfig } from "@adhd-parenting-quiz/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
 import SingleSelect from "./questions/SingleSelect";
 import TextInput from "./questions/TextInput";

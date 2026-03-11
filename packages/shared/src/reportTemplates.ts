@@ -432,10 +432,6 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
       {
         "tryThis": "\"Your feelings are real. Let's just sit here for a minute.\"",
         "insteadOf": "\"You're being ridiculous.\""
-      },
-      {
-        "tryThis": "da",
-        "insteadOf": "da"
       }
     ],
     "dayInLife": {

@@ -1,4 +1,4 @@
-import type { CategoryId } from "@adhd-ai-assistant/shared";
+import type { CategoryId } from "@adhd-parenting-quiz/shared";
 
 interface InterstitialCard {
   emoji: string;

@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { useLocation, Navigate } from "react-router-dom";
-import type { ArchetypeReportTemplate } from "@adhd-ai-assistant/shared";
+import type { ArchetypeReportTemplate } from "@adhd-parenting-quiz/shared";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 

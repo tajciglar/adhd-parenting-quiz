@@ -7,7 +7,7 @@ import {
   renderReportTemplate,
   getReportTemplate,
   type ArchetypeReportTemplate,
-} from "@adhd-ai-assistant/shared";
+} from "@adhd-parenting-quiz/shared";
 import { generateReportPdf } from "../services/pdf/generateReportPdf.js";
 import { insertQuizSubmission, insertFunnelEvent } from "../services/supabaseAdmin.js";
 import { sendMetaEvent } from "../services/metaCapi.js";

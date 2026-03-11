@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { ASSESSMENT_CATEGORIES } from "@adhd-ai-assistant/shared";
+import { ASSESSMENT_CATEGORIES } from "@adhd-parenting-quiz/shared";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 

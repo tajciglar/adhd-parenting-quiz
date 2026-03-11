@@ -48,6 +48,8 @@ function replaceInString(text: string, data: Record<string, string>): string {
   for (const [placeholder, replacement] of Object.entries(data)) {
     result = result.replaceAll(placeholder, replacement);
   }
+  // Auto-capitalize first letter after sentence-ending punctuation (e.g. ". she" → ". She")
+  result = result.replace(/([.!?])\s+([a-z])/g, (_, punct, letter) => `${punct} ${letter.toUpperCase()}`);
   return result;
 }
 

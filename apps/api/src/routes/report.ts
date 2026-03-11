@@ -4,7 +4,7 @@ import { z } from "zod";
 import {
   renderReportTemplate,
   type ArchetypeReportTemplate,
-} from "@adhd-ai-assistant/shared";
+} from "@adhd-parenting-quiz/shared";
 import { generateReportPdf } from "../services/pdf/generateReportPdf.js";
 
 const childParamsSchema = z.object({

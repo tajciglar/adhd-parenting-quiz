@@ -1,4 +1,4 @@
-import { LIKERT_OPTIONS } from "@adhd-ai-assistant/shared";
+import { LIKERT_OPTIONS } from "@adhd-parenting-quiz/shared";
 
 interface LikertSelectProps {
   questionText: string;

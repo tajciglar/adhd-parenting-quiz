@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useOnboarding } from "../../hooks/useOnboarding";
 import { TOTAL_STEPS } from "../../lib/constants";
-import { getStepConfig, ASSESSMENT_CATEGORIES, BASIC_INFO_QUESTIONS } from "@adhd-ai-assistant/shared";
-import type { CategoryId } from "@adhd-ai-assistant/shared";
+import { getStepConfig, ASSESSMENT_CATEGORIES, BASIC_INFO_QUESTIONS } from "@adhd-parenting-quiz/shared";
+import type { CategoryId } from "@adhd-parenting-quiz/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
 import { trackFunnelEvent } from "../../lib/analytics";
 import { trackPixelEvent, generateEventId } from "../../lib/fbq";
