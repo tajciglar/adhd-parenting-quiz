@@ -17,14 +17,9 @@ import HalfwayScreen from "./HalfwayScreen";
 // Derived from shared package so it stays in sync automatically
 const BASIC_INFO_COUNT = BASIC_INFO_QUESTIONS.length;
 
-// Total assessment (Likert) questions across all categories
-const TOTAL_ASSESSMENT_QUESTIONS = ASSESSMENT_CATEGORIES.reduce(
-  (sum, cat) => sum + cat.questions.length,
-  0,
-);
-
-// Halfway step: basic info count + half of assessment questions
-const HALFWAY_STEP = BASIC_INFO_COUNT + Math.floor(TOTAL_ASSESSMENT_QUESTIONS / 2);
+// Halfway step: show after sensory category (3rd category)
+const HALFWAY_STEP = BASIC_INFO_COUNT +
+  ASSESSMENT_CATEGORIES.slice(0, 3).reduce((sum, cat) => sum + cat.questions.length, 0);
 
 // Show interstitials after inattentive, emotional, and executive_function categories.
 const INTERSTITIAL_TRIGGER_STEPS = new Map<number, CategoryId>();
