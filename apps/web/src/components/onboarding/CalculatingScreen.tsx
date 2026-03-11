@@ -15,7 +15,7 @@ const LINES = [
   "Identifying emotional profile...",
   "Matching executive function traits...",
   "Cross-referencing social patterns...",
-  "Finding [NAME]'s Wildprint...",
+  "Generating [NAME]'s ADHD Personality Report...",
 ];
 
 type Phase = "analyzing" | "found" | "email" | "submitting" | "duplicate";
@@ -124,10 +124,8 @@ export default function CalculatingScreen({
       if (result.pdfUrl) sessionStorage.setItem("wildprint_pdfUrl", result.pdfUrl);
 
       clearOnboardingStorage();
-      navigate("/report", {
-        replace: true,
-        state: { report: result.report, email, pdfUrl: result.pdfUrl },
-      });
+      // Test mode: skip report/sales, go straight to thank you
+      navigate("/thank-you", { replace: true });
     } catch (err) {
       if (err instanceof Error && err.message === "already_submitted") {
         setPhase("duplicate");
@@ -147,7 +145,7 @@ export default function CalculatingScreen({
         <div className="max-w-md w-full bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-7 space-y-5 text-center">
           <div className="text-4xl">👋</div>
           <h2 className="text-xl font-bold text-harbor-primary leading-snug">
-            It looks like you've already discovered your child's Wildprint.
+            It looks like you've already received your child's ADHD Personality Report.
           </h2>
           <p className="text-harbor-text leading-relaxed">
             We've sent your child's report to this email before. If you can't
@@ -245,7 +243,7 @@ export default function CalculatingScreen({
           <div className="text-center space-y-3">
             <AnimalIcon id={archetype.id} className="w-24 h-24 mx-auto" />
             <p className="text-sm font-semibold uppercase tracking-widest text-harbor-accent">
-              The Wildprint has been identified.
+              The report has been generated.
             </p>
             <h2 className="text-2xl font-bold text-harbor-primary leading-snug">
               {childName} is {archetype.typeName}.
@@ -253,7 +251,7 @@ export default function CalculatingScreen({
           </div>
 
           <p className="text-harbor-text leading-relaxed text-sm">
-            Your child's full Wildprint report is ready, including the neuroscience
+            Your child's full ADHD Personality Report is ready, including the neuroscience
             behind {childName}'s specific profile, what drains {objPronoun}, what
             fuels {objPronoun}, and the hidden superpower most people around{" "}
             {objPronoun} completely miss.
@@ -290,7 +288,7 @@ export default function CalculatingScreen({
               disabled={!isValid || phase === "submitting"}
               className="w-full rounded-xl bg-harbor-primary text-white px-5 py-3 font-medium hover:opacity-90 transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {phase === "submitting" ? "Preparing…" : "Show me the Wildprint →"}
+              {phase === "submitting" ? "Preparing…" : "Show me the Report →"}
             </button>
 
             <p className="text-xs text-center text-harbor-text/40">

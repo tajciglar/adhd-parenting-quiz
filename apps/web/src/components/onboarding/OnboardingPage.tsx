@@ -55,7 +55,7 @@ function isStepValid(step: number, responses: OnboardingResponses): boolean {
 
   const key = `${config.categoryId}_${config.questionIndex}`;
   const val = responses[key];
-  return typeof val === "number" && val >= 0 && val <= 3;
+  return typeof val === "number" && val >= 0 && val <= 4;
 }
 
 function IntroScreen({
@@ -74,11 +74,11 @@ function IntroScreen({
           <div className="text-center">
             <div className="text-4xl mb-4">🔍</div>
             <h2 className="text-xl font-bold text-harbor-primary leading-snug">
-              Great! Let's find {childName}'s Wildprint.
+              Great! Let's find {childName}'s ADHD Personality Report.
             </h2>
           </div>
 
-          <p className="text-harbor-text leading-relaxed">
+          <p className="text-harbor-text leading-relaxed ">
             You're about to discover your child's unique brain profile, their
             strengths, their struggles, and the hidden superpower most people
             around {objPronoun} completely miss.

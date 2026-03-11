@@ -86,7 +86,7 @@ function CheckoutForm({
           <AnimalIcon id={archetypeId} className="w-16 h-16" />
           <div className="flex-1">
             <p className="font-semibold text-harbor-primary">
-              {childName}'s Full Wildprint Report
+              {childName}'s Full ADHD Personality Report
             </p>
             <p className="text-sm text-harbor-text/60">{typeName}</p>
           </div>

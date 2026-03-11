@@ -1,10 +1,11 @@
 // ─── Likert Scale ───────────────────────────────────────────────────────────
 
 export const LIKERT_OPTIONS = [
-  { label: "Not really", value: 0 },
-  { label: "Sometimes", value: 1 },
-  { label: "Often", value: 2 },
-  { label: "Always", value: 3 },
+  { label: "Strongly Disagree", value: 0 },
+  { label: "Disagree", value: 1 },
+  { label: "Neutral", value: 2 },
+  { label: "Agree", value: 3 },
+  { label: "Strongly Agree", value: 4 },
 ] as const;
 
 // ─── Category IDs ───────────────────────────────────────────────────────────
@@ -314,9 +315,9 @@ export function normalizeScore(rawScore: number, maxRaw: number): number {
 }
 
 export function getIntensity(normalized: number): Intensity {
-  // Scales for section averages on a 0..3 Likert scale.
-  if (normalized < 1.25) return "low";
-  if (normalized < 2.25) return "moderate";
+  // Scales for section averages on a 0..4 Likert scale.
+  if (normalized < 1.5) return "low";
+  if (normalized < 3.0) return "moderate";
   return "high";
 }
 
@@ -374,7 +375,7 @@ function sortCategoriesByScore(scores: TraitScores): CategoryId[] {
 }
 
 /**
- * Compute section averages (0..3) for each category.
+ * Compute section averages (0..4) for each category.
  */
 export function computeScores(
   responses: Record<string, unknown>,

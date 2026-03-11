@@ -6,8 +6,6 @@ interface LikertSelectProps {
   onChange: (value: number) => void;
 }
 
-const LIKERT_EMOJIS = ["🙂", "🤔", "😬", "😩"];
-
 export default function LikertSelect({
   questionText,
   value,
@@ -15,23 +13,36 @@ export default function LikertSelect({
 }: LikertSelectProps) {
   return (
     <div>
-      <h2 className="text-2xl font-semibold text-harbor-text mb-8 text-center">
+      <h2 className="text-xl font-semibold text-harbor-text mb-8 text-center leading-snug">
         {questionText}
       </h2>
-      <div className="space-y-3">
-        {LIKERT_OPTIONS.map((opt, i) => (
-          <button
-            key={opt.value}
-            onClick={() => onChange(opt.value)}
-            className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
-              value === opt.value
-                ? "border-harbor-accent bg-harbor-accent/10"
-                : "border-harbor-primary/15 hover:border-harbor-primary/30 bg-white"
-            }`}
-          >
-            <span className="font-medium">{LIKERT_EMOJIS[i]}  {opt.label}</span>
-          </button>
-        ))}
+
+      {/* Horizontal 5-point scale */}
+      <div className="flex items-stretch gap-2">
+        {LIKERT_OPTIONS.map((opt) => {
+          const isSelected = value === opt.value;
+          return (
+            <button
+              key={opt.value}
+              onClick={() => onChange(opt.value)}
+              className={`flex-1 py-3 px-1 rounded-xl border-2 text-center transition-all duration-200 cursor-pointer ${
+                isSelected
+                  ? "border-harbor-accent bg-harbor-accent/10"
+                  : "border-harbor-primary/15 hover:border-harbor-primary/30 bg-white"
+              }`}
+            >
+              <span className="text-xs font-medium leading-tight block">
+                {opt.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Scale labels */}
+      <div className="flex justify-between mt-2 px-1">
+        <span className="text-xs text-harbor-text/40">Disagree</span>
+        <span className="text-xs text-harbor-text/40">Agree</span>
       </div>
     </div>
   );

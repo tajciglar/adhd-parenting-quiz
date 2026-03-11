@@ -6,19 +6,19 @@ export default function HalfwayScreen({
   onContinue: () => void;
 }) {
   return (
-    <div className="h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-12 overflow-hidden">
+    <div className="min-h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-12 overflow-y-auto">
       <div className="max-w-md w-full space-y-6">
         <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-7 space-y-4 text-center">
           <div className="text-5xl">💜</div>
           <h2 className="text-xl font-bold text-harbor-primary leading-snug">
-            You're halfway there.
+            You’re almost there!
           </h2>
           <p className="text-harbor-text leading-relaxed">
             Most parents never take the time to look this closely at how their
-            child's brain actually works. {childName} is lucky to have you.
+            child’s brain actually works. {childName} is lucky to have you.
           </p>
           <p className="text-harbor-text text-sm leading-relaxed">
-            Join 110.000+ parents who’ve already trusted ADHDParenting.
+            Join 111.000+ parents who’ve already trusted ADHDParenting.
           </p>
         </div>
 

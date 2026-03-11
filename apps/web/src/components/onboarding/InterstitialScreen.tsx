@@ -34,7 +34,7 @@ const CARDS: Record<CategoryId, InterstitialCard> = {
     emoji: "💛",
     headline: "It's not just \"big feelings.\"",
     body: [
-      "Research from the University of Cambridge found that 1 in 2 children with ADHD experience significant emotional dysregulation, reacting with an intensity that doesn't match the situation.",
+      "Research from the University of Cambridge found that every second child with ADHD experience significant emotional dysregulation, reacting with an intensity that doesn't match the situation.",
       "Source: University of Cambridge, 2023; Nature Mental Health",
       "This is one of the most misunderstood parts of ADHD and one of the most important to get right.",
     ],
@@ -43,8 +43,7 @@ const CARDS: Record<CategoryId, InterstitialCard> = {
     emoji: "⭐",
     headline: "You're in good hands.",
     body: [
-      "This quiz was built by the team behind ADHD Parenting, rated 4.9 on Trustpilot with over 111,000 satisfied parents.",
-      "We organised the world's largest ADHD Parenting Summit, with over 250,000 registered parents, and have collaborated with 70+ world-renowned ADHD experts including Dr Edward Hallowell, Dr Peg Dawson, Dr Richard Guare, and Elaine Taylor-Klaus.",
+      "This assessment was built by the team behind ADHD Parenting, rated 4.9 on Trustpilot with over 111,000 satisfied parents.",
       "One more section to go.",
     ],
   },
@@ -71,7 +70,7 @@ export default function InterstitialScreen({
   const name = childName || "your child";
 
   return (
-    <div className="h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-12 overflow-hidden">
+    <div className="min-h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-12 overflow-y-auto">
       <div className="max-w-md w-full space-y-6">
         <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-7 space-y-4 text-center">
           <div className="text-5xl">{card.emoji}</div>

@@ -134,7 +134,7 @@ const s = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 56,
     paddingHorizontal: 48,
-    fontSize: 10.5,
+    fontSize: 12,
     lineHeight: 1.6,
     fontFamily: "Helvetica",
   },
@@ -142,7 +142,7 @@ const s = StyleSheet.create({
     paddingTop: 0,
     paddingBottom: 56,
     paddingHorizontal: 0,
-    fontSize: 10.5,
+    fontSize: 12,
     lineHeight: 1.6,
     fontFamily: "Helvetica",
   },
@@ -451,7 +451,7 @@ function SectionLabel({
 function Header({ theme }: { theme: ReportTheme }) {
   return (
     <View style={s.header} fixed>
-      <Text style={[s.headerBrand, { color: theme.accent }]}>WILDPRINT</Text>
+      <Text style={[s.headerBrand, { color: theme.accent }]}>ADHD PERSONALITY REPORT</Text>
       <Text style={[s.headerSub, { color: theme.muted }]}>
         Your child's unique profile
       </Text>
@@ -463,7 +463,7 @@ function DynamicFooter({ theme }: { theme: ReportTheme }) {
   return (
     <View style={[s.footer, { borderTopColor: theme.border }]} fixed>
       <Text style={[s.footerText, { color: theme.muted }]}>
-        WILDPRINT · A personalized profile for your child
+        ADHD PERSONALITY REPORT · A personalized profile for your child
       </Text>
       <Text
         style={[s.footerPage, { color: theme.accent }]}
@@ -489,7 +489,7 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
         {/* Hero Section */}
         <View style={s.heroSection}>
           <View style={s.heroBrandRow}>
-            <Text style={[s.heroBrand, { color: theme.accent }]}>WILDPRINT</Text>
+            <Text style={[s.heroBrand, { color: theme.accent }]}>ADHD PERSONALITY REPORT</Text>
             <Text style={[s.heroBrandSub, { color: theme.muted }]}>
               Your child's unique profile
             </Text>

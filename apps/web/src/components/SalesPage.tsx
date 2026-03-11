@@ -86,7 +86,7 @@ export default function SalesPage() {
         <div className="relative rounded-2xl border border-harbor-text/10 shadow-sm overflow-hidden bg-white">
           <div className="p-6 pb-0 space-y-4">
             <div className="flex items-center gap-2 text-xs text-harbor-text/40 uppercase tracking-widest font-semibold">
-              <span>Wildprint Report</span>
+              <span>ADHD Personality Report</span>
               <span className="mx-1">·</span>
               <span>{name}</span>
             </div>
@@ -138,7 +138,7 @@ export default function SalesPage() {
             operating on a frequency that most environments weren't built for.
           </p>
           <p className="text-harbor-text leading-relaxed">
-            Your full Wildprint report reveals exactly who {name} is, why {subLower} does
+            Your full ADHD Personality report reveals exactly who {name} is, why {subLower} does
             what {subLower} does, and what {subLower} needs from you to finally feel understood.
           </p>
         </div>
@@ -146,7 +146,7 @@ export default function SalesPage() {
         {/* What's inside */}
         <div className="space-y-3">
           <p className="text-sm font-semibold uppercase tracking-widest text-harbor-text/40">
-            What's inside {name}'s full Wildprint report
+            What's inside {name}'s full ADHD Personality report
           </p>
           <ul className="space-y-2">
             {WHATS_INSIDE.map((bullet, i) => (
@@ -191,7 +191,7 @@ export default function SalesPage() {
             onClick={handleCheckout}
             className="w-full rounded-xl bg-harbor-primary text-white px-5 py-4 font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-sm"
           >
-            {`Get ${name}'s Full Wildprint Report →`}
+            {`Get ${name}'s Full ADHD Personality Report →`}
           </button>
         </div>
       </div>

@@ -88,10 +88,13 @@ export default function StepRenderer({
           <div className="mb-6 space-y-2">
             <TrustPilotReview />
             <h1 className="text-2xl font-bold text-harbor-primary leading-snug text-center">
-              Discover Your Child's ADHD Wildprint
+              Discover Your Child's ADHD Personality Report
             </h1>
-            <p className="text-sm text-harbor-text leading-relaxed">
-              A 5-minute quiz backed by 40+ years of clinical experience, revealing who your child really is, why they do what they do, and the hidden superpower most people around them completely miss.
+            <p className="text-sm text-harbor-text leading-relaxed text-center">
+              A 7-minute quiz backed by 40+ years of clinical experience, revealing who your child really is, why they do what they do, and the hidden superpower most people around them completely miss.
+            </p>
+            <p className="text-xs text-harbor-text/40 leading-relaxed text-center mt-4">
+              This assessment is for informational and educational purposes only. It is not a clinical assessment, diagnosis, or substitute for professional evaluation. The profiles and recommendations provided are based on patterns commonly observed in children with ADHD and should not be used to make medical or therapeutic decisions. If you have concerns about your child's development or behaviour, please consult a qualified healthcare provider.
             </p>
           </div>
         )}

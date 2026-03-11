@@ -35,15 +35,15 @@ export default function OnboardingLayout({
           {children}
         </div>
 
-        {showContinue && (
-          <div className="flex items-center justify-between w-full py-4">
-            {currentStep > 1 && !hideBack ? (
-              <Button variant="secondary" onClick={onBack}>
-                Back
-              </Button>
-            ) : (
-              <div />
-            )}
+        <div className="flex items-center justify-between w-full py-4">
+          {currentStep > 1 && !hideBack ? (
+            <Button variant="secondary" onClick={onBack}>
+              Back
+            </Button>
+          ) : (
+            <div />
+          )}
+          {showContinue ? (
             <Button
               variant="primary"
               disabled={!canContinue}
@@ -51,8 +51,10 @@ export default function OnboardingLayout({
             >
               Continue
             </Button>
-          </div>
-        )}
+          ) : (
+            <div />
+          )}
+        </div>
       </div>
     </div>
   );

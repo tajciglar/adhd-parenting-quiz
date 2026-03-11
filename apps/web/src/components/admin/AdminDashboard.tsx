@@ -236,7 +236,7 @@ export default function AdminDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-harbor-primary">Funnel Analytics</h1>
-            <p className="text-sm text-harbor-text/50">Wildprint Quiz Dashboard</p>
+            <p className="text-sm text-harbor-text/50">ADHD Personality Quiz Dashboard</p>
           </div>
           <div className="flex gap-2">
             {[7, 14, 30].map((d) => (
