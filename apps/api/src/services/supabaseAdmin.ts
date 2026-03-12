@@ -132,6 +132,10 @@ export interface FunnelAnalytics {
     totalResponses: number;
   }>;
   avgCompletionTime: number; // seconds
+  submissionsByTraitPair: Array<{
+    pair: string;
+    users: Array<{ email: string; paid: boolean; created_at: string }>;
+  }>;
 }
 
 const EMPTY_ANALYTICS: FunnelAnalytics = {
@@ -146,6 +150,7 @@ const EMPTY_ANALYTICS: FunnelAnalytics = {
   traitPairDistribution: [],
   answerDistribution: [],
   avgCompletionTime: 0,
+  submissionsByTraitPair: [],
 };
 
 export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
@@ -228,6 +233,31 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     paid: r.paid as boolean,
     created_at: r.created_at as string,
   }));
+
+  // 3b. Submissions grouped by top-2 trait pair — all submissions
+  const { data: traitPairUserData } = await sb
+    .from("quiz_submissions")
+    .select("email, trait_scores, paid, created_at")
+    .order("created_at", { ascending: false });
+
+  const traitPairUserMap = new Map<string, Array<{ email: string; paid: boolean; created_at: string }>>();
+  for (const row of traitPairUserData ?? []) {
+    const scores = row.trait_scores as Record<string, number> | null;
+    if (!scores) continue;
+    const sorted = Object.entries(scores).sort(([, a], [, b]) => b - a);
+    if (sorted.length < 2) continue;
+    const pair = [sorted[0][0], sorted[1][0]].sort().join(" & ");
+    if (!traitPairUserMap.has(pair)) traitPairUserMap.set(pair, []);
+    traitPairUserMap.get(pair)!.push({
+      email: row.email as string,
+      paid: row.paid as boolean,
+      created_at: row.created_at as string,
+    });
+  }
+
+  const submissionsByTraitPair = [...traitPairUserMap.entries()]
+    .map(([pair, users]) => ({ pair, users }))
+    .sort((a, b) => b.users.length - a.users.length);
 
   // 4. Daily trend
   const { data: trendData } = await sb
@@ -353,7 +383,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   }
   const avgCompletionTime = completedCount > 0 ? Math.round(totalSeconds / completedCount) : 0;
 
-  return { stepDropoff, funnelSummary, recentSubmissions, dailyTrend, archetypeDistribution, traitPairDistribution, answerDistribution, avgCompletionTime };
+  return { stepDropoff, funnelSummary, recentSubmissions, dailyTrend, archetypeDistribution, traitPairDistribution, answerDistribution, avgCompletionTime, submissionsByTraitPair };
 }
 
 // ─── Reset Analytics ──────────────────────────────────────────────────────────

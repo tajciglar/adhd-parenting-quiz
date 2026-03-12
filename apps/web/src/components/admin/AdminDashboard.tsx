@@ -80,6 +80,11 @@ interface AnswerDist {
   totalResponses: number;
 }
 
+interface TraitPairUsers {
+  pair: string;
+  users: Array<{ email: string; paid: boolean; created_at: string }>;
+}
+
 interface Analytics {
   funnelSummary: FunnelSummary;
   stepDropoff: StepDropoff[];
@@ -89,6 +94,7 @@ interface Analytics {
   traitPairDistribution: TraitPairDist[];
   answerDistribution: AnswerDist[];
   avgCompletionTime: number;
+  submissionsByTraitPair: TraitPairUsers[];
 }
 
 function MetricCard({
@@ -578,6 +584,79 @@ export default function AdminDashboard() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        ) : null}
+
+        {/* Users by Category Pair */}
+        {analytics?.submissionsByTraitPair?.length ? (
+          <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-5">
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-harbor-primary">Users by Category Pair</h2>
+                <p className="text-xs text-harbor-text/40">All submissions grouped by top-2 scoring categories</p>
+              </div>
+              <button
+                onClick={() => {
+                  const rows = [["Category Pair", "Email", "Paid", "Date"]];
+                  for (const group of analytics.submissionsByTraitPair) {
+                    for (const u of group.users) {
+                      rows.push([
+                        group.pair.replace(/_/g, " "),
+                        u.email,
+                        u.paid ? "Yes" : "No",
+                        new Date(u.created_at).toLocaleDateString(),
+                      ]);
+                    }
+                  }
+                  const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+                  const blob = new Blob([csv], { type: "text/csv" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `users-by-category-pair-${new Date().toISOString().slice(0, 10)}.csv`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30 transition"
+              >
+                Export CSV
+              </button>
+            </div>
+            <div className="space-y-4">
+              {analytics.submissionsByTraitPair.map((group) => (
+                <div key={group.pair} className="border border-harbor-text/10 rounded-lg overflow-hidden">
+                  <div className="bg-harbor-text/5 px-4 py-2.5 flex items-center justify-between">
+                    <span className="font-semibold text-harbor-primary capitalize">
+                      {group.pair.replace(/_/g, " ")}
+                    </span>
+                    <span className="text-xs text-harbor-text/40 bg-white px-2 py-0.5 rounded-full">
+                      {group.users.length} user{group.users.length !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                  <div className="divide-y divide-harbor-text/5">
+                    {group.users.map((u, i) => (
+                      <div key={i} className="px-4 py-2 flex items-center justify-between text-sm">
+                        <span className="text-harbor-text/70 truncate max-w-[250px]">{u.email}</span>
+                        <div className="flex items-center gap-3">
+                          {u.paid ? (
+                            <span className="inline-block bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+                              Paid
+                            </span>
+                          ) : (
+                            <span className="inline-block bg-harbor-text/5 text-harbor-text/40 text-xs font-semibold px-2 py-0.5 rounded-full">
+                              Free
+                            </span>
+                          )}
+                          <span className="text-xs text-harbor-text/30 tabular-nums">
+                            {new Date(u.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         ) : null}
