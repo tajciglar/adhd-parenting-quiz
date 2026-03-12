@@ -61,10 +61,10 @@ export default function LikertSelect({
 
           const labelColor =
             opt.value <= 1
-              ? "text-purple-400"
+              ? "text-purple-600"
               : opt.value === 2
-                ? "text-harbor-text/40"
-                : "text-emerald-400";
+                ? "text-harbor-text/60"
+                : "text-emerald-600";
 
           return (
             <div key={opt.value} className="flex flex-col items-center gap-2">
@@ -75,7 +75,7 @@ export default function LikertSelect({
                 }`}
                 aria-label={opt.label}
               />
-              <span className={`text-[10px] font-medium ${labelColor} whitespace-nowrap`}>
+              <span className={`text-[11px] font-semibold ${labelColor} whitespace-nowrap`}>
                 {opt.label}
               </span>
             </div>

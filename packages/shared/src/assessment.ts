@@ -46,7 +46,7 @@ export const BASIC_INFO_QUESTIONS: BasicInfoQuestion[] = [
     type: "single-select",
     key: "caregiverType",
     title: "You are",
-    emoji: "🧑",
+    emoji: "",
     options: ["Mom", "Dad", "Grandma / Grandpa", "Other Caregiver"],
     optionEmojis: ["👩", "👨", "👴", "🧑"],
   },
