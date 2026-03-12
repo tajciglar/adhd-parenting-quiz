@@ -125,6 +125,36 @@ const ARCHETYPE_THEMES: Record<string, Partial<ReportTheme>> = {
     softAccent: "#E5EEF4",
     muted: "#4A6072",
   },
+  rabbit: {
+    accent: "#E07B4C",
+    accentDark: "#B8613A",
+    softAccent: "#FDE8DC",
+    muted: "#8C5A3E",
+  },
+  elephant: {
+    accent: "#6B7FA3",
+    accentDark: "#4E5F7E",
+    softAccent: "#E6ECF4",
+    muted: "#5A6B82",
+  },
+  dolphin: {
+    accent: "#2E9AAA",
+    accentDark: "#1F7585",
+    softAccent: "#DDF1F4",
+    muted: "#3A7A86",
+  },
+  hedgehog: {
+    accent: "#8A6BAE",
+    accentDark: "#6A4E8C",
+    softAccent: "#EDE4F6",
+    muted: "#6E5A83",
+  },
+  bull: {
+    accent: "#C44D4D",
+    accentDark: "#9A3636",
+    softAccent: "#FAE3E3",
+    muted: "#8A4242",
+  },
 };
 
 function getTheme(archetypeId: string): ReportTheme {
@@ -197,8 +227,8 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   heroQuoteImage: {
-    width: 80,
-    height: 80,
+    width: 150,
+    height: 150,
     marginRight: 14,
     objectFit: "contain",
   },
