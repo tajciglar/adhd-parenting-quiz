@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { ASSESSMENT_CATEGORIES } from "@adhd-parenting-quiz/shared";
+import { ASSESSMENT_CATEGORIES, getStepConfig } from "@adhd-parenting-quiz/shared";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -115,6 +115,20 @@ function MetricCard({
   );
 }
 
+function getStepLabel(step: number): string {
+  const config = getStepConfig(step);
+  if (!config) return `Step ${step}`;
+  if (config.type === "basic-info") {
+    return config.question.title;
+  }
+  // Shorten long category subtitles
+  const shortCat = config.categorySubtitle
+    .replace(" Traits", "")
+    .replace("Hyperactive/Impulsive", "Hyperactive")
+    .replace("Executive Function", "Exec. Function");
+  return `${shortCat} (Q${config.questionIndex + 1})`;
+}
+
 function DropoffBar({ step, views, dropoffRate, maxViews }: StepDropoff & { maxViews: number }) {
   const width = maxViews > 0 ? (views / maxViews) * 100 : 0;
   const isHighDropoff = dropoffRate > 15;
@@ -122,7 +136,9 @@ function DropoffBar({ step, views, dropoffRate, maxViews }: StepDropoff & { maxV
 
   return (
     <div className="flex items-center gap-3 text-sm">
-      <span className="w-10 text-right text-harbor-text/50 tabular-nums">{step}</span>
+      <span className="w-44 text-right text-harbor-text/50 truncate" title={`${step}. ${getStepLabel(step)}`}>
+        <span className="tabular-nums">{step}.</span> {getStepLabel(step)}
+      </span>
       <div className="flex-1 h-6 bg-harbor-text/5 rounded overflow-hidden relative">
         <div
           className={`h-full rounded transition-all ${
