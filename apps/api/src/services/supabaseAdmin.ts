@@ -411,3 +411,65 @@ export async function resetAnalytics(): Promise<{ deletedEvents: number; deleted
 
   return { deletedEvents: eventCount ?? 0, deletedSubmissions: subCount ?? 0 };
 }
+
+// ─── Re-score helpers ───────────────────────────────────────────────────────
+
+interface RescoreMismatch {
+  id: string;
+  email: string;
+  currentArchetype: string;
+  correctArchetype: string;
+}
+
+async function fetchMismatches(): Promise<{ total: number; mismatches: RescoreMismatch[] }> {
+  const { matchArchetype } = await import("@adhd-parenting-quiz/shared");
+  const sb = getSupabaseAdmin();
+  if (!sb) return { total: 0, mismatches: [] };
+
+  const { data: rows, error } = await sb
+    .from("quiz_submissions")
+    .select("id, email, archetype_id, trait_scores");
+
+  if (error || !rows) throw new Error(`Failed to fetch submissions: ${error?.message}`);
+
+  const mismatches: RescoreMismatch[] = [];
+  for (const row of rows) {
+    if (!row.trait_scores) continue;
+    const correct = matchArchetype(row.trait_scores as Record<string, number>);
+    if (correct.id !== row.archetype_id) {
+      mismatches.push({
+        id: row.id,
+        email: row.email,
+        currentArchetype: row.archetype_id,
+        correctArchetype: correct.id,
+      });
+    }
+  }
+
+  return { total: rows.length, mismatches };
+}
+
+/** Read-only: returns mismatches without changing anything */
+export async function checkRescoreMismatches() {
+  return fetchMismatches();
+}
+
+/** Writes: updates archetype_id for all mismatched submissions */
+export async function applyRescore() {
+  const sb = getSupabaseAdmin();
+  if (!sb) return { total: 0, updated: 0, changes: [] as RescoreMismatch[] };
+
+  const { total, mismatches } = await fetchMismatches();
+  const applied: RescoreMismatch[] = [];
+
+  for (const m of mismatches) {
+    const { error } = await sb
+      .from("quiz_submissions")
+      .update({ archetype_id: m.correctArchetype })
+      .eq("id", m.id);
+
+    if (!error) applied.push(m);
+  }
+
+  return { total, updated: applied.length, changes: applied };
+}

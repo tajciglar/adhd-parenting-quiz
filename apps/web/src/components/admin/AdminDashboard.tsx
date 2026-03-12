@@ -180,6 +180,12 @@ export default function AdminDashboard() {
   const [days, setDays] = useState(7);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [rescoreChecking, setRescoreChecking] = useState(false);
+  const [rescoreApplying, setRescoreApplying] = useState(false);
+  const [rescoreMismatches, setRescoreMismatches] = useState<
+    Array<{ id: string; email: string; currentArchetype: string; correctArchetype: string }> | null
+  >(null);
+  const [rescoreTotal, setRescoreTotal] = useState(0);
 
   const fetchAnalytics = useCallback(
     async (key: string, numDays: number) => {
@@ -664,6 +670,109 @@ export default function AdminDashboard() {
             </div>
           </div>
         ) : null}
+
+        {/* Re-score Check */}
+        <div className="bg-white rounded-xl border border-amber-200 p-6 space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-amber-700">Re-score Submissions</h2>
+            <p className="text-sm text-harbor-text/60 mt-1">
+              Check if any existing submissions would get a different archetype with the current archetype map.
+            </p>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              disabled={rescoreChecking}
+              onClick={async () => {
+                setRescoreChecking(true);
+                setRescoreMismatches(null);
+                try {
+                  const res = await fetch(`${API_URL}/api/admin/rescore-check`, {
+                    headers: { "x-admin-key": adminKey },
+                  });
+                  if (!res.ok) throw new Error(`API error: ${res.status}`);
+                  const result = (await res.json()) as {
+                    total: number;
+                    mismatches: Array<{ id: string; email: string; currentArchetype: string; correctArchetype: string }>;
+                  };
+                  setRescoreTotal(result.total);
+                  setRescoreMismatches(result.mismatches);
+                } catch (err) {
+                  alert(err instanceof Error ? err.message : "Failed to check mismatches");
+                } finally {
+                  setRescoreChecking(false);
+                }
+              }}
+              className="px-4 py-2 rounded-lg border border-amber-300 text-amber-700 text-sm font-medium hover:bg-amber-50 transition disabled:opacity-50"
+            >
+              {rescoreChecking ? "Checking..." : "Check Mismatches"}
+            </button>
+
+            {rescoreMismatches && rescoreMismatches.length > 0 ? (
+              <button
+                disabled={rescoreApplying}
+                onClick={async () => {
+                  if (!confirm(`This will update ${rescoreMismatches.length} submissions. Continue?`)) return;
+                  setRescoreApplying(true);
+                  try {
+                    const res = await fetch(`${API_URL}/api/admin/rescore`, {
+                      method: "POST",
+                      headers: { "x-admin-key": adminKey },
+                    });
+                    if (!res.ok) throw new Error(`API error: ${res.status}`);
+                    const result = (await res.json()) as { updated: number };
+                    alert(`Updated ${result.updated} submissions.`);
+                    setRescoreMismatches(null);
+                    void fetchAnalytics(adminKey, days);
+                  } catch (err) {
+                    alert(err instanceof Error ? err.message : "Failed to apply rescore");
+                  } finally {
+                    setRescoreApplying(false);
+                  }
+                }}
+                className="px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 transition disabled:opacity-50"
+              >
+                {rescoreApplying ? "Applying..." : `Apply Re-score (${rescoreMismatches.length})`}
+              </button>
+            ) : null}
+          </div>
+
+          {rescoreMismatches !== null ? (
+            rescoreMismatches.length === 0 ? (
+              <p className="text-sm text-emerald-600 font-medium">
+                ✓ All {rescoreTotal} submissions are up to date — no mismatches.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-sm text-amber-700 font-medium">
+                  {rescoreMismatches.length} of {rescoreTotal} submissions would change:
+                </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-harbor-text/10 text-left text-harbor-text/50">
+                        <th className="py-2 pr-4">Email</th>
+                        <th className="py-2 pr-4">Current</th>
+                        <th className="py-2 pr-4"></th>
+                        <th className="py-2">Correct</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rescoreMismatches.map((m) => (
+                        <tr key={m.id} className="border-b border-harbor-text/5">
+                          <td className="py-2 pr-4 text-harbor-text">{m.email}</td>
+                          <td className="py-2 pr-4 text-red-500 font-medium">{m.currentArchetype}</td>
+                          <td className="py-2 pr-4 text-harbor-text/30">→</td>
+                          <td className="py-2 text-emerald-600 font-medium">{m.correctArchetype}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )
+          ) : null}
+        </div>
 
         {/* Danger Zone — Reset */}
         <div className="bg-white rounded-xl border border-red-200 p-6 space-y-3">

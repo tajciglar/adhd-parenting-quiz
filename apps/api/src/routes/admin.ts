@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { getAnalytics, resetAnalytics } from "../services/supabaseAdmin.js";
+import { getAnalytics, resetAnalytics, checkRescoreMismatches, applyRescore } from "../services/supabaseAdmin.js";
 
 export default async function adminRoutes(fastify: FastifyInstance) {
   // Simple secret-key auth for admin endpoints
@@ -28,6 +28,29 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     } catch (err) {
       request.log.error({ err }, "admin.analytics.query_failed");
       return reply.status(500).send({ error: "Failed to fetch analytics" });
+    }
+  });
+
+  // ── GET /api/admin/rescore-check ─────────────────────────────────────────
+  fastify.get("/admin/rescore-check", async (request, reply) => {
+    try {
+      const result = await checkRescoreMismatches();
+      return reply.send(result);
+    } catch (err) {
+      request.log.error({ err }, "admin.rescore_check.failed");
+      return reply.status(500).send({ error: "Failed to check mismatches" });
+    }
+  });
+
+  // ── POST /api/admin/rescore ────────────────────────────────────────────
+  fastify.post("/admin/rescore", async (request, reply) => {
+    try {
+      const result = await applyRescore();
+      request.log.info(result, "admin.rescore.applied");
+      return reply.send(result);
+    } catch (err) {
+      request.log.error({ err }, "admin.rescore.failed");
+      return reply.status(500).send({ error: "Failed to apply rescore" });
     }
   });
 
