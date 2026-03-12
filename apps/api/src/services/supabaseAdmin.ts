@@ -242,7 +242,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
 
   const traitPairUserMap = new Map<string, Array<{ email: string; archetype: string; paid: boolean; created_at: string }>>();
   for (const row of traitPairUserData ?? []) {
-    const scores = row.trait_scores as Record<string, number> | null;
+    const scores = row.trait_scores as import("@adhd-parenting-quiz/shared").TraitScores | null;
     if (!scores) continue;
     const sorted = Object.entries(scores).sort(([, a], [, b]) => b - a);
     if (sorted.length < 2) continue;
@@ -312,7 +312,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
 
   const pairCounts = new Map<string, number>();
   for (const row of traitData ?? []) {
-    const scores = row.trait_scores as Record<string, number> | null;
+    const scores = row.trait_scores as import("@adhd-parenting-quiz/shared").TraitScores | null;
     if (!scores) continue;
     const sorted = Object.entries(scores).sort(([, a], [, b]) => b - a);
     if (sorted.length < 2) continue;
@@ -435,7 +435,7 @@ async function fetchMismatches(): Promise<{ total: number; mismatches: RescoreMi
   const mismatches: RescoreMismatch[] = [];
   for (const row of rows) {
     if (!row.trait_scores) continue;
-    const correct = matchArchetype(row.trait_scores as Record<string, number>);
+    const correct = matchArchetype(row.trait_scores as import("@adhd-parenting-quiz/shared").TraitScores);
     if (correct.id !== row.archetype_id) {
       mismatches.push({
         id: row.id,
