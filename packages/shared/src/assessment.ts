@@ -1,11 +1,11 @@
 // ─── Likert Scale ───────────────────────────────────────────────────────────
 
 export const LIKERT_OPTIONS = [
-  { label: "Strongly Disagree", value: 0 },
-  { label: "Disagree", value: 1 },
-  { label: "Neutral", value: 2 },
-  { label: "Agree", value: 3 },
-  { label: "Strongly Agree", value: 4 },
+  { label: "Not really", value: 0 },
+  { label: "Rarely", value: 1 },
+  { label: "Sometimes", value: 2 },
+  { label: "Often", value: 3 },
+  { label: "Always", value: 4 },
 ] as const;
 
 // ─── Category IDs ───────────────────────────────────────────────────────────

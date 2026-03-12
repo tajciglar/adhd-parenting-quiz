@@ -8,8 +8,8 @@ interface LikertSelectProps {
 
 /**
  * 5 circles in a row spanning full width.
- * 0-1 purple (disagree), 2 neutral/gray, 3-4 green (agree).
- * "Disagree" label under first circle, "Agree" under last.
+ * 0-1 purple (not really / rarely), 2 neutral/gray (sometimes), 3-4 green (often / always).
+ * Labels shown under each circle.
  */
 const CIRCLE_STYLES: Record<
   number,
@@ -58,8 +58,13 @@ export default function LikertSelect({
         {LIKERT_OPTIONS.map((opt) => {
           const isSelected = value === opt.value;
           const style = CIRCLE_STYLES[opt.value];
-          const isFirst = opt.value === 0;
-          const isLast = opt.value === 4;
+
+          const labelColor =
+            opt.value <= 1
+              ? "text-purple-400"
+              : opt.value === 2
+                ? "text-harbor-text/40"
+                : "text-emerald-400";
 
           return (
             <div key={opt.value} className="flex flex-col items-center gap-2">
@@ -70,15 +75,9 @@ export default function LikertSelect({
                 }`}
                 aria-label={opt.label}
               />
-              {isFirst && (
-                <span className="text-xs font-medium text-purple-400">Disagree</span>
-              )}
-              {isLast && (
-                <span className="text-xs font-medium text-emerald-400">Agree</span>
-              )}
-              {!isFirst && !isLast && (
-                <span className="text-xs invisible">spacer</span>
-              )}
+              <span className={`text-[10px] font-medium ${labelColor} whitespace-nowrap`}>
+                {opt.label}
+              </span>
             </div>
           );
         })}
