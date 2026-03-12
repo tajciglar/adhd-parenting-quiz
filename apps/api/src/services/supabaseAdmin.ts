@@ -166,7 +166,8 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     .select("step_number, session_id")
     .eq("event_type", "step_viewed")
     .gte("created_at", sinceStr)
-    .not("step_number", "is", null);
+    .not("step_number", "is", null)
+    .limit(10000);
 
   const stepCounts = new Map<number, Set<string>>();
   for (const row of stepData ?? []) {
@@ -191,7 +192,8 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   const { data: summaryData } = await sb
     .from("funnel_events")
     .select("event_type, session_id")
-    .gte("created_at", sinceStr);
+    .gte("created_at", sinceStr)
+    .limit(10000);
 
   const eventSessions = new Map<string, Set<string>>();
   for (const row of summaryData ?? []) {
@@ -264,7 +266,8 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   const { data: trendData } = await sb
     .from("funnel_events")
     .select("event_type, session_id, created_at")
-    .gte("created_at", sinceStr);
+    .gte("created_at", sinceStr)
+    .limit(10000);
 
   const dailyMap = new Map<string, { started: Set<string>; completed: Set<string>; purchased: Set<string> }>();
 

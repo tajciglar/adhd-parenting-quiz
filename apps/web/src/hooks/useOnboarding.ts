@@ -75,7 +75,7 @@ export function useOnboarding() {
   }, [state]);
 
   // Track step views (fire once per step change)
-  const lastTrackedStep = useRef(0);
+  const lastTrackedStep = useRef(-1);
   useEffect(() => {
     if (state.currentStep !== lastTrackedStep.current) {
       lastTrackedStep.current = state.currentStep;
