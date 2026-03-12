@@ -134,7 +134,7 @@ export interface FunnelAnalytics {
   avgCompletionTime: number; // seconds
   submissionsByTraitPair: Array<{
     pair: string;
-    users: Array<{ email: string; paid: boolean; created_at: string }>;
+    users: Array<{ email: string; archetype: string; paid: boolean; created_at: string }>;
   }>;
 }
 
@@ -237,10 +237,10 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   // 3b. Submissions grouped by top-2 trait pair — all submissions
   const { data: traitPairUserData } = await sb
     .from("quiz_submissions")
-    .select("email, trait_scores, paid, created_at")
+    .select("email, archetype_id, trait_scores, paid, created_at")
     .order("created_at", { ascending: false });
 
-  const traitPairUserMap = new Map<string, Array<{ email: string; paid: boolean; created_at: string }>>();
+  const traitPairUserMap = new Map<string, Array<{ email: string; archetype: string; paid: boolean; created_at: string }>>();
   for (const row of traitPairUserData ?? []) {
     const scores = row.trait_scores as Record<string, number> | null;
     if (!scores) continue;
@@ -250,6 +250,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     if (!traitPairUserMap.has(pair)) traitPairUserMap.set(pair, []);
     traitPairUserMap.get(pair)!.push({
       email: row.email as string,
+      archetype: row.archetype_id as string,
       paid: row.paid as boolean,
       created_at: row.created_at as string,
     });

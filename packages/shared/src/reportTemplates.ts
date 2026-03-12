@@ -80,11 +80,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "archetypeId": "fox",
     "closingLine": "[NAME] is a Clever Fox. And the world needs more of them.",
     "affirmations": [
-      "You are not your avoidance. That's just your brain finding a way around something hard.",
-      "Your cleverness is genuinely one of your best qualities. We're going to use it for bigger things.",
-      "I'm not trying to catch you out. I'm trying to make the hard things easier.",
-      "I know it feels easier to talk your way around things. Let's make doing them feel easier too.",
-      "I see who you are underneath all of this. And that person is extraordinary."
+      "\"You are not your avoidance. That's just your brain finding a way around something hard.\"",
+      "\"Your cleverness is genuinely one of your best qualities. We're going to use it for bigger things.\"",
+      "\"I'm not trying to catch you out. I'm trying to make the hard things easier.\"",
+      "\"I know it feels easier to talk your way around things. Let's make doing them feel easier too.\"",
+      "\"I see who you are underneath all of this. And that person is extraordinary.\""
     ],
     "brainSections": [
       {
@@ -153,11 +153,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "archetypeId": "hummingbird",
     "closingLine": "[NAME] is a Flash Hummingbird. And the world needs more of them.",
     "affirmations": [
-      "Your energy is not a problem. We just need to find it the right place to go.",
-      "I know sitting still is really hard for you. That's not your fault.",
-      "You are not too much. You are exactly right.",
-      "I love how excited you get about things. That's one of my favorite things about you.",
-      "We'll figure out a system together. I'm not giving up on finding what works."
+      "\"Your energy is not a problem. We just need to find it the right place to go.\"",
+      "\"I know sitting still is really hard for you. That's not your fault.\"",
+      "\"You are not too much. You are exactly right.\"",
+      "\"I love how excited you get about things. That's one of my favorite things about you.\"",
+      "\"We'll figure out a system together. I'm not giving up on finding what works.\""
     ],
     "brainSections": [
       {
@@ -299,11 +299,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "archetypeId": "meerkat",
     "closingLine": "[NAME] is an Observing Meerkat. And the world needs more of them.",
     "affirmations": [
-      "You don't have to be on all the time. It's okay to need quiet.",
-      "I know the world feels loud sometimes. We'll find the quiet together.",
-      "Being sensitive is not a weakness. It's just how your brain is built.",
-      "I'm not going to push you. I'll be here when you're ready.",
-      "You notice things most people never see. That's actually remarkable."
+      "\"You don't have to be on all the time. It's okay to need quiet.\"",
+      "\"I know the world feels loud sometimes. We'll find the quiet together.\"",
+      "\"Being sensitive is not a weakness. It's just how your brain is built.\"",
+      "\"I'm not going to push you. I'll be here when you're ready.\"",
+      "\"You notice things most people never see. That's actually remarkable.\""
     ],
     "brainSections": [
       {
@@ -372,11 +372,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "archetypeId": "stallion",
     "closingLine": "[NAME] is a Bold Stallion. And the world needs more of them.",
     "affirmations": [
-      "I know you meant to do it. I believe you.",
-      "Your brain experiences time differently. That's not an excuse, it's an explanation.",
-      "We're going to build systems that make this easier. Not just expect it to improve on its own.",
-      "The fact that you can perform under pressure means the capability is absolutely there.",
-      "I'm not giving up on finding what works for you. Neither should you."
+      "\"I know you meant to do it. I believe you.\"",
+      "\"Your brain experiences time differently. That's not an excuse, it's an explanation.\"",
+      "\"We're going to build systems that make this easier. Not just expect it to improve on its own.\"",
+      "\"The fact that you can perform under pressure means the capability is absolutely there.\"",
+      "\"I'm not giving up on finding what works for you. Neither should you.\""
     ],
     "brainSections": [
       {
@@ -445,11 +445,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "archetypeId": "tiger",
     "closingLine": "[NAME] is a Fierce Tiger. And the world needs more of them.",
     "affirmations": [
-      "Your feelings make sense. All of them.",
-      "I'm not going anywhere. I'll be right here until it passes.",
-      "You don't have to be calm to be loved.",
-      "That was really hard. I saw how hard you tried.",
-      "We can talk about it when you're ready. There's no rush."
+      "\"Your feelings make sense. All of them.\"",
+      "\"I'm not going anywhere. I'll be right here until it passes.\"",
+      "\"You don't have to be calm to be loved.\"",
+      "\"That was really hard. I saw how hard you tried.\"",
+      "\"We can talk about it when you're ready. There's no rush.\""
     ],
     "brainSections": [
       {

@@ -82,7 +82,7 @@ interface AnswerDist {
 
 interface TraitPairUsers {
   pair: string;
-  users: Array<{ email: string; paid: boolean; created_at: string }>;
+  users: Array<{ email: string; archetype: string; paid: boolean; created_at: string }>;
 }
 
 interface Analytics {
@@ -598,12 +598,13 @@ export default function AdminDashboard() {
               </div>
               <button
                 onClick={() => {
-                  const rows = [["Category Pair", "Email", "Paid", "Date"]];
+                  const rows = [["Category Pair", "Email", "Archetype", "Paid", "Date"]];
                   for (const group of analytics.submissionsByTraitPair) {
                     for (const u of group.users) {
                       rows.push([
                         group.pair.replace(/_/g, " "),
                         u.email,
+                        u.archetype.replace(/_/g, " "),
                         u.paid ? "Yes" : "No",
                         new Date(u.created_at).toLocaleDateString(),
                       ]);
@@ -639,6 +640,9 @@ export default function AdminDashboard() {
                       <div key={i} className="px-4 py-2 flex items-center justify-between text-sm">
                         <span className="text-harbor-text/70 truncate max-w-[250px]">{u.email}</span>
                         <div className="flex items-center gap-3">
+                          <span className="text-xs text-harbor-primary/70 capitalize">
+                            {u.archetype.replace(/_/g, " ")}
+                          </span>
                           {u.paid ? (
                             <span className="inline-block bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full">
                               Paid
