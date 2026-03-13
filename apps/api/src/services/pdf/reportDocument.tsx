@@ -184,8 +184,8 @@ const s = StyleSheet.create({
 
   /* ── Cover Hero ──────────────────────────── */
   heroSection: {
-    paddingTop: 40,
-    paddingBottom: 6,
+    paddingTop: 30,
+    paddingBottom: 4,
     paddingHorizontal: 48,
     alignItems: "center",
   },
@@ -206,30 +206,30 @@ const s = StyleSheet.create({
     marginTop: 1,
   },
   heroTitle: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 700,
     fontFamily: "Helvetica-Bold",
     textTransform: "uppercase",
     letterSpacing: 2,
-    marginBottom: 16,
+    marginBottom: 10,
     textAlign: "center",
   },
   heroLine: {
     height: 2,
     width: "100%",
-    marginBottom: 20,
+    marginBottom: 12,
   },
   heroQuoteBox: {
     width: "100%",
-    paddingVertical: 8,
-    paddingHorizontal: 14,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     flexDirection: "row",
     alignItems: "center",
   },
   heroQuoteImage: {
-    width: 150,
-    height: 150,
-    marginRight: 14,
+    width: 100,
+    height: 100,
+    marginRight: 12,
     objectFit: "contain",
   },
   heroQuoteRight: {
@@ -248,7 +248,7 @@ const s = StyleSheet.create({
   },
   coverContent: {
     paddingHorizontal: 48,
-    paddingTop: 24,
+    paddingTop: 16,
   },
 
   /* ── Header / Footer ─────────────────────── */
@@ -524,6 +524,7 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
       <Page
         size="A4"
         style={[s.coverPage, { backgroundColor: theme.bg, color: theme.text }]}
+        wrap
       >
         {/* Hero Section */}
         <View style={s.heroSection}>
