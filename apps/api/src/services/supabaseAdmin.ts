@@ -96,6 +96,48 @@ export async function insertFunnelEvent(
   }
 }
 
+// ─── Paginated Fetch (bypasses Supabase 1000-row default) ────────────────────
+
+/**
+ * Fetches ALL matching rows by paginating with .range().
+ * Supabase caps each request at 1000 rows by default — this loops until done.
+ */
+async function fetchAll<T = Record<string, unknown>>(
+  query: ReturnType<SupabaseClient["from"]> & { select: (...args: unknown[]) => unknown },
+  table: string,
+  selectCols: string,
+  filters: (q: ReturnType<SupabaseClient["from"]>) => ReturnType<SupabaseClient["from"]>,
+): Promise<T[]> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return [];
+
+  const PAGE_SIZE = 1000;
+  const allRows: T[] = [];
+  let offset = 0;
+  let hasMore = true;
+
+  while (hasMore) {
+    const { data, error } = await (filters(sb.from(table)) as any)
+      .select(selectCols)
+      .range(offset, offset + PAGE_SIZE - 1);
+
+    if (error) {
+      console.error(`fetchAll(${table}) failed at offset ${offset}:`, error.message);
+      break;
+    }
+
+    if (data && data.length > 0) {
+      allRows.push(...(data as T[]));
+      offset += data.length;
+      if (data.length < PAGE_SIZE) hasMore = false;
+    } else {
+      hasMore = false;
+    }
+  }
+
+  return allRows;
+}
+
 // ─── Analytics Queries ───────────────────────────────────────────────────────
 
 export interface FunnelAnalytics {
@@ -160,21 +202,40 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   since.setDate(since.getDate() - days);
   const sinceStr = since.toISOString();
 
-  // 1. Step dropoff — count distinct sessions per step
-  const { data: stepData } = await sb
-    .from("funnel_events")
-    .select("step_number, session_id")
-    .eq("event_type", "step_viewed")
-    .gte("created_at", sinceStr)
-    .not("step_number", "is", null)
-    .limit(10000);
-
-  const stepCounts = new Map<number, Set<string>>();
-  for (const row of stepData ?? []) {
-    if (row.step_number == null) continue;
-    if (!stepCounts.has(row.step_number)) {
-      stepCounts.set(row.step_number, new Set());
+  // Helper: fetch all rows from a table with filters (no row limit)
+  async function allRows<T = Record<string, unknown>>(
+    table: string,
+    cols: string,
+    applyFilters: (q: any) => any,
+  ): Promise<T[]> {
+    const PAGE = 1000;
+    const result: T[] = [];
+    let offset = 0;
+    while (true) {
+      const { data, error } = await applyFilters(sb!.from(table).select(cols)).range(offset, offset + PAGE - 1);
+      if (error) { console.error(`allRows(${table}) offset=${offset}:`, error.message); break; }
+      if (!data || data.length === 0) break;
+      result.push(...(data as T[]));
+      if (data.length < PAGE) break;
+      offset += PAGE;
     }
+    return result;
+  }
+
+  // ── Fetch all data in parallel ───────────────────────────────────────────
+  type FunnelRow = { session_id: string; event_type: string; step_number: number | null; created_at: string; metadata: Record<string, unknown> | null };
+  type SubRow = { id: string; email: string; archetype_id: string; trait_scores: Record<string, number> | null; paid: boolean; created_at: string };
+
+  const [funnelRows, submissionRows] = await Promise.all([
+    allRows<FunnelRow>("funnel_events", "session_id, event_type, step_number, created_at, metadata", (q: any) => q.gte("created_at", sinceStr)),
+    allRows<SubRow>("quiz_submissions", "id, email, archetype_id, trait_scores, paid, created_at", (q: any) => q),
+  ]);
+
+  // ── 1. Step dropoff ──────────────────────────────────────────────────────
+  const stepCounts = new Map<number, Set<string>>();
+  for (const row of funnelRows) {
+    if (row.event_type !== "step_viewed" || row.step_number == null) continue;
+    if (!stepCounts.has(row.step_number)) stepCounts.set(row.step_number, new Set());
     stepCounts.get(row.step_number)!.add(row.session_id);
   }
 
@@ -188,18 +249,10 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     return { ...item, dropoffRate };
   });
 
-  // 2. Funnel summary — count distinct sessions per event type
-  const { data: summaryData } = await sb
-    .from("funnel_events")
-    .select("event_type, session_id")
-    .gte("created_at", sinceStr)
-    .limit(10000);
-
+  // ── 2. Funnel summary ────────────────────────────────────────────────────
   const eventSessions = new Map<string, Set<string>>();
-  for (const row of summaryData ?? []) {
-    if (!eventSessions.has(row.event_type)) {
-      eventSessions.set(row.event_type, new Set());
-    }
+  for (const row of funnelRows) {
+    if (!eventSessions.has(row.event_type)) eventSessions.set(row.event_type, new Set());
     eventSessions.get(row.event_type)!.add(row.session_id);
   }
 
@@ -221,29 +274,21 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     overallConversion: pct(purchaseCompleted, quizStarted),
   };
 
-  // 3. Recent submissions
-  const { data: recentData } = await sb
-    .from("quiz_submissions")
-    .select("id, email, archetype_id, paid, created_at")
-    .order("created_at", { ascending: false })
-    .limit(50);
+  // ── 3. Recent submissions (last 50) ──────────────────────────────────────
+  const recentSubmissions = [...submissionRows]
+    .sort((a, b) => b.created_at.localeCompare(a.created_at))
+    .slice(0, 50)
+    .map((r) => ({
+      id: r.id,
+      email: r.email,
+      archetype_id: r.archetype_id,
+      paid: r.paid,
+      created_at: r.created_at,
+    }));
 
-  const recentSubmissions = (recentData ?? []).map((r) => ({
-    id: r.id as string,
-    email: r.email as string,
-    archetype_id: r.archetype_id as string,
-    paid: r.paid as boolean,
-    created_at: r.created_at as string,
-  }));
-
-  // 3b. Submissions grouped by top-2 trait pair — all submissions
-  const { data: traitPairUserData } = await sb
-    .from("quiz_submissions")
-    .select("email, archetype_id, trait_scores, paid, created_at")
-    .order("created_at", { ascending: false });
-
+  // ── 3b. Submissions grouped by trait pair ────────────────────────────────
   const traitPairUserMap = new Map<string, Array<{ email: string; archetype: string; paid: boolean; created_at: string }>>();
-  for (const row of traitPairUserData ?? []) {
+  for (const row of submissionRows) {
     const scores = row.trait_scores as import("@adhd-parenting-quiz/shared").TraitScores | null;
     if (!scores) continue;
     const sorted = Object.entries(scores).sort(([, a], [, b]) => b - a);
@@ -251,10 +296,10 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     const pair = [sorted[0][0], sorted[1][0]].sort().join(" & ");
     if (!traitPairUserMap.has(pair)) traitPairUserMap.set(pair, []);
     traitPairUserMap.get(pair)!.push({
-      email: row.email as string,
-      archetype: row.archetype_id as string,
-      paid: row.paid as boolean,
-      created_at: row.created_at as string,
+      email: row.email,
+      archetype: row.archetype_id,
+      paid: row.paid,
+      created_at: row.created_at,
     });
   }
 
@@ -262,20 +307,11 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     .map(([pair, users]) => ({ pair, users }))
     .sort((a, b) => b.users.length - a.users.length);
 
-  // 4. Daily trend
-  const { data: trendData } = await sb
-    .from("funnel_events")
-    .select("event_type, session_id, created_at")
-    .gte("created_at", sinceStr)
-    .limit(10000);
-
+  // ── 4. Daily trend ───────────────────────────────────────────────────────
   const dailyMap = new Map<string, { started: Set<string>; completed: Set<string>; purchased: Set<string> }>();
-
-  for (const row of trendData ?? []) {
-    const date = (row.created_at as string).slice(0, 10);
-    if (!dailyMap.has(date)) {
-      dailyMap.set(date, { started: new Set(), completed: new Set(), purchased: new Set() });
-    }
+  for (const row of funnelRows) {
+    const date = row.created_at.slice(0, 10);
+    if (!dailyMap.has(date)) dailyMap.set(date, { started: new Set(), completed: new Set(), purchased: new Set() });
     const day = dailyMap.get(date)!;
     if (row.event_type === "step_viewed") day.started.add(row.session_id);
     if (row.event_type === "quiz_completed") day.completed.add(row.session_id);
@@ -284,37 +320,24 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
 
   const dailyTrend = [...dailyMap.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, sets]) => ({
-      date,
-      started: sets.started.size,
-      completed: sets.completed.size,
-      purchased: sets.purchased.size,
-    }));
+    .map(([date, sets]) => ({ date, started: sets.started.size, completed: sets.completed.size, purchased: sets.purchased.size }));
 
-  // 5. Archetype distribution — count submissions per archetype
-  const { data: archetypeData } = await sb
-    .from("quiz_submissions")
-    .select("archetype_id")
-    .gte("created_at", sinceStr);
+  // ── 5. Archetype distribution ────────────────────────────────────────────
+  const sinceDate = new Date(sinceStr);
+  const recentSubs = submissionRows.filter((r) => new Date(r.created_at) >= sinceDate);
 
   const archetypeCounts = new Map<string, number>();
-  for (const row of archetypeData ?? []) {
-    const id = row.archetype_id as string;
-    archetypeCounts.set(id, (archetypeCounts.get(id) ?? 0) + 1);
+  for (const row of recentSubs) {
+    archetypeCounts.set(row.archetype_id, (archetypeCounts.get(row.archetype_id) ?? 0) + 1);
   }
 
   const archetypeDistribution = [...archetypeCounts.entries()]
     .map(([archetypeId, count]) => ({ archetypeId, count }))
     .sort((a, b) => b.count - a.count);
 
-  // 5b. Trait pair distribution — top-2 scoring categories per submission
-  const { data: traitData } = await sb
-    .from("quiz_submissions")
-    .select("trait_scores")
-    .gte("created_at", sinceStr);
-
+  // ── 5b. Trait pair distribution ──────────────────────────────────────────
   const pairCounts = new Map<string, number>();
-  for (const row of traitData ?? []) {
+  for (const row of recentSubs) {
     const scores = row.trait_scores as import("@adhd-parenting-quiz/shared").TraitScores | null;
     if (!scores) continue;
     const sorted = Object.entries(scores).sort(([, a], [, b]) => b - a);
@@ -327,19 +350,12 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     .map(([pair, count]) => ({ pair, count }))
     .sort((a, b) => b.count - a.count);
 
-  // 6. Answer distribution — most common answer per question from answer_submitted events
-  const { data: answerData } = await sb
-    .from("funnel_events")
-    .select("metadata")
-    .eq("event_type", "answer_submitted")
-    .gte("created_at", sinceStr);
-
+  // ── 6. Answer distribution ───────────────────────────────────────────────
   const answerMap = new Map<string, Map<string, number>>();
-  for (const row of answerData ?? []) {
-    const meta = row.metadata as Record<string, unknown> | null;
-    if (!meta?.questionKey) continue;
-    const qKey = String(meta.questionKey);
-    const aVal = String(meta.answerValue ?? "");
+  for (const row of funnelRows) {
+    if (row.event_type !== "answer_submitted" || !row.metadata?.questionKey) continue;
+    const qKey = String(row.metadata.questionKey);
+    const aVal = String(row.metadata.answerValue ?? "");
     if (!answerMap.has(qKey)) answerMap.set(qKey, new Map());
     const counts = answerMap.get(qKey)!;
     counts.set(aVal, (counts.get(aVal) ?? 0) + 1);
@@ -356,25 +372,15 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     return { questionKey, topAnswer, percentage, totalResponses };
   });
 
-  // 7. Average completion time — time between first step_viewed and quiz_completed per session
-  const { data: completionData } = await sb
-    .from("funnel_events")
-    .select("session_id, event_type, created_at")
-    .in("event_type", ["step_viewed", "quiz_completed"])
-    .gte("created_at", sinceStr);
-
+  // ── 7. Average completion time ───────────────────────────────────────────
   const sessionTimes = new Map<string, { firstStep?: Date; completed?: Date }>();
-  for (const row of completionData ?? []) {
-    const sid = row.session_id as string;
-    if (!sessionTimes.has(sid)) sessionTimes.set(sid, {});
-    const entry = sessionTimes.get(sid)!;
-    const ts = new Date(row.created_at as string);
-    if (row.event_type === "step_viewed" && (!entry.firstStep || ts < entry.firstStep)) {
-      entry.firstStep = ts;
-    }
-    if (row.event_type === "quiz_completed") {
-      entry.completed = ts;
-    }
+  for (const row of funnelRows) {
+    if (row.event_type !== "step_viewed" && row.event_type !== "quiz_completed") continue;
+    if (!sessionTimes.has(row.session_id)) sessionTimes.set(row.session_id, {});
+    const entry = sessionTimes.get(row.session_id)!;
+    const ts = new Date(row.created_at);
+    if (row.event_type === "step_viewed" && (!entry.firstStep || ts < entry.firstStep)) entry.firstStep = ts;
+    if (row.event_type === "quiz_completed") entry.completed = ts;
   }
 
   let totalSeconds = 0;
