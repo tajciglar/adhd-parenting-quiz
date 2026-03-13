@@ -32,6 +32,7 @@ export interface ReportTemplateData {
   animalDescription: string;
   aboutChild: string;
   hiddenSuperpower: string;
+  aboutBrain?: string;
   brainSections: Array<{ title: string; content: string }>;
   dayInLife: {
     morning: string;
@@ -580,14 +581,24 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
 
         {/* ── Understanding Brain ── */}
         <SectionLabel text={`UNDERSTANDING ${NAME}'S BRAIN`} theme={theme} />
-        {report.brainSections.map((section) => (
-          <View key={section.title} style={s.subSection} wrap={false}>
-            <Text style={[s.subTitle, { color: theme.accent }]}>
-              {section.title}
-            </Text>
-            <ParagraphText text={section.content} />
-          </View>
-        ))}
+        {report.aboutBrain && <ParagraphText text={report.aboutBrain} />}
+        {report.brainSections.map((section, idx) => {
+          const ordinal = idx === 0 ? "The first is" : "The second is";
+          const titleLower = section.title.toLowerCase();
+          const startsUpper = /^[A-Z\[]/.test(section.content);
+          const separator = startsUpper ? ". " : " — ";
+          const body = startsUpper ? section.content : section.content;
+          return (
+            <View key={section.title} style={s.subSection} wrap={false}>
+              <Text style={{ fontSize: 11.5, lineHeight: 1.6, marginTop: 8 }}>
+                <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 11.5 }}>
+                  {`${ordinal} ${titleLower}`}
+                </Text>
+                {`${separator}${body}`}
+              </Text>
+            </View>
+          );
+        })}
 
         {/* ── A Day in Life ── */}
         <SectionLabel text={`A DAY IN ${NAME}'S LIFE`} theme={theme} />
@@ -611,10 +622,10 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
           text={`CREATING THE RIGHT ENVIRONMENT FOR ${NAME} TO THRIVE`}
           theme={theme}
         />
-        <View style={s.dfContainer}>
-          {/* Drains */}
-          <View style={s.dfColumn}>
-            <View style={[s.dfHeader, { backgroundColor: theme.dangerSoft }]}>
+        <View>
+          {/* Headers row */}
+          <View style={{ flexDirection: "row" }}>
+            <View style={[s.dfHeader, { flex: 1, backgroundColor: theme.dangerSoft }]}>
               <Text style={[s.dfHeaderIcon, { color: theme.dangerAccent }]}>
                 ✕
               </Text>
@@ -622,16 +633,7 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
                 WHAT DRAINS {NAME}
               </Text>
             </View>
-            {report.drains.map((item, i) => (
-              <View key={`d-${i}`} style={[s.dfItem, { flexDirection: "row", alignItems: "flex-start", borderBottomWidth: 0.5, borderBottomStyle: "solid", borderBottomColor: theme.border }]}>
-                <View style={{ width: 18, paddingTop: 1 }}><XIcon size={10} color={theme.dangerAccent} /></View>
-                <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{item}</Text>
-              </View>
-            ))}
-          </View>
-          {/* Fuels */}
-          <View style={s.dfColumn}>
-            <View style={[s.dfHeader, { backgroundColor: theme.successSoft }]}>
+            <View style={[s.dfHeader, { flex: 1, backgroundColor: theme.successSoft }]}>
               <Text style={[s.dfHeaderIcon, { color: theme.successAccent }]}>
                 ✓
               </Text>
@@ -639,19 +641,45 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
                 WHAT FUELS {NAME}
               </Text>
             </View>
-            {report.fuels.map((item, i) => (
-              <View key={`f-${i}`} style={[s.dfItem, { flexDirection: "row", alignItems: "flex-start", borderBottomWidth: 0.5, borderBottomStyle: "solid", borderBottomColor: theme.border }]}>
-                <View style={{ width: 18, paddingTop: 1 }}><CheckIcon size={10} color={theme.successAccent} /></View>
-                <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{item}</Text>
-              </View>
-            ))}
           </View>
+          {/* Item rows — paired so each drain/fuel sits on the same line */}
+          {report.drains.map((drain, i) => {
+            const fuel = report.fuels[i] ?? "";
+            return (
+              <View key={`df-${i}`} style={{ flexDirection: "row", borderBottomWidth: 0.5, borderBottomStyle: "solid", borderBottomColor: theme.border }}>
+                <View style={[s.dfItem, { flex: 1, flexDirection: "row", alignItems: "flex-start" }]}>
+                  <View style={{ width: 18, paddingTop: 1 }}><XIcon size={10} color={theme.dangerAccent} /></View>
+                  <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{drain}</Text>
+                </View>
+                <View style={[s.dfItem, { flex: 1, flexDirection: "row", alignItems: "flex-start" }]}>
+                  <View style={{ width: 18, paddingTop: 1 }}><CheckIcon size={10} color={theme.successAccent} /></View>
+                  <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{fuel}</Text>
+                </View>
+              </View>
+            );
+          })}
+          {/* Extra fuels if fuels array is longer than drains */}
+          {report.fuels.slice(report.drains.length).map((fuel, i) => (
+            <View key={`df-extra-${i}`} style={{ flexDirection: "row", borderBottomWidth: 0.5, borderBottomStyle: "solid", borderBottomColor: theme.border }}>
+              <View style={[s.dfItem, { flex: 1 }]} />
+              <View style={[s.dfItem, { flex: 1, flexDirection: "row", alignItems: "flex-start" }]}>
+                <View style={{ width: 18, paddingTop: 1 }}><CheckIcon size={10} color={theme.successAccent} /></View>
+                <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{fuel}</Text>
+              </View>
+            </View>
+          ))}
         </View>
         </View>
 
         {/* ── Overwhelm ── */}
         <SectionLabel text={`WHEN ${NAME} GETS OVERWHELMED`} theme={theme} />
-        <ParagraphText text={report.overwhelm} />
+        <ParagraphText text={
+          /* Strip leading line if it repeats the section heading (e.g. "When Robby Gets Overwhelmed") */
+          report.overwhelm.replace(
+            new RegExp(`^\\s*when\\s+${NAME}\\s+gets\\s+overwhelmed\\s*`, "i"),
+            "",
+          )
+        } />
 
         {/* ── Affirmations ── */}
         <SectionLabel text={`WHAT ${NAME} NEEDS TO HEAR MOST`} theme={theme} />
