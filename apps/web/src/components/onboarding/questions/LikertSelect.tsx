@@ -53,21 +53,24 @@ export default function LikertSelect({
         {questionText}
       </h2>
 
-      {/* Circles row — full width, evenly spaced */}
-      <div className="flex items-center justify-between w-full px-2">
+      {/* Circles row — full width, evenly spaced, labels aligned */}
+      <div className="flex items-end justify-between w-full px-2">
         {LIKERT_OPTIONS.map((opt) => {
           const isSelected = value === opt.value;
           const style = CIRCLE_STYLES[opt.value];
 
           return (
             <div key={opt.value} className="flex flex-col items-center gap-2">
-              <button
-                onClick={() => onChange(opt.value)}
-                className={`${style.size} rounded-full border-2 transition-all duration-200 cursor-pointer flex-shrink-0 ${
-                  isSelected ? `${style.selected} scale-110` : style.unselected
-                }`}
-                aria-label={opt.label}
-              />
+              {/* Fixed-height container so all circles sit on the same baseline */}
+              <div className="h-14 flex items-center justify-center">
+                <button
+                  onClick={() => onChange(opt.value)}
+                  className={`${style.size} rounded-full border-2 transition-all duration-200 cursor-pointer flex-shrink-0 ${
+                    isSelected ? `${style.selected} scale-110` : style.unselected
+                  }`}
+                  aria-label={opt.label}
+                />
+              </div>
               <span className="text-[13px] font-medium text-gray-600 whitespace-nowrap">
                 {opt.label}
               </span>

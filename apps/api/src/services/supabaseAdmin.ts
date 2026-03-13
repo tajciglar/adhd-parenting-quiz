@@ -195,98 +195,216 @@ const EMPTY_ANALYTICS: FunnelAnalytics = {
   submissionsByTraitPair: [],
 };
 
+/**
+ * Paginated fetch: gets ALL rows from a table (bypasses Supabase 1000-row default).
+ * Used as fallback when RPCs aren't installed, and for queries needing raw rows.
+ */
+async function allRows<T = Record<string, unknown>>(
+  sb: SupabaseClient,
+  table: string,
+  cols: string,
+  applyFilters: (q: any) => any,
+): Promise<T[]> {
+  const PAGE = 1000;
+  const result: T[] = [];
+  let offset = 0;
+  while (true) {
+    const { data, error } = await applyFilters(sb.from(table).select(cols)).range(offset, offset + PAGE - 1);
+    if (error) { console.error(`allRows(${table}) offset=${offset}:`, error.message); break; }
+    if (!data || data.length === 0) break;
+    result.push(...(data as T[]));
+    if (data.length < PAGE) break;
+    offset += PAGE;
+  }
+  return result;
+}
+
 export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   const sb = getSupabaseAdmin();
   if (!sb) return EMPTY_ANALYTICS;
   const since = new Date();
   since.setDate(since.getDate() - days);
-  const sinceStr = since.toISOString();
+  const sinceTs = since.toISOString();
 
-  // Helper: fetch all rows from a table with filters (no row limit)
-  async function allRows<T = Record<string, unknown>>(
-    table: string,
-    cols: string,
-    applyFilters: (q: any) => any,
-  ): Promise<T[]> {
-    const PAGE = 1000;
-    const result: T[] = [];
-    let offset = 0;
-    while (true) {
-      const { data, error } = await applyFilters(sb!.from(table).select(cols)).range(offset, offset + PAGE - 1);
-      if (error) { console.error(`allRows(${table}) offset=${offset}:`, error.message); break; }
-      if (!data || data.length === 0) break;
-      result.push(...(data as T[]));
-      if (data.length < PAGE) break;
-      offset += PAGE;
+  const pct = (n: number, d: number) => (d > 0 ? Number(((n / d) * 100).toFixed(1)) : 0);
+
+  // ── Try RPC-based analytics (server-side aggregation, no row limits) ─────
+  // Falls back to paginated client-side aggregation if RPCs aren't installed.
+  const useRpc = await (async () => {
+    try {
+      const { error } = await sb.rpc("analytics_funnel_summary", { since_ts: sinceTs });
+      return !error; // RPCs are installed
+    } catch { return false; }
+  })();
+
+  if (useRpc) {
+    // ── All RPCs in parallel ─────────────────────────────────────────────
+    type SubRow = { id: string; email: string; archetype_id: string; trait_scores: Record<string, number> | null; paid: boolean; created_at: string };
+
+    const [
+      { data: funnelData },
+      { data: stepData },
+      { data: trendData },
+      { data: archetypeData },
+      { data: completionData },
+      { data: recentData },
+      submissionRows,
+    ] = await Promise.all([
+      sb.rpc("analytics_funnel_summary", { since_ts: sinceTs }),
+      sb.rpc("analytics_step_dropoff", { since_ts: sinceTs }),
+      sb.rpc("analytics_daily_trend", { since_ts: sinceTs }),
+      sb.rpc("analytics_archetype_distribution", { since_ts: sinceTs }),
+      sb.rpc("analytics_avg_completion_time", { since_ts: sinceTs }),
+      sb.rpc("analytics_recent_submissions", { lim: 50 }),
+      allRows<SubRow>(sb, "quiz_submissions", "id, email, archetype_id, trait_scores, paid, created_at", (q: any) => q),
+    ]);
+
+    // Funnel summary
+    const eventMap = new Map<string, number>();
+    for (const row of funnelData ?? []) eventMap.set(row.event_type, Number(row.unique_sessions));
+    const quizStarted = eventMap.get("step_viewed") ?? 0;
+    const quizCompleted = eventMap.get("quiz_completed") ?? 0;
+    const checkoutStarted = eventMap.get("checkout_started") ?? 0;
+    const purchaseCompleted = eventMap.get("purchase_completed") ?? 0;
+
+    const funnelSummary = {
+      quizStarted, quizCompleted, checkoutStarted, purchaseCompleted,
+      quizCompletionRate: pct(quizCompleted, quizStarted),
+      checkoutRate: pct(checkoutStarted, quizCompleted),
+      purchaseRate: pct(purchaseCompleted, checkoutStarted),
+      overallConversion: pct(purchaseCompleted, quizStarted),
+    };
+
+    // Step dropoff
+    const sortedSteps = (stepData ?? []).map((r: any) => ({ step: Number(r.step_number), views: Number(r.unique_sessions) }));
+    const stepDropoff = sortedSteps.map((item: any, i: number) => {
+      const prev = i > 0 ? sortedSteps[i - 1].views : item.views;
+      const dropoffRate = prev > 0 ? Number((((prev - item.views) / prev) * 100).toFixed(1)) : 0;
+      return { ...item, dropoffRate };
+    });
+
+    // Daily trend
+    const dailyMap = new Map<string, { started: number; completed: number; purchased: number }>();
+    for (const row of trendData ?? []) {
+      const date = String(row.day);
+      if (!dailyMap.has(date)) dailyMap.set(date, { started: 0, completed: 0, purchased: 0 });
+      const day = dailyMap.get(date)!;
+      const count = Number(row.unique_sessions);
+      if (row.event_type === "step_viewed") day.started = count;
+      if (row.event_type === "quiz_completed") day.completed = count;
+      if (row.event_type === "purchase_completed") day.purchased = count;
     }
-    return result;
+    const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, d]) => ({ date, ...d }));
+
+    // Archetype distribution
+    const archetypeDistribution = (archetypeData ?? []).map((r: any) => ({ archetypeId: String(r.archetype_id), count: Number(r.count) }));
+
+    // Avg completion time
+    const avgCompletionTime = completionData?.[0]?.avg_seconds ? Number(completionData[0].avg_seconds) : 0;
+
+    // Recent submissions
+    const recentSubmissions = (recentData ?? []).map((r: any) => ({
+      id: r.id, email: r.email, archetype_id: r.archetype_id, paid: r.paid, created_at: r.created_at,
+    }));
+
+    // Trait pair grouping + distribution (needs raw rows for JSON processing)
+    const sinceDate = new Date(sinceTs);
+    const recentSubs = submissionRows.filter((r) => new Date(r.created_at) >= sinceDate);
+
+    const traitPairUserMap = new Map<string, Array<{ email: string; archetype: string; paid: boolean; created_at: string }>>();
+    const pairCounts = new Map<string, number>();
+
+    for (const row of submissionRows) {
+      const scores = row.trait_scores as import("@adhd-parenting-quiz/shared").TraitScores | null;
+      if (!scores) continue;
+      const sorted = Object.entries(scores).sort(([, a], [, b]) => b - a);
+      if (sorted.length < 2) continue;
+      const pair = [sorted[0][0], sorted[1][0]].sort().join(" & ");
+      if (!traitPairUserMap.has(pair)) traitPairUserMap.set(pair, []);
+      traitPairUserMap.get(pair)!.push({ email: row.email, archetype: row.archetype_id, paid: row.paid, created_at: row.created_at });
+    }
+    for (const row of recentSubs) {
+      const scores = row.trait_scores as import("@adhd-parenting-quiz/shared").TraitScores | null;
+      if (!scores) continue;
+      const sorted = Object.entries(scores).sort(([, a], [, b]) => b - a);
+      if (sorted.length < 2) continue;
+      const pair = [sorted[0][0], sorted[1][0]].sort().join(" & ");
+      pairCounts.set(pair, (pairCounts.get(pair) ?? 0) + 1);
+    }
+
+    const submissionsByTraitPair = [...traitPairUserMap.entries()].map(([pair, users]) => ({ pair, users })).sort((a, b) => b.users.length - a.users.length);
+    const traitPairDistribution = [...pairCounts.entries()].map(([pair, count]) => ({ pair, count })).sort((a, b) => b.count - a.count);
+
+    // Answer distribution — still needs raw funnel events with metadata
+    // Use paginated fetch for answer_submitted events only
+    type AnswerRow = { metadata: Record<string, unknown> | null };
+    const answerRows = await allRows<AnswerRow>(sb, "funnel_events", "metadata", (q: any) => q.eq("event_type", "answer_submitted").gte("created_at", sinceTs));
+
+    const answerMap = new Map<string, Map<string, number>>();
+    for (const row of answerRows) {
+      if (!row.metadata?.questionKey) continue;
+      const qKey = String(row.metadata.questionKey);
+      const aVal = String(row.metadata.answerValue ?? "");
+      if (!answerMap.has(qKey)) answerMap.set(qKey, new Map());
+      const counts = answerMap.get(qKey)!;
+      counts.set(aVal, (counts.get(aVal) ?? 0) + 1);
+    }
+    const answerDistribution = [...answerMap.entries()].map(([questionKey, counts]) => {
+      const totalResponses = [...counts.values()].reduce((a, b) => a + b, 0);
+      let topAnswer = ""; let topCount = 0;
+      for (const [answer, count] of counts) { if (count > topCount) { topAnswer = answer; topCount = count; } }
+      return { questionKey, topAnswer, percentage: totalResponses > 0 ? Number(((topCount / totalResponses) * 100).toFixed(1)) : 0, totalResponses };
+    });
+
+    return { stepDropoff, funnelSummary, recentSubmissions, dailyTrend, archetypeDistribution, traitPairDistribution, answerDistribution, avgCompletionTime, submissionsByTraitPair };
   }
 
-  // ── Fetch all data in parallel ───────────────────────────────────────────
+  // ── Fallback: paginated client-side aggregation ──────────────────────────
+  // Used when RPCs aren't installed yet. Works correctly but slower.
+  console.warn("analytics: RPCs not found, using paginated fallback. Run supabase/migrations/001_analytics_rpcs.sql to enable RPCs.");
+
   type FunnelRow = { session_id: string; event_type: string; step_number: number | null; created_at: string; metadata: Record<string, unknown> | null };
   type SubRow = { id: string; email: string; archetype_id: string; trait_scores: Record<string, number> | null; paid: boolean; created_at: string };
 
   const [funnelRows, submissionRows] = await Promise.all([
-    allRows<FunnelRow>("funnel_events", "session_id, event_type, step_number, created_at, metadata", (q: any) => q.gte("created_at", sinceStr)),
-    allRows<SubRow>("quiz_submissions", "id, email, archetype_id, trait_scores, paid, created_at", (q: any) => q),
+    allRows<FunnelRow>(sb, "funnel_events", "session_id, event_type, step_number, created_at, metadata", (q: any) => q.gte("created_at", sinceTs)),
+    allRows<SubRow>(sb, "quiz_submissions", "id, email, archetype_id, trait_scores, paid, created_at", (q: any) => q),
   ]);
 
-  // ── 1. Step dropoff ──────────────────────────────────────────────────────
+  // Step dropoff
   const stepCounts = new Map<number, Set<string>>();
   for (const row of funnelRows) {
     if (row.event_type !== "step_viewed" || row.step_number == null) continue;
     if (!stepCounts.has(row.step_number)) stepCounts.set(row.step_number, new Set());
     stepCounts.get(row.step_number)!.add(row.session_id);
   }
-
-  const sortedSteps = [...stepCounts.entries()]
-    .sort(([a], [b]) => a - b)
-    .map(([step, sessions]) => ({ step, views: sessions.size }));
-
+  const sortedSteps = [...stepCounts.entries()].sort(([a], [b]) => a - b).map(([step, s]) => ({ step, views: s.size }));
   const stepDropoff = sortedSteps.map((item, i) => {
     const prev = i > 0 ? sortedSteps[i - 1].views : item.views;
-    const dropoffRate = prev > 0 ? Number((((prev - item.views) / prev) * 100).toFixed(1)) : 0;
-    return { ...item, dropoffRate };
+    return { ...item, dropoffRate: prev > 0 ? Number((((prev - item.views) / prev) * 100).toFixed(1)) : 0 };
   });
 
-  // ── 2. Funnel summary ────────────────────────────────────────────────────
+  // Funnel summary
   const eventSessions = new Map<string, Set<string>>();
   for (const row of funnelRows) {
     if (!eventSessions.has(row.event_type)) eventSessions.set(row.event_type, new Set());
     eventSessions.get(row.event_type)!.add(row.session_id);
   }
-
   const quizStarted = eventSessions.get("step_viewed")?.size ?? 0;
   const quizCompleted = eventSessions.get("quiz_completed")?.size ?? 0;
   const checkoutStarted = eventSessions.get("checkout_started")?.size ?? 0;
   const purchaseCompleted = eventSessions.get("purchase_completed")?.size ?? 0;
-
-  const pct = (n: number, d: number) => (d > 0 ? Number(((n / d) * 100).toFixed(1)) : 0);
-
   const funnelSummary = {
-    quizStarted,
-    quizCompleted,
-    checkoutStarted,
-    purchaseCompleted,
-    quizCompletionRate: pct(quizCompleted, quizStarted),
-    checkoutRate: pct(checkoutStarted, quizCompleted),
-    purchaseRate: pct(purchaseCompleted, checkoutStarted),
-    overallConversion: pct(purchaseCompleted, quizStarted),
+    quizStarted, quizCompleted, checkoutStarted, purchaseCompleted,
+    quizCompletionRate: pct(quizCompleted, quizStarted), checkoutRate: pct(checkoutStarted, quizCompleted),
+    purchaseRate: pct(purchaseCompleted, checkoutStarted), overallConversion: pct(purchaseCompleted, quizStarted),
   };
 
-  // ── 3. Recent submissions (last 50) ──────────────────────────────────────
-  const recentSubmissions = [...submissionRows]
-    .sort((a, b) => b.created_at.localeCompare(a.created_at))
-    .slice(0, 50)
-    .map((r) => ({
-      id: r.id,
-      email: r.email,
-      archetype_id: r.archetype_id,
-      paid: r.paid,
-      created_at: r.created_at,
-    }));
+  // Recent submissions
+  const recentSubmissions = [...submissionRows].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 50)
+    .map((r) => ({ id: r.id, email: r.email, archetype_id: r.archetype_id, paid: r.paid, created_at: r.created_at }));
 
-  // ── 3b. Submissions grouped by trait pair ────────────────────────────────
+  // Trait pair grouping
   const traitPairUserMap = new Map<string, Array<{ email: string; archetype: string; paid: boolean; created_at: string }>>();
   for (const row of submissionRows) {
     const scores = row.trait_scores as import("@adhd-parenting-quiz/shared").TraitScores | null;
@@ -295,19 +413,11 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     if (sorted.length < 2) continue;
     const pair = [sorted[0][0], sorted[1][0]].sort().join(" & ");
     if (!traitPairUserMap.has(pair)) traitPairUserMap.set(pair, []);
-    traitPairUserMap.get(pair)!.push({
-      email: row.email,
-      archetype: row.archetype_id,
-      paid: row.paid,
-      created_at: row.created_at,
-    });
+    traitPairUserMap.get(pair)!.push({ email: row.email, archetype: row.archetype_id, paid: row.paid, created_at: row.created_at });
   }
+  const submissionsByTraitPair = [...traitPairUserMap.entries()].map(([pair, users]) => ({ pair, users })).sort((a, b) => b.users.length - a.users.length);
 
-  const submissionsByTraitPair = [...traitPairUserMap.entries()]
-    .map(([pair, users]) => ({ pair, users }))
-    .sort((a, b) => b.users.length - a.users.length);
-
-  // ── 4. Daily trend ───────────────────────────────────────────────────────
+  // Daily trend
   const dailyMap = new Map<string, { started: Set<string>; completed: Set<string>; purchased: Set<string> }>();
   for (const row of funnelRows) {
     const date = row.created_at.slice(0, 10);
@@ -317,25 +427,15 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     if (row.event_type === "quiz_completed") day.completed.add(row.session_id);
     if (row.event_type === "purchase_completed") day.purchased.add(row.session_id);
   }
+  const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, sets]) => ({ date, started: sets.started.size, completed: sets.completed.size, purchased: sets.purchased.size }));
 
-  const dailyTrend = [...dailyMap.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, sets]) => ({ date, started: sets.started.size, completed: sets.completed.size, purchased: sets.purchased.size }));
-
-  // ── 5. Archetype distribution ────────────────────────────────────────────
-  const sinceDate = new Date(sinceStr);
+  // Archetype + trait pair distribution
+  const sinceDate = new Date(sinceTs);
   const recentSubs = submissionRows.filter((r) => new Date(r.created_at) >= sinceDate);
-
   const archetypeCounts = new Map<string, number>();
-  for (const row of recentSubs) {
-    archetypeCounts.set(row.archetype_id, (archetypeCounts.get(row.archetype_id) ?? 0) + 1);
-  }
+  for (const row of recentSubs) archetypeCounts.set(row.archetype_id, (archetypeCounts.get(row.archetype_id) ?? 0) + 1);
+  const archetypeDistribution = [...archetypeCounts.entries()].map(([archetypeId, count]) => ({ archetypeId, count })).sort((a, b) => b.count - a.count);
 
-  const archetypeDistribution = [...archetypeCounts.entries()]
-    .map(([archetypeId, count]) => ({ archetypeId, count }))
-    .sort((a, b) => b.count - a.count);
-
-  // ── 5b. Trait pair distribution ──────────────────────────────────────────
   const pairCounts = new Map<string, number>();
   for (const row of recentSubs) {
     const scores = row.trait_scores as import("@adhd-parenting-quiz/shared").TraitScores | null;
@@ -345,34 +445,25 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     const pair = [sorted[0][0], sorted[1][0]].sort().join(" & ");
     pairCounts.set(pair, (pairCounts.get(pair) ?? 0) + 1);
   }
+  const traitPairDistribution = [...pairCounts.entries()].map(([pair, count]) => ({ pair, count })).sort((a, b) => b.count - a.count);
 
-  const traitPairDistribution = [...pairCounts.entries()]
-    .map(([pair, count]) => ({ pair, count }))
-    .sort((a, b) => b.count - a.count);
-
-  // ── 6. Answer distribution ───────────────────────────────────────────────
+  // Answer distribution
   const answerMap = new Map<string, Map<string, number>>();
   for (const row of funnelRows) {
     if (row.event_type !== "answer_submitted" || !row.metadata?.questionKey) continue;
     const qKey = String(row.metadata.questionKey);
     const aVal = String(row.metadata.answerValue ?? "");
     if (!answerMap.has(qKey)) answerMap.set(qKey, new Map());
-    const counts = answerMap.get(qKey)!;
-    counts.set(aVal, (counts.get(aVal) ?? 0) + 1);
+    answerMap.get(qKey)!.set(aVal, (answerMap.get(qKey)!.get(aVal) ?? 0) + 1);
   }
-
   const answerDistribution = [...answerMap.entries()].map(([questionKey, counts]) => {
     const totalResponses = [...counts.values()].reduce((a, b) => a + b, 0);
-    let topAnswer = "";
-    let topCount = 0;
-    for (const [answer, count] of counts) {
-      if (count > topCount) { topAnswer = answer; topCount = count; }
-    }
-    const percentage = totalResponses > 0 ? Number(((topCount / totalResponses) * 100).toFixed(1)) : 0;
-    return { questionKey, topAnswer, percentage, totalResponses };
+    let topAnswer = ""; let topCount = 0;
+    for (const [answer, count] of counts) { if (count > topCount) { topAnswer = answer; topCount = count; } }
+    return { questionKey, topAnswer, percentage: totalResponses > 0 ? Number(((topCount / totalResponses) * 100).toFixed(1)) : 0, totalResponses };
   });
 
-  // ── 7. Average completion time ───────────────────────────────────────────
+  // Avg completion time
   const sessionTimes = new Map<string, { firstStep?: Date; completed?: Date }>();
   for (const row of funnelRows) {
     if (row.event_type !== "step_viewed" && row.event_type !== "quiz_completed") continue;
@@ -382,14 +473,9 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     if (row.event_type === "step_viewed" && (!entry.firstStep || ts < entry.firstStep)) entry.firstStep = ts;
     if (row.event_type === "quiz_completed") entry.completed = ts;
   }
-
-  let totalSeconds = 0;
-  let completedCount = 0;
+  let totalSeconds = 0; let completedCount = 0;
   for (const { firstStep, completed } of sessionTimes.values()) {
-    if (firstStep && completed) {
-      totalSeconds += (completed.getTime() - firstStep.getTime()) / 1000;
-      completedCount++;
-    }
+    if (firstStep && completed) { totalSeconds += (completed.getTime() - firstStep.getTime()) / 1000; completedCount++; }
   }
   const avgCompletionTime = completedCount > 0 ? Math.round(totalSeconds / completedCount) : 0;
 
