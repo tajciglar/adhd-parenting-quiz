@@ -184,8 +184,8 @@ const s = StyleSheet.create({
 
   /* ── Cover Hero ──────────────────────────── */
   heroSection: {
-    paddingTop: 60,
-    paddingBottom: 10,
+    paddingTop: 40,
+    paddingBottom: 6,
     paddingHorizontal: 48,
     alignItems: "center",
   },
@@ -221,8 +221,8 @@ const s = StyleSheet.create({
   },
   heroQuoteBox: {
     width: "100%",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
     flexDirection: "row",
     alignItems: "center",
   },
@@ -497,12 +497,16 @@ function Header({ theme }: { theme: ReportTheme }) {
 function DynamicFooter({ theme }: { theme: ReportTheme }) {
   return (
     <View style={[s.footer, { borderTopColor: theme.border }]} fixed>
-      <Text style={[s.footerText, { color: theme.muted }]}>
-        ADHD PERSONALITY REPORT · A personalized profile for your child
+      {/* Left spacer for symmetry */}
+      <View style={{ width: 30 }} />
+      {/* Centered title */}
+      <Text style={[s.footerText, { color: theme.muted, textAlign: "center", flex: 1 }]}>
+        ADHD Personality Report
       </Text>
+      {/* Right-aligned page number */}
       <Text
-        style={[s.footerPage, { color: theme.accent }]}
-        render={({ pageNumber, totalPages }) => `${pageNumber}`}
+        style={[s.footerPage, { color: theme.accent, width: 30, textAlign: "right" }]}
+        render={({ pageNumber }) => `${pageNumber}`}
       />
     </View>
   );
@@ -569,8 +573,8 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
         <Header theme={theme} />
         <DynamicFooter theme={theme} />
 
-        {/* ── Hidden Superpower ── */}
-        <SectionLabel text={`${NAME}'S HIDDEN SUPERPOWER`} theme={theme} first />
+        {/* ── Hidden Gift ── */}
+        <SectionLabel text={`${NAME}'S HIDDEN GIFT`} theme={theme} first />
         <ParagraphText text={report.hiddenSuperpower} />
 
         {/* ── Understanding Brain ── */}
@@ -603,7 +607,7 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
         {/* ── Drains / Fuels ── */}
         <View wrap={false}>
         <SectionLabel
-          text={`CONNECTING WITH ${NAME} AND WHAT FUELS THEM`}
+          text={`CREATING THE RIGHT ENVIRONMENT FOR ${NAME} TO THRIVE`}
           theme={theme}
         />
         <View style={s.dfContainer}>
@@ -618,7 +622,7 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
               </Text>
             </View>
             {report.drains.map((item, i) => (
-              <View key={`d-${i}`} style={[s.dfItem, { flexDirection: "row", alignItems: "flex-start" }]}>
+              <View key={`d-${i}`} style={[s.dfItem, { flexDirection: "row", alignItems: "flex-start", borderBottomWidth: 0.5, borderBottomStyle: "solid", borderBottomColor: theme.border }]}>
                 <View style={{ width: 18, paddingTop: 1 }}><XIcon size={10} color={theme.dangerAccent} /></View>
                 <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{item}</Text>
               </View>
@@ -635,7 +639,7 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
               </Text>
             </View>
             {report.fuels.map((item, i) => (
-              <View key={`f-${i}`} style={[s.dfItem, { flexDirection: "row", alignItems: "flex-start" }]}>
+              <View key={`f-${i}`} style={[s.dfItem, { flexDirection: "row", alignItems: "flex-start", borderBottomWidth: 0.5, borderBottomStyle: "solid", borderBottomColor: theme.border }]}>
                 <View style={{ width: 18, paddingTop: 1 }}><CheckIcon size={10} color={theme.successAccent} /></View>
                 <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{item}</Text>
               </View>

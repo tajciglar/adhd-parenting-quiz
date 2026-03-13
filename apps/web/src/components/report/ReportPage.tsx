@@ -47,7 +47,7 @@ export default function ReportPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${childName}-adhd-guide.pdf`;
+      a.download = `${childName} - ADHDParenting-Report.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
