@@ -34,5 +34,5 @@ export type {
 
 
 export type { ArchetypeReportTemplate } from "./reportTemplates.js";
-export { getReportTemplate } from "./reportTemplates.js";
+export { getReportTemplate, getAllReportTemplates } from "./reportTemplates.js";
 export { renderReportTemplate, buildPlaceholderMap } from "./templateRenderer.js";

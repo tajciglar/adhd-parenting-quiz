@@ -199,7 +199,7 @@ const EMPTY_ANALYTICS: FunnelAnalytics = {
  * Paginated fetch: gets ALL rows from a table (bypasses Supabase 1000-row default).
  * Used as fallback when RPCs aren't installed, and for queries needing raw rows.
  */
-async function allRows<T = Record<string, unknown>>(
+export async function allRows<T = Record<string, unknown>>(
   sb: SupabaseClient,
   table: string,
   cols: string,

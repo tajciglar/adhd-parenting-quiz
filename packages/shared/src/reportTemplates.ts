@@ -819,3 +819,7 @@ export function getReportTemplate(
 ): ArchetypeReportTemplate | null {
   return REPORT_TEMPLATES[archetypeId] ?? null;
 }
+
+export function getAllReportTemplates(): Record<string, ArchetypeReportTemplate> {
+  return REPORT_TEMPLATES;
+}
