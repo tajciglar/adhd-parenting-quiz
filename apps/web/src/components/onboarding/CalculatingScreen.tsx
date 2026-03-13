@@ -9,13 +9,13 @@ import type { ArchetypeReportTemplate } from "@adhd-parenting-quiz/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
 import { AnimalIcon } from "../../lib/animalImages";
 
-const LINES = [
-  "Reviewing attention patterns...",
-  "Mapping sensory responses...",
-  "Identifying emotional profile...",
-  "Matching executive function traits...",
-  "Cross-referencing social patterns...",
-  "Generating [NAME]'s ADHD Personality Report...",
+const ANALYSIS_SECTIONS = [
+  "Attention patterns",
+  "Sensory responses",
+  "Emotional profile",
+  "Executive function",
+  "Social patterns",
+  "Generating report",
 ];
 
 type Phase = "analyzing" | "found" | "email" | "submitting" | "duplicate";
@@ -38,8 +38,10 @@ export default function CalculatingScreen({
   const { obj: objPronoun } = getPronouns(childGender);
 
   const [phase, setPhase] = useState<Phase>("analyzing");
-  const [lineIndex, setLineIndex] = useState(0);
-  const [progress, setProgress] = useState(0);
+  const [sectionProgress, setSectionProgress] = useState<number[]>(
+    () => ANALYSIS_SECTIONS.map(() => 0),
+  );
+  const [activeSection, setActiveSection] = useState(0);
   const [email, setEmail] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -52,36 +54,41 @@ export default function CalculatingScreen({
     () => ARCHETYPES.find((a) => a.id === traitProfile.archetypeId) ?? ARCHETYPES[0],
     [traitProfile.archetypeId],
   );
-  const lines = LINES.map((l) => l.replace("[NAME]", childName));
   const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  // Progress fills over 10-12s then transitions to "found" phase
+  // Section-by-section progress: each fills 0→100 sequentially, ~5-6s total
   useEffect(() => {
-    const duration = 10000 + Math.random() * 2000;
-    const steps = 100;
-    const interval = duration / steps;
+    if (phase !== "analyzing") return;
+    const totalSections = ANALYSIS_SECTIONS.length;
+    const perSection = 900; // ms per section (~5.4s total)
+    const tickInterval = 30;
+    const ticksPerSection = perSection / tickInterval;
+    let currentSection = 0;
     let tick = 0;
 
     const timer = setInterval(() => {
       tick++;
-      setProgress(tick);
-      if (tick >= steps) {
-        clearInterval(timer);
-        setTimeout(() => setPhase("found"), 400);
+      const pct = Math.min(100, Math.round((tick / ticksPerSection) * 100));
+
+      setSectionProgress((prev) => {
+        const next = [...prev];
+        next[currentSection] = pct;
+        return next;
+      });
+      setActiveSection(currentSection);
+
+      if (pct >= 100) {
+        tick = 0;
+        currentSection++;
+        if (currentSection >= totalSections) {
+          clearInterval(timer);
+          setTimeout(() => setPhase("found"), 400);
+        }
       }
-    }, interval);
+    }, tickInterval);
 
     return () => clearInterval(timer);
-  }, []);
-
-  // Rotate lines every 1.8s while analyzing
-  useEffect(() => {
-    if (phase !== "analyzing") return;
-    const timer = setInterval(() => {
-      setLineIndex((i) => (i + 1) % lines.length);
-    }, 1800);
-    return () => clearInterval(timer);
-  }, [phase, lines.length]);
+  }, [phase]);
 
   // "We found it" frame holds for 2s then transitions to email
   useEffect(() => {
@@ -198,38 +205,58 @@ export default function CalculatingScreen({
   if (phase === "analyzing") {
     return (
       <div className="h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-12 overflow-hidden">
-        <div className="max-w-sm w-full space-y-10 text-center">
+        <div className="max-w-sm w-full space-y-8 text-center">
           <div className="space-y-3">
             <div className="text-5xl animate-pulse">🧠</div>
             <h2 className="text-2xl font-bold text-harbor-primary">
               Analysing {childName}'s profile…
             </h2>
-            <p
-              key={lineIndex}
-              className="text-sm text-harbor-text/60 min-h-[1.25rem]"
-              style={{ animation: "fadeIn 0.4s ease" }}
-            >
-              {lines[lineIndex]}
-            </p>
           </div>
 
-          <div className="space-y-2">
-            <div className="h-2 bg-harbor-text/10 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-harbor-accent rounded-full"
-                style={{
-                  width: `${progress}%`,
-                  transition: "width 200ms linear",
-                }}
-              />
-            </div>
-            <p className="text-xs text-harbor-text/30 tabular-nums">{progress}%</p>
+          <div className="space-y-3 text-left">
+            {ANALYSIS_SECTIONS.map((label, i) => {
+              const pct = sectionProgress[i];
+              const isActive = i === activeSection;
+              const isDone = pct >= 100;
+              const isPending = pct === 0 && i > activeSection;
+
+              return (
+                <div key={label} className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`text-sm font-medium transition-colors duration-300 ${
+                        isDone
+                          ? "text-harbor-accent"
+                          : isActive
+                            ? "text-harbor-primary"
+                            : "text-harbor-text/30"
+                      }`}
+                    >
+                      {isDone ? "✓ " : ""}{label}
+                    </span>
+                    {isActive && (
+                      <span className="text-xs text-harbor-text/40 tabular-nums">
+                        {pct}%
+                      </span>
+                    )}
+                  </div>
+                  <div
+                    className={`h-1.5 rounded-full overflow-hidden transition-colors duration-300 ${
+                      isPending ? "bg-harbor-text/5" : "bg-harbor-text/10"
+                    }`}
+                  >
+                    <div
+                      className={`h-full rounded-full transition-all duration-75 ${
+                        isDone ? "bg-harbor-accent" : "bg-harbor-primary"
+                      }`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
-
-        <style>{`
-          @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-        `}</style>
       </div>
     );
   }

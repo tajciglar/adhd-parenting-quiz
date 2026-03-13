@@ -100,6 +100,11 @@ export default function StepRenderer({
           <div className="text-4xl mb-4 text-center">{q.emoji}</div>
         )}
         {inner}
+        {q.key === "childName" && (
+          <p className="text-xs text-gray-400 leading-relaxed text-center mt-4">
+            We ask for your child's name so we can personalise their report for you. It won't be shared, sold, or seen by anyone other than you. This is your report only.
+          </p>
+        )}
         {step === 1 && (
         <p className="text-xs text-harbor-text/40 leading-relaxed text-center mt-4">
               This assessment is for informational and educational purposes only. It is not a clinical assessment, diagnosis, or substitute for professional evaluation. The profiles and recommendations provided are based on patterns commonly observed in children with ADHD and should not be used to make medical or therapeutic decisions. If you have concerns about your child's development or behaviour, please consult a qualified healthcare provider.
