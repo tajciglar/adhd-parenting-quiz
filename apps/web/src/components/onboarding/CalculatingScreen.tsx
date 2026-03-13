@@ -60,13 +60,29 @@ export default function CalculatingScreen({
   useEffect(() => {
     if (phase !== "analyzing") return;
     const totalSections = ANALYSIS_SECTIONS.length;
-    const perSection = 900; // ms per section (~5.4s total)
+    const perSection = 1170; // ms per section (~7s total)
     const tickInterval = 30;
     const ticksPerSection = perSection / tickInterval;
     let currentSection = 0;
     let tick = 0;
 
+    let holdTicks = 0;
+    const holdDuration = 8; // hold at 100% for ~240ms before starting next
+
     const timer = setInterval(() => {
+      // If holding at 100%, count down before moving to next section
+      if (holdTicks > 0) {
+        holdTicks--;
+        if (holdTicks === 0) {
+          currentSection++;
+          if (currentSection >= totalSections) {
+            clearInterval(timer);
+            setTimeout(() => setPhase("found"), 400);
+          }
+        }
+        return;
+      }
+
       tick++;
       const pct = Math.min(100, Math.round((tick / ticksPerSection) * 100));
 
@@ -79,11 +95,7 @@ export default function CalculatingScreen({
 
       if (pct >= 100) {
         tick = 0;
-        currentSection++;
-        if (currentSection >= totalSections) {
-          clearInterval(timer);
-          setTimeout(() => setPhase("found"), 400);
-        }
+        holdTicks = holdDuration;
       }
     }, tickInterval);
 
@@ -215,9 +227,10 @@ export default function CalculatingScreen({
 
           <div className="space-y-3 text-left">
             {ANALYSIS_SECTIONS.map((label, i) => {
-              const pct = sectionProgress[i];
+              const rawPct = sectionProgress[i];
+              const isDone = rawPct >= 100;
+              const pct = isDone ? 100 : rawPct;
               const isActive = i === activeSection;
-              const isDone = pct >= 100;
               const isPending = pct === 0 && i > activeSection;
 
               return (
@@ -234,8 +247,8 @@ export default function CalculatingScreen({
                     >
                       {isDone ? "✓ " : ""}{label}
                     </span>
-                    {isActive && (
-                      <span className="text-xs text-harbor-text/40 tabular-nums">
+                    {(isActive || isDone) && (
+                      <span className={`text-xs tabular-nums ${isDone ? "text-harbor-accent" : "text-harbor-text/40"}`}>
                         {pct}%
                       </span>
                     )}

@@ -117,10 +117,17 @@ export default function StepRenderer({
   // Likert question
   const key = `${config.categoryId}_${config.questionIndex}`;
   return (
-    <LikertSelect
-      questionText={interpolate(config.questionText, responses)}
-      value={responses[key] as number | undefined}
-      onChange={(v) => onAnswer(step, key, v, true)}
-    />
+    <div>
+      {config.categoryId === "sensory" && config.questionIndex === 0 && (
+        <p className="text-sm text-harbor-accent font-medium text-center mb-6">
+          You're doing great. Keep going.
+        </p>
+      )}
+      <LikertSelect
+        questionText={interpolate(config.questionText, responses)}
+        value={responses[key] as number | undefined}
+        onChange={(v) => onAnswer(step, key, v, true)}
+      />
+    </div>
   );
 }
