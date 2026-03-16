@@ -509,9 +509,11 @@ export async function resetAnalytics(): Promise<{ deletedEvents: number; deleted
 
 // ─── Re-score helpers ───────────────────────────────────────────────────────
 
-interface RescoreMismatch {
+export interface RescoreMismatch {
   id: string;
   email: string;
+  childName: string;
+  childGender: string;
   currentArchetype: string;
   correctArchetype: string;
 }
@@ -523,7 +525,7 @@ async function fetchMismatches(): Promise<{ total: number; mismatches: RescoreMi
 
   const { data: rows, error } = await sb
     .from("quiz_submissions")
-    .select("id, email, archetype_id, trait_scores");
+    .select("id, email, child_name, child_gender, archetype_id, trait_scores");
 
   if (error || !rows) throw new Error(`Failed to fetch submissions: ${error?.message}`);
 
@@ -535,6 +537,8 @@ async function fetchMismatches(): Promise<{ total: number; mismatches: RescoreMi
       mismatches.push({
         id: row.id,
         email: row.email,
+        childName: row.child_name ?? "",
+        childGender: row.child_gender ?? "Other",
         currentArchetype: row.archetype_id,
         correctArchetype: correct.id,
       });
@@ -567,4 +571,44 @@ export async function applyRescore() {
   }
 
   return { total, updated: applied.length, changes: applied };
+}
+
+/**
+ * Updates archetype_id and pdf_url for all mismatched submissions.
+ * The pdfUrlGenerator is provided by the caller (admin route) since it needs API_BASE_URL etc.
+ */
+export async function applyRescoreAndResend(
+  pdfUrlGenerator: (archetypeId: string, childName: string, childGender: string) => string,
+): Promise<{ total: number; updated: number; changes: Array<RescoreMismatch & { newPdfUrl: string }> }> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return { total: 0, updated: 0, changes: [] };
+
+  const { total, mismatches } = await fetchMismatches();
+  const applied: Array<RescoreMismatch & { newPdfUrl: string }> = [];
+
+  for (const m of mismatches) {
+    const newPdfUrl = pdfUrlGenerator(m.correctArchetype, m.childName, m.childGender);
+    const { error } = await sb
+      .from("quiz_submissions")
+      .update({ archetype_id: m.correctArchetype, pdf_url: newPdfUrl })
+      .eq("id", m.id);
+
+    if (!error) applied.push({ ...m, newPdfUrl });
+  }
+
+  return { total, updated: applied.length, changes: applied };
+}
+
+/**
+ * Read-only: returns mismatches with newly generated PDF URLs — does NOT write to DB.
+ */
+export async function getRescoredPdfLinks(
+  pdfUrlGenerator: (archetypeId: string, childName: string, childGender: string) => string,
+): Promise<{ total: number; count: number; links: Array<RescoreMismatch & { newPdfUrl: string }> }> {
+  const { total, mismatches } = await fetchMismatches();
+  const links = mismatches.map((m) => ({
+    ...m,
+    newPdfUrl: pdfUrlGenerator(m.correctArchetype, m.childName, m.childGender),
+  }));
+  return { total, count: links.length, links };
 }

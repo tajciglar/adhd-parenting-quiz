@@ -182,8 +182,9 @@ export default function AdminDashboard() {
   const [resetting, setResetting] = useState(false);
   const [rescoreChecking, setRescoreChecking] = useState(false);
   const [rescoreApplying, setRescoreApplying] = useState(false);
+  const [rescoreResending, setRescoreResending] = useState(false);
   const [rescoreMismatches, setRescoreMismatches] = useState<
-    Array<{ id: string; email: string; currentArchetype: string; correctArchetype: string }> | null
+    Array<{ id: string; email: string; childName: string; childGender: string; currentArchetype: string; correctArchetype: string; newPdfUrl?: string }> | null
   >(null);
   const [rescoreTotal, setRescoreTotal] = useState(0);
 
@@ -693,7 +694,7 @@ export default function AdminDashboard() {
                   if (!res.ok) throw new Error(`API error: ${res.status}`);
                   const result = (await res.json()) as {
                     total: number;
-                    mismatches: Array<{ id: string; email: string; currentArchetype: string; correctArchetype: string }>;
+                    mismatches: Array<{ id: string; email: string; childName: string; childGender: string; currentArchetype: string; correctArchetype: string }>;
                   };
                   setRescoreTotal(result.total);
                   setRescoreMismatches(result.mismatches);
@@ -709,31 +710,57 @@ export default function AdminDashboard() {
             </button>
 
             {rescoreMismatches && rescoreMismatches.length > 0 ? (
-              <button
-                disabled={rescoreApplying}
-                onClick={async () => {
-                  if (!confirm(`This will update ${rescoreMismatches.length} submissions. Continue?`)) return;
-                  setRescoreApplying(true);
-                  try {
-                    const res = await fetch(`${API_URL}/api/admin/rescore`, {
-                      method: "POST",
-                      headers: { "x-admin-key": adminKey },
-                    });
-                    if (!res.ok) throw new Error(`API error: ${res.status}`);
-                    const result = (await res.json()) as { updated: number };
-                    alert(`Updated ${result.updated} submissions.`);
-                    setRescoreMismatches(null);
-                    void fetchAnalytics(adminKey, days);
-                  } catch (err) {
-                    alert(err instanceof Error ? err.message : "Failed to apply rescore");
-                  } finally {
-                    setRescoreApplying(false);
-                  }
-                }}
-                className="px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 transition disabled:opacity-50"
-              >
-                {rescoreApplying ? "Applying..." : `Apply Re-score (${rescoreMismatches.length})`}
-              </button>
+              <>
+                <button
+                  disabled={rescoreApplying}
+                  onClick={async () => {
+                    if (!confirm(`This will update ${rescoreMismatches.length} submissions. Continue?`)) return;
+                    setRescoreApplying(true);
+                    try {
+                      const res = await fetch(`${API_URL}/api/admin/rescore`, {
+                        method: "POST",
+                        headers: { "x-admin-key": adminKey },
+                      });
+                      if (!res.ok) throw new Error(`API error: ${res.status}`);
+                      const result = (await res.json()) as { updated: number };
+                      alert(`Updated ${result.updated} submissions.`);
+                      setRescoreMismatches(null);
+                      void fetchAnalytics(adminKey, days);
+                    } catch (err) {
+                      alert(err instanceof Error ? err.message : "Failed to apply rescore");
+                    } finally {
+                      setRescoreApplying(false);
+                    }
+                  }}
+                  className="px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 transition disabled:opacity-50"
+                >
+                  {rescoreApplying ? "Applying..." : `Apply Re-score (${rescoreMismatches.length})`}
+                </button>
+                <button
+                  disabled={rescoreResending}
+                  onClick={async () => {
+                    setRescoreResending(true);
+                    try {
+                      const res = await fetch(`${API_URL}/api/admin/rescore-links`, {
+                        headers: { "x-admin-key": adminKey },
+                      });
+                      if (!res.ok) throw new Error(`API error: ${res.status}`);
+                      const result = (await res.json()) as {
+                        count: number;
+                        links: Array<{ id: string; email: string; childName: string; childGender: string; currentArchetype: string; correctArchetype: string; newPdfUrl: string }>;
+                      };
+                      setRescoreMismatches(result.links);
+                    } catch (err) {
+                      alert(err instanceof Error ? err.message : "Failed to generate new links");
+                    } finally {
+                      setRescoreResending(false);
+                    }
+                  }}
+                  className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition disabled:opacity-50"
+                >
+                  {rescoreResending ? "Generating..." : `Get New Links (${rescoreMismatches.length})`}
+                </button>
+              </>
             ) : null}
           </div>
 
@@ -752,18 +779,36 @@ export default function AdminDashboard() {
                     <thead>
                       <tr className="border-b border-harbor-text/10 text-left text-harbor-text/50">
                         <th className="py-2 pr-4">Email</th>
+                        <th className="py-2 pr-4">Child</th>
                         <th className="py-2 pr-4">Current</th>
                         <th className="py-2 pr-4"></th>
-                        <th className="py-2">Correct</th>
+                        <th className="py-2 pr-4">Correct</th>
+                        {rescoreMismatches.some((m) => m.newPdfUrl) && (
+                          <th className="py-2">New PDF Link</th>
+                        )}
                       </tr>
                     </thead>
                     <tbody>
                       {rescoreMismatches.map((m) => (
                         <tr key={m.id} className="border-b border-harbor-text/5">
                           <td className="py-2 pr-4 text-harbor-text">{m.email}</td>
+                          <td className="py-2 pr-4 text-harbor-text/70">{m.childName || "—"}</td>
                           <td className="py-2 pr-4 text-red-500 font-medium">{m.currentArchetype}</td>
                           <td className="py-2 pr-4 text-harbor-text/30">→</td>
-                          <td className="py-2 text-emerald-600 font-medium">{m.correctArchetype}</td>
+                          <td className="py-2 pr-4 text-emerald-600 font-medium">{m.correctArchetype}</td>
+                          {m.newPdfUrl && (
+                            <td className="py-2">
+                              <button
+                                onClick={() => {
+                                  void navigator.clipboard.writeText(m.newPdfUrl!);
+                                  alert(`Copied link for ${m.email}`);
+                                }}
+                                className="px-2 py-1 rounded text-xs bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition"
+                              >
+                                Copy Link
+                              </button>
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>

@@ -1,6 +1,20 @@
+import { createHmac } from "crypto";
 import type { FastifyInstance } from "fastify";
 import { getAllReportTemplates } from "@adhd-parenting-quiz/shared";
-import { getAnalytics, resetAnalytics, checkRescoreMismatches, applyRescore, getSupabaseAdmin, allRows } from "../services/supabaseAdmin.js";
+import { getAnalytics, resetAnalytics, checkRescoreMismatches, applyRescore, applyRescoreAndResend, getRescoredPdfLinks, getSupabaseAdmin, allRows } from "../services/supabaseAdmin.js";
+
+function generatePdfUrl(opts: { archetypeId: string; childName: string; childGender?: string }): string {
+  const baseUrl = (process.env.API_BASE_URL ?? "http://localhost:3000").trim().replace(/\/$/, "");
+  const secret = process.env.PDF_SIGNING_SECRET ?? "dev-secret";
+  const payload = JSON.stringify({
+    archetypeId: opts.archetypeId,
+    childName: opts.childName,
+    childGender: opts.childGender ?? "",
+  });
+  const data = Buffer.from(payload).toString("base64url");
+  const sig = createHmac("sha256", secret).update(data).digest("hex");
+  return `${baseUrl}/api/guest/pdf?data=${data}&sig=${sig}`;
+}
 
 export default async function adminRoutes(fastify: FastifyInstance) {
   // Simple secret-key auth for admin endpoints
@@ -52,6 +66,38 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     } catch (err) {
       request.log.error({ err }, "admin.rescore.failed");
       return reply.status(500).send({ error: "Failed to apply rescore" });
+    }
+  });
+
+  // ── GET /api/admin/rescore-links ──────────────────────────────────────
+  // Read-only: returns mismatches with new correct PDF URLs — does NOT update DB.
+  fastify.get("/admin/rescore-links", async (request, reply) => {
+    try {
+      const result = await getRescoredPdfLinks(
+        (archetypeId, childName, childGender) =>
+          generatePdfUrl({ archetypeId, childName, childGender }),
+      );
+      return reply.send(result);
+    } catch (err) {
+      request.log.error({ err }, "admin.rescore_links.failed");
+      return reply.status(500).send({ error: "Failed to generate corrected PDF links" });
+    }
+  });
+
+  // ── POST /api/admin/rescore-resend ────────────────────────────────────
+  // Rescores all mismatched submissions, updates Supabase with correct archetype
+  // and a new signed PDF URL. Returns the list so you can manually send the links.
+  fastify.post("/admin/rescore-resend", async (request, reply) => {
+    try {
+      const result = await applyRescoreAndResend(
+        (archetypeId, childName, childGender) =>
+          generatePdfUrl({ archetypeId, childName, childGender }),
+      );
+      request.log.info({ updated: result.updated }, "admin.rescore_resend.done");
+      return reply.send(result);
+    } catch (err) {
+      request.log.error({ err }, "admin.rescore_resend.failed");
+      return reply.status(500).send({ error: "Failed to rescore and generate new PDF links" });
     }
   });
 
