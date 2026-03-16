@@ -449,14 +449,17 @@ export function computeScores(
  * 4) If no exact pair exists, fallback to the first archetype containing both dimensions.
  */
 export function matchArchetype(scores: TraitScores): Archetype {
-  // If all trait scores are equal, default to koala
-  const scoreValues = Object.values(scores) as number[];
-  if (scoreValues.length > 0 && scoreValues.every((v) => v === scoreValues[0])) {
+  const ranked = sortCategoriesByScore(scores);
+  const topA = ranked[0];
+
+  // If 3 or more categories share the top score, there is no meaningful dominant
+  // pair — the result would be arbitrary. Default to koala.
+  const topScore = scores[topA];
+  const tiedAtTop = CATEGORY_IDS.filter((id) => scores[id] === topScore);
+  if (tiedAtTop.length > 2) {
     return ARCHETYPES.find((a) => a.id === "koala")!;
   }
 
-  const ranked = sortCategoriesByScore(scores);
-  const topA = ranked[0];
   const topB = ranked[1];
   const topTwo = new Set<CategoryId>([topA, topB]);
 
