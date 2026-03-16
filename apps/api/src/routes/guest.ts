@@ -422,7 +422,7 @@ export default async function guestRoutes(fastify: FastifyInstance) {
       return reply.status(500).send({ error: "Failed to generate PDF" });
     }
 
-    const filename = `${toSlug(childName)}-adhd-guide.pdf`;
+    const filename = `${toSlug(childName)}-ADHDParenting-Report.pdf`;
 
     reply
       .header("Content-Type", "application/pdf")
@@ -454,7 +454,7 @@ export default async function guestRoutes(fastify: FastifyInstance) {
       return reply.status(500).send({ error: "Failed to generate PDF" });
     }
 
-    const filename = `${toSlug(childName)}-adhd-guide.pdf`;
+    const filename = `${toSlug(childName)}-ADHDParenting-Report.pdf`;
 
     reply
       .header("Content-Type", "application/pdf")
