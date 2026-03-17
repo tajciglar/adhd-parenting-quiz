@@ -143,8 +143,24 @@ export default function CalculatingScreen({
       if (result.pdfUrl) sessionStorage.setItem("wildprint_pdfUrl", result.pdfUrl);
 
       clearOnboardingStorage();
-      // Test mode: skip report/sales, go straight to thank you
-      navigate("/thank-you", { replace: true });
+
+      // If WP checkout URL is set, go to sales/results page (production funnel)
+      // Otherwise go straight to thank you (test/free mode)
+      const wpCheckoutUrl = import.meta.env.VITE_WP_CHECKOUT_URL;
+      if (wpCheckoutUrl) {
+        navigate("/results", {
+          replace: true,
+          state: {
+            report: result.report,
+            email,
+            childName,
+            childGender,
+            submissionId: result.submissionId,
+          },
+        });
+      } else {
+        navigate("/thank-you", { replace: true });
+      }
     } catch (err) {
       if (err instanceof Error && err.message === "already_submitted") {
         setPhase("duplicate");
