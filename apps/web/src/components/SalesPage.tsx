@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useCallback } from "react";
 import { useLocation, useNavigate, Navigate } from "react-router-dom";
 import type { ArchetypeReportTemplate } from "@adhd-parenting-quiz/shared";
 import { ARCHETYPES } from "@adhd-parenting-quiz/shared";
-import { trackPixelEvent, generateEventId } from "../lib/fbq";
+import { trackPixelEvent, generateEventId, getFbp, getFbc } from "../lib/fbq";
 import { trackFunnelEvent } from "../lib/analytics";
 import { AnimalIcon } from "../lib/animalImages";
 
@@ -43,14 +43,34 @@ export default function SalesPage() {
     trackFunnelEvent("optin_completed");
     trackPixelEvent("Lead", { content_category: "adhd_report" }, generateEventId());
 
-    // Store data in sessionStorage for ThankYouPage
+    // Store data in sessionStorage for ThankYouPage (used when user returns from WP)
     if (childName) sessionStorage.setItem("wildprint_childName", childName);
     if (email) sessionStorage.setItem("wildprint_email", email);
     if (childGender) sessionStorage.setItem("wildprint_childGender", childGender);
+    if (report?.archetypeId) sessionStorage.setItem("wildprint_archetypeId", report.archetypeId);
 
-    // Skip checkout — go straight to thank you (test mode)
-    navigate("/thank-you");
-  }, [email, childName, childGender, navigate]);
+    // Redirect to WP checkout or fall back to internal checkout
+    const wpCheckoutUrl = import.meta.env.VITE_WP_CHECKOUT_URL;
+    if (wpCheckoutUrl) {
+      // Build WP checkout URL with params for pre-fill + Pixel tracking
+      const params = new URLSearchParams();
+      if (email) params.set("email", email);
+      if (childName) params.set("child_name", childName);
+      if (report?.archetypeId) params.set("archetype", report.archetypeId);
+      // Pass Pixel cookies so WP can pick them up for attribution
+      const fbp = getFbp();
+      const fbc = getFbc();
+      if (fbp) params.set("_fbp", fbp);
+      if (fbc) params.set("_fbc", fbc);
+
+      const separator = wpCheckoutUrl.includes("?") ? "&" : "?";
+      trackFunnelEvent("wp_checkout_redirect");
+      window.location.href = `${wpCheckoutUrl}${separator}${params.toString()}`;
+    } else {
+      // Fallback: internal Stripe checkout (dev/test mode)
+      navigate("/checkout");
+    }
+  }, [email, childName, childGender, report, navigate]);
 
   if (!report) return <Navigate to="/" replace />;
 

@@ -1,0 +1,243 @@
+import type { FastifyInstance } from "fastify";
+import crypto from "crypto";
+import { updateSubmissionPayment, insertFunnelEvent, getSupabaseAdmin } from "../services/supabaseAdmin.js";
+import { sendMetaEvent } from "../services/metaCapi.js";
+
+/**
+ * Apply "wildprint-purchased" tag in ActiveCampaign after successful WC payment.
+ * Same logic as stripe.ts but extracted here for WC webhooks.
+ */
+async function applyPurchaseTag(
+  email: string,
+  logger: { error: (obj: unknown, msg: string) => void; warn: (msg: string) => void },
+): Promise<void> {
+  const apiUrl = process.env.AC_API_URL?.replace(/\/$/, "");
+  const apiKey = process.env.AC_API_KEY;
+  if (!apiUrl || !apiKey) return;
+
+  const headers = { "Content-Type": "application/json", "Api-Token": apiKey };
+
+  try {
+    // Find contact
+    const contactRes = await fetch(
+      `${apiUrl}/api/3/contacts?email=${encodeURIComponent(email)}&limit=1`,
+      { headers },
+    );
+    if (!contactRes.ok) return;
+    const contactData = (await contactRes.json()) as {
+      contacts: Array<{ id: string }>;
+    };
+    if (!contactData.contacts?.length) return;
+    const contactId = String(contactData.contacts[0].id);
+
+    // Find or create tag
+    const tagName = "wildprint-purchased";
+    const tagSearchRes = await fetch(
+      `${apiUrl}/api/3/tags?search=${encodeURIComponent(tagName)}`,
+      { headers },
+    );
+    const tagSearchData = (await tagSearchRes.json()) as {
+      tags: Array<{ id: string; tag: string }>;
+    };
+    let tagId = String(
+      tagSearchData.tags.find((t) => t.tag === tagName)?.id ?? "",
+    );
+
+    if (!tagId || tagId === "undefined") {
+      const createRes = await fetch(`${apiUrl}/api/3/tags`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          tag: {
+            tag: tagName,
+            tagType: "contact",
+            description: "Purchased Wildprint report via WooCommerce",
+          },
+        }),
+      });
+      const createData = (await createRes.json()) as { tag?: { id: string } };
+      if (createData.tag?.id) tagId = String(createData.tag.id);
+    }
+
+    if (tagId && tagId !== "undefined") {
+      await fetch(`${apiUrl}/api/3/contactTags`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ contactTag: { contact: contactId, tag: tagId } }),
+      });
+    }
+  } catch (err) {
+    logger.error({ err }, "woocommerce.webhook.ac_purchase_tag_failed");
+  }
+}
+
+/**
+ * Verify WooCommerce webhook signature.
+ * WC signs with HMAC-SHA256 using the webhook secret and sends the signature
+ * in the X-WC-Webhook-Signature header (base64-encoded).
+ */
+function verifyWcSignature(
+  payload: Buffer,
+  signature: string,
+  secret: string,
+): boolean {
+  const expected = crypto
+    .createHmac("sha256", secret)
+    .update(payload)
+    .digest("base64");
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expected),
+  );
+}
+
+export default async function woocommerceRoutes(fastify: FastifyInstance) {
+  // ── POST /api/wc/webhook ──────────────────────────────────────────────────
+  // WooCommerce fires this on order.completed (or order.processing for digital goods)
+  fastify.post(
+    "/wc/webhook",
+    {
+      config: {
+        rateLimit: false,
+        rawBody: true,
+      },
+    },
+    async (request, reply) => {
+      const wcSecret = process.env.WC_WEBHOOK_SECRET;
+      if (!wcSecret) {
+        request.log.error("WC_WEBHOOK_SECRET not set");
+        return reply.status(500).send({ error: "Webhook not configured" });
+      }
+
+      // ── Verify signature ──────────────────────────────────────────────
+      const signature = request.headers["x-wc-webhook-signature"] as string;
+      if (!signature) {
+        return reply
+          .status(400)
+          .send({ error: "Missing x-wc-webhook-signature header" });
+      }
+
+      const rawBody = (request as unknown as { rawBody: Buffer }).rawBody;
+      if (!verifyWcSignature(rawBody, signature, wcSecret)) {
+        request.log.error("woocommerce.webhook.signature_verification_failed");
+        return reply
+          .status(400)
+          .send({ error: "Webhook signature verification failed" });
+      }
+
+      // ── Handle ping (WC sends a ping when you first create the webhook) ─
+      const topic = request.headers["x-wc-webhook-topic"] as string;
+      if (!topic || topic === "action.woocommerce_webhook_ping") {
+        return reply.status(200).send({ received: true, topic: "ping" });
+      }
+
+      // ── Parse order payload ───────────────────────────────────────────
+      const order = request.body as Record<string, unknown>;
+      const orderId = String(order.id ?? "");
+      const orderStatus = String(order.status ?? "");
+
+      // Only process completed/processing orders
+      if (!["completed", "processing"].includes(orderStatus)) {
+        request.log.info(
+          { orderId, orderStatus },
+          "woocommerce.webhook.skipped_status",
+        );
+        return reply.status(200).send({ received: true, skipped: true });
+      }
+
+      // Extract billing info
+      const billing = (order.billing ?? {}) as Record<string, string>;
+      const customerEmail = billing.email ?? "";
+
+      // Extract custom meta from order (passed via checkout URL params)
+      // WooCommerce stores order meta in meta_data array
+      const metaData = (order.meta_data ?? []) as Array<{
+        key: string;
+        value: string;
+      }>;
+      const getMeta = (key: string) =>
+        metaData.find((m) => m.key === key)?.value ?? "";
+
+      const childName = getMeta("child_name");
+      const archetypeId = getMeta("archetype");
+      const fbp = getMeta("_fbp");
+      const fbc = getMeta("_fbc");
+
+      // Calculate order total
+      const orderTotal = parseFloat(String(order.total ?? "0"));
+      const currency = String(order.currency ?? "USD").toUpperCase();
+
+      request.log.info(
+        {
+          event: "wc_purchase_completed",
+          orderId,
+          email: customerEmail,
+          childName,
+          archetypeId,
+          total: orderTotal,
+        },
+        "woocommerce.webhook.order_completed",
+      );
+
+      // ── 1. Find and update quiz_submission by email ───────────────────
+      const sb = getSupabaseAdmin();
+      let submissionId: string | undefined;
+
+      if (sb && customerEmail) {
+        const { data: submissions } = await sb
+          .from("quiz_submissions")
+          .select("id")
+          .eq("email", customerEmail.toLowerCase())
+          .eq("paid", false)
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        if (submissions?.length && submissions[0].id) {
+          submissionId = String(submissions[0].id);
+          void updateSubmissionPayment(
+            submissionId,
+            `wc_${orderId}`,
+            `wc_order_${orderId}`,
+          );
+        }
+      }
+
+      // ── 2. Track purchase event in funnel_events ──────────────────────
+      void insertFunnelEvent(
+        `wc_${orderId}`,
+        "purchase_completed",
+        undefined,
+        {
+          submissionId,
+          email: customerEmail,
+          source: "woocommerce",
+          orderId,
+          total: orderTotal,
+        },
+      );
+
+      // ── 3. Apply "wildprint-purchased" tag in ActiveCampaign ──────────
+      if (customerEmail) {
+        void applyPurchaseTag(customerEmail, request.log);
+      }
+
+      // ── 4. Server-side Meta CAPI Purchase event ───────────────────────
+      if (customerEmail) {
+        void sendMetaEvent({
+          eventName: "Purchase",
+          eventId: `purchase_wc_${orderId}`,
+          email: customerEmail,
+          fbc: fbc || undefined,
+          fbp: fbp || undefined,
+          customData: {
+            value: orderTotal,
+            currency,
+          },
+          logger: request.log,
+        });
+      }
+
+      return reply.status(200).send({ received: true });
+    },
+  );
+}

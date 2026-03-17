@@ -13,9 +13,22 @@ function getCookie(name: string): string | null {
   return null;
 }
 
+function getRootDomain(): string {
+  const hostname = window.location.hostname;
+  // For subdomains like assessment.strategicparenting.com → .strategicparenting.com
+  const parts = hostname.split(".");
+  if (parts.length >= 2) {
+    return `.${parts.slice(-2).join(".")}`;
+  }
+  return hostname; // localhost or single-part hostname
+}
+
 function setCookie(name: string, value: string, days = 90) {
   const expires = new Date(Date.now() + days * 864e5).toUTCString();
-  document.cookie = `${name}=${value};expires=${expires};path=/;SameSite=Lax`;
+  const domain = getRootDomain();
+  // Set on root domain so cookies are shared across subdomains (e.g. assessment.strategicparenting.com ↔ strategicparenting.com)
+  const domainPart = domain.startsWith(".") ? `;domain=${domain}` : "";
+  document.cookie = `${name}=${value};expires=${expires};path=/${domainPart};SameSite=Lax`;
 }
 
 /** Get or create the Facebook browser ID (_fbp cookie) */
