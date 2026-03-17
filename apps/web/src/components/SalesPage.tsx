@@ -1,169 +1,409 @@
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, useState, useMemo } from "react";
 import { useLocation, useNavigate, Navigate } from "react-router-dom";
-import type { ArchetypeReportTemplate } from "@adhd-parenting-quiz/shared";
 import { ARCHETYPES } from "@adhd-parenting-quiz/shared";
+import type { ArchetypeReportTemplate } from "@adhd-parenting-quiz/shared";
 import { trackPixelEvent, generateEventId, getFbp, getFbc } from "../lib/fbq";
 import { trackFunnelEvent } from "../lib/analytics";
 import { AnimalIcon } from "../lib/animalImages";
+import { api } from "../lib/api";
+import type { OnboardingResponses } from "../types/onboarding";
+
+/* ─── Types ─────────────────────────────────────────────────────────────── */
 
 interface LocationState {
-  report?: ArchetypeReportTemplate;
-  email?: string;
+  responses?: OnboardingResponses;
   childName?: string;
   childGender?: string;
-  submissionId?: string;
+  archetypeId?: string;
 }
 
-function getPronouns(gender?: string) {
-  const g = (gender ?? "").toLowerCase();
-  if (g === "male" || g.includes("boy")) return { sub: "He", subLower: "he", obj: "him", pos: "his", self: "himself" };
-  if (g === "female" || g.includes("girl")) return { sub: "She", subLower: "she", obj: "her", pos: "her", self: "herself" };
-  return { sub: "They", subLower: "they", obj: "them", pos: "their", self: "themselves" };
+/* ─── Animated Counter ──────────────────────────────────────────────────── */
+
+function AnimatedCounter({ base }: { base: number }) {
+  const [count, setCount] = useState(base);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCount((prev) => prev + 1);
+    }, Math.random() * 4000 + 3000); // +1 every 3-7 seconds
+    return () => clearInterval(interval);
+  }, []);
+  return <>{count.toLocaleString()}</>;
 }
+
+/* ─── Latest Results Ticker ─────────────────────────────────────────────── */
+
+const LATEST_RESULTS = [
+  { name: "Donna", flag: "🇺🇸", archetype: "Dreamy Koala" },
+  { name: "Sophia", flag: "🇬🇧", archetype: "Fierce Tiger" },
+  { name: "Jane", flag: "🇺🇸", archetype: "Fierce Tiger" },
+  { name: "Maria", flag: "🇩🇪", archetype: "Gentle Elephant" },
+  { name: "Emily", flag: "🇦🇺", archetype: "Curious Monkey" },
+  { name: "Sarah", flag: "🇨🇦", archetype: "Brave Lion" },
+  { name: "Lisa", flag: "🇺🇸", archetype: "Wise Owl" },
+  { name: "Anna", flag: "🇬🇧", archetype: "Playful Dolphin" },
+  { name: "Rachel", flag: "🇳🇿", archetype: "Dreamy Koala" },
+  { name: "Kate", flag: "🇮🇪", archetype: "Calm Turtle" },
+  { name: "Jessica", flag: "🇺🇸", archetype: "Swift Hawk" },
+  { name: "Laura", flag: "🇦🇺", archetype: "Creative Fox" },
+  { name: "Michelle", flag: "🇨🇦", archetype: "Gentle Elephant" },
+  { name: "Amanda", flag: "🇬🇧", archetype: "Fierce Tiger" },
+  { name: "Christine", flag: "🇺🇸", archetype: "Brave Lion" },
+];
+
+function LatestResultsTicker() {
+  const [visibleIndex, setVisibleIndex] = useState(0);
+  const VISIBLE_COUNT = 3;
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVisibleIndex((prev) => (prev + 1) % LATEST_RESULTS.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const visible = useMemo(() => {
+    const items = [];
+    for (let i = 0; i < VISIBLE_COUNT; i++) {
+      items.push(LATEST_RESULTS[(visibleIndex + i) % LATEST_RESULTS.length]);
+    }
+    return items;
+  }, [visibleIndex]);
+
+  return (
+    <div className="space-y-2">
+      {visible.map((item, i) => (
+        <div
+          key={`${item.name}-${visibleIndex + i}`}
+          className="bg-white rounded-xl border border-harbor-text/10 px-4 py-3 flex items-center gap-3"
+          style={{ animation: "fadeSlideIn 0.4s ease-out" }}
+        >
+          <span className="text-xl">{item.flag}</span>
+          <div className="text-sm text-harbor-text">
+            <strong>{item.name}</strong> just ordered. Child's ADHD Personality Type:{" "}
+            <strong className="text-harbor-primary">{item.archetype}</strong>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ─── Logo Marquee ──────────────────────────────────────────────────────── */
+
+function LogoMarquee() {
+  const logos = [
+    "Scientific American",
+    "Psychology Today",
+    "TEDx",
+    "TIME",
+  ];
+  // Duplicate for seamless loop
+  const items = [...logos, ...logos, ...logos];
+
+  return (
+    <div className="overflow-hidden relative">
+      <div className="flex animate-marquee gap-12 items-center whitespace-nowrap">
+        {items.map((name, i) => (
+          <span
+            key={i}
+            className="text-lg font-bold text-harbor-text/25 uppercase tracking-wider flex-shrink-0"
+          >
+            {name}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Star Rating ───────────────────────────────────────────────────────── */
+
+function Stars({ rating }: { rating: number }) {
+  return (
+    <span className="inline-flex gap-0.5 text-yellow-400 text-lg">
+      {Array.from({ length: 5 }, (_, i) => (
+        <span key={i}>{i < Math.round(rating) ? "★" : "☆"}</span>
+      ))}
+    </span>
+  );
+}
+
+/* ─── Email/Name Form ───────────────────────────────────────────────────── */
+
+function LeadForm({
+  email,
+  setEmail,
+  parentName,
+  setParentName,
+  onSubmit,
+  isSubmitting,
+  submitError,
+}: {
+  email: string;
+  setEmail: (v: string) => void;
+  parentName: string;
+  setParentName: (v: string) => void;
+  onSubmit: () => void;
+  isSubmitting: boolean;
+  submitError: string | null;
+}) {
+  const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && parentName.trim().length > 0;
+
+  return (
+    <div className="space-y-3">
+      <input
+        type="text"
+        value={parentName}
+        onChange={(e) => setParentName(e.target.value)}
+        placeholder="Your name"
+        disabled={isSubmitting}
+        className="w-full rounded-xl border border-harbor-text/20 bg-white px-4 py-3 text-harbor-text placeholder:text-harbor-text/30 focus:outline-none focus:ring-2 focus:ring-harbor-primary/30 focus:border-harbor-primary transition"
+      />
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && isValid) onSubmit();
+        }}
+        placeholder="Your email address"
+        disabled={isSubmitting}
+        className="w-full rounded-xl border border-harbor-text/20 bg-white px-4 py-3 text-harbor-text placeholder:text-harbor-text/30 focus:outline-none focus:ring-2 focus:ring-harbor-primary/30 focus:border-harbor-primary transition"
+      />
+
+      {submitError && (
+        <p className="text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2 text-center">
+          {submitError}
+        </p>
+      )}
+
+      <button
+        type="button"
+        onClick={onSubmit}
+        disabled={!isValid || isSubmitting}
+        className="w-full rounded-xl bg-harbor-primary text-white px-5 py-4 font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        {isSubmitting ? "Preparing your report…" : "Go to Step #2 →"}
+      </button>
+
+      <p className="text-xs text-center text-harbor-text/40">
+        Your information is safe. We don't spam or sell data, ever.
+      </p>
+    </div>
+  );
+}
+
+/* ─── Main SalesPage ────────────────────────────────────────────────────── */
 
 export default function SalesPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { report, email, childName, childGender } =
-    (location.state ?? {}) as LocationState;
 
+  // Get data from navigation state or sessionStorage fallback
+  const state = (location.state ?? {}) as LocationState;
+  const responses = state.responses ?? JSON.parse(sessionStorage.getItem("wildprint_responses") ?? "null");
+  const childName = state.childName ?? sessionStorage.getItem("wildprint_childName") ?? "your child";
+  const childGender = state.childGender ?? sessionStorage.getItem("wildprint_childGender") ?? "";
+  const archetypeId = state.archetypeId ?? sessionStorage.getItem("wildprint_archetypeId") ?? "";
+
+  const archetype = ARCHETYPES.find((a) => a.id === archetypeId) ?? ARCHETYPES[0];
+
+  // Form state
+  const [email, setEmail] = useState("");
+  const [parentName, setParentName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Refs for scroll targets
+  const emailFormRef = useRef<HTMLDivElement>(null);
+
+  // Track ViewContent on mount
   const firedRef = useRef(false);
   useEffect(() => {
-    if (!report || firedRef.current) return;
+    if (!archetypeId || firedRef.current) return;
     firedRef.current = true;
     trackPixelEvent(
       "ViewContent",
       { content_type: "quiz_result", content_category: "adhd_profile" },
       generateEventId(),
     );
-  }, [report]);
+  }, [archetypeId]);
 
-  const handleCheckout = useCallback(() => {
-    // Track optin events
-    trackFunnelEvent("optin_completed");
-    trackPixelEvent("Lead", { content_category: "adhd_report" }, generateEventId());
+  const scrollToForm = useCallback(() => {
+    emailFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, []);
 
-    // Store data in sessionStorage for ThankYouPage (used when user returns from WP)
-    if (childName) sessionStorage.setItem("wildprint_childName", childName);
-    if (email) sessionStorage.setItem("wildprint_email", email);
-    if (childGender) sessionStorage.setItem("wildprint_childGender", childGender);
-    if (report?.archetypeId) sessionStorage.setItem("wildprint_archetypeId", report.archetypeId);
+  const handleSubmit = useCallback(async () => {
+    if (isSubmitting) return;
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && parentName.trim().length > 0;
+    if (!valid) return;
 
-    // Redirect to WP checkout or fall back to internal checkout
-    const wpCheckoutUrl = import.meta.env.VITE_WP_CHECKOUT_URL;
-    if (wpCheckoutUrl) {
-      // Build WP checkout URL with params for pre-fill + Pixel tracking
-      const params = new URLSearchParams();
-      if (email) params.set("email", email);
-      if (childName) params.set("child_name", childName);
-      if (report?.archetypeId) params.set("archetype", report.archetypeId);
-      // Pass Pixel cookies so WP can pick them up for attribution
-      const fbp = getFbp();
-      const fbc = getFbc();
-      if (fbp) params.set("_fbp", fbp);
-      if (fbc) params.set("_fbc", fbc);
+    setIsSubmitting(true);
+    setSubmitError(null);
 
-      const separator = wpCheckoutUrl.includes("?") ? "&" : "?";
-      trackFunnelEvent("wp_checkout_redirect");
-      window.location.href = `${wpCheckoutUrl}${separator}${params.toString()}`;
-    } else {
-      // Fallback: internal Stripe checkout (dev/test mode)
-      navigate("/checkout");
+    try {
+      const eventId = generateEventId();
+
+      // Submit quiz to API (this saves to DB, sends CAPI Lead, syncs AC)
+      const result = (await api.post("/api/guest/submit", {
+        email,
+        responses,
+        childName,
+        childGender,
+        fbc: getFbc(),
+        fbp: getFbp(),
+        eventSourceUrl: window.location.href,
+      })) as { report: ArchetypeReportTemplate; submissionId?: string; pdfUrl?: string };
+
+      // Client-side Lead event
+      trackPixelEvent("Lead", { content_category: "adhd_report" }, eventId);
+      trackFunnelEvent("optin_completed");
+
+      // Store data for ThankYouPage
+      sessionStorage.setItem("wildprint_email", email);
+      sessionStorage.setItem("wildprint_childName", childName);
+      sessionStorage.setItem("wildprint_childGender", childGender);
+      if (result.report) sessionStorage.setItem("wildprint_report", JSON.stringify(result.report));
+      if (result.pdfUrl) sessionStorage.setItem("wildprint_pdfUrl", result.pdfUrl);
+
+      // Redirect to WP checkout or internal checkout
+      const wpCheckoutUrl = import.meta.env.VITE_WP_CHECKOUT_URL;
+      if (wpCheckoutUrl) {
+        const params = new URLSearchParams();
+        params.set("email", email);
+        params.set("child_name", childName);
+        params.set("archetype", archetypeId);
+        const fbp = getFbp();
+        const fbc = getFbc();
+        if (fbp) params.set("_fbp", fbp);
+        if (fbc) params.set("_fbc", fbc);
+
+        const separator = wpCheckoutUrl.includes("?") ? "&" : "?";
+        trackFunnelEvent("wp_checkout_redirect");
+        window.location.href = `${wpCheckoutUrl}${separator}${params.toString()}`;
+      } else {
+        // Fallback: test mode — go to thank you
+        navigate("/thank-you", { replace: true });
+      }
+    } catch (err) {
+      if (err instanceof Error && err.message === "already_submitted") {
+        setSubmitError("This email has already been used. Please try a different email or check your inbox.");
+      } else {
+        setSubmitError(
+          err instanceof Error ? err.message : "Something went wrong. Please try again.",
+        );
+      }
+      setIsSubmitting(false);
     }
-  }, [email, childName, childGender, report, navigate]);
+  }, [isSubmitting, email, parentName, responses, childName, childGender, archetypeId, navigate]);
 
-  if (!report) return <Navigate to="/" replace />;
+  // If no quiz data, redirect to start
+  if (!responses || !archetypeId) return <Navigate to="/" replace />;
 
   const name = childName ?? "Your child";
-  const { subLower, obj, self } = getPronouns(childGender);
-  const archetype = ARCHETYPES.find((a) => a.id === report.archetypeId);
-  const typeName = archetype?.typeName ?? report.title;
+
+  /* ─── Report structure sections for blurred preview ─── */
+  const REPORT_SECTIONS = [
+    "About Your Child",
+    "Hidden Superpower",
+    "Understanding the Brain",
+    "A Day in Your Child's Life",
+    "What Drains vs. What Fuels",
+    "What to Say & What Never to Say",
+    "5 Phrases Your Child Needs to Hear",
+  ];
+
   const WHATS_INSIDE: React.ReactNode[] = [
-    <><strong>The neuroscience</strong> behind {name}'s specific profile, explained in plain language, not clinical jargon</>,
-    <><strong>"A Day in {name}'s Life,"</strong> four real scenarios (morning, school, after school, bedtime) that will make you say "that's exactly what happens in our house"</>,
-    <><strong>What drains {name} vs. what fuels {obj},</strong> a practical reference table you'll come back to every week</>,
-    <><strong>What to say, and what never to say,</strong> when {name} is struggling</>,
-    <><strong>{name}'s hidden superpower,</strong> the quality most people around {obj} completely miss</>,
-    <><strong>"What {name} needs to hear most,"</strong> five sentences that will change how {subLower} sees {self}</>,
+    <><strong>The neuroscience</strong> behind {name}'s specific profile, explained in plain language</>,
+    <><strong>"A Day in {name}'s Life"</strong> — four real scenarios that will make you say "that's exactly what happens"</>,
+    <><strong>What drains {name} vs. what fuels them</strong> — a practical reference table</>,
+    <><strong>What to say, and what never to say</strong> when {name} is struggling</>,
+    <><strong>{name}'s hidden superpower</strong> — the quality most people completely miss</>,
+    <><strong>"What {name} needs to hear most"</strong> — five sentences that will change everything</>,
+  ];
+
+  const REVIEWS = [
+    {
+      text: "The assessment nailed my son's ADHD personality! It's like having a guide to understanding my son better.",
+      stars: 5,
+    },
+    {
+      text: "Skeptical at first, but the accuracy amazed me. It's helping me parent my daughter the way she needs.",
+      stars: 5,
+    },
+    {
+      text: "What I learned about my child boosted my confidence in parenting.",
+      stars: 5,
+    },
+  ];
+
+  const HERES_WHAT_YOU_GET = [
+    { icon: "📋", text: "Comprehensive ADHD personality report" },
+    { icon: "🧩", text: "Detailed descriptions with DOs and DON'Ts for one of the 15 ADHD child personalities" },
+    { icon: "🚫", text: "5 things you should NEVER say to your child (and what to say instead)" },
+    { icon: "💬", text: `5 phrases ${name} loves to hear` },
   ];
 
   return (
     <div className="min-h-screen bg-harbor-bg overflow-y-auto">
-      <div className="max-w-lg w-full mx-auto px-6 py-16 space-y-8">
+      <div className="max-w-lg w-full mx-auto px-6 py-16 space-y-10">
 
-        {/* ── Section A: Report Teaser ── */}
+        {/* ── Section 1: Header ── */}
         <div className="text-center space-y-4">
-          <AnimalIcon id={report.archetypeId} className="w-28 h-28 mx-auto" />
+          <AnimalIcon id={archetypeId} className="w-28 h-28 mx-auto" />
           <h1 className="text-3xl font-bold text-harbor-primary leading-tight">
-            {name} is {typeName}.
+            Your Child's ADHD Personality Report is ready!
           </h1>
-          <p className="text-harbor-text italic text-base leading-relaxed">
-            &ldquo;{report.innerVoiceQuote?.trim()}&rdquo; &mdash; {name}
-          </p>
         </div>
 
-        {/* Blurred PDF Preview */}
+        {/* ── Section 2: Blurred Report Preview ── */}
         <div className="relative rounded-2xl border border-harbor-text/10 shadow-sm overflow-hidden bg-white">
-          <div className="p-6 pb-0 space-y-4">
+          <div className="p-6 pb-0 space-y-3">
             <div className="flex items-center gap-2 text-xs text-harbor-text/40 uppercase tracking-widest font-semibold">
               <span>ADHD Personality Report</span>
               <span className="mx-1">·</span>
               <span>{name}</span>
             </div>
-            <h3 className="text-2xl font-bold text-harbor-primary leading-tight">
-              {report.title}
+            <h3 className="text-xl font-bold text-harbor-primary leading-tight">
+              {archetype.typeName}
             </h3>
-            <div className="border-t border-harbor-text/8 pt-4">
-              <h4 className="text-sm font-semibold text-harbor-primary mb-1">About {name}</h4>
-              <p className="text-harbor-text text-sm leading-relaxed">
-                {report.aboutChild?.slice(0, 300)}...
-              </p>
-            </div>
-            <div className="border-t border-harbor-text/8 pt-4">
-              <h4 className="text-sm font-semibold text-harbor-primary mb-1">Hidden Superpower</h4>
-              <p className="text-harbor-text text-sm leading-relaxed">
-                {report.hiddenSuperpower?.slice(0, 150)}...
-              </p>
+            {/* Report sections list */}
+            <div className="space-y-2 pt-2">
+              {REPORT_SECTIONS.slice(0, 3).map((section) => (
+                <div key={section} className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-harbor-primary/40" />
+                  <span className="text-sm text-harbor-text">{section}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="relative h-32">
-            <div className="px-6 pt-3 space-y-3 text-sm text-harbor-text leading-relaxed">
-              <div className="border-t border-harbor-text/8 pt-3">
-                <h4 className="text-sm font-semibold text-harbor-primary mb-1">Understanding the Brain</h4>
-                <p>{report.brainSections?.[0]?.content?.slice(0, 100)}...</p>
-              </div>
+          <div className="relative h-36">
+            <div className="px-6 pt-3 space-y-2">
+              {REPORT_SECTIONS.slice(3).map((section) => (
+                <div key={section} className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-harbor-primary/40" />
+                  <span className="text-sm text-harbor-text">{section}</span>
+                </div>
+              ))}
             </div>
             <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/80 to-white backdrop-blur-[2px] flex flex-col items-center justify-end pb-5">
               <button
                 type="button"
-                onClick={handleCheckout}
+                onClick={scrollToForm}
                 className="bg-harbor-primary/5 border border-harbor-primary/15 rounded-xl px-5 py-3 flex items-center gap-2 hover:bg-harbor-primary/10 active:scale-[0.98] transition-all cursor-pointer"
               >
                 <svg className="w-4 h-4 text-harbor-primary/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </svg>
-                <span className="text-sm font-medium text-harbor-primary/70">Get the full report</span>
+                <span className="text-sm font-medium text-harbor-primary/70">Unlock the full report</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* ── Section B: Sales Copy ── */}
-        <div className="space-y-4">
-          <p className="text-harbor-text leading-relaxed">
-            {name}'s brain works in a way that most people around {obj} will never
-            fully understand, not because something is wrong, but because {name} is
-            operating on a frequency that most environments weren't built for.
-          </p>
-          <p className="text-harbor-text leading-relaxed">
-            Your full ADHD Personality report reveals exactly who {name} is, why {subLower} does
-            what {subLower} does, and what {subLower} needs from you to finally feel understood.
-          </p>
-        </div>
-
-        {/* What's inside */}
+        {/* ── Section 3: What's Inside (green checks) ── */}
         <div className="space-y-3">
           <p className="text-sm font-semibold uppercase tracking-widest text-harbor-text/40">
             What's inside {name}'s full ADHD Personality report
@@ -171,8 +411,8 @@ export default function SalesPage() {
           <ul className="space-y-2">
             {WHATS_INSIDE.map((bullet, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-harbor-accent/15 flex items-center justify-center">
-                  <svg className="w-3 h-3 text-harbor-accent" viewBox="0 0 12 12" fill="none">
+                <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none">
                     <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
@@ -184,15 +424,14 @@ export default function SalesPage() {
           </ul>
         </div>
 
-        {/* ── Section C: Trust & Authority ── */}
+        {/* ── Section 4: Trust Badges ── */}
         <div className="space-y-3">
           <div className="bg-white rounded-xl border border-harbor-text/10 p-4 space-y-1.5">
             <p className="text-xs font-semibold text-harbor-primary">🧠 Built by specialists</p>
             <p className="text-harbor-text text-xs italic leading-relaxed">
               Built by ADHD specialists with over 40 years of combined clinical
-              experience. This isn't a generic personality quiz. Every question,
-              every profile, and every recommendation is grounded in decades of
-              real work with real ADHD families.
+              experience. Every question, every profile, and every recommendation
+              is grounded in decades of real work with real ADHD families.
             </p>
           </div>
           <div className="bg-white rounded-xl border border-harbor-text/10 p-4 space-y-1.5">
@@ -204,17 +443,137 @@ export default function SalesPage() {
           </div>
         </div>
 
-        {/* ── CTA ── */}
-        <div className="space-y-3">
-          <button
-            type="button"
-            onClick={handleCheckout}
-            className="w-full rounded-xl bg-harbor-primary text-white px-5 py-4 font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-sm"
-          >
-            {`Get ${name}'s Full ADHD Personality Report →`}
-          </button>
+        {/* ── Section 5: CTA Heading + Counter ── */}
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-bold text-harbor-primary leading-tight">
+            Uncover Your Child's ADHD Personality Type!
+          </h2>
+          <p className="text-harbor-text font-semibold">
+            <span className="text-harbor-primary tabular-nums">
+              <AnimatedCounter base={12496} />
+            </span>{" "}
+            reports ordered!
+          </p>
         </div>
+
+        {/* ── Section 6: Email/Name Form (first instance) ── */}
+        <div ref={emailFormRef}>
+          <LeadForm
+            email={email}
+            setEmail={setEmail}
+            parentName={parentName}
+            setParentName={setParentName}
+            onSubmit={() => void handleSubmit()}
+            isSubmitting={isSubmitting}
+            submitError={submitError}
+          />
+        </div>
+
+        {/* ── Section 7: Here's What You'll Get ── */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-bold text-harbor-primary text-center">
+            Here's what you'll get
+          </h3>
+          <div className="space-y-3">
+            {HERES_WHAT_YOU_GET.map((item, i) => (
+              <div key={i} className="flex items-start gap-3 bg-white rounded-xl border border-harbor-text/10 p-4">
+                <span className="text-2xl flex-shrink-0">{item.icon}</span>
+                <span className="text-harbor-text text-sm leading-relaxed font-medium">
+                  {item.text}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Section 8: Featured In (Logo Marquee) ── */}
+        <div className="space-y-3 text-center">
+          <p className="text-xs font-semibold uppercase tracking-widest text-harbor-text/40">
+            Created with experts featured in
+          </p>
+          <LogoMarquee />
+        </div>
+
+        {/* ── Section 9: Reviews ── */}
+        <div className="space-y-4">
+          <div className="text-center">
+            <p className="text-sm font-semibold text-harbor-text/60">
+              Rated <span className="text-harbor-primary font-bold">4.9/5</span> by our customers
+            </p>
+            <Stars rating={5} />
+          </div>
+          <div className="space-y-3">
+            {REVIEWS.map((review, i) => (
+              <div key={i} className="bg-white rounded-xl border border-harbor-text/10 p-4 space-y-2">
+                <Stars rating={review.stars} />
+                <p className="text-harbor-text text-sm italic leading-relaxed">
+                  "{review.text}"
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Section 10: Trustpilot-style Trust Bar ── */}
+        <div className="text-center space-y-1">
+          <p className="text-harbor-text font-semibold text-sm">
+            Trusted by over <strong>110 thousand</strong> people worldwide
+          </p>
+          <div className="flex items-center justify-center gap-2">
+            <Stars rating={5} />
+            <span className="text-sm font-bold text-harbor-primary">4.9</span>
+          </div>
+        </div>
+
+        {/* ── Section 11: Latest Results ── */}
+        <div className="space-y-3">
+          <p className="text-sm font-semibold uppercase tracking-widest text-harbor-text/40 text-center">
+            Latest results
+          </p>
+          <LatestResultsTicker />
+        </div>
+
+        {/* ── Section 12: Repeat CTA + Form ── */}
+        <div className="space-y-4">
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-bold text-harbor-primary leading-tight">
+              Uncover Your Child's ADHD Personality Type!
+            </h2>
+            <p className="text-harbor-text font-semibold">
+              <span className="text-harbor-primary tabular-nums">
+                <AnimatedCounter base={12496} />
+              </span>{" "}
+              reports ordered!
+            </p>
+          </div>
+
+          <LeadForm
+            email={email}
+            setEmail={setEmail}
+            parentName={parentName}
+            setParentName={setParentName}
+            onSubmit={() => void handleSubmit()}
+            isSubmitting={isSubmitting}
+            submitError={submitError}
+          />
+        </div>
+
       </div>
+
+      {/* ── Global Animations ── */}
+      <style>{`
+        @keyframes fadeSlideIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: none; }
+        }
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-33.333%); }
+        }
+        .animate-marquee {
+          animation: marquee 15s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }
