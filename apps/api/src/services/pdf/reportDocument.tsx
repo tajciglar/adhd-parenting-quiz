@@ -7,7 +7,7 @@ Font.registerHyphenationCallback(word => [word]);
 // Register handwritten font for quotes
 Font.register({
   family: "Caveat",
-  src: "https://fonts.gstatic.com/s/caveat/v18/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIWpYQ.ttf",
+  src: "https://fonts.gstatic.com/s/caveat/v23/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9SII.ttf",
   fontWeight: 400,
 });
 
