@@ -39,17 +39,17 @@ const LATEST_RESULTS = [
   { name: "Maria", flag: "🇩🇪", archetype: "Gentle Elephant" },
   { name: "Annika", flag: "🇸🇪", archetype: "Observing Meerkat" },
   { name: "Camille", flag: "🇫🇷", archetype: "Clever Fox" },
-  { name: "Lisa", flag: "🇦🇹", archetype: "Wise Owl" },
-  { name: "Anna", flag: "🇬🇧", archetype: "Playful Dolphin" },
+  { name: "Lisa", flag: "🇦🇹", archetype: "Cloudy Panda" },
+  { name: "Anna", flag: "🇬🇧", archetype: "Splashy Dolphin" },
   { name: "Elena", flag: "🇪🇸", archetype: "Dreamy Koala" },
   { name: "Kate", flag: "🇮🇪", archetype: "Clever Fox" },
   { name: "Katarina", flag: "🇭🇷", archetype: "Wild Stallion" },
   { name: "Laura", flag: "🇳🇱", archetype: "Fierce Tiger" },
-  { name: "Ingrid", flag: "🇳🇴", archetype: "Gentle Elephant" },
+  { name: "Ingrid", flag: "🇳🇴", archetype: "Justice Elephant" },
   { name: "Amanda", flag: "🇬🇧", archetype: "Fierce Tiger" },
-  { name: "Christine", flag: "🇺🇸", archetype: "Brave Bull" },
-  { name: "Petra", flag: "🇨🇿", archetype: "Sensitive Hedgehog" },
-  { name: "Isabelle", flag: "🇧🇪", archetype: "Quick Rabbit" },
+  { name: "Christine", flag: "🇺🇸", archetype: "Fearless Bull" },
+  { name: "Petra", flag: "🇨🇿", archetype: "Storm Hedgehog" },
+  { name: "Isabelle", flag: "🇧🇪", archetype: "Busy Rabbit" },
   { name: "Eva", flag: "🇩🇰", archetype: "Dreamy Koala" },
   { name: "Sarah", flag: "🇨🇦", archetype: "Observing Meerkat" },
   { name: "Marta", flag: "🇵🇱", archetype: "Flash Hummingbird" },
@@ -537,10 +537,10 @@ export default function SalesPage() {
         {/* ── Section 9: Reviews ── */}
         <div className="space-y-4">
           <div className="text-center space-y-2">
-            <p className="text-sm font-semibold text-harbor-text/60">
+            <h2 className="text-sm font-semibold text-harbor-text/60">
               Rated <span className="text-harbor-primary font-bold">4.9/5</span> by our customers
-            </p>
-            <TrustpilotStars className="h-10 mx-auto" />
+            </h2>
+            <Stars rating={5} />
           </div>
           <div className="space-y-3">
             {REVIEWS.map((review, i) => (
@@ -556,9 +556,9 @@ export default function SalesPage() {
 
         {/* ── Section 10: Trustpilot-style Trust Bar ── */}
         <div className="text-center space-y-2">
-          <h2 className="text-harbor-text font-semibold text-sm">
+          <p className="text-harbor-text font-semibold text-sm">
             Trusted by over <strong>110 thousand</strong> people worldwide
-          </h2>
+          </p>
           <TrustpilotStars className="h-10 mx-auto" />
           <span className="text-harbor-primary font-bold">4.9/5</span>
         </div>
