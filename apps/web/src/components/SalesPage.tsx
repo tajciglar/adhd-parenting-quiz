@@ -559,7 +559,8 @@ export default function SalesPage() {
           <h2 className="text-harbor-text font-semibold text-sm">
             Trusted by over <strong>110 thousand</strong> people worldwide
           </h2>
-          <TrustpilotStars className="h-8 mx-auto" />
+          <TrustpilotStars className="h-10 mx-auto" />
+          <span className="text-harbor-primary font-bold">4.9/5</span>
         </div>
 
         {/* ── Section 11: Latest Results ── */}
