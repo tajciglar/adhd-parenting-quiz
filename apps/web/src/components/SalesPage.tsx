@@ -95,34 +95,35 @@ function LatestResultsTicker() {
 
 /* ─── Logo Marquee ──────────────────────────────────────────────────────── */
 
+const LOGO_IMAGES = [
+  { src: "/logoMarque/Time.png", alt: "TIME" },
+  { src: "/logoMarque/WashingtonPost.png", alt: "Washington Post" },
+  { src: "/logoMarque/HuffPost.png", alt: "HuffPost" },
+  { src: "/logoMarque/TheGuardian.webp", alt: "The Guardian" },
+  { src: "/logoMarque/Aleteia.png", alt: "Aleteia" },
+  { src: "/logoMarque/atlantic.png", alt: "The Atlantic" },
+  { src: "/logoMarque/forbes.png", alt: "Forbes" },
+  { src: "/logoMarque/ScientificAmerican.png", alt: "Scientific American" },
+  { src: "/logoMarque/BBC.png", alt: "BBC" },
+  { src: "/logoMarque/USAToday.webp", alt: "USA Today" },
+  { src: "/logoMarque/NewYorkTimes.png", alt: "New York Times" },
+  { src: "/logoMarque/TedX.png", alt: "TEDx" },
+];
+
 function LogoMarquee() {
-  const logos = [
-    "TIME",
-    "CNN",
-    "Washington Post",
-    "HuffPost",
-    "The Guardian",
-    "Aleteia",
-    "The Atlantic",
-    "Forbes",
-    "Scientific American",
-    "BBC",
-    "USA Today",
-    "New York Times",
-  ];
-  // Duplicate for seamless loop
-  const items = [...logos, ...logos, ...logos];
+  // Triplicate for seamless loop
+  const items = [...LOGO_IMAGES, ...LOGO_IMAGES, ...LOGO_IMAGES];
 
   return (
     <div className="overflow-hidden relative">
-      <div className="flex animate-marquee gap-12 items-center whitespace-nowrap">
-        {items.map((name, i) => (
-          <span
+      <div className="flex animate-marquee gap-10 items-center">
+        {items.map((logo, i) => (
+          <img
             key={i}
-            className="text-lg font-bold text-harbor-text/25 uppercase tracking-wider flex-shrink-0"
-          >
-            {name}
-          </span>
+            src={logo.src}
+            alt={logo.alt}
+            className="h-6 w-auto object-contain flex-shrink-0 opacity-40 grayscale"
+          />
         ))}
       </div>
     </div>
