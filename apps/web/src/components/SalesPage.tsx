@@ -527,12 +527,16 @@ export default function SalesPage() {
             <p className="text-sm font-semibold text-harbor-text/60">
               Rated <span className="text-harbor-primary font-bold">4.9/5</span> by our customers
             </p>
-            <img src="/adhd-parenting-quiz/apps/web/public/trustpilot-stars.png" alt="4.9 out of 5 stars" className="mx-auto mt-1" />
+            <img
+            src="/trustpilot-stars.png"
+            alt="4.9 out of 5 stars on Trustpilot"
+            className="h-5 object-contain"
+          />
           </div>
           <div className="space-y-3">
             {REVIEWS.map((review, i) => (
               <div key={i} className="bg-white rounded-xl border border-harbor-text/10 p-4 space-y-2">
-                <img src="/adhd-parenting-quiz/apps/web/public/trustpilot-stars.png" alt="4.9 out of 5 stars" className="mx-auto mt-1" />
+                <Stars rating={review.stars} />
                 <p className="text-harbor-text text-sm italic leading-relaxed">
                   "{review.text}"
                 </p>
@@ -547,7 +551,7 @@ export default function SalesPage() {
             Trusted by over <strong>110 thousand</strong> people worldwide
           </h2>
           <div className="flex items-center justify-center gap-2">
-            <Stars rating={5} />
+            <img src="/adhd-parenting-quiz/apps/web/public/trustpilot-logo.png" alt="Trustpilot logo" className="w-6 h-6" />
             <span className="text-sm font-bold text-harbor-primary">4.9</span>
           </div>
         </div>
