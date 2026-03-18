@@ -44,7 +44,7 @@ const CARDS: Record<CategoryId, InterstitialCard> = {
     headline: "You're in good hands.",
     body: [
       "This assessment was built by the team behind ADHD Parenting, rated 4.9 on Trustpilot with over 111,000 satisfied parents.",
-      "We organised the world's largest ADHD Parenting Summit, with over 250,000 registered parents, and have collaborated with 70+ world renowned ADHD experts, including Dr Edward Hallowell, Dr Peg Dawson, Dr Richard Guare, and Elaine Taylor-Klaus.",
+      "We organised the world's largest ADHD Parenting Summit, with over 250,000 registered parents, and have collaborated with 70+ world-renowned ADHD experts — including Dr Edward Hallowell, Dr. Patricia O. Quinn, Dr. Stephen P. Hinshaw and Dr. Sasha Hamdani.",
       "One more section to go.",
     ],
   },

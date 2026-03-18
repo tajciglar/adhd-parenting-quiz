@@ -3,6 +3,14 @@ import React from "react";
 import { Document, Page, StyleSheet, Text, View, Svg, Circle, Path, Image, Font } from "@react-pdf/renderer";
 
 Font.registerHyphenationCallback(word => [word]);
+
+// Register handwritten font for quotes
+Font.register({
+  family: "Caveat",
+  src: "https://fonts.gstatic.com/s/caveat/v18/WnznHAc5bAfYB2QRah7pcpNvOx-pjfJ9eIWpYQ.ttf",
+  fontWeight: 400,
+});
+
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -51,6 +59,7 @@ export interface ReportTemplateData {
 interface ReportDocumentProps {
   report: ReportTemplateData;
   childName: string;
+  reportDate?: string; // e.g. "18 Mar 2026"
 }
 
 /* ─── Theme ───────────────────────────────────────────────────────────────── */
@@ -185,7 +194,7 @@ const s = StyleSheet.create({
 
   /* ── Cover Hero ──────────────────────────── */
   heroSection: {
-    paddingTop: 30,
+    paddingTop: 20,
     paddingBottom: 4,
     paddingHorizontal: 48,
     alignItems: "center",
@@ -195,6 +204,16 @@ const s = StyleSheet.create({
     top: 22,
     right: 48,
     alignItems: "flex-end",
+  },
+  heroDateRow: {
+    position: "absolute",
+    top: 22,
+    left: 48,
+    alignItems: "flex-start",
+  },
+  heroDate: {
+    fontSize: 8.5,
+    letterSpacing: 0.5,
   },
   heroBrand: {
     fontSize: 9,
@@ -212,6 +231,7 @@ const s = StyleSheet.create({
     fontFamily: "Helvetica-Bold",
     textTransform: "uppercase",
     letterSpacing: 2,
+    marginTop: 14,
     marginBottom: 10,
     textAlign: "center",
   },
@@ -228,8 +248,8 @@ const s = StyleSheet.create({
     alignItems: "center",
   },
   heroQuoteImage: {
-    width: 100,
-    height: 100,
+    width: 75,
+    height: 75,
     marginRight: 12,
     objectFit: "contain",
   },
@@ -237,10 +257,10 @@ const s = StyleSheet.create({
     flex: 1,
   },
   heroQuote: {
-    fontSize: 13,
-    fontStyle: "italic",
+    fontSize: 15,
+    fontFamily: "Caveat",
     textAlign: "left",
-    lineHeight: 1.5,
+    lineHeight: 1.4,
   },
   heroAttribution: {
     fontSize: 11,
@@ -515,12 +535,13 @@ function DynamicFooter({ theme }: { theme: ReportTheme }) {
 
 /* ─── Main Document ───────────────────────────────────────────────────────── */
 
-export function ReportDocument({ report, childName }: ReportDocumentProps) {
+export function ReportDocument({ report, childName, reportDate }: ReportDocumentProps) {
   const theme = getTheme(report.archetypeId);
-  const NAME = childName.toUpperCase();
+  const NAME = childName.trim().toUpperCase();
+  const formattedDate = reportDate ?? new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
   return (
-    <Document title={`${childName} ${report.title}`}>
+    <Document title={`${childName.trim()} ${report.title}`}>
       {/* ════════════════ PAGE 1 — COVER ════════════════ */}
       <Page
         size="A4"
@@ -529,12 +550,18 @@ export function ReportDocument({ report, childName }: ReportDocumentProps) {
       >
         {/* Hero Section */}
         <View style={s.heroSection}>
+          {/* Date — top left */}
+          <View style={s.heroDateRow}>
+            <Text style={[s.heroDate, { color: theme.muted }]}>{formattedDate}</Text>
+          </View>
+          {/* Brand — top right */}
           <View style={s.heroBrandRow}>
             <Text style={[s.heroBrand, { color: theme.accent }]}>ADHD PERSONALITY REPORT</Text>
             <Text style={[s.heroBrandSub, { color: theme.muted }]}>
               Your child's unique profile
             </Text>
           </View>
+          {/* Animal title — pushed down below the brand row */}
           <Text style={[s.heroTitle, { color: theme.accent }]}>
             {report.title}
           </Text>
