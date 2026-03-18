@@ -134,7 +134,7 @@ function LogoMarquee() {
 
 function Stars({ rating }: { rating: number }) {
   return (
-    <span className="inline-flex gap-0.5 text-yellow-400 text-lg">
+    <span className="inline-flex gap-0.5 text-green-500 text-lg">
       {Array.from({ length: 5 }, (_, i) => (
         <span key={i}>{i < Math.round(rating) ? "★" : "☆"}</span>
       ))}
@@ -528,11 +528,7 @@ export default function SalesPage() {
             <p className="text-sm font-semibold text-harbor-text/60">
               Rated <span className="text-harbor-primary font-bold">4.9/5</span> by our customers
             </p>
-            <img
-            src="/trustpilot-stars.png"
-            alt="4.9 out of 5 stars on Trustpilot"
-            className="h-8 object-contain"
-          />
+            <Stars rating={5} />
           </div>
           <div className="space-y-3">
             {REVIEWS.map((review, i) => (
@@ -552,11 +548,7 @@ export default function SalesPage() {
             Trusted by over <strong>110 thousand</strong> people worldwide
           </h2>
           <div className="flex items-center justify-center gap-2">
-            <img
-            src="/trustpilot-stars.png"
-            alt="4.9 out of 5 stars on Trustpilot"
-            className="h-8 object-contain"
-          />
+            <Stars rating={5} />
             <span className="text-sm font-bold text-harbor-primary">4.9</span>
           </div>
         </div>
@@ -608,6 +600,9 @@ export default function SalesPage() {
         }
         .animate-marquee {
           animation: marquee 25s linear infinite;
+        }
+        .animate-marquee {
+          animation: marquee 15s linear infinite;
         }
       `}</style>
     </div>
