@@ -45,7 +45,7 @@ export default function CalculatingScreen({
   useEffect(() => {
     if (phase !== "analyzing") return;
     const totalSections = ANALYSIS_SECTIONS.length;
-    const perSection = 1000; // 1s per section (~6s total, down from ~7s)
+    const perSection = 900; // 1s per section (~6s total, down from ~7s)
     const tickInterval = 30;
     const ticksPerSection = perSection / tickInterval;
     let currentSection = 0;
