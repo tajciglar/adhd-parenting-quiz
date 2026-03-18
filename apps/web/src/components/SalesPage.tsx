@@ -551,7 +551,11 @@ export default function SalesPage() {
             Trusted by over <strong>110 thousand</strong> people worldwide
           </h2>
           <div className="flex items-center justify-center gap-2">
-            <img src="/adhd-parenting-quiz/apps/web/public/trustpilot-logo.png" alt="Trustpilot logo" className="w-6 h-6" />
+            <img
+            src="/trustpilot-stars.png"
+            alt="4.9 out of 5 stars on Trustpilot"
+            className="h-5 object-contain"
+          />
             <span className="text-sm font-bold text-harbor-primary">4.9</span>
           </div>
         </div>
