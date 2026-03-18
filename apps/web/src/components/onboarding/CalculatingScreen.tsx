@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { clearOnboardingStorage } from "../../hooks/useOnboarding";
 import { computeTraitProfile, ARCHETYPES } from "@adhd-parenting-quiz/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
-import { AnimalIcon } from "../../lib/animalImages";
 
 const ANALYSIS_SECTIONS = [
   "Attention patterns",
@@ -30,6 +29,7 @@ export default function CalculatingScreen({
     () => ANALYSIS_SECTIONS.map(() => 0),
   );
   const [activeSection, setActiveSection] = useState(0);
+  const [bullseyeScale, setBullseyeScale] = useState(0);
 
   // Compute archetype client-side
   const traitProfile = useMemo(
@@ -41,18 +41,18 @@ export default function CalculatingScreen({
     [traitProfile.archetypeId],
   );
 
-  // Section-by-section progress: each fills 0→100 sequentially, ~7s total
+  // Section-by-section progress: each fills 0→100 sequentially, ~6s total (1s shorter)
   useEffect(() => {
     if (phase !== "analyzing") return;
     const totalSections = ANALYSIS_SECTIONS.length;
-    const perSection = 1170;
+    const perSection = 1000; // 1s per section (~6s total, down from ~7s)
     const tickInterval = 30;
     const ticksPerSection = perSection / tickInterval;
     let currentSection = 0;
     let tick = 0;
 
     let holdTicks = 0;
-    const holdDuration = 8;
+    const holdDuration = 6; // shorter hold between sections
 
     const timer = setInterval(() => {
       if (holdTicks > 0) {
@@ -61,7 +61,7 @@ export default function CalculatingScreen({
           currentSection++;
           if (currentSection >= totalSections) {
             clearInterval(timer);
-            setTimeout(() => setPhase("found"), 400);
+            setTimeout(() => setPhase("found"), 300);
           }
         }
         return;
@@ -86,9 +86,13 @@ export default function CalculatingScreen({
     return () => clearInterval(timer);
   }, [phase]);
 
-  // "We found it" frame holds for 2.5s then navigates to sales page
+  // "We found it" — expanding bullseye animation then navigate
   useEffect(() => {
     if (phase !== "found") return;
+
+    // Animate bullseye scale: 0 → 1 over 0.6s via CSS transition
+    const scaleTimer = requestAnimationFrame(() => setBullseyeScale(1));
+
     const timer = setTimeout(() => {
       // Store responses in sessionStorage so the sales page can submit to API
       sessionStorage.setItem("wildprint_responses", JSON.stringify(responses));
@@ -108,24 +112,42 @@ export default function CalculatingScreen({
         },
       });
     }, 2500);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      cancelAnimationFrame(scaleTimer);
+    };
   }, [phase, responses, childName, childGender, archetype.id, navigate]);
 
   // ─── "We found it" frame ────────────────────────────────────────────────
   if (phase === "found") {
     return (
       <div className="h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-12 overflow-hidden">
-        <div
-          className="max-w-sm w-full space-y-6 text-center"
-          style={{ animation: "fadeIn 0.6s ease-out" }}
-        >
-          <AnimalIcon id={archetype.id} className="w-28 h-28 mx-auto" />
-          <h2 className="text-2xl font-bold text-harbor-primary">
-            We found it.
+        <div className="max-w-sm w-full space-y-6 text-center">
+          {/* Expanding bullseye */}
+          <div
+            className="text-7xl mx-auto transition-transform duration-700 ease-out"
+            style={{ transform: `scale(${bullseyeScale})` }}
+          >
+            🎯
+          </div>
+          <h2
+            className="text-2xl font-bold text-harbor-primary"
+            style={{ animation: "fadeInUp 0.6s ease-out 0.3s both" }}
+          >
+            We found it!
           </h2>
+          <p
+            className="text-harbor-text/60 text-sm"
+            style={{ animation: "fadeInUp 0.5s ease-out 0.6s both" }}
+          >
+            {childName}'s ADHD personality profile is ready
+          </p>
         </div>
         <style>{`
-          @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+          @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: none; }
+          }
         `}</style>
       </div>
     );
@@ -154,18 +176,23 @@ export default function CalculatingScreen({
               <div key={label} className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span
-                    className={`text-sm font-medium transition-colors duration-300 ${
+                    className={`text-sm font-medium transition-colors duration-300 flex items-center gap-1.5 ${
                       isDone
-                        ? "text-harbor-accent"
+                        ? "text-green-600"
                         : isActive
                           ? "text-harbor-primary"
                           : "text-harbor-text/30"
                     }`}
                   >
-                    {isDone ? "✓ " : ""}{label}
+                    {isDone && (
+                      <svg className="w-4 h-4 text-green-600 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                    {label}
                   </span>
                   {(isActive || isDone) && (
-                    <span className={`text-xs tabular-nums ${isDone ? "text-harbor-accent" : "text-harbor-text/40"}`}>
+                    <span className={`text-xs tabular-nums ${isDone ? "text-green-600" : "text-harbor-text/40"}`}>
                       {pct}%
                     </span>
                   )}
@@ -177,7 +204,7 @@ export default function CalculatingScreen({
                 >
                   <div
                     className={`h-full rounded-full transition-all duration-75 ${
-                      isDone ? "bg-harbor-accent" : "bg-harbor-primary"
+                      isDone ? "bg-green-500" : "bg-harbor-primary"
                     }`}
                     style={{ width: `${pct}%` }}
                   />

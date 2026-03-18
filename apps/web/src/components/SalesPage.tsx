@@ -24,7 +24,7 @@ function AnimatedCounter({ base }: { base: number }) {
   useEffect(() => {
     const interval = setInterval(() => {
       setCount((prev) => prev + 1);
-    }, Math.random() * 4000 + 3000); // +1 every 3-7 seconds
+    }, Math.random() * 5000 + 5000); // +1 every 3-7 seconds
     return () => clearInterval(interval);
   }, []);
   return <>{count.toLocaleString()}</>;
@@ -37,17 +37,20 @@ const LATEST_RESULTS = [
   { name: "Sophia", flag: "🇬🇧", archetype: "Fierce Tiger" },
   { name: "Jane", flag: "🇺🇸", archetype: "Fierce Tiger" },
   { name: "Maria", flag: "🇩🇪", archetype: "Gentle Elephant" },
-  { name: "Emily", flag: "🇦🇺", archetype: "Curious Monkey" },
-  { name: "Sarah", flag: "🇨🇦", archetype: "Brave Lion" },
+  { name: "Emily", flag: "🇦🇺", archetype: "Flash Hummingbird" },
+  { name: "Sarah", flag: "🇨🇦", archetype: "Observing Meerkat" },
   { name: "Lisa", flag: "🇺🇸", archetype: "Wise Owl" },
   { name: "Anna", flag: "🇬🇧", archetype: "Playful Dolphin" },
   { name: "Rachel", flag: "🇳🇿", archetype: "Dreamy Koala" },
-  { name: "Kate", flag: "🇮🇪", archetype: "Calm Turtle" },
-  { name: "Jessica", flag: "🇺🇸", archetype: "Swift Hawk" },
-  { name: "Laura", flag: "🇦🇺", archetype: "Creative Fox" },
+  { name: "Kate", flag: "🇮🇪", archetype: "Clever Fox" },
+  { name: "Jessica", flag: "🇺🇸", archetype: "Wild Stallion" },
+  { name: "Laura", flag: "🇦🇺", archetype: "Clever Fox" },
   { name: "Michelle", flag: "🇨🇦", archetype: "Gentle Elephant" },
   { name: "Amanda", flag: "🇬🇧", archetype: "Fierce Tiger" },
-  { name: "Christine", flag: "🇺🇸", archetype: "Brave Lion" },
+  { name: "Christine", flag: "🇺🇸", archetype: "Brave Bull" },
+  { name: "Nicole", flag: "🇺🇸", archetype: "Sensitive Hedgehog" },
+  { name: "Heather", flag: "🇦🇺", archetype: "Quick Rabbit" },
+  { name: "Diana", flag: "🇨🇦", archetype: "Dreamy Koala" },
 ];
 
 function LatestResultsTicker() {
@@ -57,7 +60,7 @@ function LatestResultsTicker() {
   useEffect(() => {
     const interval = setInterval(() => {
       setVisibleIndex((prev) => (prev + 1) % LATEST_RESULTS.length);
-    }, 3500);
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -92,10 +95,18 @@ function LatestResultsTicker() {
 
 function LogoMarquee() {
   const logos = [
-    "Scientific American",
-    "Psychology Today",
-    "TEDx",
     "TIME",
+    "CNN",
+    "Washington Post",
+    "HuffPost",
+    "The Guardian",
+    "Aleteia",
+    "The Atlantic",
+    "Forbes",
+    "Scientific American",
+    "BBC",
+    "USA Today",
+    "New York Times",
   ];
   // Duplicate for seamless loop
   const items = [...logos, ...logos, ...logos];
@@ -301,25 +312,16 @@ export default function SalesPage() {
   if (!responses || !archetypeId) return <Navigate to="/" replace />;
 
   const name = childName ?? "Your child";
+  const genderLower = (childGender ?? "").toLowerCase();
+  const objPronoun = genderLower.includes("boy") ? "him" : genderLower.includes("girl") ? "her" : "them";
 
-  /* ─── Report structure sections for blurred preview ─── */
-  const REPORT_SECTIONS = [
-    "About Your Child",
-    "Hidden Superpower",
-    "Understanding the Brain",
-    "A Day in Your Child's Life",
-    "What Drains vs. What Fuels",
-    "What to Say & What Never to Say",
-    "5 Phrases Your Child Needs to Hear",
-  ];
-
-  const WHATS_INSIDE: React.ReactNode[] = [
-    <><strong>The neuroscience</strong> behind {name}'s specific profile, explained in plain language</>,
-    <><strong>"A Day in {name}'s Life"</strong> — four real scenarios that will make you say "that's exactly what happens"</>,
-    <><strong>What drains {name} vs. what fuels them</strong> — a practical reference table</>,
-    <><strong>What to say, and what never to say</strong> when {name} is struggling</>,
-    <><strong>{name}'s hidden superpower</strong> — the quality most people completely miss</>,
-    <><strong>"What {name} needs to hear most"</strong> — five sentences that will change everything</>,
+  const WHATS_INSIDE: { title: React.ReactNode; desc: string }[] = [
+    { title: <>The neuroscience behind {name}'s specific profile</>, desc: "Explained in plain language, not clinical jargon" },
+    { title: <>"A Day in {name}'s Life"</>, desc: "Four daily scenarios replaying in your home right now" },
+    { title: <>What drains {name} vs. what fuels {objPronoun}</>, desc: "A practical reference table you'll come back to every week" },
+    { title: <>What to say and what never to say</>, desc: `Especially when ${name} is struggling` },
+    { title: <>{name}'s hidden gift</>, desc: `The quality most people around ${objPronoun} completely miss` },
+    { title: <>"What {name} needs to hear most"</>, desc: `Five word-for-word scripts to boost ${name}'s self-esteem` },
   ];
 
   const REVIEWS = [
@@ -350,44 +352,62 @@ export default function SalesPage() {
 
         {/* ── Section 1: Header ── */}
         <div className="text-center space-y-4">
-          <AnimalIcon id={archetypeId} className="w-28 h-28 mx-auto" />
           <h1 className="text-3xl font-bold text-harbor-primary leading-tight">
             Your Child's ADHD Personality Report is ready!
           </h1>
         </div>
 
-        {/* ── Section 2: Blurred Report Preview ── */}
+        {/* ── Section 2: Blurred Report Preview (looks like real PDF) ── */}
         <div className="relative rounded-2xl border border-harbor-text/10 shadow-sm overflow-hidden bg-white">
-          <div className="p-6 pb-0 space-y-3">
-            <div className="flex items-center gap-2 text-xs text-harbor-text/40 uppercase tracking-widest font-semibold">
-              <span>ADHD Personality Report</span>
-              <span className="mx-1">·</span>
-              <span>{name}</span>
+          {/* Report header bar */}
+          <div className="bg-harbor-primary/5 px-6 py-3 flex items-center justify-between border-b border-harbor-text/8">
+            <span className="text-[10px] text-harbor-text/40 uppercase tracking-widest font-semibold">
+              ADHD Personality Report
+            </span>
+            <span className="text-[10px] text-harbor-text/30">
+              {name}'s unique profile
+            </span>
+          </div>
+
+          {/* Report content mimicking PDF layout */}
+          <div className="p-6 space-y-4">
+            {/* Title + animal row */}
+            <div className="flex items-center gap-4">
+              <AnimalIcon id={archetypeId} className="w-16 h-16 flex-shrink-0" />
+              <div>
+                <h3 className="text-xl font-bold text-harbor-primary leading-tight uppercase tracking-wide">
+                  {archetype.typeName}
+                </h3>
+                <p className="text-xs text-harbor-text/50 mt-0.5 italic">
+                  "{name}'s inner voice"
+                </p>
+              </div>
             </div>
-            <h3 className="text-xl font-bold text-harbor-primary leading-tight">
-              {archetype.typeName}
-            </h3>
-            {/* Report sections list */}
-            <div className="space-y-2 pt-2">
-              {REPORT_SECTIONS.slice(0, 3).map((section) => (
-                <div key={section} className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-harbor-primary/40" />
-                  <span className="text-sm text-harbor-text">{section}</span>
-                </div>
-              ))}
+
+            {/* About section preview */}
+            <div>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-harbor-primary/70 mb-1">
+                About {name}
+              </p>
+              <div className="w-8 h-0.5 bg-harbor-primary/30 mb-2" />
+              <p className="text-sm text-harbor-text leading-relaxed">
+                {name}'s brain operates with a unique combination of strengths and challenges that most people around {objPronoun} will never fully understand. Not because something is wrong, but because {name} processes the world on a frequency that most environments weren't built for…
+              </p>
             </div>
           </div>
 
-          <div className="relative h-36">
-            <div className="px-6 pt-3 space-y-2">
-              {REPORT_SECTIONS.slice(3).map((section) => (
-                <div key={section} className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-harbor-primary/40" />
-                  <span className="text-sm text-harbor-text">{section}</span>
-                </div>
-              ))}
+          {/* Blur gradient + unlock button */}
+          <div className="relative h-28">
+            <div className="px-6 space-y-3">
+              <p className="text-[10px] uppercase tracking-widest font-bold text-harbor-primary/70">
+                Hidden Superpower
+              </p>
+              <div className="w-8 h-0.5 bg-harbor-primary/30" />
+              <p className="text-sm text-harbor-text leading-relaxed">
+                The quality that makes {name} extraordinary is something that…
+              </p>
             </div>
-            <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/80 to-white backdrop-blur-[2px] flex flex-col items-center justify-end pb-5">
+            <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-white/80 to-white backdrop-blur-[2px] flex flex-col items-center justify-end pb-5">
               <button
                 type="button"
                 onClick={scrollToForm}
@@ -408,17 +428,22 @@ export default function SalesPage() {
           <p className="text-sm font-semibold uppercase tracking-widest text-harbor-text/40">
             What's inside {name}'s full ADHD Personality report
           </p>
-          <ul className="space-y-2">
-            {WHATS_INSIDE.map((bullet, i) => (
+          <ul className="space-y-3">
+            {WHATS_INSIDE.map((item, i) => (
               <li key={i} className="flex items-start gap-3">
                 <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
                   <svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none">
                     <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
-                <span className="text-harbor-text text-sm leading-relaxed">
-                  {bullet}
-                </span>
+                <div>
+                  <span className="text-harbor-text text-sm font-semibold leading-relaxed">
+                    {item.title}
+                  </span>
+                  <span className="text-harbor-text/60 text-sm leading-relaxed block">
+                    {item.desc}
+                  </span>
+                </div>
               </li>
             ))}
           </ul>
@@ -427,10 +452,10 @@ export default function SalesPage() {
         {/* ── Section 4: Trust Badges ── */}
         <div className="space-y-3">
           <div className="bg-white rounded-xl border border-harbor-text/10 p-4 space-y-1.5">
-            <p className="text-xs font-semibold text-harbor-primary">🧠 Built by specialists</p>
+            <p className="text-xs font-semibold text-harbor-primary">🧠 Built by ADHD specialists with over 40 years of combined clinical
+              experience.</p>
             <p className="text-harbor-text text-xs italic leading-relaxed">
-              Built by ADHD specialists with over 40 years of combined clinical
-              experience. Every question, every profile, and every recommendation
+               This isn’t a generic personality assessment. Every question, every profile, and every recommendation
               is grounded in decades of real work with real ADHD families.
             </p>
           </div>
@@ -500,12 +525,12 @@ export default function SalesPage() {
             <p className="text-sm font-semibold text-harbor-text/60">
               Rated <span className="text-harbor-primary font-bold">4.9/5</span> by our customers
             </p>
-            <Stars rating={5} />
+            <img src="/adhd-parenting-quiz/apps/web/public/trustpilot-stars.png" alt="4.9 out of 5 stars" className="mx-auto mt-1" />
           </div>
           <div className="space-y-3">
             {REVIEWS.map((review, i) => (
               <div key={i} className="bg-white rounded-xl border border-harbor-text/10 p-4 space-y-2">
-                <Stars rating={review.stars} />
+                <img src="/adhd-parenting-quiz/apps/web/public/trustpilot-stars.png" alt="4.9 out of 5 stars" className="mx-auto mt-1" />
                 <p className="text-harbor-text text-sm italic leading-relaxed">
                   "{review.text}"
                 </p>
@@ -516,9 +541,9 @@ export default function SalesPage() {
 
         {/* ── Section 10: Trustpilot-style Trust Bar ── */}
         <div className="text-center space-y-1">
-          <p className="text-harbor-text font-semibold text-sm">
+          <h2 className="text-harbor-text font-semibold text-sm">
             Trusted by over <strong>110 thousand</strong> people worldwide
-          </p>
+          </h2>
           <div className="flex items-center justify-center gap-2">
             <Stars rating={5} />
             <span className="text-sm font-bold text-harbor-primary">4.9</span>
