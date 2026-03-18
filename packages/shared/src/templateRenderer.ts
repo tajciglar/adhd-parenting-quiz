@@ -28,9 +28,10 @@ export function buildPlaceholderMap(
   gender: string,
 ): Record<string, string> {
   const pronouns = getPronounSet(gender);
+  const trimmedName = name.trim();
 
   return {
-    "[NAME]": name,
+    "[NAME]": trimmedName,
     "[HE/SHE/THEY]": pronouns.subject,
     "[HIS/HER/THEIR]": pronouns.possessive,
     "[HIM/HER/THEM]": pronouns.object,
@@ -54,6 +55,7 @@ function fixTheyGrammar(text: string): string {
     .replace(/\bthey is\b/gi, (m) => (m[0] === "T" ? "They are" : "they are"))
     .replace(/\bthey has\b/gi, (m) => (m[0] === "T" ? "They have" : "they have"))
     .replace(/\bthey does\b/gi, (m) => (m[0] === "T" ? "They do" : "they do"))
+    .replace(/\bthey goes\b/gi, (m) => (m[0] === "T" ? "They go" : "they go"))
     .replace(/\bthey was\b/gi, (m) => (m[0] === "T" ? "They were" : "they were"))
     .replace(/\bthey doesn't\b/gi, (m) => (m[0] === "T" ? "They don't" : "they don't"))
     .replace(/\bthey hasn't\b/gi, (m) => (m[0] === "T" ? "They haven't" : "they haven't"))

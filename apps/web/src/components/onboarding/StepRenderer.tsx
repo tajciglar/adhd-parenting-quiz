@@ -14,7 +14,7 @@ interface StepRendererProps {
 }
 
 function interpolate(template: string, responses: OnboardingResponses): string {
-  const childName = (responses.childName as string) || "your child";
+  const childName = ((responses.childName as string) || "your child").trim();
   const gender = ((responses.childGender as string) ?? "").toLowerCase();
   const isMale = gender === "male" || gender.includes("boy");
   const isFemale = gender === "female" || gender.includes("girl");
@@ -88,12 +88,15 @@ export default function StepRenderer({
           <div className="mb-6 space-y-2">
             <TrustPilotReview />
             <h1 className="text-2xl font-bold text-harbor-primary leading-snug text-center">
-              Discover Your Child's ADHD Personality Type
+              Discover Your Child's Unique ADHD Personality Type
             </h1>
             <p className="text-sm text-harbor-text leading-relaxed text-center">
-              A 7-minute assessment backed by 40+ years of clinical experience, revealing who your child really is, why they do what they do, and the hidden superpower most people around them completely miss.
+              A 7-minute assessment backed by 40+ years of clinical experience — revealing who your child really is, why they do what they do, and the hidden gift most people completely miss.
             </p>
-            
+            <p className="text-sm text-harbor-text leading-relaxed text-center">
+              <i>Developed by the team behind the World's Largest ADHD Parenting Summit with 250,000+ registered parents and world-renowned ADHD experts, such as Dr. Edward Hallowell · Dr. Patricia Quinn · Dr. Stephen Hinshaw · Dr. Sasha Hamdani and 70 more.</i>
+            </p>
+        
           </div>
         )}
         {q.emoji && (
@@ -107,7 +110,7 @@ export default function StepRenderer({
         )}
         {step === 1 && (
         <p className="text-xs text-harbor-text/40 leading-relaxed text-center mt-4">
-              This assessment is for informational and educational purposes only. It is not a clinical assessment, diagnosis, or substitute for professional evaluation. The profiles and recommendations provided are based on patterns commonly observed in children with ADHD and should not be used to make medical or therapeutic decisions. If you have concerns about your child's development or behaviour, please consult a qualified healthcare provider.
+              It will take about 7 minutes. Your answers stay private and won’t be shared, sold, or seen by anyone other than you. This assessment is for informational and educational purposes only. It is not a clinical assessment, diagnosis, or substitute for professional evaluation. The profiles and recommendations provided are based on patterns commonly observed in children with ADHD and should not be used to make medical or therapeutic decisions. If you have concerns about your child's development or behaviour, please consult a qualified healthcare provider.
         </p>
     )}
       </div>

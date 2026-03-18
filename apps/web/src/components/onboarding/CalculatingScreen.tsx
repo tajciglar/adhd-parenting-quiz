@@ -33,7 +33,7 @@ export default function CalculatingScreen({
   responses: OnboardingResponses;
 }) {
   const navigate = useNavigate();
-  const childName = (responses.childName as string | undefined) ?? "your child";
+  const childName = ((responses.childName as string | undefined) ?? "your child").trim();
   const childGender = responses.childGender as string | undefined;
   const { obj: objPronoun } = getPronouns(childGender);
 

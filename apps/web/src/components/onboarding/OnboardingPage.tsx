@@ -127,7 +127,7 @@ export default function OnboardingPage() {
     }
   }, [currentStep]);
 
-  const childName = (responses.childName as string | undefined) ?? "your child";
+  const childName = ((responses.childName as string | undefined) ?? "your child").trim();
   const gender = ((responses.childGender as string) ?? "").toLowerCase();
   const objPronoun = gender.includes("boy") ? "him" : gender.includes("girl") ? "her" : "them";
 
