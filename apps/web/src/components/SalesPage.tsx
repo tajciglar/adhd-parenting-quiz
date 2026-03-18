@@ -531,7 +531,7 @@ export default function SalesPage() {
             <img
             src="/trustpilot-stars.png"
             alt="4.9 out of 5 stars on Trustpilot"
-            className="h-5 object-contain"
+            className="h-8 object-contain"
           />
           </div>
           <div className="space-y-3">
@@ -555,7 +555,7 @@ export default function SalesPage() {
             <img
             src="/trustpilot-stars.png"
             alt="4.9 out of 5 stars on Trustpilot"
-            className="h-5 object-contain"
+            className="h-8 object-contain"
           />
             <span className="text-sm font-bold text-harbor-primary">4.9</span>
           </div>
@@ -607,7 +607,7 @@ export default function SalesPage() {
           100% { transform: translateX(-33.333%); }
         }
         .animate-marquee {
-          animation: marquee 15s linear infinite;
+          animation: marquee 25s linear infinite;
         }
       `}</style>
     </div>
