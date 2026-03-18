@@ -130,11 +130,23 @@ function LogoMarquee() {
   );
 }
 
-/* ─── Star Rating ───────────────────────────────────────────────────────── */
+/* ─── Trustpilot Stars Image ────────────────────────────────────────────── */
+
+function TrustpilotStars({ className = "h-8" }: { className?: string }) {
+  return (
+    <img
+      src="/trustpilot-stars.png"
+      alt="Trustpilot 5 stars"
+      className={`${className} object-contain`}
+    />
+  );
+}
+
+/* ─── Star Rating (fallback) ───────────────────────────────────────────── */
 
 function Stars({ rating }: { rating: number }) {
   return (
-    <span className="inline-flex gap-0.5 text-green-500 text-lg">
+    <span className="inline-flex gap-0.5 text-yellow-400 text-lg">
       {Array.from({ length: 5 }, (_, i) => (
         <span key={i}>{i < Math.round(rating) ? "★" : "☆"}</span>
       ))}
@@ -524,11 +536,11 @@ export default function SalesPage() {
 
         {/* ── Section 9: Reviews ── */}
         <div className="space-y-4">
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <p className="text-sm font-semibold text-harbor-text/60">
               Rated <span className="text-harbor-primary font-bold">4.9/5</span> by our customers
             </p>
-            <Stars rating={5} />
+            <TrustpilotStars className="h-10 mx-auto" />
           </div>
           <div className="space-y-3">
             {REVIEWS.map((review, i) => (
@@ -543,14 +555,11 @@ export default function SalesPage() {
         </div>
 
         {/* ── Section 10: Trustpilot-style Trust Bar ── */}
-        <div className="text-center space-y-1">
+        <div className="text-center space-y-2">
           <h2 className="text-harbor-text font-semibold text-sm">
             Trusted by over <strong>110 thousand</strong> people worldwide
           </h2>
-          <div className="flex items-center justify-center gap-2">
-            <Stars rating={5} />
-            <span className="text-sm font-bold text-harbor-primary">4.9</span>
-          </div>
+          <TrustpilotStars className="h-8 mx-auto" />
         </div>
 
         {/* ── Section 11: Latest Results ── */}

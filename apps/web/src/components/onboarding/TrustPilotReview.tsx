@@ -10,12 +10,11 @@ export function TrustPilotReview() {
 
       {/* Trustpilot rating */}
       <div className="flex flex-col items-center space-y-1">
-        <div className="flex items-center space-x-2">
-          <span className="inline-flex gap-0.5 text-green-500 text-lg">
-            {"★★★★★"}
-          </span>
-          <span className="text-xs font-semibold text-harbor-primary">4.9</span>
-        </div>
+        <img
+          src="/trustpilot-stars.png"
+          alt="Trustpilot 5 stars"
+          className="h-8 object-contain"
+        />
         <p className="text-xs text-harbor-text/50">
           111.813+ satisfied customers
         </p>
