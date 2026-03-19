@@ -54,6 +54,16 @@ export interface ReportTemplateData {
   affirmations: string[];
   doNotSay: Array<{ insteadOf: string; tryThis: string }>;
   closingLine: string;
+  whatHelps?: {
+    aboutChild?: string;
+    hiddenSuperpower?: string;
+    brain?: string;
+    morning?: string;
+    school?: string;
+    afterSchool?: string;
+    bedtime?: string;
+    overwhelm?: string;
+  };
 }
 
 interface ReportDocumentProps {
@@ -479,6 +489,43 @@ function ParagraphText({ text }: { text: string }) {
   );
 }
 
+function WhatHelpsBox({ text, theme }: { text?: string; theme: ReportTheme }) {
+  if (!text) return null;
+  return (
+    <View
+      wrap={false}
+      style={{
+        marginTop: 10,
+        marginBottom: 6,
+        borderLeftWidth: 3,
+        borderLeftColor: theme.successAccent,
+        borderLeftStyle: "solid",
+        backgroundColor: theme.successSoft,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 3,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 9,
+          fontWeight: 700,
+          fontFamily: "Helvetica-Bold",
+          color: theme.successAccent,
+          textTransform: "uppercase",
+          letterSpacing: 1.2,
+          marginBottom: 4,
+        }}
+      >
+        What Helps
+      </Text>
+      <Text style={{ fontSize: 10.5, lineHeight: 1.5, color: theme.text }}>
+        {text}
+      </Text>
+    </View>
+  );
+}
+
 function SectionLabel({
   text,
   theme,
@@ -588,6 +635,7 @@ export function ReportDocument({ report, childName, reportDate }: ReportDocument
 
           <SectionLabel text={`ABOUT ${NAME}`} theme={theme} />
           <ParagraphText text={report.aboutChild} />
+          <WhatHelpsBox text={report.whatHelps?.aboutChild} theme={theme} />
         </View>
 
         <DynamicFooter theme={theme} />
@@ -605,6 +653,7 @@ export function ReportDocument({ report, childName, reportDate }: ReportDocument
         {/* ── Hidden Gift ── */}
         <SectionLabel text={`${NAME}'S HIDDEN GIFT`} theme={theme} first />
         <ParagraphText text={report.hiddenSuperpower} />
+        <WhatHelpsBox text={report.whatHelps?.hiddenSuperpower} theme={theme} />
 
         {/* ── Understanding Brain ── */}
         <SectionLabel text={`UNDERSTANDING ${NAME}'S BRAIN`} theme={theme} />
@@ -626,20 +675,24 @@ export function ReportDocument({ report, childName, reportDate }: ReportDocument
             </View>
           );
         })}
+        <WhatHelpsBox text={report.whatHelps?.brain} theme={theme} />
 
         {/* ── A Day in Life ── */}
         <SectionLabel text={`A DAY IN ${NAME}'S LIFE`} theme={theme} />
         {[
-          { label: "Morning", text: report.dayInLife.morning },
-          { label: "School", text: report.dayInLife.school },
-          { label: "After School", text: report.dayInLife.afterSchool },
-          { label: "Bedtime", text: report.dayInLife.bedtime },
+          { label: "Morning", text: report.dayInLife.morning, helps: report.whatHelps?.morning },
+          { label: "School", text: report.dayInLife.school, helps: report.whatHelps?.school },
+          { label: "After School", text: report.dayInLife.afterSchool, helps: report.whatHelps?.afterSchool },
+          { label: "Bedtime", text: report.dayInLife.bedtime, helps: report.whatHelps?.bedtime },
         ].map((block) => (
-          <View key={block.label} style={s.subSection} wrap={false}>
-            <Text style={[s.subTitle, { color: theme.accent }]}>
-              {block.label}
-            </Text>
-            <ParagraphText text={block.text} />
+          <View key={block.label} style={s.subSection}>
+            <View wrap={false}>
+              <Text style={[s.subTitle, { color: theme.accent }]}>
+                {block.label}
+              </Text>
+              <ParagraphText text={block.text} />
+            </View>
+            <WhatHelpsBox text={block.helps} theme={theme} />
           </View>
         ))}
 
@@ -707,6 +760,7 @@ export function ReportDocument({ report, childName, reportDate }: ReportDocument
             "",
           )
         } />
+        <WhatHelpsBox text={report.whatHelps?.overwhelm} theme={theme} />
 
         {/* ── Affirmations ── */}
         <SectionLabel text={`WHAT ${NAME} NEEDS TO HEAR MOST`} theme={theme} />
