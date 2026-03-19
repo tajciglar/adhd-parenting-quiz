@@ -101,7 +101,7 @@ export default function ReportPage() {
 
           <section className="bg-white rounded-2xl border border-harbor-text/10 p-6">
             <h2 className="text-xl font-semibold text-harbor-primary mb-2">Hidden Superpower</h2>
-            <p className="text-harbor-text/80 leading-relaxed whitespace-pre-line">{report.hiddenSuperpower}</p>
+            <p className="text-harbor-text/80 leading-relaxed whitespace-pre-line">{report.hiddenGift}</p>
           </section>
 
           <section className="bg-white rounded-2xl border border-harbor-text/10 p-6">

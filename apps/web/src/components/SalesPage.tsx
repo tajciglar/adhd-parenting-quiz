@@ -122,7 +122,7 @@ export default function SalesPage() {
             <div className="border-t border-harbor-text/8 pt-4">
               <h4 className="text-sm font-semibold text-harbor-primary mb-1">Hidden Superpower</h4>
               <p className="text-harbor-text text-sm leading-relaxed">
-                {report.hiddenSuperpower?.slice(0, 150)}...
+                {report.hiddenGift?.slice(0, 150)}...
               </p>
             </div>
           </div>

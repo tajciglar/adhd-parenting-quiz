@@ -4,7 +4,7 @@ export interface ArchetypeReportTemplate {
   innerVoiceQuote: string;
   animalDescription: string;
   aboutChild: string;
-  hiddenSuperpower: string;
+  hiddenGift: string;
   aboutBrain: string;
   brainSections: Array<{
     title: string;
@@ -19,15 +19,19 @@ export interface ArchetypeReportTemplate {
   drains: string[];
   fuels: string[];
   overwhelm: string;
-  affirmations: string[];
+  affirmations: Array<{
+    when: string;
+    say: string;
+  }>;
   doNotSay: Array<{
+    when: string;
     insteadOf: string;
     tryThis: string;
   }>;
   closingLine: string;
   whatHelps?: {
     aboutChild?: string;
-    hiddenSuperpower?: string;
+    hiddenGift?: string;
     brain?: string;
     morning?: string;
     school?: string;
@@ -60,22 +64,27 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     ],
     "doNotSay": [
       {
+        "when": "You can see exactly what's happening and you're frustrated by it",
         "tryThis": "\"I can see you're trying to get around this. Let's talk about what makes it feel so hard.\"",
         "insteadOf": "\"Stop trying to manipulate me.\""
       },
       {
+        "when": "Something hasn't been told straight and trust feels thin",
         "tryThis": "\"I know you're not trying to lie. Your brain is trying to avoid something difficult.\"",
         "insteadOf": "\"You're so dishonest.\""
       },
       {
+        "when": "The intelligence is being used against you and it's wearing you down",
         "tryThis": "\"You are clever. Let's use that for something that actually helps you.\"",
         "insteadOf": "\"You think you're so clever.\""
       },
       {
+        "when": "You've caught it in real time and [NAME] knows it",
         "tryThis": "\"I see what's happening. And I also see how hard this feels. Let's do it together.\"",
         "insteadOf": "\"I can see right through you.\""
       },
       {
+        "when": "You're worried about what these patterns mean long term",
         "tryThis": "\"I want to help you get to a place where you don't need to get away with anything.\"",
         "insteadOf": "\"You'll never get away with this forever.\""
       }
@@ -91,11 +100,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "archetypeId": "fox",
     "closingLine": "[NAME] is a Clever Fox. And the world needs more of them.",
     "affirmations": [
-      "\"You are not your avoidance. That's just your brain finding a way around something hard.\"",
-      "\"Your cleverness is genuinely one of your best qualities. We're going to use it for bigger things.\"",
-      "\"I'm not trying to catch you out. I'm trying to make the hard things easier.\"",
-      "\"I know it feels easier to talk your way around things. Let's make doing them feel easier too.\"",
-      "\"I see who you are underneath all of this. And that person is extraordinary.\""
+      { "when": "After avoidance, deflection, or a task that didn't happen, again", "say": "\"You are not your avoidance. That's just your brain finding a way around something hard.\"" },
+      { "when": "When [NAME]'s intelligence is being used to wriggle out of things instead of doing them", "say": "\"Your cleverness is genuinely one of your best qualities. We're going to use it for bigger things.\"" },
+      { "when": "When [NAME] has become defensive and is bracing for a confrontation", "say": "\"I'm not trying to catch you out. I'm trying to make the hard things easier.\"" },
+      { "when": "When the pattern of talking around things is becoming the default response to difficulty", "say": "\"I know it feels easier to talk your way around things. Let's make doing them feel easier too.\"" },
+      { "when": "On a hard day when the avoidance and the strategies have overshadowed everything else", "say": "\"I see who you are underneath all of this. And that person is extraordinary.\"" }
     ],
     "aboutBrain": "[NAME]'s profile is shaped by two areas where [HIS/HER/THEIR] brain works differently.",
     "brainSections": [
@@ -109,10 +118,10 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
       }
     ],
     "innerVoiceQuote": "I found a better route. The original route was fine. Mine was just more interesting.",
-    "hiddenSuperpower": "The verbal intelligence, social awareness, and adaptive thinking that [NAME] currently uses to avoid difficult tasks are the same qualities that will one day make [HIM/HER/THEM] exceptional. The ability to read a room, find the right words, adapt to any audience, and think laterally around obstacles is genuinely rare and genuinely valuable. Leaders, negotiators, communicators, entrepreneurs - the qualities [NAME] is already demonstrating at [HIS/HER/THEIR] age are the foundation of extraordinary capability. The goal is to create an environment where [NAME]'s executive struggles are supported enough that these same gifts can be pointed at something worthy of them.",
+    "hiddenGift": "The verbal intelligence, social awareness, and adaptive thinking that [NAME] currently uses to avoid difficult tasks are the same qualities that will one day make [HIM/HER/THEM] exceptional. The ability to read a room, find the right words, adapt to any audience, and think laterally around obstacles is genuinely rare and genuinely valuable. Leaders, negotiators, communicators, entrepreneurs - the qualities [NAME] is already demonstrating at [HIS/HER/THEIR] age are the foundation of extraordinary capability. The goal is to create an environment where [NAME]'s executive struggles are supported enough that these same gifts can be pointed at something worthy of them.",
     "animalDescription": "The Fox is widely regarded as one of the most intelligent animals in the natural world. Not because it is the strongest or the fastest, but because it is the most adaptable. It reads its environment with extraordinary precision, identifies exactly what is needed in any given situation, and finds a way to get there that most other animals would never think of. It doesn't force its way through obstacles. It finds the gap, the angle, the clever route that was always there but invisible to everyone else. This particular Fox is the Clever one. [NAME] doesn't just think. [NAME] thinks around things - and that is a quality that will serve [HIM/HER/THEM] extraordinarily well for the rest of [HIS/HER/THEIR] life, once the right environment is found to channel it.",
     "whatHelps": {
-      "hiddenSuperpower": "What helps is giving these strengths a good job to do. Let [NAME] explain ideas out loud, teach something back, help solve real problems, make choices, and use words as a strength, but always alongside support for the parts that are harder. If [NAME] talks brilliantly about a project, help turn that into one finished paragraph, one completed plan, or one task done from start to end.",
+      "hiddenGift": "What helps is giving these strengths a good job to do. Let [NAME] explain ideas out loud, teach something back, help solve real problems, make choices, and use words as a strength, but always alongside support for the parts that are harder. If [NAME] talks brilliantly about a project, help turn that into one finished paragraph, one completed plan, or one task done from start to end.",
       "brain": "What helps is removing the wall, not pushing harder against it. Break the task into the smallest possible first step. Sit with [HIM/HER/THEM] for the first two minutes. Use a timer to create a defined, contained start. The goal is just to get [HIM/HER/THEM] through the door - once [HE/SHE/THEY] is moving, the brain usually follows.",
       "morning": "The fix is to take yourself out of the equation. A visual checklist on the wall - not your voice, not a reminder, not a back-and-forth. Just the list. Point to it. \"What's next?\" The routine becomes the authority, not you - and there is nothing left to charm [HIS/HER/THEIR] way around.",
       "school": "Before school, practise the exact kind of work that gets avoided. Sit with [NAME] for five or 10 minutes at home and make the task very small: one sentence, one sum, one written answer, one short sequence. Stay close, help start immediately, and do not let talking replace doing. The goal is to build the habit of beginning, sticking, and finishing a small piece even when it is not the kind of task that comes easily.",
@@ -142,22 +151,27 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     ],
     "doNotSay": [
       {
+        "when": "They can't stop moving during homework or a meal",
         "tryThis": "\"Let's find a way for you to move while we do this.\"",
         "insteadOf": "\"Why can't you just sit still?\""
       },
       {
+        "when": "They've abandoned another project halfway through",
         "tryThis": "\"Let's pick one thing and finish it together.\"",
         "insteadOf": "\"You never finish anything.\""
       },
       {
+        "when": "You're running on empty and the noise and chaos is relentless",
         "tryThis": "\"I need a minute. Then I'm all yours.\"",
         "insteadOf": "\"You're so exhausting.\""
       },
       {
+        "when": "You've said something three times and nothing has registered",
         "tryThis": "\"Let me get your full attention for just 30 seconds.\"",
         "insteadOf": "\"Why don't you ever listen?\""
       },
       {
+        "when": "The energy is escalating and you can feel it tipping",
         "tryThis": "\"I can see you're really revved up. Let's get some energy out first.\"",
         "insteadOf": "\"You're driving me crazy.\""
       }
@@ -173,11 +187,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "archetypeId": "hummingbird",
     "closingLine": "[NAME] is a Flash Hummingbird. And the world needs more of them.",
     "affirmations": [
-      "\"Your energy is not a problem. We just need to find it the right place to go.\"",
-      "\"I know sitting still is really hard for you. That's not your fault.\"",
-      "\"You are not too much. You are exactly right.\"",
-      "\"I love how excited you get about things. That's one of my favorite things about you.\"",
-      "\"We'll figure out a system together. I'm not giving up on finding what works.\""
+      { "when": "When the energy in the room is too much and everyone's patience is running thin", "say": "\"Your energy is not a problem. We just need to find the right place for it to go.\"" },
+      { "when": "After being asked to sit still for the fifth time and still not managing it", "say": "\"I know sitting still is really hard for you. That's not your fault.\"" },
+      { "when": "When [NAME] can feel they're wearing people out", "say": "\"You are not too much. You are exactly right.\"" },
+      { "when": "When the excitement and intensity feel like they're being treated as a flaw", "say": "\"I love how excited you get about things. That's one of my favorite things about you.\"" },
+      { "when": "After a day where nothing seemed to work and everyone is frustrated", "say": "\"We'll figure out a system together. I'm not giving up on finding what works.\"" }
     ],
     "aboutBrain": "[NAME]'s profile is shaped by two areas where [HIS/HER/THEIR] brain works differently.",
     "brainSections": [
@@ -191,11 +205,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
       }
     ],
     "innerVoiceQuote": "I bring the energy that makes the room feel alive. You can't teach that.",
-    "hiddenSuperpower": "The same engine that makes [NAME] so hard to keep up with is the engine that makes [HIM/HER/THEM] extraordinary in the right environment. [NAME] generates ideas faster than most people process them. [HE/SHE/THEY] is first, first to try, first to respond, first to notice something new, first to suggest something nobody else thought of. [HIS/HER/THEIR] enthusiasm is genuine and contagious. When [NAME] is interested in something, truly interested, the focus and energy [HE/SHE/THEY] brings to it is unlike anything you have seen from a child. The goal is not to slow [NAME] down. The goal is to build a world around [HIM/HER/THEM] that gives that extraordinary energy somewhere meaningful to land.",
+    "hiddenGift": "The same engine that makes [NAME] so hard to keep up with is the engine that makes [HIM/HER/THEM] extraordinary in the right environment. [NAME] generates ideas faster than most people process them. [HE/SHE/THEY] is first, first to try, first to respond, first to notice something new, first to suggest something nobody else thought of. [HIS/HER/THEIR] enthusiasm is genuine and contagious. When [NAME] is interested in something, truly interested, the focus and energy [HE/SHE/THEY] brings to it is unlike anything you have seen from a child. The goal is not to slow [NAME] down. The goal is to build a world around [HIM/HER/THEM] that gives that extraordinary energy somewhere meaningful to land.",
     "animalDescription": "The Hummingbird is the most energetic creature on earth, beating its wings up to 80 times per second, visiting hundreds of flowers in a single day, never fully still, never fully done. It doesn't choose this pace. It is simply built this way, its metabolism demands constant movement and constant input just to survive. This particular Hummingbird is the Flash one, here, gone, already somewhere else before you finished the sentence. Not because it doesn't care about where it just was. Because the next thing is already calling, and the body was moving before the brain had a chance to decide.",
     "whatHelps": {
       "aboutChild": "Don't fight the movement, channel it. A visual routine removes the need to remember. One instruction at a time removes the need to hold everything at once. A physical outlet before any demand that requires sitting gives the engine somewhere to go first.",
-      "hiddenSuperpower": "Find the thing that makes [NAME] forget to move. It exists, every Hummingbird has one: a subject, a skill, a world that holds them completely still without asking. When you find it, protect it fiercely. That is not just [NAME]'s hobby, that is [NAME]'s way in.",
+      "hiddenGift": "Find the thing that makes [NAME] forget to move. It exists, every Hummingbird has one: a subject, a skill, a world that holds them completely still without asking. When you find it, protect it fiercely. That is not just [NAME]'s hobby, that is [NAME]'s way in.",
       "brain": "For attention, keep tasks short and use timers to make them feel bounded. Add novelty where you can - vary the setting, the format, the order. Use [NAME]'s interests as an entry point when introducing something new. For hyperactivity, allow movement during work - standing, fidget tools, sitting on the floor. Build in physical breaks before demanding focused effort. Don't fight the fidgeting; it's how [NAME]'s brain stays regulated enough to function.",
       "morning": "A visual routine on the wall removes the need to remember or negotiate - [NAME] follows the chart, not you, which also means fewer battles. Lay everything out the night before: clothes, bag, everything. Reduce the number of decisions the morning requires to almost zero. And keep the environment as boring as possible until you're out the door.",
       "school": "If the school is open to it, ask about a movement pass - permission to get up and walk to the water fountain or do a quick errand. A fidget tool on the desk, sitting at the end of a row, or standing at the back during lessons can all help [NAME] regulate without disrupting anyone.",
@@ -226,23 +240,28 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     ],
     "doNotSay": [
       {
+        "when": "You've said something and they clearly didn't register it",
         "tryThis": "\"Let me get your eyes first, and then I'll tell you.\"",
         "insteadOf": "\"You never listen.\""
       },
       {
+        "when": "They've left the house without something important, again",
         "tryThis": "\"Let's build a system together so it's easier next time.\"",
         "insteadOf": "\"How did you forget AGAIN?\""
       },
       {
+        "when": "They're staring at a blank page or drifting mid-task",
         "tryThis": "\"Let's find a quiet spot and start this one together.\"",
         "insteadOf": "\"Why can't you just focus?\""
       },
       {
-        "tryThis": "\"Welcome back, what were you thinking about?\"",
+        "when": "You've lost them mid-conversation",
+        "tryThis": "\"Welcome back! What were you thinking about?\"",
         "insteadOf": "\"You were daydreaming AGAIN.\""
       },
       {
-        "tryThis": "\"I know you care. Your brain just works differently, and that's okay.\"",
+        "when": "They've forgotten something that mattered to you both",
+        "tryThis": "\"I know you care. Your brain just works differently, and that's totally okay.\"",
         "insteadOf": "\"You'd remember if you actually cared.\""
       }
     ],
@@ -257,11 +276,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "archetypeId": "koala",
     "closingLine": "[NAME] is a Dreamy Koala. And the world needs more of them.",
     "affirmations": [
-      "\"I know it's hard to come back. Take your time.\"",
-      "\"Forgetting doesn't mean you don't care. I know that.\"",
-      "\"Your imagination is one of the best things about you.\"",
-      "\"I'm not frustrated with you. I'm right here with you.\"",
-      "\"You don't have to be different. You just need the right support, and we'll find it together.\""
+      { "when": "After drifting, a meltdown, or a hard transition, when coming back feels like too much", "say": "\"I know it's hard to come back. Take your time.\"" },
+      { "when": "After losing something, missing a step, or forgetting something that mattered", "say": "\"Forgetting doesn't mean you don't care. I know that.\"" },
+      { "when": "When [NAME] seems embarrassed by how their mind works", "say": "\"Your imagination is one of the best things about you.\"" },
+      { "when": "Mid-struggle - when you can feel them bracing for your frustration", "say": "\"I'm not frustrated with you. I'm right here with you.\"" },
+      { "when": "On a hard day, when everything feels like evidence that something is wrong with them", "say": "\"You don't have to be different. You just need the right support, and we'll find it together.\"" }
     ],
     "aboutBrain": "[NAME]'s profile is shaped by two areas where [HIS/HER/THEIR] brain works differently.",
     "brainSections": [
@@ -275,10 +294,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
       }
     ],
     "innerVoiceQuote": "I notice the small beautiful things that everyone else walks past. I can't help stopping for them.",
-    "hiddenSuperpower": "Here is what the school reports and the frustrated mornings don't tell you: [NAME]'s drifting mind is the same mind that makes unexpected creative leaps, notices details others walk straight past, and imagines things that simply haven't existed yet. The brain that cannot stay on task is the same brain that can spend three uninterrupted hours completely absorbed in building, drawing, inventing, or storytelling, without ever needing to be told what to do next, without ever checking if anyone is watching, without ever running out of ideas. That quality of deep, self-directed focus is genuinely rare. Most people spend their entire adult lives trying to find it. [NAME] was born with it. [HE/SHE/THEY] doesn't need to be fixed. [HE/SHE/THEY] needs a world that makes room for the way [HE/SHE/THEY] naturally thinks, and a parent who understands the difference.",
+    "hiddenGift": "Here is what the school reports and the frustrated mornings don't tell you: [NAME]'s drifting mind is the same mind that makes unexpected creative leaps, notices details others walk straight past, and imagines things that simply haven't existed yet. The brain that cannot stay on task is the same brain that can spend three uninterrupted hours completely absorbed in building, drawing, inventing, or storytelling, without ever needing to be told what to do next, without ever checking if anyone is watching, without ever running out of ideas. That quality of deep, self-directed focus is genuinely rare. Most people spend their entire adult lives trying to find it. [NAME] was born with it. [HE/SHE/THEY] doesn't need to be fixed. [HE/SHE/THEY] needs a world that makes room for the way [HE/SHE/THEY] naturally thinks, and a parent who understands the difference.",
     "animalDescription": "The Koala In the eucalyptus forests of eastern Australia, the Koala moves through the world at its own unhurried pace. While other animals rush and compete and react, the Koala is still, not because it lacks awareness, but because its inner world is simply more absorbing than the noise outside. It sleeps up to twenty hours a day, not out of laziness, but because its brain requires extraordinary amounts of rest to process everything it takes in. This particular Koala is the Dreamy one, the one whose inner world is so rich, so vivid, and so endlessly absorbing that the outside world can barely compete. Where others see a child who is absent, we see a mind that is simply elsewhere. And elsewhere, for [NAME], is a very interesting place.",
     "whatHelps": {
-      "hiddenSuperpower": "[NAME] focuses deeply and doesn't switch gears easily, so uninterrupted time matters more than it might for other kids. Don't break concentration for non-urgent things, and when [HE/SHE/THEY] seems checked out, check first if [HE/SHE/THEY] is actually mid-thought. Transitions and context-switching are hard. Let [HIM/HER/THEM] finish before introducing something new.",
+      "aboutChild": "[NAME] does best when you get close, say [HIS/HER/THEIR] name, and give one short direction at a time, like “Put on your shoes now.” [HE/SHE/THEY] is more likely to follow through when adults use checklists, routines, and visual reminders instead of long lectures. Praise works best when it is immediate and specific, like “You remembered your backpack the first time, that was responsible.” When [NAME] gets distracted, calm redirection and a clear next step help much more than criticism or shame.",
+      "hiddenGift": "[NAME] focuses deeply and doesn't switch gears easily, so uninterrupted time matters more than it might for other kids. Don't break concentration for non-urgent things, and when [HE/SHE/THEY] seems checked out, check first if [HE/SHE/THEY] is actually mid-thought. Transitions and context-switching are hard. Let [HIM/HER/THEM] finish before introducing something new.",
       "brain": "Make eye contact and use [NAME]'s name before giving instructions - don't speak to [HIM/HER/THEM] from across the room. Keep instructions to one step at a time and ask [HIM/HER/THEM] to repeat the key point back. For tasks, give a concrete first action instead of a general instruction (\"open your notebook\" not \"do your homework\"). Stay nearby for the first few minutes rather than walking away. Give a heads-up before transitions (e.g. \"five more minutes\") so they're not a surprise.",
       "morning": "Give [NAME] one step at a time (\"put on your shirt\" then wait, then \"now your trousers\") rather than the whole sequence. Your presence during transitions helps anchor their focus. Over time, you can gradually step back as they build their own re-anchoring skills.",
       "school": "If your school is open to it, a brief written summary of instructions, even a sticky note on the desk, can give [NAME] a way back in without relying entirely on memory.",
@@ -309,23 +329,28 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     ],
     "doNotSay": [
       {
+        "when": "A reaction seems disproportionate to what happened",
         "tryThis": "\"Your nervous system works differently. Let's figure out what helps.\"",
         "insteadOf": "\"You're too sensitive.\""
       },
       {
+        "when": "A sensory trigger seems minor and you want them to push through",
         "tryThis": "\"I know that's uncomfortable. Let's find a way to make it easier.\"",
         "insteadOf": "\"Just ignore it.\""
       },
       {
+        "when": "The environment seems fine to everyone else but not to [NAME]",
         "tryThis": "\"I believe you that it's too much. Let's find some quiet.\"",
         "insteadOf": "\"There's nothing to be overwhelmed about.\""
       },
       {
+        "when": "[NAME] has drifted and you need them back",
         "tryThis": "\"Welcome back. Take your time, I'll wait.\"",
         "insteadOf": "\"Stop daydreaming and pay attention.\""
       },
       {
-        "tryThis": "\"You're not weak. You're wired differently, and that's okay.\"",
+        "when": "You're worried about how [NAME] will cope in the world",
+        "tryThis": "\"There's nothing to toughen up from. You're exactly as you're supposed to be.\"",
         "insteadOf": "\"You need to toughen up.\""
       }
     ],
@@ -340,11 +365,26 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "archetypeId": "meerkat",
     "closingLine": "[NAME] is an Observing Meerkat. And the world needs more of them.",
     "affirmations": [
-      "\"You don't have to be on all the time. It's okay to need quiet.\"",
-      "\"I know the world feels loud sometimes. We'll find the quiet together.\"",
-      "\"Being sensitive is not a weakness. It's just how your brain is built.\"",
-      "\"I'm not going to push you. I'll be here when you're ready.\"",
-      "\"You notice things most people never see. That's actually remarkable.\""
+      {
+        "when": "After a long day, or when [NAME] is visibly depleted and hasn't had a moment to themselves",
+        "say": "\"You don't have to be on all the time. It's okay to need quiet.\""
+      },
+      {
+        "when": "In a loud or overwhelming environment where [NAME] is clearly struggling",
+        "say": "\"I know the world feels loud sometimes. We'll find the quiet together.\""
+      },
+      {
+        "when": "When [NAME] has been told, again, that they're overreacting or too much",
+        "say": "\"Being sensitive is not a weakness. It's just how your brain is built.\""
+      },
+      {
+        "when": "When [NAME] has withdrawn and you can feel the pressure building to pull them back",
+        "say": "\"I'm not going to push you. I'll be here when you're ready.\""
+      },
+      {
+        "when": "When [NAME] seems embarrassed by how differently they experience things",
+        "say": "\"You notice things most people never see. That's actually remarkable.\""
+      }
     ],
     "aboutBrain": "[NAME]'s profile is shaped by two areas where [HIS/HER/THEIR] brain works differently, and understanding both transforms the way you interpret [HIS/HER/THEIR] daily behavior.",
     "brainSections": [
@@ -358,11 +398,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
       }
     ],
     "innerVoiceQuote": "It's safer and quieter inside my own head.",
-    "hiddenSuperpower": "The same heightened sensory awareness that makes busy environments so difficult for [NAME] is the source of some of [HIS/HER/THEIR] most extraordinary qualities. [NAME] notices nuance that others miss entirely. [HE/SHE/THEY] is deeply attuned to the emotional atmosphere of a room, the unspoken feelings of the people around [HIM/HER/THEM], the beauty in small details that most people walk past without seeing. [HIS/HER/THEIR] inner world is rich, detailed, and genuinely creative, built from years of retreating inside and finding that there is extraordinary territory there. Given the right environment, calm, predictable, low-stimulation, [NAME] is one of the most perceptive, thoughtful, and quietly brilliant children in the room.",
+    "hiddenGift": "The same heightened sensory awareness that makes busy environments so difficult for [NAME] is the source of some of [HIS/HER/THEIR] most extraordinary qualities. [NAME] notices nuance that others miss entirely. [HE/SHE/THEY] is deeply attuned to the emotional atmosphere of a room, the unspoken feelings of the people around [HIM/HER/THEM], the beauty in small details that most people walk past without seeing. [HIS/HER/THEIR] inner world is rich, detailed, and genuinely creative, built from years of retreating inside and finding that there is extraordinary territory there. Given the right environment, calm, predictable, low-stimulation, [NAME] is one of the most perceptive, thoughtful, and quietly brilliant children in the room.",
     "animalDescription": "The Meerkat is one of the most watchful creatures on earth. It stands perfectly still at the entrance to its burrow, eyes scanning the horizon in every direction simultaneously, processing the environment with a level of alertness that most animals never reach. It notices everything, every sound, every movement, every shift in the air. And when what it finds is too much, when the threat is real or the input is overwhelming, it disappears underground, into the quiet and the dark and the safety of its own space. This particular Meerkat is the Observing one, not passive, not absent, but watching everything, processing everything, and retreating inside when the world outside becomes more than [HIS/HER/THEIR] nervous system can comfortably hold.",
     "whatHelps": {
       "aboutChild": "Seat [NAME] away from noise and high-traffic areas where possible. Give advance warning before busy or unpredictable environments. Always have an exit plan. After overwhelming outings, build in quiet recovery time before expecting anything else from [HIM/HER/THEM].",
-      "hiddenSuperpower": "Give [NAME] calm, low-stimulation environments to work and think in - that's when the best qualities show up. Make space for [HIS/HER/THEIR] observations - ask what [NAME] picked up on, what [NAME] thinks, how something felt. Don't rush to an answer. That inner world needs time to surface.",
+      "hiddenGift": "Give [NAME] calm, low-stimulation environments to work and think in - that's when the best qualities show up. Make space for [HIS/HER/THEIR] observations - ask what [NAME] picked up on, what [NAME] thinks, how something felt. Don't rush to an answer. That inner world needs time to surface.",
       "brain": "Reduce sensory load before asking for focus - quiet the environment first, then make the request. Identify [NAME]'s specific triggers (noise, lighting, clothing textures, crowding) and reduce them where possible. Noise-cancelling headphones, preferred seating, and advance warning before overwhelming environments all make a difference.",
       "school": "If your school is open to accommodations, noise-cancelling headphones during independent work, a seat away from high-traffic areas, and permission to take brief sensory breaks can dramatically reduce the number of times [NAME] needs to check out.",
       "overwhelm": "Pushing through this withdrawal (demanding engagement, increasing verbal instruction, raising expectations) will almost always extend it. [NAME]'s nervous system cannot be argued or reasoned back to baseline. It needs time, reduced stimulation, and the absence of demand. A quiet space, familiar sensory comfort (a weighted blanket, a preferred texture, a known smell) and a patient adult nearby are the most effective tools available. The return will happen. It cannot be forced. And when [NAME] does come back, [HE/SHE/THEY] will often be surprisingly present, warm, and ready to connect - because the nervous system, having been allowed to reset, is genuinely available again."
@@ -390,23 +430,28 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     ],
     "doNotSay": [
       {
-        "tryThis": "\"Let's build in an earlier starting point together.\"",
+        "when": "It's the night before and nothing has been started",
+        "tryThis": "\"Let's build on an earlier starting point together.\"",
         "insteadOf": "\"You always leave everything to the last minute.\""
       },
       {
+        "when": "The time was there and it still didn't happen",
         "tryThis": "\"I know it didn't feel urgent. Let's make it feel more real earlier next time.\"",
         "insteadOf": "\"You had all day, why didn't you just do it?\""
       },
       {
+        "when": "A consequence has landed that could have been avoided",
         "tryThis": "\"Your brain needs different tools for time. Let's find them.\"",
         "insteadOf": "\"You're so irresponsible.\""
       },
       {
-        "tryThis": "\"Okay. We're here now. What's the first thing we can do right now?\"",
+        "when": "You're watching it unfold exactly as you predicted",
+        "tryThis": "\"Okay. We're here now. What's the one thing we can do right now?\"",
         "insteadOf": "\"I told you this would happen.\""
       },
       {
-        "tryThis": "\"This is a pattern we can change. Not by trying harder, by trying differently.\"",
+        "when": "It's become a recurring fight and you're exhausted by it",
+        "tryThis": "\"This is a pattern we can change, not by trying harder, but by trying differently.\"",
         "insteadOf": "\"Why do you always do this?\""
       }
     ],
@@ -421,11 +466,26 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "archetypeId": "stallion",
     "closingLine": "[NAME] is a Bold Stallion. And the world needs more of them.",
     "affirmations": [
-      "\"I know you meant to do it. I believe you.\"",
-      "\"Your brain experiences time differently. That's not an excuse, it's an explanation.\"",
-      "\"We're going to build systems that make this easier. Not just expect it to improve on its own.\"",
-      "\"The fact that you can perform under pressure means the capability is absolutely there.\"",
-      "\"I'm not giving up on finding what works for you. Neither should you.\""
+      {
+        "when": "After something wasn't done and you both know the intention was real",
+        "say": "\"I know you meant to do it. I believe you.\""
+      },
+      {
+        "when": "When [NAME] is using the diagnosis as a get-out, or when shame is making it worse",
+        "say": "\"Your brain experiences time differently. That's not an excuse, it's an explanation.\""
+      },
+      {
+        "when": "After a pattern has repeated enough times that everyone is frustrated",
+        "say": "\"We're going to build systems that make this easier. Not just expect it to improve on its own.\""
+      },
+      {
+        "when": "When [NAME] pulled it off at the last minute and feels conflicted about it",
+        "say": "\"The fact that you can perform under pressure means the capability is absolutely there.\""
+      },
+      {
+        "when": "On a day when [NAME] seems to have stopped believing anything will ever change",
+        "say": "\"I'm not giving up on finding what works for you. Neither should you.\""
+      }
     ],
     "aboutBrain": "[NAME]'s profile is shaped by two areas where [HIS/HER/THEIR] brain works differently, and understanding both reframes what looks like willful avoidance as something far more neurological and far more manageable.",
     "brainSections": [
@@ -439,11 +499,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
       }
     ],
     "innerVoiceQuote": "I was going to do it. I just... didn't know it was already so late.",
-    "hiddenSuperpower": "What looks like chronic procrastination is actually something more complex and more interesting than it appears. [NAME]'s brain, when finally activated by genuine urgency, performs at a level that surprises everyone, including [NAME]. The focus that arrives under pressure is real, powerful, and productive. [NAME] can produce in one hour of genuine deadline pressure what takes most children an entire afternoon. That capacity is not nothing. It is a form of performance that, with the right understanding and the right systems, can be channeled rather than constantly fought. [NAME] is not a procrastinator who needs to try harder. [NAME] is someone whose brain runs on a different kind of fuel, and the goal is to find ways to generate that fuel without always requiring a crisis.",
+    "hiddenGift": "What looks like chronic procrastination is actually something more complex and more interesting than it appears. [NAME]'s brain, when finally activated by genuine urgency, performs at a level that surprises everyone, including [NAME]. The focus that arrives under pressure is real, powerful, and productive. [NAME] can produce in one hour of genuine deadline pressure what takes most children an entire afternoon. That capacity is not nothing. It is a form of performance that, with the right understanding and the right systems, can be channeled rather than constantly fought. [NAME] is not a procrastinator who needs to try harder. [NAME] is someone whose brain runs on a different kind of fuel, and the goal is to find ways to generate that fuel without always requiring a crisis.",
     "animalDescription": "The Stallion is one of the most powerful animals on earth, muscular, fast, and capable of extraordinary bursts of speed and endurance when the moment demands it. But watch a Stallion in an open field and you will notice something else entirely. It stands still. It grazes. It moves unhurriedly from one patch of grass to the next, completely unbothered by the passage of time, completely unaware that anything is pressing or urgent, until something startles it. And then, instantly, it is everything it was always capable of being. Pure power, full speed, total commitment. This particular Stallion is the Bold one, not bold because it is fearless, but because when it finally moves, it moves with everything it has. The challenge is that the starting gun has to be very, very loud before this Stallion hears it.",
     "whatHelps": {
       "aboutChild": "The intention is real, so don't fight that battle. The goal is to make the future feel present before the crisis hits. Visual timers, mini-deadlines, and breaking tasks into chunks with immediate small rewards all help manufacture the urgency [NAME]'s brain can't generate on its own. When you need something done, don't appeal to future consequences - make it about right now. \"Do this and then you can do that\" works. \"You'll regret it later\" doesn't.",
-      "hiddenSuperpower": "The goal is to learn how to manufacture that sense of urgency deliberately, before the crisis hits. Short deadlines with real consequences. Timers. Competitions with [HIMSELF/HERSELF/THEMSELVES]. A parent sitting nearby. Music that signals it's time.",
+      "hiddenGift": "The goal is to learn how to manufacture that sense of urgency deliberately, before the crisis hits. Short deadlines with real consequences. Timers. Competitions with [HIMSELF/HERSELF/THEMSELVES]. A parent sitting nearby. Music that signals it's time.",
       "brain": "What helps is making time visible and concrete. Timers on the desk. A clock that counts down rather than up. Breaking the task into chunks with a mini-deadline for each one. A five-minute warning before any transition.",
       "morning": "Don't say \"we need to leave in 10 minutes\" - that's not information [NAME]'s brain can use yet. Put a visual timer on the kitchen counter where it can be seen. Make time physical, not spoken. And wherever possible, remove decisions the night before: clothes out, bag packed, nothing left in the morning that doesn't have to be.",
       "school": "A clear, single first step written on a sticky note on the desk removes the activation barrier that stops [NAME] getting started. The task itself isn't the problem, the gap between nothing and something is. Make that gap as small as possible: not \"write your essay,\" but \"write the first sentence.\"",
@@ -474,22 +534,27 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     ],
     "doNotSay": [
       {
+        "when": "The storm is in full force and you want it to stop",
         "tryThis": "\"I'm right here. We'll get through this together.\"",
         "insteadOf": "\"Calm down.\""
       },
       {
+        "when": "The reaction feels disproportionate to what happened",
         "tryThis": "\"That felt really big, didn't it. I get it.\"",
         "insteadOf": "\"You're overreacting.\""
       },
       {
+        "when": "The intensity is frequent and you're worn down by it",
         "tryThis": "\"I can see you're really upset. Let's find a quiet spot.\"",
         "insteadOf": "\"Why does everything have to be so dramatic?\""
       },
       {
+        "when": "A hard moment has derailed the whole morning",
         "tryThis": "\"That was a hard start. Let's reset and try again.\"",
         "insteadOf": "\"You ruined the whole morning.\""
       },
       {
+        "when": "The reaction feels irrational and you're frustrated",
         "tryThis": "\"Your feelings are real. Let's just sit here for a minute.\"",
         "insteadOf": "\"You're being ridiculous.\""
       }
@@ -505,11 +570,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "archetypeId": "tiger",
     "closingLine": "[NAME] is a Fierce Tiger. And the world needs more of them.",
     "affirmations": [
-      "\"Your feelings make sense. All of them.\"",
-      "\"I'm not going anywhere. I'll be right here until it passes.\"",
-      "\"You don't have to be calm to be loved.\"",
-      "\"That was really hard. I saw how hard you tried.\"",
-      "\"We can talk about it when you're ready. There's no rush.\""
+      { "when": "In the middle of it - when the feelings are big and overwhelming and logic isn't available yet", "say": "\"Your feelings make sense. All of them.\"" },
+      { "when": "When [NAME] is scared you'll lose patience and walk away", "say": "\"I'm not going anywhere. I'll be right here until it passes.\"" },
+      { "when": "When the intensity of the reaction is making [NAME] feel like something is wrong with them", "say": "\"You don't have to be calm to be loved.\"" },
+      { "when": "After a meltdown, once things have settled, when shame starts to creep in", "say": "\"That was really hard. I saw how hard you tried.\"" },
+      { "when": "When [NAME] isn't ready to talk but needs to know there's no pressure", "say": "\"We can talk about it when you're ready. There's no rush.\"" }
     ],
     "aboutBrain": "[NAME]'s profile is shaped by two areas where [HIS/HER/THEIR] brain works differently",
     "brainSections": [
@@ -523,11 +588,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
       }
     ],
     "innerVoiceQuote": "I feel joy the same way I feel pain - all the way through, all at once, with nothing held back.",
-    "hiddenSuperpower": "The same emotional intensity that makes [NAME]'s hard moments so hard is the very source of [HIS/HER/THEIR] greatest gifts. [NAME] loves fiercely, creates passionately, and connects with others at a depth that most adults spend a lifetime trying to reach. [HE/SHE/THEY] will be the first to notice when someone in the room is quietly sad. The first to stand up for someone being treated unfairly. The first to pour [HIS/HER/THEIR] whole heart into something [HE/SHE/THEY] believes in. [NAME]'s feelings are [HIS/HER/THEIR] greatest strength - waiting for the right environment to be channeled rather than contained.",
+    "hiddenGift": "The same emotional intensity that makes [NAME]'s hard moments so hard is the very source of [HIS/HER/THEIR] greatest gifts. [NAME] loves fiercely, creates passionately, and connects with others at a depth that most adults spend a lifetime trying to reach. [HE/SHE/THEY] will be the first to notice when someone in the room is quietly sad. The first to stand up for someone being treated unfairly. The first to pour [HIS/HER/THEIR] whole heart into something [HE/SHE/THEY] believes in. [NAME]'s feelings are [HIS/HER/THEIR] greatest strength - waiting for the right environment to be channeled rather than contained.",
     "animalDescription": "The Tiger is one of the most powerful and capable animals on earth (and also one of the most misunderstood). It does not move in packs or perform for an audience. It carries its strength quietly, privately, and entirely on its own terms. When the Tiger is calm, it is breathtaking - focused, graceful, deeply present. When the Tiger is overwhelmed, everything changes. The response is immediate, total, and impossible to ignore. This particular Tiger is the Fierce one - not fierce because it wants to frighten anyone, but because everything it feels, it feels completely. There is no halfway with this Tiger. There is only all of it, all at once.",
     "whatHelps": {
       "aboutChild": "When [NAME] is emotionally flooded, logic doesn't work, so don't try to reason [HIM/HER/THEM] out of it at the moment. Acknowledge the feeling first (\"I can see that felt really bad\") before anything else. Keep your voice calm and your words short. Give [HIM/HER/THEM] space to come down before problem-solving or consequences. Once [NAME] is regulated again, [HE/SHE/THEY] can hear you. Before that point, [HE/SHE/THEY] genuinely cannot. Repair and discuss after, not during.",
-      "hiddenSuperpower": "What [HE/SHE/THEY] needs to know is that feeling this much is not a problem to be fixed. Give [HIM/HER/THEM] outlets: art, music, animals, causes, stories, people who need care. Let [HIM/HER/THEM] feel it fully, then help [HIM/HER/THEM] point it somewhere.",
+      "hiddenGift": "What [HE/SHE/THEY] needs to know is that feeling this much is not a problem to be fixed. Give [HIM/HER/THEM] outlets: art, music, animals, causes, stories, people who need care. Let [HIM/HER/THEM] feel it fully, then help [HIM/HER/THEM] point it somewhere.",
       "brain": "What helps is not reasoning in the moment, that door is closed. Lower your voice instead of raising it. Get physically close rather than standing over [HIM/HER/THEM]. Name what you see without judgment: \"I can see you're really overwhelmed right now.\" Don't demand eye contact. Don't ask questions. Just stay. Afterwards, when the storm has passed and [HE/SHE/THEY] is calm again, that is the moment for conversation.",
       "morning": "Reduce morning decisions the night before (clothes laid out, bag packed, permission slips signed). Every decision you can remove from the morning is one less thing filling [NAME]'s emotional cup before the day even starts.",
       "school": "From the outside it looks like a behaviour problem. From the inside, [HE/SHE/THEY] is drowning. [NAME] doesn't need to be redirected or disciplined at that moment. [HE/SHE/THEY] needs someone to sit beside [HIM/HER/THEM], break the task into one single step, and say: just this bit, I'll stay with you.",
@@ -558,22 +623,27 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     ],
     "doNotSay": [
       {
+        "when": "The chaos is visible and you don't understand how it keeps happening",
         "tryThis": "\"Let's build a system together that works for your brain.\"",
         "insteadOf": "\"Why can't you just get organised?\""
       },
       {
+        "when": "Another thing has been abandoned halfway through",
         "tryThis": "\"Let's pick one thing and finish just that one thing today.\"",
         "insteadOf": "\"You never finish anything.\""
       },
       {
+        "when": "The task was clear and it still didn't happen",
         "tryThis": "\"Knowing and doing are different things. Let's bridge that gap together.\"",
         "insteadOf": "\"You knew what you had to do.\""
       },
       {
+        "when": "The movement and restlessness is constant and you need it to stop",
         "tryThis": "\"Let's find a good way for you to move right now.\"",
         "insteadOf": "\"Why are you always running around?\""
       },
       {
+        "when": "You're not sure if the effort is actually there",
         "tryThis": "\"I know you're trying. Let's find what makes it easier.\"",
         "insteadOf": "\"You'd get it done if you actually tried.\""
       }
@@ -589,11 +659,26 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "archetypeId": "rabbit",
     "closingLine": "[NAME] is a Busy Rabbit. And the world needs more of them.",
     "affirmations": [
-      "\"You're not disorganised because you don't care. Your brain just needs a different system.\"",
-      "\"Let's figure out the first step together. Just the first one.\"",
-      "\"Your energy is one of the best things about you. We just need to give it somewhere to go.\"",
-      "\"I'm not frustrated with you. I'm frustrated with the situation. There's a difference.\"",
-      "\"You don't have to have it all figured out. We'll build the map together.\""
+      {
+        "when": "After another system has failed and everyone is out of ideas",
+        "say": "\"You're not disorganised because you don't care. Your brain just needs a different system.\""
+      },
+      {
+        "when": "When a task feels so big that starting feels impossible",
+        "say": "\"Let's figure out the first step together. Just the first one.\""
+      },
+      {
+        "when": "When the energy and intensity are wearing everyone out",
+        "say": "\"Your energy is one of the best things about you. We just need to give it somewhere to go.\""
+      },
+      {
+        "when": "When [NAME] can feel your patience running out and is starting to shut down",
+        "say": "\"I'm not frustrated with you. I'm frustrated with the situation. There's a difference.\""
+      },
+      {
+        "when": "When [NAME] seems overwhelmed by the gap between where they are and where they need to be",
+        "say": "\"You don't have to have it all figured out. We'll build the map together.\""
+      }
     ],
     "aboutBrain": "[NAME]'s profile is shaped by two areas where [HIS/HER/THEIR] brain works differently.",
     "brainSections": [
@@ -607,11 +692,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
       }
     ],
     "innerVoiceQuote": "I threw myself into it completely. That's the only way I know how to do anything.",
-    "hiddenSuperpower": "The same explosive energy that makes structure so difficult for [NAME] is the quality that makes [HIM/HER/THEM] extraordinary in the right environment. [NAME] is fast — fast to respond, fast to act, fast to throw [HIMSELF/HERSELF/THEMSELVES] into something new with total physical commitment. [HE/SHE/THEY] is fearless in a way that genuinely careful, organised children rarely are. When the right external structure is provided — a clear starting point, a defined path, a specific goal — [NAME]'s energy becomes one of the most powerful forces in the room. This child doesn't need to be slowed down. [HE/SHE/THEY] needs to be given a track to run on. And when that track exists, [NAME] will outrun almost everyone.",
+    "hiddenGift": "The same explosive energy that makes structure so difficult for [NAME] is the quality that makes [HIM/HER/THEM] extraordinary in the right environment. [NAME] is fast — fast to respond, fast to act, fast to throw [HIMSELF/HERSELF/THEMSELVES] into something new with total physical commitment. [HE/SHE/THEY] is fearless in a way that genuinely careful, organised children rarely are. When the right external structure is provided — a clear starting point, a defined path, a specific goal — [NAME]'s energy becomes one of the most powerful forces in the room. This child doesn't need to be slowed down. [HE/SHE/THEY] needs to be given a track to run on. And when that track exists, [NAME] will outrun almost everyone.",
     "animalDescription": "The Rabbit is one of the fastest land animals relative to its size — capable of explosive bursts of speed, sharp directional changes, and seemingly endless physical energy. It doesn't plan its route. It doesn't need to. It simply moves — fast, instinctively, and with total commitment to whatever direction it is currently pointed in. The Rabbit is not lost. It is just never entirely sure where it is going until it gets there. This particular Rabbit is the Busy one — pure explosive energy, firing in any direction, at any moment, with no advance warning and no internal map. Not reckless. Just running on a system that was built for speed and hasn't quite got the navigation software installed yet.",
     "whatHelps": {
       "aboutChild": "What helps is putting the structure outside the child instead of expecting it to happen internally. Keep routines visible, break jobs into very small steps, and stay nearby for the start of tasks, because getting going is often the hardest part. Use checklists, timers, baskets, labels, and one clear place for important things so less has to be held in memory.",
-      "hiddenSuperpower": "Find the track and protect it fiercely. That means identifying the environments, activities, and challenges where [NAME]'s energy becomes an asset rather than a problem: sport, performance, building, competition, anything with a clear goal and a physical dimension - and investing in them seriously. When [NAME] is in the right environment, the support needs look completely different. The goal shifts from managing the energy to channeling it.",
+      "hiddenGift": "Find the track and protect it fiercely. That means identifying the environments, activities, and challenges where [NAME]'s energy becomes an asset rather than a problem: sport, performance, building, competition, anything with a clear goal and a physical dimension - and investing in them seriously. When [NAME] is in the right environment, the support needs look completely different. The goal shifts from managing the energy to channeling it.",
       "brain": "Physical activity temporarily raises dopamine and norepinephrine levels in the brain - the exact chemicals that ADHD brains are short on. So before anything that requires sitting and concentrating (homework, dinner, a difficult conversation) give [NAME] 10 minutes of hard physical activity first. A run around the block, 10 minutes on a trampoline, anything that genuinely raises the heart rate.",
       "morning": "Give one instruction at a time (\"shoes on\" then wait, then \"bag by the door\"). A visual checklist on the wall with pictures or words keeps the sequence visible. Your presence during the routine helps anchor the steps. Over time, you can gradually step back as the habit builds.",
       "school": "The most useful thing you can do is share this document with [NAME]'s teacher. The specific requests that make the biggest difference are: a clear first step when giving assignments (\"start by writing your name and reading question one\"), a visual timer on the desk for transitions, and a quiet signal (agreed in advance) that [NAME] can use when [HE/SHE/THEY] is overwhelmed and needs a moment.",
@@ -642,22 +727,27 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     ],
     "doNotSay": [
       {
+        "when": "The injustice is real but the moment has passed and you need to move forward",
         "tryThis": "\"You're right that it wasn't fair. That's genuinely hard.\"",
         "insteadOf": "\"Life isn't fair. Get over it.\""
       },
       {
+        "when": "Every day seems to bring a new grievance and you're worn down by the frequency",
         "tryThis": "\"I can see this really matters to you. Tell me what happened.\"",
         "insteadOf": "\"You're always arguing about something.\""
       },
       {
+        "when": "The reaction feels disproportionate and you don't have the bandwidth for it right now",
         "tryThis": "\"I know this feels big. Let's sit with it for a minute.\"",
         "insteadOf": "\"Why do you have to make everything such a big deal?\""
       },
       {
+        "when": "You need to move on and [NAME] is still holding onto something from hours ago",
         "tryThis": "\"I know it's hard to put down. Take the time you need.\"",
         "insteadOf": "\"Just let it go.\""
       },
       {
+        "when": "The emotional response seems out of proportion to what actually happened",
         "tryThis": "\"Your feelings about this make complete sense. Let's talk it through.\"",
         "insteadOf": "\"You're being too sensitive.\""
       }
@@ -673,11 +763,26 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "archetypeId": "elephant",
     "closingLine": "[NAME] is a Just Elephant. And the world needs more of them.",
     "affirmations": [
-      "\"I hear you. That does sound unfair.\"",
-      "\"Your sense of right and wrong is one of the things I admire most about you.\"",
-      "\"You don't have to agree with everything. But let's find a way through it together.\"",
-      "\"I know you're still carrying that. We can talk about it for as long as you need.\"",
-      "\"The world needs people who notice what you notice. Don't ever stop noticing.\""
+      {
+        "when": "When something genuinely wasn't fair and [NAME] needs to know you see it too",
+        "say": "\"I hear you. That does sound unfair.\""
+      },
+      {
+        "when": "When the intensity of the moral compass is creating friction and [NAME] is starting to feel like it's a problem",
+        "say": "\"Your sense of right and wrong is one of the things I admire most about you.\""
+      },
+      {
+        "when": "When [NAME] is locked in a position and can't find a way through without feeling like they're betraying their principles",
+        "say": "\"You don't have to agree with everything. But let's find a way through it together.\""
+      },
+      {
+        "when": "When something from days or weeks ago is clearly still being carried",
+        "say": "\"I know you're still carrying that. We can talk about it for as long as you need.\""
+      },
+      {
+        "when": "When [NAME] has been told to let something go or stop making it a big deal",
+        "say": "\"The world needs people who notice what you notice. Don't ever stop noticing.\""
+      }
     ],
     "aboutBrain": "[NAME]'s profile is shaped by two areas where [HIS/HER/THEIR] brain works differently.",
     "brainSections": [
@@ -691,11 +796,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
       }
     ],
     "innerVoiceQuote": "My moral compass doesn't waver. Not even a little. Not even when it would be easier if it did.",
-    "hiddenSuperpower": "The qualities that make [NAME] so intense in moments of conflict are the same qualities that will make [HIM/HER/THEM] an extraordinary force for good in the world. [NAME] will not stay quiet when someone is being treated unfairly — not as a child, and not as an adult. [HE/SHE/THEY] will be the person who speaks up in the meeting, who stands beside the person being left out, who refuses to let a wrong go unacknowledged simply because addressing it is socially uncomfortable. The world needs people who feel injustice this acutely and respond to it this consistently. [NAME] is one of those people — already, at [HIS/HER/THEIR] age, operating with a moral clarity and a social courage that most adults spend their entire lives working toward.",
+    "hiddenGift": "The qualities that make [NAME] so intense in moments of conflict are the same qualities that will make [HIM/HER/THEM] an extraordinary force for good in the world. [NAME] will not stay quiet when someone is being treated unfairly — not as a child, and not as an adult. [HE/SHE/THEY] will be the person who speaks up in the meeting, who stands beside the person being left out, who refuses to let a wrong go unacknowledged simply because addressing it is socially uncomfortable. The world needs people who feel injustice this acutely and respond to it this consistently. [NAME] is one of those people — already, at [HIS/HER/THEIR] age, operating with a moral clarity and a social courage that most adults spend their entire lives working toward.",
     "animalDescription": "The Elephant never forgets. This is not a myth, it is one of the most well-documented features of elephant cognition. It remembers every kindness and every wrong. It remembers the path taken years ago and the face of someone it hasn't seen in a decade. It carries its history with it completely - every experience, every interaction, every moment of connection stored with extraordinary fidelity.\nThe Elephant also lives in community more deeply than almost any other animal. Its social bonds are fierce, its loyalty absolute, its grief when those bonds are broken genuinely profound. This particular Elephant is the Just one - the one for whom fairness is not a preference but a principle, and for whom the world's failure to operate according to that principle is not an inconvenience but a genuine, daily source of pain.",
     "whatHelps": {
       "aboutChild": "What helps is giving [NAME] a safe, structured way to raise the issue without having to fight it out in the moment. Use clear phrases like \"Tell me what felt unfair,\" \"Do you want help solving it now or do you want me to just hear it first?\" and \"Write it down and we'll come back to it at 4 o'clock.\" That lowers the urgency without dismissing the feeling. This child usually copes better when adults acknowledge the unfairness quickly, stay calm, and help sort out what needs action now and what can wait.",
-      "hiddenSuperpower": "Don't manage this quality down, point it somewhere. When [NAME] stands up for someone, name it directly: \"That took courage and I noticed it.\" When the moral intensity creates friction, separate the instinct (good) from the execution (needs work), \"Your instinct was right. Let's talk about how you handled it.\" Over time, [NAME] needs to learn that having a strong moral compass and knowing when to act on it are two different skills.",
+      "hiddenGift": "Don't manage this quality down, point it somewhere. When [NAME] stands up for someone, name it directly: \"That took courage and I noticed it.\" When the moral intensity creates friction, separate the instinct (good) from the execution (needs work), \"Your instinct was right. Let's talk about how you handled it.\" Over time, [NAME] needs to learn that having a strong moral compass and knowing when to act on it are two different skills.",
       "brain": "Use this quality actively. When [NAME] spots an inconsistency or an injustice, take it seriously even when the timing is inconvenient, dismissing it damages trust fast and deeply. At the same time, help [NAME] understand that noticing something unfair and knowing what to do about it are two separate skills, and that the second one takes longer to develop. \"You're right that it wasn't fair. Now let's think about what to do with that.\"",
       "morning": "A brief, calm sentence like \"I hear you. That wasn't fair, and it matters. We'll come back to it after school.\" This gives [NAME] the acknowledgment [HE/SHE/THEY] needs without opening a full discussion when time is short.",
       "school": "At home, when things are calm, practise the phrase \"that's not fair\" together, and what [NAME] can do with that feeling instead of acting on it immediately. A simple agreed script helps: \"I'm going to write it down and we'll talk about it later.\" Give [NAME] a small notebook for exactly this purpose.",
@@ -726,22 +831,27 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     ],
     "doNotSay": [
       {
+        "when": "[NAME] has jumped in before someone finished speaking",
         "tryThis": "\"Let's practise waiting. I'll show you what to look for.\"",
-        "insteadOf": "\"Stop interrupting — let people talk.\""
+        "insteadOf": "\"Stop interrupting, let people talk.\""
       },
       {
-        "tryThis": "\"Your energy is real and it's wonderful. Let's find it the right place to go.\"",
+        "when": "The energy is high and the room needs it to come down",
+        "tryThis": "\"Your energy is wonderful. Let's find the right place for it to go.\"",
         "insteadOf": "\"Why can't you just be calm?\""
       },
       {
+        "when": "The talking is relentless and you genuinely need it to stop",
         "tryThis": "\"Let's find the right moment for this. I want to hear it then.\"",
         "insteadOf": "\"Nobody wants to hear you all the time.\""
       },
       {
+        "when": "The social energy has dominated and others have gone quiet",
         "tryThis": "\"I know you love connecting. Let's make sure others get a turn too.\"",
         "insteadOf": "\"You always have to be the centre of attention.\""
       },
       {
+        "when": "A friendship has taken a hit because of something [NAME] did",
         "tryThis": "\"That one was hard. Let's talk about what happened and what to try next time.\"",
         "insteadOf": "\"You pushed them away again.\""
       }
@@ -758,7 +868,7 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "closingLine": "[NAME] is a Splashy Dolphin. And the world needs more of them.",
     "whatHelps": {
       "aboutChild": "The pause between thought and speech is genuinely shorter than average. But it can be worked on, and home is the place to do it. Practise the pause in low-stakes moments, make it a game rather than a correction, and build a simple agreed signal between the two of you (a look, a word) that means \"ease off a little.\" That signal gives [NAME] the information the brain isn't yet supplying in real time, without the shame of a public correction. Debrief social situations after the fact, when things are calm.",
-      "hiddenSuperpower": "Help [NAME] identify the friendships that feel easy rather than exhausting - the ones where the energy is matched rather than managed. When a friendship is working, name what's good about it specifically: \"I notice you're always yourself around them.\" When one isn't working, don't just manage the fallout - help [NAME] understand why. The goal over time is to help [NAME] tell the difference between friendships that are genuinely nourishing and ones that just feel intense.",
+      "hiddenGift": "Help [NAME] identify the friendships that feel easy rather than exhausting - the ones where the energy is matched rather than managed. When a friendship is working, name what's good about it specifically: \"I notice you're always yourself around them.\" When one isn't working, don't just manage the fallout - help [NAME] understand why. The goal over time is to help [NAME] tell the difference between friendships that are genuinely nourishing and ones that just feel intense.",
       "brain": "What helps is slowing the interaction down from the outside. Give clear rules such as waiting for a turn, keeping answers short, or pausing before speaking, and practise them often in calm moments, not just when something has gone wrong. In the moment, interrupt kindly and directly rather than relying on hints: \"Pause,\" \"Let her finish,\" \"One sentence, then listen,\" or \"Ask a question back.\" This child does better with real-time coaching than with correction afterwards.",
       "morning": "Give [NAME] a specific \"talk time\" during breakfast (\"Tell me your best thing while we eat\") and then a clear transition signal (\"Now it's get-ready time. We'll talk more in the car\"). This channels the social energy rather than fighting it.",
       "school": "If the school is open to it, a quiet word with the teacher about [NAME]'s profile can shift the dynamic significantly - a child who calls out because the answer is bursting out of them needs a different response than a child who is being deliberately disruptive, and most teachers, once they understand the difference, will adapt. At home, help [NAME] identify one or two friendships worth investing in and focus there rather than spreading the social energy thin.",
@@ -767,11 +877,11 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
       "overwhelm": "A calm, close, regulated adult who offers genuine presence will de-escalate [NAME] faster than almost any other intervention. Once [HIS/HER/THEIR] nervous system has felt genuinely received, [NAME] will come back to baseline with remarkable speed. The need for connection that drives the overwhelm is the same need that, when met, resolves it."
     },
     "affirmations": [
-      "\"I love how much you love people. That is one of your greatest gifts.\"",
-      "\"The right friends are out there. We'll find them together.\"",
-      "\"You're not too much. You just need people who can keep up.\"",
-      "\"I know it hurt when that didn't go the way you wanted. That makes complete sense.\"",
-      "\"You're learning. Every time is practice. You're getting better.\""
+      { "when": "When the social enthusiasm is being treated as a problem rather than a quality", "say": "\"I love how much you love people. That is one of your greatest gifts.\"" },
+      { "when": "After a friendship has ended or a social situation has gone wrong and [NAME] is wondering if it's always going to be this way", "say": "\"The right friends are out there. We'll find them together.\"" },
+      { "when": "When [NAME] is starting to feel like the intensity itself is the problem", "say": "\"You're not too much. You just need people who can keep up.\"" },
+      { "when": "When a social situation didn't go the way [NAME] hoped and the hurt is real and visible", "say": "\"I know it hurts when that doesn't go the way you wanted. That makes complete sense.\"" },
+      { "when": "When the same pattern has repeated and [NAME] is losing confidence that anything will ever change", "say": "\"You're learning. Every time is practice. You're getting better.\"" }
     ],
     "aboutBrain": "[NAME]'s profile is shaped by two areas where [HIS/HER/THEIR] brain works differently.",
     "brainSections": [
@@ -785,7 +895,7 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
       }
     ],
     "innerVoiceQuote": "I make people feel like the most interesting person alive. Because to me, they are.",
-    "hiddenSuperpower": "The social energy that makes [NAME]'s relationships so complex is the same energy that makes [HIM/HER/THEM] one of the most genuinely warm, enthusiastic, and life-giving people in any room. [NAME] makes people feel seen, wanted, and exciting — because to [NAME], they genuinely are. [HIS/HER/THEIR] enthusiasm is not performance. [HIS/HER/THEIR] interest is not strategic. When [NAME] is excited about you, about your idea, about what you just said — that excitement is completely real and completely infectious. The right friends — the ones who can match [HIS/HER/THEIR] energy, who find [HIS/HER/THEIR] pace exhilarating rather than tiring — will love [NAME] with an intensity that most people never experience. Those friendships exist. [NAME] just needs support finding them and keeping them.",
+    "hiddenGift": "The social energy that makes [NAME]'s relationships so complex is the same energy that makes [HIM/HER/THEM] one of the most genuinely warm, enthusiastic, and life-giving people in any room. [NAME] makes people feel seen, wanted, and exciting — because to [NAME], they genuinely are. [HIS/HER/THEIR] enthusiasm is not performance. [HIS/HER/THEIR] interest is not strategic. When [NAME] is excited about you, about your idea, about what you just said — that excitement is completely real and completely infectious. The right friends — the ones who can match [HIS/HER/THEIR] energy, who find [HIS/HER/THEIR] pace exhilarating rather than tiring — will love [NAME] with an intensity that most people never experience. Those friendships exist. [NAME] just needs support finding them and keeping them.",
     "animalDescription": "The Dolphin is one of the most socially sophisticated creatures on earth. It lives in pods, communicates constantly, plays with genuine joy, and forms bonds that last a lifetime. It does not choose solitude. It does not function well without connection. The social world is not something the Dolphin navigates — it is something the Dolphin is made of, at every level, all the way down. And it moves through that social world at extraordinary speed — splashing, diving, circling, always in motion, always communicating, always already on to the next thing before the last thing has fully landed. This particular Dolphin is the Splashy one — the one whose energy lands with a splash every time, who is already talking before [HE/SHE/THEY] has decided to speak, already in the middle of the connection before [HE/SHE/THEY] has checked whether the other person is ready to receive it."
   },
   "hedgehog": {
@@ -794,7 +904,7 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "innerVoiceQuote": "The world is louder for me. But it's also more beautiful, and I wouldn't trade that.",
     "animalDescription": "The Hedgehog is one of nature's most misunderstood creatures. From the outside it appears prickly, defensive, difficult to get close to. But underneath those spines is one of the softest, most gentle animals you will ever encounter. The spines are protection — a nervous system's response to a world that arrives too fast, too loud, and too sharp. When the Hedgehog feels safe — truly safe — it uncurls, shows its belly, and is warm, curious, and remarkably trusting. This particular Hedgehog is the Storm one — the one whose sensory world and emotional world amplify each other, creating an inner weather system that can shift from calm to storm with very little warning.",
     "aboutChild": "[NAME] is the child who flinches at a hand dryer, who refuses to wear the school jumper because the label feels like sandpaper, who melts down in a crowded supermarket because every sound, every light, every unexpected touch is arriving at a volume the rest of us simply cannot hear. [NAME]'s sensory system is turned up higher than most people's. What registers as background noise for other children registers as genuine physical discomfort for [NAME]. A scratchy tag is not an inconvenience. It is a persistent, unavoidable source of pain. A sudden loud noise is not startling. It is physically distressing. The world, for [NAME], is simply louder, brighter, rougher, and more overwhelming than it is for most people.\nWhat makes [NAME]'s experience particularly intense is that the sensory overload does not stay in the body. It travels directly to the emotional system. When [NAME]'s senses are overwhelmed, the emotional response is immediate, intense, and often looks completely out of proportion to whatever triggered it. A noisy classroom doesn't just make [NAME] uncomfortable — it makes [HIM/HER/THEM] irritable, tearful, or explosive, in ways that look like moodiness or defiance but are actually the emotional overflow of a sensory system that has been pushed past its limit. This is not a choice. It is just the way [NAME]'s nervous system processes a world.",
-    "hiddenSuperpower": "The same sensitivity that makes the world so overwhelming for [NAME] is also the source of [HIS/HER/THEIR] most extraordinary qualities. [NAME] notices things other children walk straight past — the shift in a friend's mood, the beauty of light through a window, the wrong note in a piece of music, the subtle unfairness in a conversation. [HIS/HER/THEIR] emotional depth is genuine and remarkable. In a calm, safe environment [NAME] is one of the warmest, funniest, most deeply loyal children you will ever meet. [HE/SHE/THEY] feels things fully — joy as much as pain, connection as much as overwhelm. The empathy that comes from living in a world turned up to full volume is real, and it is rare. [NAME] doesn't need to be toughened up. [HE/SHE/THEY] needs a world that makes enough room for the depth of feeling [HE/SHE/THEY] was born with. Many of the most gifted artists, musicians, writers, and caregivers share exactly this profile.",
+    "hiddenGift": "The same sensitivity that makes the world so overwhelming for [NAME] is also the source of [HIS/HER/THEIR] most extraordinary qualities. [NAME] notices things other children walk straight past — the shift in a friend's mood, the beauty of light through a window, the wrong note in a piece of music, the subtle unfairness in a conversation. [HIS/HER/THEIR] emotional depth is genuine and remarkable. In a calm, safe environment [NAME] is one of the warmest, funniest, most deeply loyal children you will ever meet. [HE/SHE/THEY] feels things fully — joy as much as pain, connection as much as overwhelm. The empathy that comes from living in a world turned up to full volume is real, and it is rare. [NAME] doesn't need to be toughened up. [HE/SHE/THEY] needs a world that makes enough room for the depth of feeling [HE/SHE/THEY] was born with. Many of the most gifted artists, musicians, writers, and caregivers share exactly this profile.",
     "aboutBrain": "[NAME]'s profile is shaped by two areas where [HIS/HER/THEIR] brain works differently.",
     "brainSections": [
       {
@@ -832,23 +942,23 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     ],
     "overwhelm": "[NAME]'s overwhelm typically follows a recognisable pattern: sensory input builds, the emotional system activates, and the spines go up. What this looks like from the outside varies — it might be tears, anger, withdrawal, refusal, or a combination of all four in quick succession. What is happening on the inside is always the same: [NAME]'s nervous system has received more input than it can process, and the emotional response to that overload is arriving at full intensity.\nIn these moments, the single most important thing is to reduce sensory input immediately. Turn off the lights or move to a quieter space. Lower your voice. Stop talking if possible — words are additional sensory input. Offer physical comfort only if [NAME] wants it (some children in sensory overload cannot tolerate touch; others crave deep pressure like a tight hug). Do not ask [NAME] to explain what is wrong. [HIS/HER/THEIR] brain does not have the capacity to narrate the experience while it is still happening.\nReduce sensory input first — that's the actual intervention, not the conversation you want to have. Move to a quieter space, lower your voice, turn off a light. If [NAME] wants physical contact, a firm sustained hold works better than a gentle touch — deep pressure is genuinely regulating for this nervous system in a way that light touch often isn't. If they can't tolerate touch at all right now, just stay close and stay quiet. Don't ask what's wrong. Once the environment is calmer, the nervous system will follow (usually faster than you expect).",
     "affirmations": [
-      "\"I believe you. If it hurts, it hurts.\"",
-      "\"Your sensitivity is one of the things that makes you extraordinary.\"",
-      "\"We'll find things that feel right for your body. We don't have to force it.\"",
-      "\"Some people need movement to reset. You need stillness. Neither is wrong.\"",
-      "\"The world is louder for you than it is for most people. That's real, and I see it.\""
+      { "when": "When a sensory experience has caused a reaction and [NAME] can see you're not sure whether to take it seriously", "say": "\"I believe you. If it hurts, it hurts.\"" },
+      { "when": "When the sensitivity keeps creating friction and [NAME] is starting to feel like it's a flaw", "say": "\"Your sensitivity is one of the things that makes you extraordinary.\"" },
+      { "when": "When something (clothing, food, environment) is being forced and the resistance is building", "say": "\"We'll find things that feel right for your body. We don't have to force it.\"" },
+      { "when": "When everyone else is recovering through noise and activity and [NAME] needs the exact opposite", "say": "\"Some people need movement to reset. You need stillness. Neither is wrong.\"" },
+      { "when": "When the day has clearly cost more than it should have and [NAME] can't explain why they're so depleted", "say": "\"The world is louder for you than it is for most people. That's real, and I see it.\"" }
     ],
     "doNotSay": [
-      { "insteadOf": "\"It's just a noise. You're overreacting.\"", "tryThis": "\"That was really loud for you. Let's move somewhere quieter.\"" },
-      { "insteadOf": "\"Every other child wears the uniform. Just put it on.\"", "tryThis": "\"Let's find a way to make it comfortable. What part feels the worst?\"" },
-      { "insteadOf": "\"You need to toughen up.\"", "tryThis": "\"Your sensitivity picks up things other people miss. That's a real strength.\"" },
-      { "insteadOf": "\"Stop being so moody.\"", "tryThis": "\"Something is bothering your body or your feelings. Can you help me understand what?\"" },
-      { "insteadOf": "\"It's not a big deal.\"", "tryThis": "\"It feels like a big deal to you, and that matters.\"" }
+      { "when": "A sound, a crowd, or an environment has triggered a reaction that seems excessive", "insteadOf": "\"It's just a noise. You're overreacting.\"", "tryThis": "\"That was really loud for you. Let's move somewhere quieter.\"" },
+      { "when": "Getting dressed is a battle and time is running out", "insteadOf": "\"Every other child wears the uniform. Just put it on.\"", "tryThis": "\"Let's find a way to make it comfortable. What part feels the worst?\"" },
+      { "when": "You're worried about how [NAME] will manage in a world that won't always accommodate them", "insteadOf": "\"You need to toughen up.\"", "tryThis": "\"Your sensitivity picks up things other people miss. That's a real strength.\"" },
+      { "when": "The emotional weather has shifted and there's no obvious external cause", "insteadOf": "\"Stop being so moody.\"", "tryThis": "\"Something is bothering your body or your feelings. Can you help me understand what?\"" },
+      { "when": "The reaction feels out of proportion and you're struggling to validate it", "insteadOf": "\"It's not a big deal.\"", "tryThis": "\"It feels like a big deal to you, and that matters.\"" }
     ],
     "closingLine": "[NAME] is a Storm Hedgehog. And the world needs more of them.",
     "whatHelps": {
       "aboutChild": "What helps is reducing the sensory load before it becomes emotional overload. Cut labels out of clothes, choose soft fabrics, keep a small kit of sensory supports ready, and prepare for known problem settings like supermarkets, assemblies, or busy classrooms before they start. Give [NAME] a way to block or escape input early - headphones, a quiet corner, a break card, a seat on the edge, a hoodie, a fidget, or permission to step out with an adult before the system tips over.",
-      "hiddenSuperpower": "Find one area where sensitivity becomes a strength rather than a liability: music, art, animals, caring for other people, and invest in it seriously. When you see the sensitivity working in their favour, name it directly and specifically. Not \"well done\" but \"You noticed something there that most people would have missed completely.\" That's the message [NAME] needs to hear often enough to actually believe it.",
+      "hiddenGift": "Find one area where sensitivity becomes a strength rather than a liability: music, art, animals, caring for other people, and invest in it seriously. When you see the sensitivity working in their favour, name it directly and specifically. Not \"well done\" but \"You noticed something there that most people would have missed completely.\" That's the message [NAME] needs to hear often enough to actually believe it.",
       "brain": "The single most useful thing you can do is learn [NAME]'s specific triggers before they become a crisis. Spend a week noticing what was happening in the environment right before things went wrong (the lighting, the noise level, the texture of what they were wearing, how long they'd been in a busy space). Once you know the triggers, you can reduce them proactively rather than managing the fallout after the fact.",
       "morning": "Lay out clothes the night before, ideally ones [NAME] has already approved as comfortable. Remove all labels. Choose soft fabrics and seamless socks. If a particular item is refused on the day, trust the sensory experience and switch it (the battle is not worth the cost to [NAME]'s nervous system).",
       "school": "If your school is receptive, ask for noise-cancelling headphones during independent work, a quiet space [NAME] can access when overwhelmed, and a 5-minute heads-up before transitions like assemblies or PE.",
@@ -863,7 +973,7 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     "innerVoiceQuote": "I'm brave enough to move first. I'm still learning how to put brakes on that bravery.",
     "animalDescription": "The Bull is one of the most powerful animals on earth — built for action, built for force, built to charge. It does not pause at the edge of the field to consider its options. It does not weigh the consequences of moving forward. It sees something that needs a response and it responds — immediately, completely, and with every ounce of energy it has. The Bull is not reckless in its own mind. It is simply doing what its body and its instincts were designed to do: act. This particular Bull is the Fearless one — the one who is already moving before the thought has finished forming, already in the middle of the action before anyone else has decided whether the action is a good idea. Not careless. Not looking for trouble. Just wired to go, and wired to go now, with a body and an emotional system that follow through before the logical brain has had time to weigh in.",
     "aboutChild": "[NAME] is the child who jumps before looking, speaks before thinking, and is halfway across the room before you have finished saying \"don't.\" This is not defiance. It is not a lack of respect. It is the neurological reality of a brain where the gap between impulse and action is extraordinarily narrow — so narrow that by the time the thought \"maybe I shouldn't\" arrives, the body has already committed. [NAME] is genuinely surprised, every time, by the consequences of [HIS/HER/THEIR] actions. Not because [HE/SHE/THEY] doesn't understand consequences in theory. But because consequences feel abstract and distant to [NAME]'s brain until they are actually happening. The future, for [NAME], is not real enough to compete with the present moment. And the present moment is very, very loud.\nThis means accidents are frequent and genuinely unintended. The broken glass, the scraped knee, the knocked-over sibling, the blurted comment that hurt someone's feelings — none of these were planned. [NAME] did not decide to be careless. [HIS/HER/THEIR] brain simply moved faster than [HIS/HER/THEIR] ability to anticipate what would happen next. The remorse afterward is real. The confusion about how it happened is real. And the cycle of act-consequence-regret-repeat is one of the most exhausting features of [NAME]'s daily life, for [NAME] and for the adults around [HIM/HER/THEM]. What [NAME] needs is not more warnings. [HE/SHE/THEY] needs external structures that slow the gap between impulse and action — and adults who understand that the impulse is neurological, not a character flaw.",
-    "hiddenSuperpower": "The same impulsivity that creates so much difficulty in structured environments is also one of [NAME]'s most extraordinary qualities. [NAME] is genuinely brave. Not performatively brave — genuinely, instinctively, physically brave in a way that most children are not. [HE/SHE/THEY] will try the thing no one else will try. [HE/SHE/THEY] will go first. [HE/SHE/THEY] will say the honest thing in a room full of people dancing around it. [HE/SHE/THEY] will throw [HIMSELF/HERSELF/THEMSELVES] into a new experience with total commitment and zero hesitation. This is not recklessness — it is courage that has not yet learned its own boundaries. In the right environment, with the right support, [NAME]'s fearlessness becomes leadership. [HIS/HER/THEIR] directness becomes integrity. [HIS/HER/THEIR] bias toward action becomes the ability to get things done when everyone else is still deliberating. The world does not have enough people willing to move first. [NAME] was born to be one of them.",
+    "hiddenGift": "The same impulsivity that creates so much difficulty in structured environments is also one of [NAME]'s most extraordinary qualities. [NAME] is genuinely brave. Not performatively brave — genuinely, instinctively, physically brave in a way that most children are not. [HE/SHE/THEY] will try the thing no one else will try. [HE/SHE/THEY] will go first. [HE/SHE/THEY] will say the honest thing in a room full of people dancing around it. [HE/SHE/THEY] will throw [HIMSELF/HERSELF/THEMSELVES] into a new experience with total commitment and zero hesitation. This is not recklessness — it is courage that has not yet learned its own boundaries. In the right environment, with the right support, [NAME]'s fearlessness becomes leadership. [HIS/HER/THEIR] directness becomes integrity. [HIS/HER/THEIR] bias toward action becomes the ability to get things done when everyone else is still deliberating. The world does not have enough people willing to move first. [NAME] was born to be one of them.",
     "aboutBrain": "[NAME]'s profile is shaped by two areas where [HIS/HER/THEIR] brain works differently.",
     "brainSections": [
       {
@@ -901,23 +1011,23 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
     ],
     "overwhelm": "[NAME]'s overwhelm is fast, physical, and often alarming to the adults around [HIM/HER/THEM]. When the emotional and impulsive systems overload at the same time — a frustration that is too big, a consequence that feels too unfair, an excitement that has nowhere to go — the result is an explosion of physical energy that can look like aggression but is actually a nervous system discharging at full capacity. Thrown objects, physical outbursts, shouted words that [NAME] does not mean and will genuinely regret — all of these are the impulsive system operating without any braking at all, fuelled by an emotional intensity that has overwhelmed every moderating system [NAME] has.\nIn these moments, safety comes first. Remove anything dangerous from reach. Create physical space. Do not try to reason, lecture, or ask questions — [NAME]'s reasoning brain is offline. Lower your voice rather than raising it. If [NAME] will accept it, firm physical grounding (a tight hug, hands on shoulders, or sitting together on the floor) can help the nervous system find a baseline. If [NAME] does not want touch, simply stay close, stay calm, and wait. The storm will pass. It always does.\nAfter the overwhelm has passed, repair matters enormously. [NAME] almost certainly feels ashamed of what happened, even if [HE/SHE/THEY] cannot say so. A calm, connecting conversation — \"That was a big moment. Your body took over. That happens sometimes. Let's talk about what we can try next time\" — teaches [NAME] that the impulse is not who [HE/SHE/THEY] is, and that the relationship is not broken by the explosion. Over time, you can build a shared vocabulary: \"I can see the bull starting to charge. Do you want to take a break before it gets too big?\" This gives [NAME] an early-warning system and a dignified exit before the overwhelm takes over.",
     "affirmations": [
-      "\"Your body moved before your brain could catch up. That's how your wiring works. It doesn't make you bad.\"",
-      "\"Your courage is one of the things I love most about you.\"",
-      "\"We're going to build a braking system together. It takes time and that's okay.\"",
-      "\"I know you didn't mean for that to happen. Let's fix it together.\"",
-      "\"You don't have to be less. You just need the right track to run on.\""
+      { "when": "After an impulsive moment has caused damage and [NAME] is drowning in remorse", "say": "\"Your body moved before your brain could catch up. That's how your wiring works. It doesn't make you bad.\"" },
+      { "when": "When the fearlessness and directness keep getting treated as problems rather than qualities", "say": "\"Your courage is one of the things I love most about you.\"" },
+      { "when": "When the same pattern keeps repeating and everyone is losing faith that anything will change", "say": "\"We're going to build a braking system together. It takes time and that's okay.\"" },
+      { "when": "In the immediate aftermath of an accident, before shame has a chance to take hold", "say": "\"I know you didn't mean for that to happen. Let's fix it together.\"" },
+      { "when": "When [NAME] is starting to believe the energy and intensity are things to be ashamed of", "say": "\"You don't have to be less. You just need the right track to run on.\"" }
     ],
     "doNotSay": [
-      { "insteadOf": "Why didn't you think before you did that?", "tryThis": "Your brain moved fast. Let's talk about what happened and what to try next time." },
-      { "insteadOf": "You're always breaking things.", "tryThis": "That was an accident. Let's clean it up together." },
-      { "insteadOf": "You need to learn to control yourself.", "tryThis": "Your body has a lot of energy. Let's find it somewhere safe to go." },
-      { "insteadOf": "How many times do I have to tell you?", "tryThis": "Your brain needs a different kind of reminder. Let's figure out what works." },
-      { "insteadOf": "You're going to seriously hurt someone one day.", "tryThis": "I want to keep everyone safe, including you. Let's build a plan for when things move too fast." }
+      { "when": "Something has happened and there was clearly no forethought involved", "insteadOf": "\"Why didn't you think before you did that?\"", "tryThis": "\"Your brain moved fast. Let's talk about what happened and what to try next time.\"" },
+      { "when": "Another thing has been broken or knocked over", "insteadOf": "\"You're always breaking things.\"", "tryThis": "\"That was an accident. Let's clean it up together.\"" },
+      { "when": "The impulsivity is constant and your patience is gone", "insteadOf": "\"You need to learn to control yourself.\"", "tryThis": "\"Your body has a lot of energy. Let's find it somewhere safe to go.\"" },
+      { "when": "You've said the same thing so many times you've lost count", "insteadOf": "\"How many times do I have to tell you?\"", "tryThis": "\"Your brain needs a different kind of reminder. Let's figure out what works.\"" },
+      { "when": "A physical incident has genuinely frightened you", "insteadOf": "\"You're going to seriously hurt someone one day.\"", "tryThis": "\"I want to keep everyone safe, including you. Let's build a plan for when things move too fast.\"" }
     ],
     "closingLine": "[NAME] is a Fearless Bull. And the world needs more of them.",
     "whatHelps": {
       "aboutChild": "More warnings don't work - the brain that couldn't catch the impulse the first time won't catch it the tenth time either. What works is building physical structure into the environment before the impulse has a chance to fire. In practice that means slowing the body down before the chaos, not after it. Before entering a situation where impulse control matters (a shop, a family dinner, a sibling's bedroom) give [NAME] one clear, concrete rule and say it out loud together: \"One thing we're doing in there is keeping our hands to ourselves.\" If something goes wrong, skip the lecture and go straight to the repair: \"What do we do now?\" keeps [NAME] moving forward rather than drowning in remorse that leads nowhere.",
-      "hiddenSuperpower": "Find the environments where going first is an advantage and put [NAME] in them deliberately: sport, drama, debate, anything with a physical or competitive edge where the bias toward action is the whole point. When [NAME] does something brave that others wouldn't, name it directly and specifically: not \"good job\" but \"You were the only one who put their hand up and you were right.\" Over time, the goal is to help [NAME] develop a clear and proud identity around courage, so that when the impulse system fires in the wrong direction, you have something real to appeal to: \"That's not the kind of brave you are.\" That distinction between reckless and genuinely courageous is one [NAME] can understand and will respond to, but only once the courage has been consistently recognised.",
+      "hiddenGift": "Find the environments where going first is an advantage and put [NAME] in them deliberately: sport, drama, debate, anything with a physical or competitive edge where the bias toward action is the whole point. When [NAME] does something brave that others wouldn't, name it directly and specifically: not \"good job\" but \"You were the only one who put their hand up and you were right.\" Over time, the goal is to help [NAME] develop a clear and proud identity around courage, so that when the impulse system fires in the wrong direction, you have something real to appeal to: \"That's not the kind of brave you are.\" That distinction between reckless and genuinely courageous is one [NAME] can understand and will respond to, but only once the courage has been consistently recognised.",
       "brain": "The braking system is the part of the brain that's still developing, so your job right now is to be the external brake - not by stopping [NAME] after the fact, but by slowing the environment down before the impulse fires. That means fewer transitions, fewer unpredictable situations, and a consistent physical outlet built into every single day without exception. A child whose body has already discharged its energy has a marginally longer pause between impulse and action. On the emotional side, the key insight is that the emotion arrives before the behaviour, which means your window to intervene is in the feeling, not the action. Learn to read [NAME]'s early escalation signals and intervene there. Not with a warning, but with a redirect: \"I can see you're getting fired up, let's take this outside.\"",
       "morning": "Reduce the number of decisions and physical obstacles in the morning. A clear, short routine (eat, dress, bag, door) with one step at a time keeps the impulses channelled. If [NAME] has physical energy to burn, a brief burst of intense movement before leaving the house (star jumps, running up and down the hallway, skipping) can take the edge off. Channel the energy rather than trying to contain it.",
       "school": "If your school is receptive, ask for movement breaks built into the day, a fidget tool at [NAME]'s desk, and a private signal between [NAME] and the teacher that means \"pause and check in with me before you act.\" Seating near the teacher also helps, proximity provides the external braking that [NAME]'s internal system is still building.",

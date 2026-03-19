@@ -34,7 +34,7 @@ export interface ReportTemplateData {
   innerVoiceQuote: string;
   animalDescription: string;
   aboutChild: string;
-  hiddenSuperpower: string;
+  hiddenGift: string;
   brainSections: Array<{
     title: string;
     content: string;
