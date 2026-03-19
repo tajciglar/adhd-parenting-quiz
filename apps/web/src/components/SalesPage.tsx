@@ -557,7 +557,7 @@ export default function SalesPage() {
         {/* ── Section 10: Trustpilot-style Trust Bar ── */}
         <div className="text-center space-y-2">
           <p className="text-harbor-text font-semibold text-sm">
-            Trusted by over <strong>110 thousand</strong> people worldwide
+            Trusted by over <strong>110,000 people</strong>  worldwide
           </p>
           <TrustpilotStars className="h-10 mx-auto" />
           <span className="text-harbor-primary font-bold">4.9/5</span>
