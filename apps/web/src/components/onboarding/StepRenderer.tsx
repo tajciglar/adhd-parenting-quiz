@@ -123,7 +123,7 @@ export default function StepRenderer({
     <div>
       {config.categoryId === "sensory" && config.questionIndex === 0 && (
         <p className="text-sm text-harbor-accent font-medium text-center mb-6">
-          You're doing great. Keep going.
+          You're doing great. Keep going! 💪
         </p>
       )}
       <LikertSelect

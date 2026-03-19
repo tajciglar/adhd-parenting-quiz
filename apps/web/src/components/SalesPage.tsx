@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback, useState, useMemo } from "react";
 import { useLocation, useNavigate, Navigate } from "react-router-dom";
-import { ARCHETYPES } from "@adhd-parenting-quiz/shared";
+import { ARCHETYPES, getReportTemplate, renderReportTemplate } from "@adhd-parenting-quiz/shared";
 import type { ArchetypeReportTemplate } from "@adhd-parenting-quiz/shared";
 import { trackPixelEvent, generateEventId, getFbp, getFbc } from "../lib/fbq";
 import { trackFunnelEvent } from "../lib/analytics";
@@ -225,6 +225,32 @@ export default function SalesPage() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Preview mode: ?preview or ?preview=tiger injects mock data
+  const searchParams = new URLSearchParams(location.search);
+  const previewParam = searchParams.get("preview");
+  const isPreview = previewParam !== null;
+  if (isPreview) {
+    const previewId = previewParam || "koala";
+    sessionStorage.setItem("wildprint_childName", "Emma");
+    sessionStorage.setItem("wildprint_childGender", "A Girl");
+    sessionStorage.setItem("wildprint_archetypeId", previewId);
+    sessionStorage.setItem("wildprint_responses", JSON.stringify({
+      caregiverType: "Mom", childAgeRange: "6-8", childGender: "A Girl",
+      adhdJourney: "Formally diagnosed", childName: "Emma",
+      inattentive_0: 3, inattentive_1: 4, inattentive_2: 3, inattentive_3: 3,
+      inattentive_4: 4, inattentive_5: 3, inattentive_6: 4,
+      hyperactive_0: 1, hyperactive_1: 1, hyperactive_2: 0, hyperactive_3: 1,
+      hyperactive_4: 1, hyperactive_5: 0, hyperactive_6: 1,
+      sensory_0: 1, sensory_1: 0, sensory_2: 1, sensory_3: 1,
+      sensory_4: 0, sensory_5: 1, sensory_6: 0,
+      emotional_0: 2, emotional_1: 1, emotional_2: 2, emotional_3: 1,
+      emotional_4: 2, emotional_5: 1,
+      executive_function_0: 4, executive_function_1: 3, executive_function_2: 4,
+      executive_function_3: 3, executive_function_4: 4, executive_function_5: 3,
+      social_0: 1, social_1: 1, social_2: 0, social_3: 1, social_4: 1, social_5: 0,
+    }));
+  }
+
   // Get data from navigation state or sessionStorage fallback
   const state = (location.state ?? {}) as LocationState;
   const responses = state.responses ?? JSON.parse(sessionStorage.getItem("wildprint_responses") ?? "null");
@@ -233,6 +259,13 @@ export default function SalesPage() {
   const archetypeId = state.archetypeId ?? sessionStorage.getItem("wildprint_archetypeId") ?? "";
 
   const archetype = ARCHETYPES.find((a) => a.id === archetypeId) ?? ARCHETYPES[0];
+
+  // Get rendered report template for preview content
+  const reportTemplate = useMemo(() => {
+    const raw = getReportTemplate(archetypeId);
+    if (!raw) return null;
+    return renderReportTemplate(raw, { name: childName || "your child", gender: childGender || "" });
+  }, [archetypeId, childName, childGender]);
 
   // Form state
   const [email, setEmail] = useState("");
@@ -393,9 +426,11 @@ export default function SalesPage() {
                 <h3 className="text-xl font-bold text-harbor-primary leading-tight uppercase tracking-wide">
                   {archetype.typeName}
                 </h3>
-                <p className="text-xs text-harbor-text/50 mt-0.5 italic">
-                  "{name}'s inner voice"
-                </p>
+                {reportTemplate && (
+                  <p className="text-xs text-harbor-text/50 mt-0.5 italic">
+                    "{reportTemplate.innerVoiceQuote}"
+                  </p>
+                )}
               </div>
             </div>
 
@@ -406,20 +441,66 @@ export default function SalesPage() {
               </p>
               <div className="w-8 h-0.5 bg-harbor-primary/30 mb-2" />
               <p className="text-sm text-harbor-text leading-relaxed">
-                {name}'s brain operates with a unique combination of strengths and challenges that most people around {objPronoun} will never fully understand. Not because something is wrong, but because {name} processes the world on a frequency that most environments weren't built for…
+                {reportTemplate ? reportTemplate.aboutChild.slice(0, 300) + "..." : `${name}'s brain operates with a unique combination of strengths and challenges...`}
               </p>
             </div>
+
+            {/* Drains / Fuels preview */}
+            {reportTemplate && (
+              <div>
+                <p className="text-[10px] uppercase tracking-widest font-bold text-harbor-primary/70 mb-1">
+                  Creating the right environment for {name}
+                </p>
+                <div className="w-8 h-0.5 bg-harbor-primary/30 mb-2" />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <p className="text-[9px] uppercase tracking-wider font-bold text-red-500/70 mb-1">What drains {name}</p>
+                    {reportTemplate.drains.slice(0, 3).map((d, i) => (
+                      <p key={i} className="text-xs text-harbor-text/70 leading-relaxed flex items-start gap-1.5 mb-1">
+                        <span className="text-red-400 mt-0.5 flex-shrink-0">&#10005;</span> {d}
+                      </p>
+                    ))}
+                    {reportTemplate.drains.length > 3 && (
+                      <div className="space-y-1">
+                        {reportTemplate.drains.slice(3).map((d, i) => (
+                          <p key={i} className="text-xs text-harbor-text/70 leading-relaxed flex items-start gap-1.5 blur-[3px] select-none">
+                            <span className="text-red-400 mt-0.5 flex-shrink-0">&#10005;</span> {d}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-[9px] uppercase tracking-wider font-bold text-green-600/70 mb-1">What fuels {name}</p>
+                    {reportTemplate.fuels.slice(0, 3).map((f, i) => (
+                      <p key={i} className="text-xs text-harbor-text/70 leading-relaxed flex items-start gap-1.5 mb-1">
+                        <span className="text-green-500 mt-0.5 flex-shrink-0">&#10003;</span> {f}
+                      </p>
+                    ))}
+                    {reportTemplate.fuels.length > 3 && (
+                      <div className="space-y-1">
+                        {reportTemplate.fuels.slice(3).map((f, i) => (
+                          <p key={i} className="text-xs text-harbor-text/70 leading-relaxed flex items-start gap-1.5 blur-[3px] select-none">
+                            <span className="text-green-500 mt-0.5 flex-shrink-0">&#10003;</span> {f}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Blur gradient + unlock button */}
           <div className="relative h-28">
             <div className="px-6 space-y-3">
               <p className="text-[10px] uppercase tracking-widest font-bold text-harbor-primary/70">
-                Hidden Superpower
+                Hidden Gift
               </p>
               <div className="w-8 h-0.5 bg-harbor-primary/30" />
               <p className="text-sm text-harbor-text leading-relaxed">
-                The quality that makes {name} extraordinary is something that…
+                {reportTemplate ? reportTemplate.hiddenGift.slice(0, 120) + "..." : `The quality that makes ${name} extraordinary is something that...`}
               </p>
             </div>
             <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-white/80 to-white backdrop-blur-[2px] flex flex-col items-center justify-end pb-5">

@@ -308,6 +308,7 @@ const s = StyleSheet.create({
     fontWeight: 700,
     letterSpacing: 0.3,
     fontFamily: "Raleway",
+    lineHeight: 1.1,
   },
   headerSub: {
     fontSize: 7,
@@ -551,10 +552,7 @@ function DynamicFooter({ theme }: { theme: ReportTheme }) {
       )}
       <View style={[s.footer, { borderTopColor: theme.border }]} fixed>
         <View style={{ width: 50 }} />
-        {/* Centered title */}
-        <Text style={[s.footerText, { color: theme.muted, textAlign: "center", flex: 1 }]}>
-          ADHD Personality Report
-        </Text>
+        <View style={{ flex: 1 }} />
         {/* Right-aligned page number */}
         <Text
           style={[s.footerPage, { color: theme.accent, width: 30, textAlign: "right" }]}
@@ -858,9 +856,9 @@ export function ReportDocument({ report, childName, reportDate }: ReportDocument
           <View style={[s.closingDividerBottom, { backgroundColor: theme.accent }]} />
         </View>
 
-        {/* ── Disclaimer ── */}
-        <View style={{ marginTop: 40 }} wrap={false}>
-          <Text style={{ fontSize: 8, lineHeight: 1.5, color: theme.muted, textAlign: "center" }}>
+        {/* ── Disclaimer ── fixed just above footer on last page */}
+        <View style={{ position: "absolute", bottom: 60, left: 48, right: 48 }} fixed={false}>
+          <Text style={{ fontSize: 7.5, lineHeight: 1.4, color: theme.muted, textAlign: "center" }}>
             This report is for informational and educational purposes only. It is not a clinical assessment, diagnosis, or substitute for professional evaluation. If you have concerns about your child's development, please consult a qualified healthcare provider.
           </Text>
         </View>
