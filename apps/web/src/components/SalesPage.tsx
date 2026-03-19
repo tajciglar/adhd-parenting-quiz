@@ -238,7 +238,7 @@ export default function SalesPage() {
     sessionStorage.setItem("wildprint_archetypeId", previewId);
     sessionStorage.setItem("wildprint_responses", JSON.stringify({
       caregiverType: "Mom", childAgeRange: "6-8", childGender: "A Girl",
-      adhdJourney: "Formally diagnosed", childName: "Emma",
+      adhdJourney: "Formally diagnosed", childName: "Emma", learningEnvironment: "School (public or private)",
       inattentive_0: 3, inattentive_1: 4, inattentive_2: 3, inattentive_3: 3,
       inattentive_4: 4, inattentive_5: 3, inattentive_6: 4,
       hyperactive_0: 1, hyperactive_1: 1, hyperactive_2: 0, hyperactive_3: 1,

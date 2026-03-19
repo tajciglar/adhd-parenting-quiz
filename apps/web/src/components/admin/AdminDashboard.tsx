@@ -492,7 +492,7 @@ export default function AdminDashboard() {
         {/* Answer Distribution — split into onboarding vs scoring */}
         {(() => {
           if (!analytics?.answerDistribution.length) return null;
-          const BASIC_KEYS = new Set(["caregiverType", "childAgeRange", "childGender", "adhdJourney"]);
+          const BASIC_KEYS = new Set(["caregiverType", "childAgeRange", "childGender", "adhdJourney", "learningEnvironment"]);
           // Filter out childName entirely — it's unique per user and not useful for analytics
           const onboarding = analytics.answerDistribution.filter((a) => BASIC_KEYS.has(a.questionKey));
           const scoring = analytics.answerDistribution.filter((a) => !BASIC_KEYS.has(a.questionKey));
