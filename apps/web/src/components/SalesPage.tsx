@@ -111,19 +111,21 @@ const LOGO_IMAGES = [
 ];
 
 function LogoMarquee() {
-  // Triplicate for seamless loop
-  const items = [...LOGO_IMAGES, ...LOGO_IMAGES, ...LOGO_IMAGES];
-
   return (
     <div className="overflow-hidden relative">
-      <div className="flex animate-marquee gap-10 items-center">
-        {items.map((logo, i) => (
-          <img
-            key={i}
-            src={logo.src}
-            alt={logo.alt}
-            className="h-6 w-auto object-contain flex-shrink-0 opacity-40 grayscale"
-          />
+      <div className="flex animate-marquee w-max gap-12 items-center">
+        {/* Two identical sets side by side for seamless loop */}
+        {[0, 1].map((set) => (
+          <div key={set} className="flex gap-12 items-center flex-shrink-0">
+            {LOGO_IMAGES.map((logo, i) => (
+              <img
+                key={i}
+                src={logo.src}
+                alt={logo.alt}
+                className="h-6 w-auto object-contain flex-shrink-0 opacity-40 grayscale"
+              />
+            ))}
+          </div>
         ))}
       </div>
     </div>
@@ -687,13 +689,10 @@ export default function SalesPage() {
         }
         @keyframes marquee {
           0% { transform: translateX(0); }
-          100% { transform: translateX(-33.333%); }
+          100% { transform: translateX(-50%); }
         }
         .animate-marquee {
-          animation: marquee 25s linear infinite;
-        }
-        .animate-marquee {
-          animation: marquee 15s linear infinite;
+          animation: marquee 40s linear infinite;
         }
       `}</style>
     </div>
