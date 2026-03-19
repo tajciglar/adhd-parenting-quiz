@@ -367,7 +367,7 @@ export default function SalesPage() {
 
   const WHATS_INSIDE: { title: React.ReactNode; desc: string }[] = [
     { title: <>The neuroscience behind {name}'s specific profile</>, desc: "Explained in plain language, not clinical jargon" },
-    { title: <>"A Day in {name}'s Life"</>, desc: "Four daily scenarios replaying in your home right now" },
+    { title: <>"A Day in {name}'s Life"</>, desc: "Four common scenarios and suggestions what to do" },
     { title: <>What drains {name} vs. what fuels {objPronoun}</>, desc: "A practical reference table you'll come back to every week" },
     { title: <>What to say and what never to say</>, desc: `Especially when ${name} is struggling` },
     { title: <>{name}'s hidden gift</>, desc: `The quality most people around ${objPronoun} completely miss` },
@@ -422,8 +422,8 @@ export default function SalesPage() {
           {/* Report content mimicking PDF layout */}
           <div className="p-6 space-y-4">
             {/* Title + animal row */}
-            <div className="flex items-center gap-4">
-              <AnimalIcon id={archetypeId} className="w-16 h-16 flex-shrink-0" />
+            <div className="flex items-center gap-3">
+              <AnimalIcon id={archetypeId} className="w-12 h-12 flex-shrink-0" />
               <div>
                 <h3 className="text-xl font-bold text-harbor-primary leading-tight uppercase tracking-wide">
                   {archetype.typeName}

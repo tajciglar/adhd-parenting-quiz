@@ -81,6 +81,14 @@ export const BASIC_INFO_QUESTIONS: BasicInfoQuestion[] = [
     emoji: "🌟",
     placeholder: "First name",
   },
+  {
+    type: "single-select",
+    key: "learningEnvironment",
+    title: "Where does your child primarily learn?",
+    emoji: "🏫",
+    options: ["School (public or private)", "Homeschool", "Other"],
+    optionEmojis: ["🏫", "🏠", "📚"],
+  },
 ];
 
 // ─── Assessment Categories (steps 7-37) ─────────────────────────────────────
@@ -379,7 +387,7 @@ export const ARCHETYPES: Archetype[] = [
 
 // ─── Step Configuration ─────────────────────────────────────────────────────
 
-export const TOTAL_STEPS = 44;
+export const TOTAL_STEPS = 45;
 const BASIC_INFO_COUNT = BASIC_INFO_QUESTIONS.length; // 6
 
 /** Flat list of all Likert questions with their category info */
