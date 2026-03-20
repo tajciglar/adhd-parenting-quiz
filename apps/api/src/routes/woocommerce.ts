@@ -4,74 +4,6 @@ import { updateSubmissionPayment, insertFunnelEvent, getSupabaseAdmin } from "..
 import { sendMetaEvent } from "../services/metaCapi.js";
 
 /**
- * Apply "wildprint-purchased" tag in ActiveCampaign after successful WC payment.
- * Same logic as stripe.ts but extracted here for WC webhooks.
- */
-async function applyPurchaseTag(
-  email: string,
-  logger: { error: (obj: unknown, msg: string) => void; warn: (msg: string) => void },
-): Promise<void> {
-  const apiUrl = process.env.AC_API_URL?.replace(/\/$/, "");
-  const apiKey = process.env.AC_API_KEY;
-  if (!apiUrl || !apiKey) return;
-
-  const headers = { "Content-Type": "application/json", "Api-Token": apiKey };
-
-  try {
-    // Find contact
-    const contactRes = await fetch(
-      `${apiUrl}/api/3/contacts?email=${encodeURIComponent(email)}&limit=1`,
-      { headers },
-    );
-    if (!contactRes.ok) return;
-    const contactData = (await contactRes.json()) as {
-      contacts: Array<{ id: string }>;
-    };
-    if (!contactData.contacts?.length) return;
-    const contactId = String(contactData.contacts[0].id);
-
-    // Find or create tag
-    const tagName = "wildprint-purchased";
-    const tagSearchRes = await fetch(
-      `${apiUrl}/api/3/tags?search=${encodeURIComponent(tagName)}`,
-      { headers },
-    );
-    const tagSearchData = (await tagSearchRes.json()) as {
-      tags: Array<{ id: string; tag: string }>;
-    };
-    let tagId = String(
-      tagSearchData.tags.find((t) => t.tag === tagName)?.id ?? "",
-    );
-
-    if (!tagId || tagId === "undefined") {
-      const createRes = await fetch(`${apiUrl}/api/3/tags`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          tag: {
-            tag: tagName,
-            tagType: "contact",
-            description: "Purchased Wildprint report via WooCommerce",
-          },
-        }),
-      });
-      const createData = (await createRes.json()) as { tag?: { id: string } };
-      if (createData.tag?.id) tagId = String(createData.tag.id);
-    }
-
-    if (tagId && tagId !== "undefined") {
-      await fetch(`${apiUrl}/api/3/contactTags`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ contactTag: { contact: contactId, tag: tagId } }),
-      });
-    }
-  } catch (err) {
-    logger.error({ err }, "woocommerce.webhook.ac_purchase_tag_failed");
-  }
-}
-
-/**
  * Verify WooCommerce webhook signature.
  * WC signs with HMAC-SHA256 using the webhook secret and sends the signature
  * in the X-WC-Webhook-Signature header (base64-encoded).
@@ -151,6 +83,7 @@ export default async function woocommerceRoutes(fastify: FastifyInstance) {
 
       // Extract custom meta from order (passed via checkout URL params)
       // WooCommerce stores order meta in meta_data array
+      // Keys match the checkout URL params: kids_name, archetype, _fbp, _fbc
       const metaData = (order.meta_data ?? []) as Array<{
         key: string;
         value: string;
@@ -158,7 +91,7 @@ export default async function woocommerceRoutes(fastify: FastifyInstance) {
       const getMeta = (key: string) =>
         metaData.find((m) => m.key === key)?.value ?? "";
 
-      const childName = getMeta("child_name");
+      const childName = getMeta("kids_name") || getMeta("child_name"); // fallback for old orders
       const archetypeId = getMeta("archetype");
       const fbp = getMeta("_fbp");
       const fbc = getMeta("_fbc");
@@ -216,12 +149,10 @@ export default async function woocommerceRoutes(fastify: FastifyInstance) {
         },
       );
 
-      // ── 3. Apply "wildprint-purchased" tag in ActiveCampaign ──────────
-      if (customerEmail) {
-        void applyPurchaseTag(customerEmail, request.log);
-      }
+      // NOTE: AC purchase tag is now handled by WP/WooCommerce directly.
+      // No need to apply it here.
 
-      // ── 4. Server-side Meta CAPI Purchase event ───────────────────────
+      // ── 3. Server-side Meta CAPI Purchase event ───────────────────────
       if (customerEmail) {
         void sendMetaEvent({
           eventName: "Purchase",

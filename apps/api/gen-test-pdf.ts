@@ -5,7 +5,7 @@ import { getReportTemplate } from "../../packages/shared/src/reportTemplates.js"
 import { renderReportTemplate } from "../../packages/shared/src/templateRenderer.js";
 import fs from "fs";
 
-const archetypes = ["fox", "hummingbird", "koala", "meerkat", "stallion", "tiger"];
+const archetypes = ["fox", "hummingbird", "koala", "meerkat", "stallion", "tiger", "rabbit", "elephant", "dolphin", "hedgehog", "bull"];
 
 async function generatePdf(archetypeId: string) {
   const tpl = getReportTemplate(archetypeId);

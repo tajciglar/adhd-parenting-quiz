@@ -81,6 +81,14 @@ export const BASIC_INFO_QUESTIONS: BasicInfoQuestion[] = [
     emoji: "🌟",
     placeholder: "First name",
   },
+  {
+    type: "single-select",
+    key: "learningEnvironment",
+    title: "Where does your child primarily learn?",
+    emoji: "🏫",
+    options: ["School (public or private)", "Homeschool", "Other"],
+    optionEmojis: ["🏫", "🏠", "📚"],
+  },
 ];
 
 // ─── Assessment Categories (steps 7-37) ─────────────────────────────────────
@@ -96,8 +104,8 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
     id: "inattentive",
     subtitle: "Inattentive Traits",
     questions: [
+      "{childName} has trouble sustaining attention during tasks.",
       "Makes careless mistakes in schoolwork or chores.",
-      "Has trouble sustaining attention during play or tasks.",
       "Zones out when spoken to directly, even in a quiet setting.",
       'Fails to finish instructions or complete "boring" tasks.',
       "Frequently loses things necessary for tasks (shoes, pencils, toys).",
@@ -109,12 +117,12 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
     id: "hyperactive",
     subtitle: "Hyperactive/Impulsive Traits",
     questions: [
-      "Fidgets with hands/feet or squirms constantly in {pos} seat.",
       "Leaves {pos} seat in situations where staying seated is expected.",
+      'Talks so much it\'s hard to get a word in or "blurts out" answers before a question is finished.',
+      "Fidgets with hands/feet or squirms even when trying to sit still (like at the dinner table or in the car).",
       "Runs or climbs excessively in inappropriate situations.",
-      'Talks excessively or "blurts out" answers before a question is finished.',
-      "Has energy that seems impossible to switch off, even at bedtime.",
-      "Has extreme difficulty waiting for {pos} turn.",
+      "Has energy that won't switch off at bedtime \u2014 restless body, keeps getting up, or can't lie still.",
+      "Has difficulty waiting for {pos} turn.",
       "Does physically dangerous things without stopping to think first.",
     ],
   },
@@ -123,22 +131,21 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
     subtitle: "Sensory Processing",
     questions: [
       "Gets upset by clothing tags, sock seams, or messy textures (mud, glue).",
-      'Craves "crashing," jumping, or roughhousing to feel "centered."',
+      "Craves physical impact (jumping, crashing, roughhousing) or uses more force than needed (slams doors, hugs too hard).",
       "Is distressed by loud, sudden noises (vacuums, hand dryers, crowds).",
       "Gets overwhelmed in busy or cluttered places (toy stores, busy classrooms).",
-      "Uses more force than needed (slams doors, breaks toys, hugs too hard).",
       "Chews on clothing, pencils, or non-food objects.",
-      "Constantly needs to touch things.",
+      "Is highly selective about food \u2014 refuses or gags based on taste, texture, or smell.",
     ],
   },
   {
     id: "emotional",
     subtitle: "Dysregulation",
     questions: [
-      "Has a very low frustration tolerance, gets upset quickly over small obstacles.",
-      "Can go from happy to devastated over something that seems very small to others.",
-      'Is hypersensitive to criticism or perceived "rejection."',
-      'Has "explosive" meltdowns that seem out of proportion to the trigger.',
+      "Has a very low frustration tolerance \u2014 gets upset quickly over small obstacles.",
+      "Can go from happy to devastated over something that seems small.",
+      "Is hypersensitive to criticism or to feeling left out, even when no one meant it.",
+      "Has meltdowns that seem out of proportion to the trigger.",
       "Has trouble calming down once {sub} {is} already upset.",
       "Holds onto feelings from an argument or disappointment, long after others have moved on.",
     ],
@@ -147,12 +154,12 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
     id: "executive_function",
     subtitle: "Executive Function",
     questions: [
-      'Struggles to "get started" on a task, even knowing how.',
-      "Forgets what {sub} {was} doing mid-task (e.g., sent to get shoes, found playing instead).",
-      'Seems to have no concept of "5 minutes" vs "30 minutes."',
-      "Struggles with multi-step directions (e.g., 'Get your bag, put on shoes, and come downstairs').",
+      "Struggles to get started on a task even when {sub} {knows} how.",
+      "Forgets what {sub} {was} doing mid-task (example: sent to get shoes, found playing instead).",
+      "Seems to have no concept of 5 minutes vs 30 minutes.",
+      "Struggles with multi-step directions (example: 'Get your bag, put on shoes, and come downstairs').",
       "Gets so absorbed in a favourite activity {sub} {is} shocked when told how much time has passed.",
-      "Can't seem to start a task without someone sitting with {obj}, even when knowing what to do.",
+      "Can't seem to start a task without someone sitting with {obj}, even when {sub} {knows} what to do.",
     ],
   },
   {
@@ -160,11 +167,11 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
     subtitle: "Social Cues",
     questions: [
       "Interrupts others' conversations or games frequently.",
-      'Struggles to "read the room" (noticing when a friend is annoyed or bored).',
+      'Struggles to "read the room" (example: noticing when a friend is annoyed or bored).',
       "Struggles to understand why a friendship ended or why a peer is upset with {obj}.",
-      'Gets "stuck" on a favourite topic, even if no one else is interested.',
+      "Gets stuck on a topic they love, even if no one else is interested.",
       "Insists on controlling the rules of games and gets upset if others change them.",
-      "Shares very personal thoughts or information with strangers, seems to have no 'filter'.",
+      "Shares very personal thoughts or information with strangers \u2014 seems to have no 'filter'.",
     ],
   },
 ];
@@ -179,7 +186,6 @@ export interface Archetype {
   explanation: string;
   traits: string;
   solution: string;
-  childPerspective: string;
 }
 
 export const ARCHETYPES: Archetype[] = [
@@ -191,7 +197,7 @@ export const ARCHETYPES: Archetype[] = [
     explanation: "Inattentive + Executive Function profile.",
     traits: "Reflective, imaginative, loses track of steps and time.",
     solution: "Use visual structure and one-step instructions.",
-    childPerspective: "",
+
   },
   {
     id: "hummingbird",
@@ -201,7 +207,7 @@ export const ARCHETYPES: Archetype[] = [
     explanation: "Inattentive + Hyperactive profile.",
     traits: "Fast shifts in attention, very active, impulsive starts.",
     solution: "Short task cycles, movement breaks, rapid feedback.",
-    childPerspective: "",
+
   },
   {
     id: "tiger",
@@ -211,7 +217,7 @@ export const ARCHETYPES: Archetype[] = [
     explanation: "Inattentive + Emotional profile.",
     traits: "Fluctuating focus with big emotional reactions.",
     solution: "Co-regulation first, then task re-entry.",
-    childPerspective: "",
+
   },
   {
     id: "meerkat",
@@ -221,7 +227,7 @@ export const ARCHETYPES: Archetype[] = [
     explanation: "Inattentive + Sensory profile.",
     traits: "Easily overloaded, scanning environment, variable focus.",
     solution: "Lower sensory load and add predictable routines.",
-    childPerspective: "",
+
   },
   {
     id: "stallion",
@@ -231,7 +237,7 @@ export const ARCHETYPES: Archetype[] = [
     explanation: "Emotional + Executive Function profile.",
     traits: "Strong feelings and friction around transitions/planning.",
     solution: "External time supports plus calm transition rituals.",
-    childPerspective: "",
+
   },
   {
     id: "fox",
@@ -241,7 +247,7 @@ export const ARCHETYPES: Archetype[] = [
     explanation: "Executive Function + Social profile.",
     traits: "Socially agile with timing/planning weak points.",
     solution: "First/Then flows and clear social boundaries.",
-    childPerspective: "",
+
   },
   {
     id: "rabbit",
@@ -251,17 +257,17 @@ export const ARCHETYPES: Archetype[] = [
     explanation: "Hyperactive + Executive Function profile.",
     traits: "Constantly moving, starting things but rarely finishing, energy without direction.",
     solution: "Movement with purpose, visual checklists, short structured bursts.",
-    childPerspective: "",
+
   },
   {
     id: "elephant",
     animal: "The Elephant",
-    typeName: "The Justice Elephant",
+    typeName: "The Just Elephant",
     primaryTrait: ["emotional", "social"],
     explanation: "Emotional + Social profile.",
     traits: "Deep sense of fairness, strong emotional reactions to perceived injustice, reads the room intensely.",
     solution: "Validate feelings first, reframe fairness as flexibility, use social stories.",
-    childPerspective: "",
+
   },
   {
     id: "dolphin",
@@ -271,7 +277,7 @@ export const ARCHETYPES: Archetype[] = [
     explanation: "Hyperactive + Social profile.",
     traits: "Verbal impulsivity, social energy, talks fast, interrupts, needs to be part of everything.",
     solution: "Social turn-taking games, signal systems, channel verbal energy into storytelling.",
-    childPerspective: "",
+
   },
   {
     id: "hedgehog",
@@ -281,7 +287,7 @@ export const ARCHETYPES: Archetype[] = [
     explanation: "Sensory + Emotional profile.",
     traits: "Sensory overload triggers intense emotional responses, needs calm and predictable environments.",
     solution: "Reduce sensory input, validate feelings, create decompression routines.",
-    childPerspective: "",
+
   },
   {
     id: "bull",
@@ -291,7 +297,152 @@ export const ARCHETYPES: Archetype[] = [
     explanation: "Hyperactive + Emotional profile.",
     traits: "Impulse-to-action gap is near zero, emotions amplify physical impulsivity.",
     solution: "Physical outlets, external braking systems, repair after overwhelm.",
-    childPerspective: "",
+
+  },
+  // ── Tier 3: additional 2-trait profile ──────────────────────────────────
+  {
+    id: "red_panda",
+    animal: "The Red Panda",
+    typeName: "The Red Panda",
+    primaryTrait: ["sensory", "social"],
+    explanation: "Sensory + Social profile.",
+    traits: "Sensory sensitivity combined with social challenges.",
+    solution: "Controlled social environments with sensory accommodations.",
+
+  },
+  {
+    id: "owl",
+    animal: "The Owl",
+    typeName: "The Keen Owl",
+    primaryTrait: ["inattentive", "social"],
+    explanation: "Inattentive + Social profile.",
+    traits: "Deep focus on interests, difficulty reading social cues, hyperfocus meets social navigation.",
+    solution: "Protected interest time, direct social coaching, clear transition warnings.",
+
+  },
+  // ── Tier 2: 3-trait profiles ────────────────────────────────────────────
+  {
+    id: "panda",
+    animal: "The Panda",
+    typeName: "The Cloudy Panda",
+    primaryTrait: ["inattentive", "emotional", "executive_function"],
+    explanation: "Inattentive + Emotional + Executive Function profile.",
+    traits: "Drifting attention, emotional intensity, and planning difficulties combine.",
+    solution: "Co-regulation, visual structure, and one-step instructions with emotional support.",
+
+  },
+  {
+    id: "firefly",
+    animal: "The Firefly",
+    typeName: "The Spark Firefly",
+    primaryTrait: ["emotional", "executive_function", "social"],
+    explanation: "Emotional + Executive Function + Social profile.",
+    traits: "Strong feelings, planning challenges, and social awareness intertwine.",
+    solution: "Emotional validation, external structure, and social coaching.",
+
+  },
+  {
+    id: "penguin",
+    animal: "The Penguin",
+    typeName: "The Wandering Penguin",
+    primaryTrait: ["inattentive", "executive_function", "social"],
+    explanation: "Inattentive + Executive Function + Social profile.",
+    traits: "Drifting focus, planning struggles, and social navigation challenges.",
+    solution: "Visual schedules, social scripts, and step-by-step support.",
+
+  },
+  {
+    id: "eagle",
+    animal: "The Eagle",
+    typeName: "The Sky Eagle",
+    primaryTrait: ["inattentive", "hyperactive", "executive_function"],
+    explanation: "Inattentive + Hyperactive + Executive Function profile.",
+    traits: "Shifting attention, high energy, and organisational challenges.",
+    solution: "Movement breaks, visual checklists, and short structured tasks.",
+
+  },
+  // ── Tier 1: 4-trait profiles ────────────────────────────────────────────
+  {
+    id: "deer",
+    animal: "The Deer",
+    typeName: "The Gentle Deer",
+    primaryTrait: ["inattentive", "emotional", "executive_function", "social"],
+    explanation: "Inattentive + Emotional + Executive Function + Social profile.",
+    traits: "Drifting attention, emotional depth, planning struggles, and social sensitivity.",
+    solution: "Holistic support across attention, emotion, structure, and social navigation.",
+
+  },
+  {
+    id: "bear",
+    animal: "The Bear",
+    typeName: "The Brave Bear",
+    primaryTrait: ["inattentive", "hyperactive", "emotional", "executive_function"],
+    explanation: "Inattentive + Hyperactive + Emotional + Executive Function profile.",
+    traits: "Shifting focus, high energy, emotional intensity, and organisational challenges.",
+    solution: "Movement outlets, emotional co-regulation, visual structure, and step-by-step support.",
+
+  },
+  {
+    id: "bee",
+    animal: "The Bee",
+    typeName: "The Buzzy Bee",
+    primaryTrait: ["inattentive", "hyperactive", "executive_function", "social"],
+    explanation: "Inattentive + Hyperactive + Executive Function + Social profile.",
+    traits: "Shifting attention, constant energy, planning struggles, and social navigation challenges.",
+    solution: "Short tasks, movement breaks, visual schedules, and social coaching.",
+
+  },
+  // ── Tier 0: pre-check profile ───────────────────────────────────────────
+  {
+    id: "octopus",
+    animal: "The Octopus",
+    typeName: "The Vivid Octopus",
+    primaryTrait: ["inattentive", "hyperactive", "sensory", "emotional", "executive_function", "social"],
+    explanation: "All traits score high - the most complex profile.",
+    traits: "Everything is happening at once across all systems.",
+    solution: "Reduce simultaneous demands, simplify the environment, step in early.",
+
+  },
+  // ── Girl Variants ──────────────────────────────────────────────────────
+  {
+    id: "swan",
+    animal: "The Swan",
+    typeName: "The Graceful Swan",
+    primaryTrait: ["inattentive", "emotional", "executive_function", "social"],
+    explanation: "Girl variant of Gentle Deer (1+4+5+6).",
+    traits: "Masks struggles behind composure, emotionally exhausted from maintaining the performance.",
+    solution: "Private check-ins, reduce masking pressure, validate the effort behind the appearance.",
+
+  },
+  {
+    id: "bunny",
+    animal: "The Bunny",
+    typeName: "The Dreamy Bunny",
+    primaryTrait: ["inattentive", "emotional", "executive_function"],
+    explanation: "Girl variant of Cloudy Panda (1+4+5).",
+    traits: "Silent drift, emotional weight carried quietly, struggles get read as laziness.",
+    solution: "Interrupt the drift gently, reduce overwhelm, step in before shame takes over.",
+
+  },
+  {
+    id: "tender_hedgehog",
+    animal: "The Hedgehog",
+    typeName: "The Tender Hedgehog",
+    primaryTrait: ["sensory", "emotional"],
+    explanation: "Girl variant of Storm Hedgehog (3+4).",
+    traits: "Internalises sensory and emotional overwhelm, withdraws quietly.",
+    solution: "Reduce sensory load, create safe spaces, validate without pushing.",
+
+  },
+  {
+    id: "hidden_firefly",
+    animal: "The Firefly",
+    typeName: "The Hidden Firefly",
+    primaryTrait: ["emotional", "executive_function", "social"],
+    explanation: "Girl variant of Spark Firefly (4+5+6).",
+    traits: "Brilliant insight hidden by inconsistent follow-through, looks capable but quietly struggling.",
+    solution: "Make basics concrete, catch problems early, judge ideas separately from execution.",
+
   },
 ];
 
@@ -442,46 +593,125 @@ export function computeScores(
 }
 
 /**
- * Match archetype by top-2 ranking:
- * 1) Rank all six categories by section average.
- * 2) Take top two.
- * 3) Find archetype with exact 2-dimension combination (order-insensitive).
- * 4) If no exact pair exists, fallback to the first archetype containing both dimensions.
+ * Determine cluster depth using natural break analysis.
+ * Finds the largest gap between consecutive ranked traits
+ * to determine how many traits form the child's natural cluster.
+ */
+function findClusterDepth(
+  ranked: CategoryId[],
+  scores: TraitScores,
+): 2 | 3 | 4 {
+  const gapA = scores[ranked[1]] - scores[ranked[2]]; // between #2 and #3
+  const gapB = scores[ranked[2]] - scores[ranked[3]]; // between #3 and #4
+  const gapC = scores[ranked[3]] - scores[ranked[4]]; // between #4 and #5
+
+  // If two gaps are equal or within 0.1, prefer the deeper cluster
+  if (gapC >= gapB - 0.1 && gapC >= gapA - 0.1) return 4;
+  if (gapB >= gapA - 0.1) return 3;
+  return 2;
+}
+
+/** Check if a set of CategoryIds matches an archetype's primaryTrait (order-insensitive) */
+function traitSetMatches(
+  traitSet: Set<CategoryId>,
+  archetype: Archetype,
+): boolean {
+  if (archetype.primaryTrait.length !== traitSet.size) return false;
+  return archetype.primaryTrait.every((t) => traitSet.has(t));
+}
+
+/** Find archetype matching exactly the given trait set */
+function findByTraitSet(traitSet: Set<CategoryId>): Archetype | undefined {
+  return ARCHETYPES.find((a) => traitSetMatches(traitSet, a));
+}
+
+/**
+ * Fallback for missing 2-trait combos (1+6, 2+3, 3+5).
+ * Uses the 3rd-highest trait to find the nearest existing 2-trait profile
+ * that includes one of the top 2 traits plus the 3rd trait.
+ * Prefers the profile containing the strongest trait.
+ */
+function nearestTier3Match(
+  ranked: CategoryId[],
+  scores: TraitScores,
+): Archetype {
+  const top1 = ranked[0];
+  const top2 = ranked[1];
+  const third = ranked[2];
+
+  // Try combinations: top1+third and top2+third
+  const option1 = findByTraitSet(new Set([top1, third]));
+  const option2 = findByTraitSet(new Set([top2, third]));
+
+  if (option1 && option2) {
+    // Prefer the profile including the strongest trait
+    return scores[top1] >= scores[top2] ? option1 : option2;
+  }
+  if (option1) return option1;
+  if (option2) return option2;
+
+  // Final fallback — koala
+  return ARCHETYPES.find((a) => a.id === "koala")!;
+}
+
+/**
+ * Match archetype using tiered profile matching:
+ * 1) Rank all six categories by score (descending).
+ * 2) Find natural break to determine cluster depth (2, 3, or 4).
+ * 3) Try matching at that depth, falling through to lower tiers.
+ *
+ * Tier 1 (4-trait) → Tier 2 (3-trait) → Tier 3 (2-trait)
  */
 export function matchArchetype(scores: TraitScores): Archetype {
+  // Step 1: Vivid Octopus check
+  const highCount = CATEGORY_IDS.filter(id => scores[id] >= 3.0).length;
+  if (highCount >= 5) {
+    return ARCHETYPES.find(a => a.id === "octopus")!;
+  }
+
   const ranked = sortCategoriesByScore(scores);
-  const topA = ranked[0];
+  const clusterDepth = findClusterDepth(ranked, scores);
 
-  // If 3 or more categories share the top score, there is no meaningful dominant
-  // pair — the result would be arbitrary. Default to koala.
-  const topScore = scores[topA];
-  const tiedAtTop = CATEGORY_IDS.filter((id) => scores[id] === topScore);
-  if (tiedAtTop.length > 2) {
-    return ARCHETYPES.find((a) => a.id === "koala")!;
+  const top4 = new Set(ranked.slice(0, 4) as CategoryId[]);
+  const top3 = new Set(ranked.slice(0, 3) as CategoryId[]);
+  const top2 = new Set(ranked.slice(0, 2) as CategoryId[]);
+
+  if (clusterDepth === 4) {
+    const tier1 = findByTraitSet(top4);
+    if (tier1) return tier1;
+    const tier2 = findByTraitSet(top3);
+    if (tier2) return tier2;
+    const tier3 = findByTraitSet(top2);
+    if (tier3) return tier3;
+    return nearestTier3Match(ranked, scores);
   }
 
-  const topB = ranked[1];
-  const topTwo = new Set<CategoryId>([topA, topB]);
-
-  const exactCandidates = ARCHETYPES.filter(
-    (arch) =>
-      arch.primaryTrait.length === 2 &&
-      arch.primaryTrait.every((d) => topTwo.has(d)),
-  );
-
-  if (exactCandidates.length > 0) {
-    return exactCandidates[0];
+  if (clusterDepth === 3) {
+    const tier2 = findByTraitSet(top3);
+    if (tier2) return tier2;
+    const tier3 = findByTraitSet(top2);
+    if (tier3) return tier3;
+    return nearestTier3Match(ranked, scores);
   }
 
-  const inclusiveCandidates = ARCHETYPES.filter((arch) =>
-    arch.primaryTrait.includes(topA) && arch.primaryTrait.includes(topB),
-  );
+  // clusterDepth === 2
+  const tier3 = findByTraitSet(top2);
+  if (tier3) return tier3;
+  return nearestTier3Match(ranked, scores);
+}
 
-  if (inclusiveCandidates.length > 0) {
-    return inclusiveCandidates[0];
+export const GIRL_VARIANTS: Record<string, string> = {
+  deer: "swan",
+  panda: "bunny",
+  hedgehog: "tender_hedgehog",
+  firefly: "hidden_firefly",
+};
+
+export function applyGenderVariant(archetypeId: string, gender?: string): string {
+  if (gender === "A Girl" && GIRL_VARIANTS[archetypeId]) {
+    return GIRL_VARIANTS[archetypeId];
   }
-
-  return ARCHETYPES[0];
+  return archetypeId;
 }
 
 /**
@@ -489,8 +719,10 @@ export function matchArchetype(scores: TraitScores): Archetype {
  */
 export function computeTraitProfile(
   responses: Record<string, unknown>,
+  gender?: string,
 ): TraitProfile {
   const scores = computeScores(responses);
   const archetype = matchArchetype(scores);
-  return { scores, archetypeId: archetype.id };
+  const finalId = applyGenderVariant(archetype.id, gender);
+  return { scores, archetypeId: finalId };
 }

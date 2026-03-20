@@ -114,23 +114,42 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   });
 
   // ── POST /api/admin/sync-templates ────────────────────────────────────
-  // Upsert all report templates from shared package into the DB
+  // Upsert all report templates from shared package into the Supabase report_templates table
   fastify.post("/admin/sync-templates", async (request, reply) => {
     try {
+      const sb = getSupabaseAdmin();
+      if (!sb) return reply.status(503).send({ error: "Supabase not configured" });
+
       const templates = getAllReportTemplates();
       const results: Array<{ archetypeId: string; status: string }> = [];
 
       for (const [archetypeId, template] of Object.entries(templates)) {
-        await fastify.prisma.reportTemplate.upsert({
-          where: { archetypeId },
-          create: { archetypeId, template: template as any },
-          update: { template: template as any },
-        });
-        results.push({ archetypeId, status: "synced" });
+        // Check if row exists
+        const { data: existing } = await sb
+          .from("report_templates")
+          .select("id")
+          .eq("archetype_id", archetypeId)
+          .limit(1);
+
+        if (existing?.length) {
+          // Update
+          const { error } = await sb
+            .from("report_templates")
+            .update({ template, updated_at: new Date().toISOString() })
+            .eq("archetype_id", archetypeId);
+          results.push({ archetypeId, status: error ? `error: ${error.message}` : "updated" });
+        } else {
+          // Insert
+          const { error } = await sb
+            .from("report_templates")
+            .insert({ archetype_id: archetypeId, template });
+          results.push({ archetypeId, status: error ? `error: ${error.message}` : "created" });
+        }
       }
 
-      request.log.info({ count: results.length }, "admin.sync_templates.done");
-      return reply.send({ synced: results.length, results });
+      const synced = results.filter((r) => !r.status.startsWith("error")).length;
+      request.log.info({ synced, total: results.length }, "admin.sync_templates.done");
+      return reply.send({ synced, total: results.length, results });
     } catch (err) {
       request.log.error({ err }, "admin.sync_templates.failed");
       return reply.status(500).send({ error: "Failed to sync templates" });

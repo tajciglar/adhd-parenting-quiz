@@ -4,6 +4,18 @@ import { Document, Page, StyleSheet, Text, View, Svg, Circle, Path, Image, Font 
 
 Font.registerHyphenationCallback(word => [word]);
 
+// Register Raleway font family
+Font.register({
+  family: "Raleway",
+  fonts: [
+    { src: "https://fonts.gstatic.com/s/raleway/v37/1Ptxg8zYS_SKggPN4iEgvnHyvveLxVvaooCP.ttf", fontWeight: 400 },
+    { src: "https://fonts.gstatic.com/s/raleway/v37/1Ptxg8zYS_SKggPN4iEgvnHyvveLxVvoooCP.ttf", fontWeight: 500 },
+    { src: "https://fonts.gstatic.com/s/raleway/v37/1Ptxg8zYS_SKggPN4iEgvnHyvveLxVsEpYCP.ttf", fontWeight: 600 },
+    { src: "https://fonts.gstatic.com/s/raleway/v37/1Ptxg8zYS_SKggPN4iEgvnHyvveLxVs9pYCP.ttf", fontWeight: 700 },
+    { src: "https://fonts.gstatic.com/s/raleway/v37/1Pt_g8zYS_SKggPNyCgSQamb1W0lwk4S4WjMPrQ.ttf", fontWeight: 400, fontStyle: "italic" },
+  ],
+});
+
 // Register handwritten font for quotes
 Font.register({
   family: "Caveat",
@@ -29,7 +41,25 @@ const ANIMAL_IMAGE: Record<string, string> = {
   dolphin: path.resolve(__dirname, "../../../../web/public/animals/dolphin.png"),
   hedgehog: path.resolve(__dirname, "../../../../web/public/animals/hedgehog.png"),
   bull: path.resolve(__dirname, "../../../../web/public/animals/bull.png"),
+  red_panda: path.resolve(__dirname, "../../../../web/public/animals/redpanda.png"),
+  panda: path.resolve(__dirname, "../../../../web/public/animals/cloudypanda.png"),
+  firefly: path.resolve(__dirname, "../../../../web/public/animals/spark_firefly.png"),
+  penguin: path.resolve(__dirname, "../../../../web/public/animals/penguin.png"),
+  eagle: path.resolve(__dirname, "../../../../web/public/animals/eagle.png"),
+  deer: path.resolve(__dirname, "../../../../web/public/animals/deer.png"),
+  bear: path.resolve(__dirname, "../../../../web/public/animals/bear.png"),
+  bee: path.resolve(__dirname, "../../../../web/public/animals/bee.png"),
+  owl: path.resolve(__dirname, "../../../../web/public/animals/owl.png"),
+  octopus: path.resolve(__dirname, "../../../../web/public/animals/octopus.png"),
+  swan: path.resolve(__dirname, "../../../../web/public/animals/swan.png"),
+  bunny: path.resolve(__dirname, "../../../../web/public/animals/bunny.png"),
+  tender_hedgehog: path.resolve(__dirname, "../../../../web/public/animals/tender_hedgehog.png"),
+  hidden_firefly: path.resolve(__dirname, "../../../../web/public/animals/hidden_firefly.png"),
 };
+
+import fs from "fs";
+const LOGO_PATH = path.resolve(__dirname, "../../../../web/public/adhd-parenting-logo.png");
+const LOGO_IMAGE = fs.existsSync(LOGO_PATH) ? LOGO_PATH : "";
 
 /* ─── Data Interfaces ─────────────────────────────────────────────────────── */
 
@@ -39,7 +69,7 @@ export interface ReportTemplateData {
   innerVoiceQuote: string;
   animalDescription: string;
   aboutChild: string;
-  hiddenSuperpower: string;
+  hiddenGift: string;
   aboutBrain?: string;
   brainSections: Array<{ title: string; content: string }>;
   dayInLife: {
@@ -51,9 +81,19 @@ export interface ReportTemplateData {
   drains: string[];
   fuels: string[];
   overwhelm: string;
-  affirmations: string[];
-  doNotSay: Array<{ insteadOf: string; tryThis: string }>;
+  affirmations: Array<{ when: string; say: string }>;
+  doNotSay: Array<{ when: string; insteadOf: string; tryThis: string }>;
   closingLine: string;
+  whatHelps?: {
+    aboutChild?: string;
+    hiddenGift?: string;
+    brain?: string;
+    morning?: string;
+    school?: string;
+    afterSchool?: string;
+    bedtime?: string;
+    overwhelm?: string;
+  };
 }
 
 interface ReportDocumentProps {
@@ -80,7 +120,7 @@ interface ReportTheme {
 
 const DEFAULT_THEME: ReportTheme = {
   bg: "#FFFFFF",
-  text: "#24323A",
+  text: "#1A1A1A",
   muted: "#6B7B86",
   border: "#D8DDE0",
   accent: "#7B2D8E",
@@ -129,12 +169,6 @@ const ARCHETYPE_THEMES: Record<string, Partial<ReportTheme>> = {
     softAccent: "#FBE6DC",
     muted: "#7A4D37",
   },
-  owl: {
-    accent: "#3D5B73",
-    accentDark: "#2A4052",
-    softAccent: "#E5EEF4",
-    muted: "#4A6072",
-  },
   rabbit: {
     accent: "#E07B4C",
     accentDark: "#B8613A",
@@ -165,6 +199,90 @@ const ARCHETYPE_THEMES: Record<string, Partial<ReportTheme>> = {
     softAccent: "#FAE3E3",
     muted: "#8A4242",
   },
+  red_panda: {
+    accent: "#C96B4F",
+    accentDark: "#A0523A",
+    softAccent: "#FCE8E0",
+    muted: "#8A5540",
+  },
+  panda: {
+    accent: "#6B8E8A",
+    accentDark: "#4A6B67",
+    softAccent: "#E6F0EE",
+    muted: "#5A7A76",
+  },
+  firefly: {
+    accent: "#D4A843",
+    accentDark: "#A88530",
+    softAccent: "#FDF3DD",
+    muted: "#8A7035",
+  },
+  penguin: {
+    accent: "#4A7E9E",
+    accentDark: "#35607A",
+    softAccent: "#E2EFF6",
+    muted: "#4A6E82",
+  },
+  eagle: {
+    accent: "#5C6E8A",
+    accentDark: "#3E4F68",
+    softAccent: "#E6ECF2",
+    muted: "#4E5E72",
+  },
+  deer: {
+    accent: "#7A9A6A",
+    accentDark: "#5A7A4E",
+    softAccent: "#E8F2E4",
+    muted: "#5E7A55",
+  },
+  bear: {
+    accent: "#8B6B4A",
+    accentDark: "#6B5038",
+    softAccent: "#F2E8DC",
+    muted: "#7A5E45",
+  },
+  bee: {
+    accent: "#E0A832",
+    accentDark: "#B88828",
+    softAccent: "#FFF5D9",
+    muted: "#8A7030",
+  },
+  owl: {
+    accent: "#5A6E88",
+    accentDark: "#3E4F66",
+    softAccent: "#E4ECF4",
+    muted: "#4A5E72",
+  },
+  octopus: {
+    accent: "#7B5EA7",
+    accentDark: "#5D4585",
+    softAccent: "#EDE4F8",
+    muted: "#6A5088",
+  },
+  swan: {
+    accent: "#7A9A6A",
+    accentDark: "#5A7A4E",
+    softAccent: "#E8F2E4",
+    muted: "#5E7A55",
+  },
+  bunny: {
+    accent: "#B08A9A",
+    accentDark: "#8A6878",
+    softAccent: "#F4EAF0",
+    muted: "#7A6070",
+  },
+  tender_hedgehog: {
+    accent: "#8A6BAE",
+    accentDark: "#6A4E8C",
+    softAccent: "#EDE4F6",
+    muted: "#6E5A83",
+  },
+  hidden_firefly: {
+    accent: "#D4A843",
+    accentDark: "#A88530",
+    softAccent: "#FDF3DD",
+    muted: "#8A7035",
+  },
 };
 
 function getTheme(archetypeId: string): ReportTheme {
@@ -181,7 +299,8 @@ const s = StyleSheet.create({
     paddingHorizontal: 48,
     fontSize: 12,
     lineHeight: 1.6,
-    fontFamily: "Helvetica",
+    fontFamily: "Raleway",
+    fontWeight: 500,
   },
   coverPage: {
     paddingTop: 0,
@@ -189,7 +308,8 @@ const s = StyleSheet.create({
     paddingHorizontal: 0,
     fontSize: 12,
     lineHeight: 1.6,
-    fontFamily: "Helvetica",
+    fontFamily: "Raleway",
+    fontWeight: 500,
   },
 
   /* ── Cover Hero ──────────────────────────── */
@@ -213,25 +333,27 @@ const s = StyleSheet.create({
   },
   heroDate: {
     fontSize: 8.5,
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
   heroBrand: {
     fontSize: 9,
     fontWeight: 700,
-    letterSpacing: 2.5,
-    fontFamily: "Helvetica-Bold",
+    letterSpacing: 0.3,
+    fontFamily: "Raleway",
+    lineHeight: 1.1,
   },
   heroBrandSub: {
-    fontSize: 7.5,
-    marginTop: 1,
+    fontSize: 7,
+    marginTop: -1,
+    lineHeight: 1,
   },
   heroTitle: {
     fontSize: 24,
     fontWeight: 700,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Raleway",
     textTransform: "uppercase",
     letterSpacing: 2,
-    marginTop: 50,
+    marginTop: 40,
     marginBottom: 10,
     textAlign: "center",
   },
@@ -282,12 +404,14 @@ const s = StyleSheet.create({
   headerBrand: {
     fontSize: 9,
     fontWeight: 700,
-    letterSpacing: 2.5,
-    fontFamily: "Helvetica-Bold",
+    letterSpacing: 0.3,
+    fontFamily: "Raleway",
+    lineHeight: 1.1,
   },
   headerSub: {
-    fontSize: 7.5,
-    marginTop: 1,
+    fontSize: 7,
+    marginTop: -1,
+    lineHeight: 1,
   },
   footer: {
     position: "absolute",
@@ -303,12 +427,12 @@ const s = StyleSheet.create({
   },
   footerText: {
     fontSize: 7.5,
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
   footerPage: {
     fontSize: 8,
     fontWeight: 700,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Raleway",
   },
 
   /* ── Section Labels ──────────────────────── */
@@ -316,8 +440,8 @@ const s = StyleSheet.create({
     fontSize: 9.5,
     fontWeight: 700,
     textTransform: "uppercase",
-    letterSpacing: 2,
-    fontFamily: "Helvetica-Bold",
+    letterSpacing: 1.5,
+    fontFamily: "Raleway",
     marginBottom: 4,
     marginTop: 24,
   },
@@ -348,17 +472,11 @@ const s = StyleSheet.create({
   subTitle: {
     fontSize: 12,
     fontWeight: 700,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Raleway",
     marginBottom: 3,
   },
 
   /* ── Drains / Fuels ──────────────────────── */
-  dfContainer: {
-    flexDirection: "row",
-  },
-  dfColumn: {
-    flex: 1,
-  },
   dfHeader: {
     paddingVertical: 7,
     paddingHorizontal: 10,
@@ -368,56 +486,20 @@ const s = StyleSheet.create({
   dfHeaderIcon: {
     fontSize: 11,
     fontWeight: 700,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Raleway",
     marginRight: 6,
   },
   dfHeaderText: {
     fontSize: 8.5,
     fontWeight: 700,
     textTransform: "uppercase",
-    letterSpacing: 1.5,
-    fontFamily: "Helvetica-Bold",
+    letterSpacing: 1,
+    fontFamily: "Raleway",
   },
   dfItem: {
     paddingVertical: 6,
     paddingHorizontal: 10,
     fontSize: 10.5,
-    lineHeight: 1.45,
-  },
-
-  /* ── Affirmations ────────────────────────── */
-  affirmationItem: {
-    marginBottom: 5,
-    paddingLeft: 4,
-  },
-  affirmationText: {
-    fontSize: 11.5,
-    lineHeight: 1.5,
-    fontStyle: "italic",
-  },
-
-  /* ── "What Not to Say" Table ─────────────── */
-  sayTable: {
-    marginTop: 4,
-  },
-  sayHeaderRow: {
-    flexDirection: "row",
-  },
-  sayHeaderCell: {
-    flex: 1,
-    paddingVertical: 7,
-    paddingHorizontal: 10,
-  },
-  sayRow: {
-    flexDirection: "row",
-    borderBottomWidth: 0.5,
-    borderBottomStyle: "solid",
-  },
-  sayCell: {
-    flex: 1,
-    paddingVertical: 7,
-    paddingHorizontal: 10,
-    fontSize: 11,
     lineHeight: 1.45,
   },
 
@@ -466,8 +548,13 @@ function XIcon({ size = 11, color = "#C0392B" }: { size?: number; color?: string
 
 /* ─── Helper Components ───────────────────────────────────────────────────── */
 
+/** Replace double-hyphen or long dashes with a proper short en-dash */
+function fixDashes(text: string): string {
+  return text.replace(/\u2014/g, "\u2013").replace(/--/g, "\u2013");
+}
+
 function ParagraphText({ text }: { text: string }) {
-  const paragraphs = text.split("\n").filter((p) => p.trim().length > 0);
+  const paragraphs = fixDashes(text).split("\n").filter((p) => p.trim().length > 0);
   return (
     <View>
       {paragraphs.map((para, i) => (
@@ -475,6 +562,43 @@ function ParagraphText({ text }: { text: string }) {
           {para}
         </Text>
       ))}
+    </View>
+  );
+}
+
+function WhatHelpsBox({ text, theme }: { text?: string; theme: ReportTheme }) {
+  if (!text) return null;
+  return (
+    <View
+      wrap={false}
+      style={{
+        marginTop: 10,
+        marginBottom: 6,
+        borderLeftWidth: 3,
+        borderLeftColor: theme.successAccent,
+        borderLeftStyle: "solid",
+        backgroundColor: theme.successSoft,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 3,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 9,
+          fontWeight: 700,
+          fontFamily: "Raleway",
+          color: theme.successAccent,
+          textTransform: "uppercase",
+          letterSpacing: 1.2,
+          marginBottom: 4,
+        }}
+      >
+        What Helps
+      </Text>
+      <Text style={{ fontSize: 10.5, lineHeight: 1.5, color: theme.text }}>
+        {fixDashes(text)}
+      </Text>
     </View>
   );
 }
@@ -517,18 +641,124 @@ function Header({ theme }: { theme: ReportTheme }) {
 
 function DynamicFooter({ theme }: { theme: ReportTheme }) {
   return (
-    <View style={[s.footer, { borderTopColor: theme.border }]} fixed>
-      {/* Left spacer for symmetry */}
-      <View style={{ width: 30 }} />
-      {/* Centered title */}
-      <Text style={[s.footerText, { color: theme.muted, textAlign: "center", flex: 1 }]}>
-        ADHD Personality Report
-      </Text>
-      {/* Right-aligned page number */}
-      <Text
-        style={[s.footerPage, { color: theme.accent, width: 30, textAlign: "right" }]}
-        render={({ pageNumber }) => `${pageNumber}`}
-      />
+    <>
+      {/* Logo in separate fixed container (Image doesn't work inside fixed flex rows) */}
+      {LOGO_IMAGE && (
+        <View style={{ position: "absolute", top: 808, left: 48 }} fixed>
+          <Image src={LOGO_IMAGE} style={{ width: 50, height: 20, objectFit: "contain" }} />
+        </View>
+      )}
+      <View style={[s.footer, { borderTopColor: theme.border }]} fixed>
+        <View style={{ width: 50 }} />
+        <View style={{ flex: 1 }} />
+        {/* Right-aligned page number */}
+        <Text
+          style={[s.footerPage, { color: theme.accent, width: 30, textAlign: "right" }]}
+          render={({ pageNumber }) => `${pageNumber}`}
+        />
+      </View>
+    </>
+  );
+}
+
+/* ─── Table helper for affirmations (When / Say) ─────────────────────────── */
+
+function AffirmationsTable({
+  affirmations,
+  theme,
+}: {
+  affirmations: Array<{ when: string; say: string }>;
+  theme: ReportTheme;
+}) {
+  const headerStyle = {
+    fontSize: 8.5,
+    fontWeight: 700 as const,
+    textTransform: "uppercase" as const,
+    letterSpacing: 1,
+    fontFamily: "Raleway",
+  };
+
+  return (
+    <View style={{ marginTop: 4 }}>
+      {/* Header row */}
+      <View style={{ flexDirection: "row" }}>
+        <View style={{ flex: 1, backgroundColor: theme.softAccent, paddingVertical: 7, paddingHorizontal: 10 }}>
+          <Text style={{ ...headerStyle, color: theme.accent }}>WHEN...</Text>
+        </View>
+        <View style={{ flex: 1, backgroundColor: theme.softAccent, paddingVertical: 7, paddingHorizontal: 10 }}>
+          <Text style={{ ...headerStyle, color: theme.accent }}>SAY...</Text>
+        </View>
+      </View>
+      {affirmations.map((aff, i) => (
+        <View key={`aff-${i}`} wrap={false} style={{ flexDirection: "row", borderBottomWidth: 0.5, borderBottomStyle: "solid", borderBottomColor: theme.border }}>
+          <View style={{ flex: 1, paddingVertical: 7, paddingHorizontal: 10 }}>
+            <Text style={{ fontSize: 10.5, lineHeight: 1.45 }}>{fixDashes(aff.when)}</Text>
+          </View>
+          <View style={{ flex: 1, paddingVertical: 7, paddingHorizontal: 10 }}>
+            <Text style={{ fontSize: 10.5, lineHeight: 1.45, fontStyle: "italic" }}>{fixDashes(aff.say)}</Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/* ─── 3-column "What Not to Say" table ──────────────────────────────────── */
+
+function DoNotSayTable({
+  items,
+  theme,
+}: {
+  items: Array<{ when: string; insteadOf: string; tryThis: string }>;
+  theme: ReportTheme;
+}) {
+  const headerBase = {
+    fontSize: 8,
+    fontWeight: 700 as const,
+    textTransform: "uppercase" as const,
+    letterSpacing: 0.8,
+    fontFamily: "Raleway",
+  };
+
+  return (
+    <View style={{ marginTop: 4 }}>
+      {/* Header row */}
+      <View style={{ flexDirection: "row" }}>
+        <View style={{ flex: 1, backgroundColor: theme.softAccent, paddingVertical: 7, paddingHorizontal: 8 }}>
+          <Text style={{ ...headerBase, color: theme.accent }}>WHEN THIS HAPPENS...</Text>
+        </View>
+        <View style={{ flex: 1, backgroundColor: theme.dangerSoft, paddingVertical: 7, paddingHorizontal: 8, flexDirection: "row", alignItems: "center" }}>
+          <Text style={{ ...headerBase, color: theme.dangerAccent }}>INSTEAD OF...</Text>
+        </View>
+        <View style={{ flex: 1, backgroundColor: theme.successSoft, paddingVertical: 7, paddingHorizontal: 8, flexDirection: "row", alignItems: "center" }}>
+          <Text style={{ ...headerBase, color: theme.successAccent }}>TRY...</Text>
+        </View>
+      </View>
+      {/* Data rows */}
+      {items.map((pair, i) => (
+        <View
+          key={`say-${i}`}
+          wrap={false}
+          style={{
+            flexDirection: "row",
+            borderBottomWidth: 0.5,
+            borderBottomStyle: "solid",
+            borderBottomColor: theme.border,
+          }}
+        >
+          <View style={{ flex: 1, paddingVertical: 6, paddingHorizontal: 8 }}>
+            <Text style={{ fontSize: 10, lineHeight: 1.4 }}>{fixDashes(pair.when)}</Text>
+          </View>
+          <View style={{ flex: 1, paddingVertical: 6, paddingHorizontal: 8, flexDirection: "row", alignItems: "flex-start" }}>
+            <View style={{ width: 14, paddingTop: 1 }}><XIcon size={8} color={theme.dangerAccent} /></View>
+            <Text style={{ flex: 1, fontSize: 10, lineHeight: 1.4 }}>{fixDashes(pair.insteadOf)}</Text>
+          </View>
+          <View style={{ flex: 1, paddingVertical: 6, paddingHorizontal: 8, flexDirection: "row", alignItems: "flex-start" }}>
+            <View style={{ width: 14, paddingTop: 1 }}><CheckIcon size={8} color={theme.successAccent} /></View>
+            <Text style={{ flex: 1, fontSize: 10, lineHeight: 1.4 }}>{fixDashes(pair.tryThis)}</Text>
+          </View>
+        </View>
+      ))}
     </View>
   );
 }
@@ -561,7 +791,7 @@ export function ReportDocument({ report, childName, reportDate }: ReportDocument
               Your child's unique profile
             </Text>
           </View>
-          {/* Animal title — pushed down below the brand row */}
+          {/* Animal title */}
           <Text style={[s.heroTitle, { color: theme.accent }]}>
             {report.title}
           </Text>
@@ -575,7 +805,7 @@ export function ReportDocument({ report, childName, reportDate }: ReportDocument
                 {`\u201C${report.innerVoiceQuote.trim()}\u201D`}
               </Text>
               <Text style={[s.heroAttribution, { color: theme.muted }]}>
-                {`\u2014 ${childName}`}
+                {`\u2013 ${childName}`}
               </Text>
             </View>
           </View>
@@ -588,12 +818,13 @@ export function ReportDocument({ report, childName, reportDate }: ReportDocument
 
           <SectionLabel text={`ABOUT ${NAME}`} theme={theme} />
           <ParagraphText text={report.aboutChild} />
+          <WhatHelpsBox text={report.whatHelps?.aboutChild} theme={theme} />
         </View>
 
         <DynamicFooter theme={theme} />
       </Page>
 
-      {/* ════════════════ PAGES 2+ — ALL REMAINING CONTENT (wraps automatically) ════════════════ */}
+      {/* ════════════════ PAGES 2+ — ALL REMAINING CONTENT ════════════════ */}
       <Page
         size="A4"
         style={[s.page, { backgroundColor: theme.bg, color: theme.text }]}
@@ -604,7 +835,8 @@ export function ReportDocument({ report, childName, reportDate }: ReportDocument
 
         {/* ── Hidden Gift ── */}
         <SectionLabel text={`${NAME}'S HIDDEN GIFT`} theme={theme} first />
-        <ParagraphText text={report.hiddenSuperpower} />
+        <ParagraphText text={report.hiddenGift} />
+        <WhatHelpsBox text={report.whatHelps?.hiddenGift} theme={theme} />
 
         {/* ── Understanding Brain ── */}
         <SectionLabel text={`UNDERSTANDING ${NAME}'S BRAIN`} theme={theme} />
@@ -613,33 +845,36 @@ export function ReportDocument({ report, childName, reportDate }: ReportDocument
           const ordinal = idx === 0 ? "The first is" : "The second is";
           const titleLower = section.title.toLowerCase();
           const startsUpper = /^[A-Z\[]/.test(section.content);
-          const separator = startsUpper ? ". " : " — ";
-          const body = startsUpper ? section.content : section.content;
+          const separator = startsUpper ? ". " : " \u2013 ";
           return (
             <View key={section.title} style={s.subSection} wrap={false}>
               <Text style={{ fontSize: 11.5, lineHeight: 1.6, marginTop: 8 }}>
-                <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 11.5 }}>
+                <Text style={{ fontWeight: 700, fontFamily: "Raleway", fontSize: 11.5 }}>
                   {`${ordinal} ${titleLower}`}
                 </Text>
-                {`${separator}${body}`}
+                {`${separator}${fixDashes(section.content)}`}
               </Text>
             </View>
           );
         })}
+        <WhatHelpsBox text={report.whatHelps?.brain} theme={theme} />
 
         {/* ── A Day in Life ── */}
         <SectionLabel text={`A DAY IN ${NAME}'S LIFE`} theme={theme} />
         {[
-          { label: "Morning", text: report.dayInLife.morning },
-          { label: "School", text: report.dayInLife.school },
-          { label: "After School", text: report.dayInLife.afterSchool },
-          { label: "Bedtime", text: report.dayInLife.bedtime },
+          { label: "Morning", text: report.dayInLife.morning, helps: report.whatHelps?.morning },
+          { label: "School", text: report.dayInLife.school, helps: report.whatHelps?.school },
+          { label: "After School", text: report.dayInLife.afterSchool, helps: report.whatHelps?.afterSchool },
+          { label: "Bedtime", text: report.dayInLife.bedtime, helps: report.whatHelps?.bedtime },
         ].map((block) => (
-          <View key={block.label} style={s.subSection} wrap={false}>
-            <Text style={[s.subTitle, { color: theme.accent }]}>
-              {block.label}
-            </Text>
-            <ParagraphText text={block.text} />
+          <View key={block.label} style={s.subSection}>
+            <View wrap={false}>
+              <Text style={[s.subTitle, { color: theme.accent }]}>
+                {block.label}
+              </Text>
+              <ParagraphText text={block.text} />
+            </View>
+            <WhatHelpsBox text={block.helps} theme={theme} />
           </View>
         ))}
 
@@ -653,45 +888,40 @@ export function ReportDocument({ report, childName, reportDate }: ReportDocument
           {/* Headers row */}
           <View style={{ flexDirection: "row" }}>
             <View style={[s.dfHeader, { flex: 1, backgroundColor: theme.dangerSoft }]}>
-              <Text style={[s.dfHeaderIcon, { color: theme.dangerAccent }]}>
-                ✕
-              </Text>
+              <Image src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1faab.png" style={{ width: 14, height: 14, marginRight: 5 }} />
               <Text style={[s.dfHeaderText, { color: theme.dangerAccent }]}>
                 WHAT DRAINS {NAME}
               </Text>
             </View>
             <View style={[s.dfHeader, { flex: 1, backgroundColor: theme.successSoft }]}>
-              <Text style={[s.dfHeaderIcon, { color: theme.successAccent }]}>
-                ✓
-              </Text>
+              <Image src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f50b.png" style={{ width: 14, height: 14, marginRight: 5 }} />
               <Text style={[s.dfHeaderText, { color: theme.successAccent }]}>
                 WHAT FUELS {NAME}
               </Text>
             </View>
           </View>
-          {/* Item rows — paired so each drain/fuel sits on the same line */}
+          {/* Item rows */}
           {report.drains.map((drain, i) => {
             const fuel = report.fuels[i] ?? "";
             return (
-              <View key={`df-${i}`} style={{ flexDirection: "row", borderBottomWidth: 0.5, borderBottomStyle: "solid", borderBottomColor: theme.border }}>
+              <View key={`df-${i}`} wrap={false} style={{ flexDirection: "row", borderBottomWidth: 0.5, borderBottomStyle: "solid", borderBottomColor: theme.border }}>
                 <View style={[s.dfItem, { flex: 1, flexDirection: "row", alignItems: "flex-start" }]}>
-                  <View style={{ width: 18, paddingTop: 1 }}><XIcon size={10} color={theme.dangerAccent} /></View>
-                  <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{drain}</Text>
+                  <View style={{ width: 16, paddingTop: 1 }}><XIcon size={9} color={theme.dangerAccent} /></View>
+                  <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{fixDashes(drain)}</Text>
                 </View>
                 <View style={[s.dfItem, { flex: 1, flexDirection: "row", alignItems: "flex-start" }]}>
-                  <View style={{ width: 18, paddingTop: 1 }}><CheckIcon size={10} color={theme.successAccent} /></View>
-                  <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{fuel}</Text>
+                  <View style={{ width: 16, paddingTop: 1 }}><CheckIcon size={9} color={theme.successAccent} /></View>
+                  <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{fixDashes(fuel)}</Text>
                 </View>
               </View>
             );
           })}
-          {/* Extra fuels if fuels array is longer than drains */}
           {report.fuels.slice(report.drains.length).map((fuel, i) => (
             <View key={`df-extra-${i}`} style={{ flexDirection: "row", borderBottomWidth: 0.5, borderBottomStyle: "solid", borderBottomColor: theme.border }}>
               <View style={[s.dfItem, { flex: 1 }]} />
               <View style={[s.dfItem, { flex: 1, flexDirection: "row", alignItems: "flex-start" }]}>
-                <View style={{ width: 18, paddingTop: 1 }}><CheckIcon size={10} color={theme.successAccent} /></View>
-                <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{fuel}</Text>
+                <View style={{ width: 16, paddingTop: 1 }}><CheckIcon size={9} color={theme.successAccent} /></View>
+                <Text style={{ flex: 1, fontSize: 10.5, lineHeight: 1.45 }}>{fixDashes(fuel)}</Text>
               </View>
             </View>
           ))}
@@ -701,90 +931,32 @@ export function ReportDocument({ report, childName, reportDate }: ReportDocument
         {/* ── Overwhelm ── */}
         <SectionLabel text={`WHEN ${NAME} GETS OVERWHELMED`} theme={theme} />
         <ParagraphText text={
-          /* Strip leading line if it repeats the section heading (e.g. "When Robby Gets Overwhelmed") */
           report.overwhelm.replace(
             new RegExp(`^\\s*when\\s+${NAME}\\s+gets\\s+overwhelmed\\s*`, "i"),
             "",
           )
         } />
+        <WhatHelpsBox text={report.whatHelps?.overwhelm} theme={theme} />
 
-        {/* ── Affirmations ── */}
+        {/* ── Affirmations (When / Say table) ── */}
         <SectionLabel text={`WHAT ${NAME} NEEDS TO HEAR MOST`} theme={theme} />
-        <View>
-          {report.affirmations.map((aff, i) => (
-            <View key={`aff-${i}`} style={s.affirmationItem}>
-              <Text style={[s.affirmationText, { color: theme.text }]}>
-                {aff}
-              </Text>
-            </View>
-          ))}
-        </View>
+        <AffirmationsTable affirmations={report.affirmations} theme={theme} />
 
-        {/* ── What Not to Say ── */}
+        {/* ── What Not to Say (2-column table) ── */}
         <SectionLabel text="WHAT NOT TO SAY AND WHAT TO SAY INSTEAD" theme={theme} />
-        <View style={s.sayTable} wrap={false}>
-          <View style={s.sayHeaderRow}>
-            <View
-              style={[
-                s.sayHeaderCell,
-                { backgroundColor: theme.dangerSoft, flexDirection: "row", alignItems: "center" },
-              ]}
-            >
-              <Text style={{ fontSize: 9, fontWeight: 700, fontFamily: "Helvetica-Bold", color: theme.dangerAccent, marginRight: 5 }}>
-                ✕
-              </Text>
-              <Text style={{ fontSize: 8.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, fontFamily: "Helvetica-Bold", color: theme.dangerAccent }}>
-                INSTEAD OF...
-              </Text>
-            </View>
-            <View
-              style={[
-                s.sayHeaderCell,
-                { backgroundColor: theme.successSoft, flexDirection: "row", alignItems: "center" },
-              ]}
-            >
-              <Text style={{ fontSize: 9, fontWeight: 700, fontFamily: "Helvetica-Bold", color: theme.successAccent, marginRight: 5 }}>
-                ✓
-              </Text>
-              <Text style={{ fontSize: 8.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, fontFamily: "Helvetica-Bold", color: theme.successAccent }}>
-                TRY...
-              </Text>
-            </View>
-          </View>
-          {report.doNotSay.map((pair, i) => (
-            <View
-              key={`say-${i}`}
-              style={[
-                s.sayRow,
-                {
-                  borderBottomColor: theme.border,
-                },
-              ]}
-            >
-              <View style={[s.sayCell, { flexDirection: "row", alignItems: "flex-start" }]}>
-                <View style={{ width: 18, paddingTop: 1 }}><XIcon size={10} color={theme.dangerAccent} /></View>
-                <Text style={{ flex: 1, fontSize: 11, lineHeight: 1.45 }}>{pair.insteadOf}</Text>
-              </View>
-              <View style={[s.sayCell, { flexDirection: "row", alignItems: "flex-start" }]}>
-                <View style={{ width: 18, paddingTop: 1 }}><CheckIcon size={10} color={theme.successAccent} /></View>
-                <Text style={{ flex: 1, fontSize: 11, lineHeight: 1.45 }}>{pair.tryThis}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
+        <DoNotSayTable items={report.doNotSay} theme={theme} />
 
         {/* ── Closing ── */}
         <View style={s.closingWrapper} wrap={false}>
-          <View style={[s.closingDivider, { backgroundColor: theme.accent }]} />
           <Text style={[s.closingText, { color: theme.accent }]}>
             {report.closingLine}
           </Text>
           <View style={[s.closingDividerBottom, { backgroundColor: theme.accent }]} />
         </View>
 
-        {/* ── Disclaimer ── */}
-        <View style={{ marginTop: 40 }} wrap={false}>
-          <Text style={{ fontSize: 8, lineHeight: 1.5, color: theme.muted, textAlign: "center" }}>
+        {/* ── Disclaimer ── fixed just above footer on last page */}
+        <View style={{ position: "absolute", bottom: 60, left: 48, right: 48 }} fixed={false}>
+          <Text style={{ fontSize: 7.5, lineHeight: 1.4, color: theme.muted, textAlign: "center" }}>
             This report is for informational and educational purposes only. It is not a clinical assessment, diagnosis, or substitute for professional evaluation. If you have concerns about your child's development, please consult a qualified healthcare provider.
           </Text>
         </View>

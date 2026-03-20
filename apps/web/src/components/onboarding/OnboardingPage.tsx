@@ -132,6 +132,7 @@ export default function OnboardingPage() {
   const objPronoun = gender.includes("boy") ? "him" : gender.includes("girl") ? "her" : "them";
 
   const handleShowCalculating = useCallback(() => {
+    trackFunnelEvent("quiz_completed");
     setShowCalculating(true);
   }, []);
 

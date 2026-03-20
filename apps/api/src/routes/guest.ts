@@ -155,7 +155,7 @@ async function syncToActiveCampaign(opts: {
     }
 
     // 4. Apply tags
-    const tagNames = ["adhd quiz wildprint"];
+    const tagNames = ["ADHD Personality Type Opt-In"];
 
     for (const tagName of tagNames) {
       const tagSearchRes = await fetch(
@@ -201,7 +201,7 @@ async function syncToActiveCampaign(opts: {
 
 // Check if email has already completed THIS quiz.
 // A contact may exist on other AC lists — we only block if they also have
-// the "adhd quiz wildprint" tag, which is applied exclusively on quiz submission.
+// the "ADHD Personality Type Opt-In" tag, which is applied exclusively on quiz submission.
 async function checkAlreadySubmitted(email: string): Promise<boolean> {
   const apiUrl = process.env.AC_API_URL?.replace(/\/$/, "");
   const apiKey = process.env.AC_API_KEY;
@@ -211,22 +211,22 @@ async function checkAlreadySubmitted(email: string): Promise<boolean> {
     const headers = { "Content-Type": "application/json", "Api-Token": apiKey };
 
     // 1. Contact lookup + tag ID lookup run in parallel
+    const TAG_NAME = "ADHD Personality Type Opt-In";
     const [contactRes, tagRes] = await Promise.all([
       fetch(`${apiUrl}/api/3/contacts?email=${encodeURIComponent(email)}&limit=1`, { headers }),
-      fetch(`${apiUrl}/api/3/tags?search=${encodeURIComponent("adhd quiz wildprint")}`, { headers }),
+      fetch(`${apiUrl}/api/3/tags?search=${encodeURIComponent(TAG_NAME)}`, { headers }),
     ]);
 
     if (!contactRes.ok) return false;
 
     const contactData = (await contactRes.json()) as { contacts: Array<{ id: string }> };
-    if (!contactData.contacts?.length) return false; // email not in AC at all
+    if (!contactData.contacts?.length) return false;
 
     const contactId = String(contactData.contacts[0].id);
 
-    // If the quiz tag doesn't exist yet, nobody has ever completed it
     if (!tagRes.ok) return false;
     const tagData = (await tagRes.json()) as { tags: Array<{ id: string; tag: string }> };
-    const quizTag = tagData.tags.find((t) => t.tag === "adhd quiz wildprint");
+    const quizTag = tagData.tags.find((t) => t.tag === TAG_NAME);
     if (!quizTag) return false;
 
     const tagId = String(quizTag.id);
@@ -295,7 +295,7 @@ export default async function guestRoutes(fastify: FastifyInstance) {
       }
 
       // 1. Compute trait profile
-      const traitProfile = computeTraitProfile(responses);
+      const traitProfile = computeTraitProfile(responses, childGender);
       const archetype = ARCHETYPES.find((a) => a.id === traitProfile.archetypeId);
 
       // Log scores for analytics (visible in Railway logs)
