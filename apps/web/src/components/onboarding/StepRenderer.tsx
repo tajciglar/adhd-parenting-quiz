@@ -116,13 +116,14 @@ export default function StepRenderer({
               <button
                 key={card.value}
                 onClick={() => onAnswer(step, q.key, card.value, true)}
-                className="group relative rounded-2xl border-2 border-harbor-primary/15 bg-white overflow-hidden transition-all duration-200 hover:border-harbor-primary/40 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-harbor-primary/30"
+                className="group relative rounded-2xl border-2 border-harbor-primary/15 overflow-hidden transition-all duration-200 hover:border-harbor-primary/40 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-harbor-primary/30"
+                style={{ background: "#F0EBF5" }}
               >
-                <div className="aspect-[3/4] bg-harbor-bg flex items-center justify-center overflow-hidden -mb-px">
+                <div className="aspect-[3/4] flex items-center justify-center overflow-hidden">
                   <img
                     src={card.image}
                     alt={card.label}
-                    className="w-full h-full object-cover object-top block"
+                    className="w-full h-full object-cover object-top block align-bottom"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = "none";
                       const parent = (e.target as HTMLImageElement).parentElement;
