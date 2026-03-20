@@ -155,7 +155,7 @@ async function syncToActiveCampaign(opts: {
     }
 
     // 4. Apply tags
-    const tagNames = ["adhd quiz wildprint"];
+    const tagNames = ["ADHD Personality Type Opt-In"];
 
     for (const tagName of tagNames) {
       const tagSearchRes = await fetch(

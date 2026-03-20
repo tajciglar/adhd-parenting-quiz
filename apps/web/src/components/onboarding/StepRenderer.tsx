@@ -90,7 +90,7 @@ export default function StepRenderer({
         { value: "Mom", label: "Mom", image: "/landing/mom.png", emoji: "👩" },
         { value: "Dad", label: "Dad", image: "/landing/dad.png", emoji: "👨" },
         { value: "Grandma / Grandpa", label: "Grandma / Grandpa", image: "/landing/grandparent.png", emoji: "👴" },
-        { value: "Other", label: "Other", image: "/landing/other.png", emoji: "🧑" },
+        { value: "Other", label: "Other", image: "/landing/teacher.png", emoji: "🧑" },
       ];
 
       return (
