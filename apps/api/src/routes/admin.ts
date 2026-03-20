@@ -142,7 +142,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
           // Insert
           const { error } = await sb
             .from("report_templates")
-            .insert({ id: randomUUID(), archetype_id: archetypeId, template });
+            .insert({ id: randomUUID(), archetype_id: archetypeId, template, updated_at: new Date().toISOString(), created_at: new Date().toISOString() });
           results.push({ archetypeId, status: error ? `error: ${error.message}` : "created" });
         }
       }
