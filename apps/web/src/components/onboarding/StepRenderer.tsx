@@ -84,37 +84,88 @@ export default function StepRenderer({
         return null;
     }
 
-    return (
-      <div>
-        {step === 1 && (
-          <div className="mb-6 space-y-2">
-            <TrustPilotReview />
-            <h1 className="text-2xl font-bold text-harbor-primary leading-snug text-center">
-              Discover Your Child's Unique ADHD Personality Type
+    // ─── Landing page (step 1): photo card grid ───────────────────────────
+    if (step === 1 && q.key === "caregiverType") {
+      const CAREGIVER_CARDS: Array<{ value: string; label: string; image: string; emoji: string }> = [
+        { value: "Mom", label: "Mom", image: "/landing/mom.png", emoji: "👩" },
+        { value: "Dad", label: "Dad", image: "/landing/dad.png", emoji: "👨" },
+        { value: "Grandma / Grandpa", label: "Grandma / Grandpa", image: "/landing/grandparent.png", emoji: "👴" },
+        { value: "Other", label: "Other", image: "/landing/other.png", emoji: "🧑" },
+      ];
+
+      return (
+        <div className="space-y-6">
+          <TrustPilotReview />
+
+          <div className="text-center space-y-3">
+            <h1 className="text-2xl md:text-3xl font-bold text-harbor-primary leading-snug">
+              Discover Your Child’s Unique ADHD Personality Type
             </h1>
-            <p className="text-sm text-harbor-text leading-relaxed text-center">
+            <p className="text-sm text-harbor-text leading-relaxed max-w-lg mx-auto">
               A 7-minute assessment backed by 40+ years of clinical experience — revealing who your child really is, why they do what they do, and the hidden gift most people completely miss.
             </p>
-            <p className="text-sm text-harbor-text leading-relaxed text-center">
-              <i>Developed by the team behind the World's Largest ADHD Parenting Summit with 250,000+ registered parents and world-renowned ADHD experts, such as Dr. Edward Hallowell · Dr. Patricia Quinn · Dr. Stephen Hinshaw · Dr. Sasha Hamdani and 70 more.</i>
-            </p>
-        
           </div>
-        )}
+
+          <div className="text-center">
+            <h2 className="text-lg font-semibold text-harbor-text">{title}</h2>
+          </div>
+
+          {/* 2x2 photo card grid */}
+          <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
+            {CAREGIVER_CARDS.map((card) => (
+              <button
+                key={card.value}
+                onClick={() => onAnswer(step, q.key, card.value, true)}
+                className="group relative rounded-2xl border-2 border-harbor-primary/15 bg-white overflow-hidden transition-all duration-200 hover:border-harbor-primary/40 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-harbor-primary/30"
+              >
+                <div className="aspect-[3/4] bg-harbor-bg flex items-center justify-center overflow-hidden">
+                  <img
+                    src={card.image}
+                    alt={card.label}
+                    className="w-full h-full object-cover object-top"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                      const parent = (e.target as HTMLImageElement).parentElement;
+                      if (parent) {
+                        parent.innerHTML = `<span class="text-6xl">${card.emoji}</span>`;
+                      }
+                    }}
+                  />
+                </div>
+                <div className="px-3 py-2.5 bg-harbor-primary text-white font-medium text-sm flex items-center justify-between">
+                  <span>{card.label}</span>
+                  <svg className="w-4 h-4 opacity-70 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="text-center space-y-3 max-w-lg mx-auto">
+            <p className="text-xs text-harbor-text/60 leading-relaxed italic">
+              This assessment is developed by the team behind the World’s Largest ADHD Parenting Summit with 250,000+ registered parents and world-renowned ADHD experts, such as Dr. Edward Hallowell · Dr. Patricia Quinn · Dr. Stephen Hinshaw · Dr. Sasha Hamdani and 70 more.
+            </p>
+            <p className="text-xs text-harbor-text/40 leading-relaxed">
+              It will take about 7 minutes. Your answers stay private and won’t be shared, sold, or seen by anyone other than you.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    // ─── Standard basic-info step ─────────────────────────────────────────
+    return (
+      <div>
         {q.emoji && (
           <div className="text-4xl mb-4 text-center">{q.emoji}</div>
         )}
         {inner}
         {q.key === "childName" && (
           <p className="text-xs text-gray-400 leading-relaxed text-center mt-4">
-            We ask for your child's name so we can personalise their report for you. It won't be shared, sold, or seen by anyone other than you. This is your report only.
+            We ask for your child’s name so we can personalise their report for you. It won’t be shared, sold, or seen by anyone other than you. This is your report only.
           </p>
         )}
-        {step === 1 && (
-        <p className="text-xs text-harbor-text/40 leading-relaxed text-center mt-4">
-              It will take about 7 minutes. Your answers stay private and won’t be shared, sold, or seen by anyone other than you. This assessment is for informational and educational purposes only. It is not a clinical assessment, diagnosis, or substitute for professional evaluation. The profiles and recommendations provided are based on patterns commonly observed in children with ADHD and should not be used to make medical or therapeutic decisions. If you have concerns about your child's development or behaviour, please consult a qualified healthcare provider.
-        </p>
-    )}
       </div>
     );
   }
