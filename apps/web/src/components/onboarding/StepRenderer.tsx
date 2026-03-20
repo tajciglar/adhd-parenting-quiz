@@ -123,7 +123,7 @@ export default function StepRenderer({
                   <img
                     src={card.image}
                     alt={card.label}
-                    className="w-full h-full object-cover object-top block align-bottom"
+                    className="w-full h-full object-cover object-top block"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = "none";
                       const parent = (e.target as HTMLImageElement).parentElement;
@@ -133,7 +133,7 @@ export default function StepRenderer({
                     }}
                   />
                 </div>
-                <div className="px-3 py-2.5 bg-harbor-primary text-white font-medium text-sm flex items-center justify-between">
+                <div className="relative z-10 -mt-px px-3 py-2.5 bg-harbor-primary text-white font-medium text-sm flex items-center justify-between">
                   <span>{card.label}</span>
                   <svg className="w-4 h-4 opacity-70 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
