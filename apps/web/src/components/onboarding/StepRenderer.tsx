@@ -86,11 +86,11 @@ export default function StepRenderer({
 
     // ─── Landing page (step 1): photo card grid ───────────────────────────
     if (step === 1 && q.key === "caregiverType") {
-      const CAREGIVER_CARDS: Array<{ value: string; label: string; image: string; emoji: string }> = [
-        { value: "Mom", label: "Mom", image: "/landing/mom.png", emoji: "👩" },
-        { value: "Dad", label: "Dad", image: "/landing/dad.png", emoji: "👨" },
-        { value: "Grandma / Grandpa", label: "Grandma / Grandpa", image: "/landing/grandparent.png", emoji: "👴" },
-        { value: "Other", label: "Other", image: "/landing/teacher.png", emoji: "🧑" },
+      const CAREGIVER_CARDS: Array<{ value: string; label: string; image: string; emoji: string; bg: string }> = [
+        { value: "Mom", label: "Mom", image: "/landing/mom.png", emoji: "👩", bg: "#ffffff" },
+        { value: "Dad", label: "Dad", image: "/landing/dad.png", emoji: "👨", bg: "#ffffff" },
+        { value: "Grandma / Grandpa", label: "Grandma / Grandpa", image: "/landing/grandparent.png", emoji: "👴", bg: "#000000" },
+        { value: "Other", label: "Other", image: "/landing/teacher.png", emoji: "🧑", bg: "#000000" },
       ];
 
       return (
@@ -117,7 +117,7 @@ export default function StepRenderer({
                 key={card.value}
                 onClick={() => onAnswer(step, q.key, card.value, true)}
                 className="group relative rounded-2xl border-2 border-harbor-primary/15 overflow-hidden transition-all duration-200 hover:border-harbor-primary/40 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-harbor-primary/30"
-                style={{ background: "#ffffff" }}
+                style={{ background: card.bg }}
               >
                 <div className="aspect-[3/4] flex items-center justify-center overflow-hidden">
                   <img
