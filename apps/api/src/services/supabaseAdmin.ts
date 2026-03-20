@@ -519,7 +519,7 @@ export interface RescoreMismatch {
 }
 
 async function fetchMismatches(): Promise<{ total: number; mismatches: RescoreMismatch[] }> {
-  const { matchArchetype } = await import("@adhd-parenting-quiz/shared");
+  const { matchArchetype, applyGenderVariant } = await import("@adhd-parenting-quiz/shared");
   const sb = getSupabaseAdmin();
   if (!sb) return { total: 0, mismatches: [] };
 
@@ -532,7 +532,8 @@ async function fetchMismatches(): Promise<{ total: number; mismatches: RescoreMi
   const mismatches: RescoreMismatch[] = [];
   for (const row of rows) {
     if (!row.trait_scores) continue;
-    const correct = matchArchetype(row.trait_scores as import("@adhd-parenting-quiz/shared").TraitScores);
+    const baseMatch = matchArchetype(row.trait_scores as import("@adhd-parenting-quiz/shared").TraitScores);
+    const correct = { ...baseMatch, id: applyGenderVariant(baseMatch.id, row.child_gender ?? undefined) };
     if (correct.id !== row.archetype_id) {
       mismatches.push({
         id: row.id,

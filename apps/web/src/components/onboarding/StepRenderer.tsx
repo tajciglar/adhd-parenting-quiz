@@ -24,6 +24,7 @@ function interpolate(template: string, responses: OnboardingResponses): string {
   const is_ = isMale ? "is" : isFemale ? "is" : "are";
   const was_ = isMale ? "was" : isFemale ? "was" : "were";
   const dont = isMale ? "doesn't" : isFemale ? "doesn't" : "don't";
+  const knows = isMale ? "knows" : isFemale ? "knows" : "know";
 
   return template
     .replace(/\{childName\}/g, childName)
@@ -32,7 +33,8 @@ function interpolate(template: string, responses: OnboardingResponses): string {
     .replace(/\{sub\}/g, sub)
     .replace(/\{is\}/g, is_)
     .replace(/\{was\}/g, was_)
-    .replace(/\{dont\}/g, dont);
+    .replace(/\{dont\}/g, dont)
+    .replace(/\{knows\}/g, knows);
 }
 
 export default function StepRenderer({

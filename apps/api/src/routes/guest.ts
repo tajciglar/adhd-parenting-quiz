@@ -295,7 +295,7 @@ export default async function guestRoutes(fastify: FastifyInstance) {
       }
 
       // 1. Compute trait profile
-      const traitProfile = computeTraitProfile(responses);
+      const traitProfile = computeTraitProfile(responses, childGender);
       const archetype = ARCHETYPES.find((a) => a.id === traitProfile.archetypeId);
 
       // Log scores for analytics (visible in Railway logs)

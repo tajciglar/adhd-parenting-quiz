@@ -33,8 +33,8 @@ export default function CalculatingScreen({
 
   // Compute archetype client-side
   const traitProfile = useMemo(
-    () => computeTraitProfile(responses as Record<string, unknown>),
-    [responses],
+    () => computeTraitProfile(responses as Record<string, unknown>, childGender),
+    [responses, childGender],
   );
   const archetype = useMemo(
     () => ARCHETYPES.find((a) => a.id === traitProfile.archetypeId) ?? ARCHETYPES[0],

@@ -1035,6 +1035,1265 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
       "bedtime": "A physical wind-down 30 minutes before bed (stretching, yoga, a warm bath) followed by a predictable, low-stimulation routine. Keep the steps the same every night so [NAME]'s brain begins to associate the sequence with sleep. If [NAME] is still physically restless in bed, deep pressure (a weighted blanket, firm back rub, or tight tuck-in) can help the nervous system settle. A brief bedtime check-in: \"What was the best part of today? What was the hardest?\", gives [NAME] a contained space to process without the conversation expanding into something that re-energises [HIM/HER/THEM].",
       "overwhelm": "After the overwhelm has passed, repair matters enormously. [NAME] almost certainly feels ashamed of what happened, even if [HE/SHE/THEY] cannot say so. A calm, connecting conversation teaches [NAME] that the impulse is not who [HE/SHE/THEY] is, and that the relationship is not broken by the explosion. Over time, you can build a shared vocabulary: \"I can see the bull starting to charge. Do you want to take a break before it gets too big?\" This gives [NAME] an early-warning system and a dignified exit before the overwhelm takes over."
     }
+  },
+  "deer": {
+    "archetypeId": "deer",
+    "title": "THE GENTLE DEER",
+    "innerVoiceQuote": "\"I feel the world so deeply that sometimes I need help finding my way through it.\" \u2014 [NAME]",
+    "animalDescription": "The deer is one of the most alert and socially attuned creatures in the natural world. It lives by reading the environment - every shift in sound, every movement at the edge of the group, every signal of safety or danger. It stays connected by staying aware. It does not move through the world heavily. It moves lightly, carefully, responsively, always taking in more than most others realize. This particular deer is the Gentle one - the one whose heart is open, whose awareness is constant, and whose nervous system is so finely tuned that [HE/SHE/THEY] feels everything around [HIM/HER/THEM] at full volume.\n\nThe same sensitivity that makes [NAME] warm, thoughtful, and deeply responsive also makes daily life harder than it looks. [HE/SHE/THEY] notices small changes in tone, expression, inclusion, and mood long before other children do. [HE/SHE/THEY] feels the atmosphere of a room almost immediately. But when the brain is also struggling with attention, emotional regulation, and follow-through, that sensitivity can become overwhelming. [NAME] wants very much to stay connected, to stay with the group, to stay steady - but [HIS/HER/THEIR] system is constantly being pulled by everything it notices and everything it feels. What looks like overreacting, withdrawal, distraction, or social missteps is often the result of a child whose whole system is working overtime just to feel safe, keep up, and not lose [HIMSELF/HERSELF/THEMSELVES] along the way.",
+    "aboutChild": "[NAME] is one of the most deeply feeling, socially motivated children you will ever meet. [HE/SHE/THEY] needs other people - not as a preference but as a neurological requirement. Connection is not something [NAME] enjoys. It is something [NAME] runs on. But [NAME]'s brain works against [HIM/HER/THEM] at every turn. The attention drifts, so [HE/SHE/THEY] misses the social cue. The executive function lags, so [HE/SHE/THEY] can't keep up with the group plan. The emotions hit so hard that every small rejection feels like being left behind by the entire herd. And the social awareness means [HE/SHE/THEY] notices all of it - every glance, every whisper, every moment [HE/SHE/THEY] fell out of step.\n\nThis creates a painful loop at the heart of [NAME]'s daily life. The thing [NAME] wants most - genuine, sustained connection with peers - is made harder by the very systems that drive [HIS/HER/THEIR] desire for it. [HE/SHE/THEY] forgets what a friend told [HIM/HER/THEM] yesterday. [HE/SHE/THEY] misses the shift in tone that means someone has had enough. [HE/SHE/THEY] can't organise the logistics of being a reliable friend - the texts, the plans, the follow-through. And every one of these small stumbles registers emotionally as evidence that [HE/SHE/THEY] doesn't belong. The child who wants connection more than almost anything is the child who is most devastated when connection breaks down. And [NAME] feels that gap every single time.",
+    "hiddenGift": "The emotional depth and social awareness that make [NAME]'s daily life so difficult are the same qualities that make [HIM/HER/THEM] one of the most genuinely warm, empathetic, and life-giving people in any room. [NAME] reads rooms. [HE/SHE/THEY] senses when someone else is struggling. [HE/SHE/THEY] cares about fairness, loyalty, and inclusion in ways that many adults haven't yet developed. When a new child arrives at school looking lost, [NAME] is often the first to walk over. When a friend is sad, [NAME] is the one who notices before anyone else.\n\nWhen [NAME] is excited about you, about your idea, about what you just said - that excitement is completely real and completely infectious. The right friends, the ones who appreciate [HIS/HER/THEIR] depth, who find [HIS/HER/THEIR] warmth nourishing rather than overwhelming, will love [NAME] with an intensity that most people never experience. Those friendships exist. [NAME] just needs support finding them and sustaining them.",
+    "aboutBrain": "[NAME]'s profile is shaped by four areas where [HIS/HER/THEIR] brain works differently.",
+    "brainSections": [
+      {
+        "title": "Inattention",
+        "content": "[NAME]'s brain struggles to stay anchored in the present moment, particularly during tasks that don't generate enough emotional or social interest. The attention drifts not because [NAME] doesn't care, but because the brain's dopamine system doesn't sustain focus on things that feel routine. In social situations, this means [HE/SHE/THEY] may miss cues, lose track of conversations, or forget what was said moments ago."
+      },
+      {
+        "title": "Emotional Intensity",
+        "content": "[NAME] experiences emotions at a significantly higher volume than most children [HIS/HER/THEIR] age. Rejection, exclusion, and social failure hit with a force that is genuinely disproportionate to the event but entirely proportionate to [NAME]'s inner experience. The emotional system floods fast and takes longer to return to baseline, which means small social disappointments can feel catastrophic."
+      },
+      {
+        "title": "Executive Function",
+        "content": "[NAME]'s internal management system - the part of the brain that plans, organises, sequences, and follows through - requires significantly more support than most children [HIS/HER/THEIR] age. This affects everything from keeping track of friendships to managing homework to remembering what was agreed yesterday. The gap between intention and execution is wide, and it shows up in every area of daily life."
+      },
+      {
+        "title": "Social Drive",
+        "content": "[NAME]'s need for social connection is neurologically intense. [HE/SHE/THEY] is not just socially motivated - [HE/SHE/THEY] is socially dependent in a way that goes beyond preference. [HE/SHE/THEY] reads emotional atmospheres with remarkable accuracy, but the combination of inattention and executive lag means [HE/SHE/THEY] often can't act on what [HE/SHE/THEY] perceives in time to get the social response right."
+      }
+    ],
+    "dayInLife": {
+      "morning": "[NAME] wakes up already tuned in to the emotional atmosphere of the house. If something feels off - tension between parents, a sibling in a bad mood, a rushed tone - [HE/SHE/THEY] absorbs it immediately and it colours everything that follows. Getting ready requires holding a sequence of steps in working memory while simultaneously managing the emotional weight of whatever [HE/SHE/THEY] has already picked up. A forgotten lunch box or a missing shoe isn't just a logistical problem - it becomes evidence that [HE/SHE/THEY] can't keep up, and the emotional response arrives before the problem is even solved.",
+      "school": "[NAME] spends much of the school day navigating two invisible workloads simultaneously: the academic demands of the classroom and the social dynamics of the peer group. [HE/SHE/THEY] is tracking who said what at break, who looked away during group work, whether the teacher's tone meant something. Meanwhile, the attention drifts during instructions, the executive system can't hold the multi-step task, and by the time [HE/SHE/THEY] realises [HE/SHE/THEY] has missed something, the class has moved on. The social cost of asking for help feels higher than the academic cost of staying lost.",
+      "afterSchool": "[NAME] arrives home carrying the full emotional weight of the school day. Every social interaction has been filed and is now being replayed. The moment someone didn't include [HIM/HER/THEM]. The joke that might have been about [HIM/HER/THEM]. The friend who seemed distant. [HE/SHE/THEY] needs to process all of this before homework or chores become possible. Pushing demands too early will meet either emotional flooding or complete withdrawal.",
+      "bedtime": "Bedtime is when the day's unprocessed social and emotional content arrives in full. [NAME] replays conversations, worries about tomorrow's dynamics, and asks questions that reveal how much [HE/SHE/THEY] has been carrying. This is not stalling. This is a nervous system that has been holding everything together all day and finally has space to feel it. A few minutes of calm, non-judgmental listening can make the difference between a settled night and hours of anxious wakefulness."
+    },
+    "drains": [
+      "Unstructured group social situations with shifting dynamics",
+      "Being corrected or embarrassed in front of peers",
+      "Multi-step instructions delivered verbally once",
+      "Feeling excluded, forgotten, or invisible",
+      "Having to manage social logistics alone (planning, texting, remembering)",
+      "Being told [HE/SHE/THEY] is \"too sensitive\" or \"too much\"",
+      "Rushing through transitions without warning",
+      "Comparison to peers who seem socially effortless"
+    ],
+    "fuels": [
+      "One-on-one time or small, predictable groups",
+      "Private, gentle feedback delivered without shame",
+      "One step at a time with visual support",
+      "Being given a role or purpose in the group",
+      "Help with the logistics of friendship \u2014 reminders, scripts, facilitated invitations",
+      "Recognition that [HIS/HER/THEIR] depth of feeling is a strength, not a flaw",
+      "Extra time and advance warning before changes",
+      "An adult who celebrates [HIS/HER/THEIR] warmth while building [HIS/HER/THEIR] scaffolding"
+    ],
+    "overwhelm": "[NAME]'s overwhelm is deeply social and deeply emotional. It arrives when the gap between wanting connection and failing at connection becomes too painful to hold. The trigger might look small from the outside - a friend choosing someone else at lunch, a group project where [NAME] felt invisible, a text that wasn't returned. But for [NAME], each of these activates the full weight of every similar experience stored in emotional memory.\n\nWhen overwhelmed, [NAME] may withdraw completely, become tearful and inconsolable, or lash out in ways that seem disproportionate. What is happening underneath is a nervous system that has been running at full sensitivity all day, tracking every social signal, absorbing every emotional shift, and has finally reached the point where it cannot hold any more. The child who tries hardest to stay connected is the child who falls apart most completely when connection breaks.\n\nIn these moments, do not try to reason or problem-solve. Move close, speak softly, and simply be present. [NAME] needs to feel that the connection with you is still intact before [HE/SHE/THEY] can begin to recover from whatever connection just broke elsewhere.",
+    "affirmations": [
+      { "when": "After a social disappointment that feels enormous and you can see the shame arriving", "say": "\"That really hurt. And it makes sense that it did.\"" },
+      { "when": "When [NAME] is convinced nobody likes [HIM/HER/THEM] because of one difficult interaction", "say": "\"One hard moment doesn't mean you've lost everything. The people who matter are still there.\"" },
+      { "when": "When the sensitivity is being treated as the problem rather than the strength it actually is", "say": "\"The way you feel things is not a flaw. It's one of the best things about you.\"" },
+      { "when": "When [NAME] has missed a social cue or forgotten a social commitment and is drowning in guilt", "say": "\"Your brain works differently, not worse. We'll find ways to make it easier.\"" },
+      { "when": "On a hard day when everything feels like evidence that [HE/SHE/THEY] doesn't belong", "say": "\"You belong. Not because you're perfect at it, but because you care more than almost anyone.\"" }
+    ],
+    "doNotSay": [
+      { "when": "A social rejection has hit hard and you want to help [NAME] move on", "insteadOf": "\"Just find other friends.\"", "tryThis": "\"That really hurt. Tell me what happened, and we'll figure it out together.\"" },
+      { "when": "The emotional response seems bigger than the situation warrants", "insteadOf": "\"You're overreacting.\"", "tryThis": "\"I can see this feels really big right now. I'm right here.\"" },
+      { "when": "You're frustrated by how much social dynamics dominate [NAME]'s world", "insteadOf": "\"Stop worrying so much about what everyone thinks.\"", "tryThis": "\"Your friendships matter to you. Let's talk about what's going on.\"" },
+      { "when": "[NAME] has forgotten something again and the pattern is exhausting", "insteadOf": "\"If you actually cared, you'd remember.\"", "tryThis": "\"I know you care. Your brain just needs more support to keep track. Let's build a system.\"" },
+      { "when": "The sensitivity is constant and you're running out of patience", "insteadOf": "\"You're too sensitive.\"", "tryThis": "\"You feel things deeply. That's not a weakness, even when it's hard.\"" }
+    ],
+    "closingLine": "[NAME] is a Gentle Deer. And the world needs more of them.",
+    "whatHelps": {
+      "aboutChild": "Keep social groups small and predictable where possible. Give [NAME] a defined role in group settings so [HE/SHE/THEY] has a clear way to contribute. Help with the logistics of friendship - send the text together, plan the playdate, rehearse the conversation. The social skills are there; the executive scaffolding to use them consistently is what needs support.",
+      "hiddenGift": "Help [NAME] find the friendships where the depth is matched. One or two close friends who appreciate [HIS/HER/THEIR] warmth are worth more than a large group where [HE/SHE/THEY] has to perform. When you see the empathy and social awareness working well, name it: \"You noticed she was upset before anyone else did. That's a real gift.\"",
+      "brain": "Give one instruction at a time and check understanding before moving on. Use visual supports for multi-step tasks. Before social situations, preview what to expect and rehearse one specific skill. After social situations, debrief gently: \"What went well? What felt hard?\" Build the self-monitoring skills the brain isn't yet supplying automatically.",
+      "morning": "Reduce the emotional load before it stacks up. A calm, predictable morning routine with visual prompts removes the need to hold steps in memory. Check the emotional temperature early: \"How are you feeling this morning?\" A one-minute check-in can prevent a thirty-minute meltdown.",
+      "school": "Ask the teacher for a buddy system or a defined social role during group work. A quiet signal that means \"I need a break\" gives [NAME] a way to manage overwhelm without public embarrassment. Written instructions alongside verbal ones help the attention gaps.",
+      "afterSchool": "Give [NAME] 15-20 minutes of emotional decompression before any demands. Let [HIM/HER/THEM] talk about the social content of the day first - that processing has to happen before homework becomes possible. Listen without fixing.",
+      "bedtime": "A brief, calm check-in: \"Anything sitting heavy from today?\" Let [NAME] talk without solving. Two minutes of genuine listening can release enough emotional weight for sleep to arrive. If anxiety about tomorrow is present, preview the next day briefly: \"Here's what's happening tomorrow\" reduces the unknown.",
+      "overwhelm": "Move close, speak softly, and stay present. Do not try to reason or minimise. [NAME] needs to feel that your connection is intact before [HE/SHE/THEY] can recover from whatever connection just broke elsewhere. After the storm, come back together: \"That was hard. I'm still right here.\""
+    }
+  },
+  "owl": {
+    "archetypeId": "owl",
+    "title": "THE KEEN OWL",
+    "innerVoiceQuote": "\"I see everything that's happening between people. I just can't always find my place in it.\" \u2014 [NAME]",
+    "animalDescription": "The Owl is one of nature's most perceptive creatures. It sees in the dark what others cannot see in daylight. It watches, it listens, it processes with extraordinary precision - and it does so quietly, from a distance, taking in far more than anyone around it realises. This particular Owl is the Keen one - the one whose social awareness is remarkably sharp, whose ability to read people is genuine and advanced, but whose attention system means the insights arrive unevenly, sometimes brilliantly on target, sometimes a beat too late.",
+    "aboutChild": "[NAME] is a child who notices the social world with unusual clarity but struggles to stay consistently present within it. [HE/SHE/THEY] reads emotional atmospheres, picks up on subtle dynamics between people, and often understands social situations at a level beyond [HIS/HER/THEIR] years. But the attention system that should keep [HIM/HER/THEM] anchored in the moment drifts, and when it drifts, the social thread is lost. [NAME] may miss the punchline, lose track of the conversation, or zone out at precisely the moment the group shifted direction.\n\nThis creates a specific kind of frustration: [NAME] understands people deeply but can't always show up for them reliably. [HE/SHE/THEY] knows what a good friend does but can't always execute it in real time. The social insight is genuine. The follow-through is where the brain's wiring creates a gap.",
+    "hiddenGift": "[NAME]'s combination of social perception and reflective depth makes [HIM/HER/THEM] one of the most insightful children in any room. [HE/SHE/THEY] sees patterns in relationships that others miss entirely. [HE/SHE/THEY] understands why people behave the way they do at a level that is genuinely unusual for [HIS/HER/THEIR] age. In one-on-one settings, [NAME]'s ability to connect is remarkable - the depth of understanding, the quality of listening, the emotional intelligence are all real. These are the foundations of someone who will be sought out for wisdom, counsel, and genuine understanding throughout [HIS/HER/THEIR] life.",
+    "aboutBrain": "[NAME]'s profile is shaped by two areas where [HIS/HER/THEIR] brain works differently.",
+    "brainSections": [
+      {
+        "title": "Inattention",
+        "content": "[NAME]'s brain struggles to maintain consistent focus, particularly in group settings where multiple social streams compete for attention. The drift is quiet - [NAME] doesn't disrupt, [HE/SHE/THEY] simply fades. The brain's anchor to the present moment loosens without warning, and by the time [NAME] returns, the social context has moved on. This makes group dynamics particularly challenging, because the social rules change while [NAME] is away."
+      },
+      {
+        "title": "Social Awareness",
+        "content": "[NAME]'s social processing is genuinely advanced - [HE/SHE/THEY] reads people with accuracy and depth that most children [HIS/HER/THEIR] age cannot match. The challenge is that this awareness operates unevenly: brilliant and perceptive when attention is engaged, completely offline when the drift takes over. The result is a child who alternates between remarkable social insight and puzzling social disconnection, sometimes within the same conversation."
+      }
+    ],
+    "dayInLife": {
+      "morning": "[NAME]'s mornings are typically quiet. [HE/SHE/THEY] is not the child who creates chaos - [HE/SHE/THEY] is the child who drifts through the routine at [HIS/HER/THEIR] own pace, often lost in thought, needing gentle re-anchoring at each step. The anxiety about social situations at school may already be present, showing up as reluctance or quiet withdrawal rather than overt resistance.",
+      "school": "The classroom is where [NAME]'s profile creates the most invisible difficulty. [HE/SHE/THEY] sits quietly, appears to be listening, and then has no idea what was just said. In group work, [HE/SHE/THEY] may contribute a brilliant observation and then completely miss the next three exchanges. Socially, [NAME] understands the dynamics but can't always track them in real time, leading to moments of disconnection that peers may interpret as disinterest.",
+      "afterSchool": "[NAME] arrives home needing to process the social complexity of the day. [HE/SHE/THEY] may have specific observations about what happened between people, questions about social dynamics, or quiet worry about interactions that didn't go as expected. This processing is genuine intellectual and emotional work, and it needs space before other demands arrive.",
+      "bedtime": "[NAME]'s active mind continues processing social observations well into the evening. [HE/SHE/THEY] may ask surprisingly insightful questions about relationships, fairness, or human behaviour. This is not stalling - it is a mind that sees deeply and needs help knowing what to do with what it sees."
+    },
+    "drains": [
+      "Large, fast-moving group dynamics where the social thread shifts quickly",
+      "Being called on or put on the spot when attention has drifted",
+      "Environments where social expectations are implicit rather than stated",
+      "Feeling like [HIS/HER/THEIR] quiet nature is being mistaken for not caring",
+      "Multi-step social situations with no time to process",
+      "Being told to \"just join in\" without support for how",
+      "Noisy, overstimulating environments that fragment attention further"
+    ],
+    "fuels": [
+      "One-on-one or very small group settings where depth is possible",
+      "Time to observe before being expected to participate",
+      "Explicit social expectations explained in advance",
+      "Adults who recognise that quiet does not mean disengaged",
+      "A defined role in group settings that plays to [HIS/HER/THEIR] observational strengths",
+      "Gentle re-anchoring without shame when attention drifts",
+      "Recognition that [HIS/HER/THEIR] social perception is a genuine strength"
+    ],
+    "overwhelm": "[NAME]'s overwhelm is quiet and easy to miss. When the social demands exceed what [HIS/HER/THEIR] attention system can track, [NAME] withdraws - not dramatically, but completely. [HE/SHE/THEY] goes inside, becomes unreachable, and may appear simply switched off. The overwhelm is the result of trying to process social complexity with an attention system that keeps cutting out.\n\nIn these moments, reduce demands and move close. A quiet presence, a simple question when [HE/SHE/THEY] is ready, and no pressure to explain what happened are the most effective responses. [NAME] will come back when the system has had time to reset.",
+    "affirmations": [
+      { "when": "When [NAME] has drifted and missed something socially important", "say": "\"Your brain wandered. That's not a character flaw - it's just how your attention works.\"" },
+      { "when": "When [NAME]'s quiet nature is being misread as not caring", "say": "\"I know you see more than you say. That's a strength, not a problem.\"" },
+      { "when": "When [NAME] feels like [HE/SHE/THEY] can't keep up with the social pace around [HIM/HER/THEM]", "say": "\"You don't have to be the loudest to be the most important person in the room.\"" },
+      { "when": "When group situations feel overwhelming and [NAME] wants to withdraw", "say": "\"It's okay to need a smaller world. The best connections happen there anyway.\"" },
+      { "when": "After a day of trying to keep up and feeling like [HE/SHE/THEY] failed", "say": "\"You understand people better than almost anyone I know. That matters more than keeping up.\"" }
+    ],
+    "doNotSay": [
+      { "when": "You can see [NAME] has drifted during a conversation or group activity", "insteadOf": "\"You weren't even listening.\"", "tryThis": "\"Let me catch you up. Here's where we are.\"" },
+      { "when": "[NAME] is hanging back while other children are joining in", "insteadOf": "\"Just go and play with them.\"", "tryThis": "\"Would it help to watch for a bit first? I'll be right here.\"" },
+      { "when": "[NAME]'s quietness worries you", "insteadOf": "\"Why don't you have more friends?\"", "tryThis": "\"Tell me about the people you feel most comfortable with.\"" },
+      { "when": "A social situation didn't go well and you want to help", "insteadOf": "\"You need to try harder to fit in.\"", "tryThis": "\"What felt hard about that? Let's figure out one thing to try differently next time.\"" },
+      { "when": "The drift is constant and you're losing patience", "insteadOf": "\"You're always in your own world.\"", "tryThis": "\"I can see you went somewhere interesting. Want to tell me about it?\"" }
+    ],
+    "closingLine": "[NAME] is a Keen Owl. And the world needs more of them.",
+    "whatHelps": {
+      "aboutChild": "Keep social settings small and predictable. Give [NAME] time to observe before expecting participation. Debrief social situations afterwards - [NAME] often understands what happened better in reflection than in real time. Help [HIM/HER/THEM] identify one or two close friendships to invest in rather than managing a large group.",
+      "hiddenGift": "Give [NAME] opportunities to use the social perception as a strength: mediating, advising, noticing what others miss. When [HE/SHE/THEY] makes an insightful observation about someone, name it: \"That was really perceptive. Most people wouldn't have noticed that.\"",
+      "brain": "Use [NAME]'s name before giving instructions. Keep directions to one step at a time. In social situations, preview what to expect and give [HIM/HER/THEM] a specific focus: \"Watch for when someone looks like they want to join in.\" After the event, review: \"What did you notice?\" This builds the bridge between perception and participation.",
+      "morning": "A calm, low-stimulation morning with a predictable routine. If school anxiety is present, preview the day briefly: \"Here's what's happening today.\" Don't force conversation - [NAME] may need quiet to prepare for the social demands ahead.",
+      "school": "A seat near the teacher for gentle re-anchoring. A buddy system or paired work rather than large groups. Written instructions alongside verbal ones. Permission to take a moment before responding - [NAME]'s best answers come with a short delay.",
+      "afterSchool": "Let [NAME] debrief the social content of the day before anything else. Ask open questions: \"What did you notice today?\" and let the observations come. This is how [NAME] processes, and it needs to happen before homework is possible.",
+      "bedtime": "A quiet check-in that honours [NAME]'s observations: \"What are you thinking about?\" Don't rush the answer. The depth of what [NAME] shares at bedtime often reveals how much [HE/SHE/THEY] has been carrying silently all day.",
+      "overwhelm": "Reduce demands and move close. Don't ask [NAME] to explain what happened - just be present. A quiet space, minimal words, and patience. [NAME] will come back when the system has reset, and will often be able to articulate what happened with surprising clarity once [HE/SHE/THEY] is calm."
+    }
+  },
+  "octopus": {
+    "archetypeId": "octopus",
+    "title": "THE VIVID OCTOPUS",
+    "innerVoiceQuote": "\"I feel everything, notice everything, and my body never stops. It's a lot to be me.\" \u2014 [NAME]",
+    "animalDescription": "The Octopus is one of the most extraordinary creatures on earth - simultaneously processing information through eight independently moving arms, each one sensing, exploring, and responding to the environment in real time. It is never doing just one thing. It is always doing everything at once, and every input is arriving at full intensity. This particular Octopus is the Vivid one - the one whose every channel is open, every sense is heightened, every emotion is amplified, and whose remarkable brain is processing it all simultaneously with a capacity that is as exhausting as it is impressive.",
+    "aboutChild": "[NAME] is the child for whom everything is turned up. The attention scatters across every stimulus at once. The body cannot stay still. The senses take in more than most nervous systems are built to handle. The emotions arrive at full volume and without warning. The executive system can't organise, prioritise, or sequence fast enough to keep up with everything else that's happening. And the social world, which [NAME] cares about deeply, becomes one more channel competing for bandwidth in a system that is already running at full capacity.\n\nLiving with [NAME] is like living with a child who is experiencing the world at twice the resolution and twice the speed of everyone around [HIM/HER/THEM]. The brilliance is real. The overwhelm is equally real. And the gap between what [NAME] is capable of and what [NAME] can consistently deliver is one of the most confusing and frustrating features of daily life for everyone involved.",
+    "hiddenGift": "[NAME] takes in more, feels more, and processes more than almost any child [HIS/HER/THEIR] age. That is not a limitation - it is an extraordinary capacity that the world hasn't yet learned to accommodate. When even one or two of [NAME]'s channels are properly supported, the output is remarkable: creative, deeply felt, socially perceptive, physically dynamic, and genuinely original. The child who seems to struggle with everything is actually a child who is doing everything at once - and the goal is not to turn channels off but to help [NAME] manage the volume on each one.",
+    "aboutBrain": "[NAME]'s profile is shaped by six areas where [HIS/HER/THEIR] brain works differently.",
+    "brainSections": [
+      {
+        "title": "Inattention",
+        "content": "[NAME]'s attention scatters across multiple inputs simultaneously rather than filtering and focusing. Everything feels equally important and equally urgent, making sustained focus on any single task exceptionally difficult."
+      },
+      {
+        "title": "Hyperactivity",
+        "content": "[NAME]'s body operates at a consistently elevated baseline. The movement is constant and neurologically driven - it is how [HIS/HER/THEIR] nervous system stays regulated, not a choice or a behaviour problem."
+      },
+      {
+        "title": "Sensory Processing",
+        "content": "[NAME]'s senses are turned up higher than average across multiple channels. Sounds, textures, lights, and crowded environments create a sensory load that compounds everything else."
+      },
+      {
+        "title": "Emotional Regulation",
+        "content": "[NAME]'s emotions arrive fast, hit hard, and take longer to settle. When combined with sensory overload and attentional scatter, the emotional system becomes the point where everything converges and overflows."
+      },
+      {
+        "title": "Executive Function",
+        "content": "[NAME]'s internal organisational system is working overtime just to manage the volume of input arriving from every other channel. Planning, sequencing, and follow-through are significantly compromised because the management system is already at capacity."
+      },
+      {
+        "title": "Social Drive",
+        "content": "[NAME] cares deeply about connection and reads social situations with genuine sensitivity, but the combination of all other systems competing for bandwidth means social interactions are unpredictable - sometimes brilliant, sometimes overwhelming."
+      }
+    ],
+    "dayInLife": {
+      "morning": "[NAME]'s mornings are a collision of every system at once. The clothing feels wrong. The sounds are too loud. The body is already moving. The emotions are already high. The sequence of getting ready requires executive function that is already overwhelmed by sensory and emotional input. A single unexpected change can tip the entire morning.",
+      "school": "School asks [NAME] to sit still (hyperactivity), focus on one thing (attention), manage sensory input (processing), regulate emotions (emotional intensity), follow multi-step plans (executive function), and navigate social dynamics (social drive) - all at once, all day. Every system is under demand simultaneously, which is why school is both the most important and the most exhausting part of [NAME]'s day.",
+      "afterSchool": "[NAME] arrives home having spent every available resource. The containment of school ends and everything releases at once - the movement, the emotions, the sensory overload, the social processing. This is not bad behaviour. This is a system that has been running at maximum capacity for hours and has finally reached a safe space to discharge.",
+      "bedtime": "Settling for sleep requires turning down every channel simultaneously - and each channel resists independently. The body is still moving, the senses are still processing, the emotions are still running, and the mind is still racing. A multi-sensory wind-down routine that addresses each channel in sequence is essential: physical calming first, then sensory reduction, then emotional check-in, then quiet."
+    },
+    "drains": [
+      "Environments that are simultaneously loud, bright, crowded, and socially demanding",
+      "Being expected to regulate all systems at once without support",
+      "Long days with no break from sensory and social stimulation",
+      "Multi-step instructions delivered in a busy environment",
+      "Being told to calm down without being helped to",
+      "Feeling like [HE/SHE/THEY] is too much in every direction at once",
+      "Comparison to children who seem to manage effortlessly",
+      "Days with no physical outlet and no quiet space"
+    ],
+    "fuels": [
+      "A structured environment that reduces decisions and unpredictability",
+      "Regular movement breaks and sensory relief built into the day",
+      "One demand at a time with support for the first step",
+      "Adults who understand that every system is running at once",
+      "A calm, predictable home base to return to",
+      "Small, contained social settings rather than large groups",
+      "Being recognised for the extraordinary capacity that underlies the struggle",
+      "A sensory toolkit available at all times (headphones, fidgets, weighted blanket)"
+    ],
+    "overwhelm": "[NAME]'s overwhelm can look like anything - tears, rage, shutdown, escalating physical movement, sensory meltdown, social withdrawal, or all of the above in rapid succession. When multiple systems overload simultaneously, the result is a full nervous system crisis. The trigger may appear small, but the accumulated load behind it is enormous.\n\nIn these moments, reduce everything. Fewer words, less light, less sound, less expectation. Create a safe, contained space. Stay close but don't demand interaction. Address the body first (movement or deep pressure), then the senses (quiet, dim), then the emotions (simple acknowledgment), and only then, once everything has settled, the conversation.",
+    "affirmations": [
+      { "when": "When everything seems to be going wrong at once and [NAME] is overwhelmed by the sheer volume of it all", "say": "\"You're dealing with more than most people can see. I know that, and I'm proud of how hard you try.\"" },
+      { "when": "When [NAME] feels like [HE/SHE/THEY] is too much or too difficult", "say": "\"You're not too much. You're experiencing too much. There's a big difference.\"" },
+      { "when": "When the gap between capability and output is frustrating everyone", "say": "\"I can see what you're capable of. We'll build the support to let it show.\"" },
+      { "when": "After a full meltdown when shame is arriving", "say": "\"Your system got overloaded. That's not your fault. We'll figure out what tipped it.\"" },
+      { "when": "On a day when nothing seemed to work", "say": "\"Tomorrow is a new day with a new budget. We start fresh.\"" }
+    ],
+    "doNotSay": [
+      { "when": "Everything is escalating and you're overwhelmed too", "insteadOf": "\"What is WRONG with you?\"", "tryThis": "\"Your system is overloaded. Let's turn things down together.\"" },
+      { "when": "The behaviour seems extreme and you can't find the cause", "insteadOf": "\"There's no reason to act like this.\"", "tryThis": "\"Something has tipped over. Let's figure out what your body needs.\"" },
+      { "when": "You're exhausted by the intensity of every single day", "insteadOf": "\"Why can't you just be normal?\"", "tryThis": "\"I know your world is louder than everyone else's. I'm not going anywhere.\"" },
+      { "when": "Other parents seem to have it so much easier", "insteadOf": "\"Other kids don't do this.\"", "tryThis": "\"You're wired differently. That's not wrong, it's just harder right now.\"" },
+      { "when": "A public meltdown has left you embarrassed and drained", "insteadOf": "\"You embarrassed me.\"", "tryThis": "\"That was tough for both of us. Let's talk about what we can do differently next time.\"" }
+    ],
+    "closingLine": "[NAME] is a Vivid Octopus. And the world needs more of them.",
+    "whatHelps": {
+      "aboutChild": "Think in terms of total load, not individual behaviours. Every channel that's reduced gives the others more capacity. A quiet room gives better emotional regulation. A movement break gives better focus. Comfortable clothes give a calmer body. The strategy is always: reduce load on one system to free up capacity for the others.",
+      "hiddenGift": "Find the moments when [NAME]'s full-spectrum processing is an asset rather than a problem - creative work, outdoor exploration, one-on-one conversation, artistic expression - and invest in them. When everything is working together rather than competing, the result is extraordinary.",
+      "brain": "One system at a time. Address the most activated channel first: if the body is moving, start with movement. If emotions are high, start with acknowledgment. If senses are overloaded, start with reducing input. Don't try to fix everything at once - triage like you would in an emergency.",
+      "morning": "Reduce the morning to its absolute minimum. Clothes chosen the night before (sensory-friendly). Quiet environment. One step at a time. No rushing. Movement before leaving the house if possible. Every variable you can remove from the morning is one less thing for an already overwhelmed system to manage.",
+      "school": "Work with the school to create a sensory-friendly plan: headphones for independent work, movement breaks, a quiet space for overwhelm, written instructions, and a trusted adult [NAME] can go to. The goal is to reduce the total environmental load enough that learning becomes possible.",
+      "afterSchool": "Expect nothing for the first 30 minutes. Let [NAME] discharge however [HE/SHE/THEY] needs to - movement, quiet, sensory comfort. Only after the system has settled should any demands arrive. Build a predictable post-school routine that [NAME] can rely on every day.",
+      "bedtime": "Address each channel in sequence: physical calming first (stretching, bath, deep pressure), then sensory reduction (dim lights, quiet, familiar textures), then emotional check-in (brief, non-judgmental), then sleep. Same sequence every night. Predictability is the most powerful tool you have.",
+      "overwhelm": "Reduce everything simultaneously: fewer words, less light, less sound, less expectation. Create a safe, contained space. Stay close. Address the body first, then the senses, then the emotions, and only then the conversation. The order matters."
+    }
+  },
+  "swan": {
+    "archetypeId": "swan",
+    "title": "THE GRACEFUL SWAN",
+    "innerVoiceQuote": "\"I hold everything together on the surface. Underneath, I'm paddling harder than anyone knows.\" \u2014 [NAME]",
+    "animalDescription": "The Swan moves across the water with a grace that hides the relentless effort happening beneath the surface. To the world, she appears calm, composed, and effortlessly beautiful. What no one sees are the legs working constantly underneath, the ceaseless paddling that keeps her moving forward while appearing serene. This particular Swan is the Graceful one - the girl who holds herself together at school, who masks her struggles behind social awareness and quiet compliance, and who falls apart only when she finally reaches the safety of home.",
+    "aboutChild": "[NAME] is the girl who appears to be coping. She sits quietly in class, follows social rules, and works hard to meet expectations. Teachers describe her as lovely but sometimes distant. What nobody sees is the extraordinary effort it takes to maintain that surface. Underneath, [NAME] is managing drifting attention, intense emotions, executive function gaps, and a deep need for social connection that feels perpetually at risk.\n\n[NAME]'s presentation is shaped by the way girls with this profile often learn to compensate: through masking, people-pleasing, and internalising the struggle. The cost of this compensation is invisible to everyone except the people she trusts most - and it arrives, daily, as the door closes behind her at home.",
+    "hiddenGift": "[NAME]'s ability to read social situations, to empathise deeply, and to hold herself together under extraordinary internal pressure is not just compensation - it is genuine emotional intelligence. She notices what others miss, cares with an intensity that is rare, and brings a depth of feeling to her relationships that will be one of her greatest strengths as she grows. The same girl who falls apart at home is the girl who held a friend's hand during a hard moment at school. That capacity for connection and compassion is real.",
+    "aboutBrain": "[NAME]'s profile is shaped by four areas where her brain works differently.",
+    "brainSections": [
+      {
+        "title": "Inattention",
+        "content": "[NAME]'s attention drifts quietly rather than disruptively. She doesn't call out or leave her seat - she simply goes somewhere else inside her head. This inattentive presentation is more common in girls and is frequently missed because it doesn't create problems for anyone except [NAME] herself."
+      },
+      {
+        "title": "Emotional Intensity",
+        "content": "[NAME] feels emotions at a volume that is significantly higher than her peers, but she has learned to contain them in public. The containment costs energy, and by the end of the school day, the emotional reserves are empty. What arrives at home is everything that was held in all day."
+      },
+      {
+        "title": "Executive Function",
+        "content": "[NAME]'s organisational system requires significantly more support than it appears to from the outside. She compensates through anxiety-driven hyper-vigilance - constantly checking, worrying, and over-preparing - which masks the underlying executive gap but creates its own exhaustion."
+      },
+      {
+        "title": "Social Drive",
+        "content": "[NAME]'s need for social belonging is intense, and the fear of social failure drives much of her masking behaviour. She monitors friendships with constant vigilance, reads social cues with remarkable accuracy, and adjusts her behaviour to maintain acceptance - often at the cost of her own needs and authenticity."
+      }
+    ],
+    "dayInLife": {
+      "morning": "[NAME]'s mornings may be marked by anxiety about the social and academic demands ahead. She may take a long time choosing clothes, worry about a friendship dynamic, or become tearful over something that seems small but represents the weight of anticipated difficulty. The executive effort of getting organised competes with the emotional weight of what's coming.",
+      "school": "[NAME] holds it together at school through sheer effort. She follows the rules, manages her friendships, and appears to cope. But the attention drifts during lessons, the emotional regulation takes constant energy, and the social monitoring never switches off. By afternoon, she is running on empty - and the work she produces may not reflect what she actually knows because the executive system is too depleted to organise her thoughts onto paper.",
+      "afterSchool": "The mask comes off. [NAME] may cry, rage, refuse, or collapse into complete withdrawal. This is afterschool restraint collapse, and it is one of the most reliable features of the girl presentation of ADHD. Everything that was held in all day releases at once, and it releases at home because home is safe. This is not a reflection of your parenting. It is a reflection of how much effort [NAME] expends to appear okay everywhere else.",
+      "bedtime": "Bedtime is when [NAME]'s anxiety about social and academic performance arrives in full. She replays the day, worries about tomorrow, and processes the emotions that were suppressed since morning. The perfectionism and the fear of failure are loudest at night, and she needs calm, patient presence to help her let go of the day."
+    },
+    "drains": [
+      "The constant effort of masking and appearing to cope",
+      "Social dynamics that feel unpredictable or exclusionary",
+      "Academic tasks that require sustained executive effort after a long day of compensating",
+      "Being told she's fine because she doesn't look like she's struggling",
+      "Perfectionism-driven anxiety about getting things wrong",
+      "Feeling like she has to hold everything together for everyone",
+      "Comparison to peers who seem to manage without effort",
+      "Not being believed when she says she's struggling"
+    ],
+    "fuels": [
+      "Adults who see past the surface and acknowledge the effort underneath",
+      "Permission to not be okay - to struggle visibly without consequence",
+      "One-on-one time that is calm, connected, and free of demands",
+      "Support with organisation that doesn't feel like criticism",
+      "Safe spaces to express the emotions she has been containing",
+      "Small, predictable social settings where she doesn't have to perform",
+      "Recognition that the masking itself is the problem, not the child underneath",
+      "An adult who says \"I know how hard you're working. You don't have to do it all alone.\""
+    ],
+    "overwhelm": "[NAME]'s overwhelm often looks like a complete collapse after a period of appearing perfectly fine. The transition from 'coping' to 'not coping' can be sudden and alarming, because the containment was using every available resource and there was nothing left in reserve. When the mask drops, the flood that follows is the accumulated weight of hours or days of suppressed difficulty.\n\nIn these moments, do not try to identify the specific trigger - it is rarely just one thing. Simply be present, be calm, and let the pressure release. Say: \"You've been holding so much. You don't have to hold it anymore.\" The recovery happens through connection, not through problem-solving.",
+    "affirmations": [
+      { "when": "When [NAME] seems fine but you can sense the effort underneath", "say": "\"I know you're working harder than anyone can see. I see it, and I'm proud of you.\"" },
+      { "when": "After the mask drops and the emotions flood out", "say": "\"You don't have to hold it together for me. This is what home is for.\"" },
+      { "when": "When perfectionism is driving anxiety and nothing feels good enough", "say": "\"Done is better than perfect. And you are already enough.\"" },
+      { "when": "When the social monitoring is exhausting her and she feels like she can't be herself", "say": "\"The people who really matter want the real you. Not the performance.\"" },
+      { "when": "When she feels like she's falling behind despite trying harder than anyone", "say": "\"Effort like yours should be celebrated, not invisible. I celebrate it.\"" }
+    ],
+    "doNotSay": [
+      { "when": "She seems to be coping and you're relieved", "insteadOf": "\"See, you're fine!\"", "tryThis": "\"How are you really doing underneath?\"" },
+      { "when": "The afterschool meltdown is intense and you're struggling to understand", "insteadOf": "\"But you were fine at school!\"", "tryThis": "\"I know you held it together all day. You're safe to let go now.\"" },
+      { "when": "The emotional response seems disproportionate", "insteadOf": "\"It's not that big a deal.\"", "tryThis": "\"It feels big right now. I'm here.\"" },
+      { "when": "You want to encourage her to toughen up", "insteadOf": "\"You need to be stronger.\"", "tryThis": "\"You are already so much stronger than anyone knows. Let me help carry some of it.\"" },
+      { "when": "The perfectionism is preventing her from starting something", "insteadOf": "\"Just do your best.\"", "tryThis": "\"Let's do the worst version first. We can fix it later.\"" }
+    ],
+    "closingLine": "[NAME] is a Graceful Swan. And the world needs more of them.",
+    "whatHelps": {
+      "aboutChild": "The most important thing you can do is see past the mask. Don't take 'fine' at face value. Create daily moments where [NAME] has explicit permission to not be okay. Reduce the performance pressure at home - home should be the place where she doesn't have to hold it together.",
+      "hiddenGift": "Name the emotional intelligence as a strength, not a survival mechanism. When [NAME] notices someone else's feelings, says something kind, or holds space for a friend, tell her: \"That's a real gift. Not everyone can do that.\" Over time, help her direct that gift outward instead of using it all up on self-monitoring.",
+      "brain": "Watch for the quiet signs of struggle that the school may miss: declining grades despite effort, social withdrawal, increasing anxiety, physical complaints. Advocate for assessment and support - girls with this profile are systematically under-identified because their distress is internalised.",
+      "morning": "Reduce decisions and emotional load. Prepare everything the night before. Check in on emotional temperature early: \"How are you feeling about today?\" If anxiety is present, acknowledge it without trying to fix it: \"That sounds hard. You'll get through it, and I'll be here after.\"",
+      "school": "Work with the school to ensure [NAME]'s quiet struggles are recognised. Request preferential seating, written instructions, and check-ins with a trusted adult. The fact that she doesn't disrupt the class doesn't mean she doesn't need support.",
+      "afterSchool": "Expect the restraint collapse and plan for it. Give [NAME] 20-30 minutes of no demands after school. Let the emotions come out without trying to fix or redirect them. Provide sensory comfort and connection. Only after she has discharged should homework or other demands arrive.",
+      "bedtime": "A calm, connected check-in that gives [NAME] space to put down what she's been carrying. \"What's sitting heavy tonight?\" Don't rush to solutions. Sometimes just being heard is enough to let her sleep.",
+      "overwhelm": "Do not try to identify the trigger. Be present, be calm, and let the pressure release. Say: \"You've been holding so much. You don't have to hold it anymore.\" The recovery happens through connection, not through problem-solving."
+    }
+  },
+  "bunny": {
+    "archetypeId": "bunny",
+    "title": "THE DREAMY BUNNY",
+    "innerVoiceQuote": "\"I'm always somewhere else in my head. It's beautiful there, but I keep missing what's happening here.\" \u2014 [NAME]",
+    "animalDescription": "The Bunny moves softly through the world, gentle and alert, always sensing the environment but easily startled by what she finds there. She is warm, watchful, and deeply feeling - and when the world becomes too much, she freezes or retreats to the safety of her burrow. This particular Bunny is the Dreamy one - the girl whose rich inner world is her greatest comfort and her greatest obstacle, whose feelings run deep and whose attention drifts like clouds across a wide, open sky.",
+    "aboutChild": "[NAME] is the girl who drifts. Not loudly, not disruptively - she simply goes somewhere else inside her head, quietly and completely, while the world carries on around her. She is deeply feeling, easily overwhelmed by her own emotions, and struggles to organise the steps between wanting to do something and actually doing it. Teachers may describe her as sweet but scattered, present but not quite there.\n\nWhat makes [NAME]'s profile particularly hard to identify is that she doesn't cause problems. She sits quietly, she tries hard, and she masks her confusion with compliance. The attention gaps, the emotional flooding, and the executive dysfunction are all happening beneath a surface that looks fine - and the cost of maintaining that surface is carried entirely by [NAME] herself.",
+    "hiddenGift": "[NAME]'s inner world is rich, vivid, and genuinely creative. The mind that drifts during maths class is the same mind that creates entire worlds, stories, and ideas with extraordinary depth and originality. Her emotional sensitivity makes her one of the most empathetic, caring, and intuitively kind people in any room. When she is given time, space, and the right support, the work [NAME] produces reflects a quality of thought and feeling that is genuinely exceptional.",
+    "aboutBrain": "[NAME]'s profile is shaped by three areas where her brain works differently.",
+    "brainSections": [
+      {
+        "title": "Inattention",
+        "content": "[NAME]'s attention drifts quietly and constantly. She doesn't disrupt - she disappears. The brain's hold on the present moment is loose, and without sufficient stimulation or novelty, it slides into internal thought without warning. This inattentive presentation is more common in girls and is frequently missed because it doesn't create classroom problems."
+      },
+      {
+        "title": "Emotional Intensity",
+        "content": "[NAME] experiences emotions at a significantly higher volume than most children her age, and those emotions take longer to settle. The combination of emotional flooding and inattention means that when a feeling arrives, it can completely hijack focus and leave [NAME] unable to function until the emotional wave has passed."
+      },
+      {
+        "title": "Executive Function",
+        "content": "[NAME]'s internal management system requires significantly more support than it appears to. The gap between knowing what to do and being able to initiate, sequence, and complete it is wide - and it shows up in forgotten homework, lost belongings, and an inability to get started without external help."
+      }
+    ],
+    "dayInLife": {
+      "morning": "[NAME]'s mornings are slow and dreamy. She drifts through the routine, losing time in thoughts, in objects she finds along the way, in the texture of her jumper or the pattern on the wall. Getting dressed becomes a twenty-minute exercise not because she's resistant but because the brain keeps floating away from the task. An emotional wobble - a wrong tone, a sibling conflict, a worry about school - can derail the entire morning.",
+      "school": "[NAME] sits at her desk looking attentive while her mind is three rooms away. She misses instructions, loses her place in group work, and often has no idea what the class has moved on to. She compensates by watching other children and piecing together what she missed, a strategy that works sometimes and quietly exhausts her every day. The emotional weight of feeling behind and confused adds to the cognitive load.",
+      "afterSchool": "[NAME] arrives home depleted - emotionally, cognitively, and executively. She may be tearful, irritable, or completely withdrawn. Homework feels impossible not because she can't do it but because the brain that has been drifting and managing emotions all day has nothing left for organised output. She needs decompression, not demands.",
+      "bedtime": "The quiet of bedtime is when [NAME]'s mind generates most freely. Worries, ideas, memories, and tomorrow's anxieties arrive without invitation. The emotions that were managed during the day may surface now, and [NAME] may need patient, calm companionship to help her set them down."
+    },
+    "drains": [
+      "Multi-step tasks with no clear starting point",
+      "Open-ended time with no gentle structure",
+      "Emotional situations she doesn't have language for",
+      "Being rushed when her brain and body need more time",
+      "Feeling like she should be managing things other girls manage easily",
+      "Being described as lazy or not trying hard enough",
+      "Academic demands immediately after school with no recovery time",
+      "Loud, busy environments that fragment her already loose attention"
+    ],
+    "fuels": [
+      "One instruction at a time with gentle check-ins",
+      "Unstructured creative time where the dreaming is an asset",
+      "Adults who see the effort underneath the quiet surface",
+      "Calm, predictable routines that reduce executive demands",
+      "Emotional validation before redirection",
+      "Permission to take things at her own pace without shame",
+      "A quiet buddy or one close friend rather than a large group",
+      "An adult who says \"I know you're trying. I see it.\""
+    ],
+    "overwhelm": "[NAME]'s overwhelm arrives quietly. She doesn't explode - she fades. The eyes go blank, the body stills, and she retreats somewhere inside where the demands can't reach. This is a nervous system shutting down in the face of accumulated cognitive, emotional, and executive overload. It is not defiance. It is not laziness. It is a child who has reached the limit of what her system can process.\n\nIn these moments, stop all demands. Move close. Speak quietly. A hand on the shoulder, a simple \"I'm here,\" and patience. She will come back when the system has had time to reset. The conversation and the task can wait.",
+    "affirmations": [
+      { "when": "After drifting, a hard moment, or forgetting something important", "say": "\"Your brain works differently. That's not a flaw - it's just something we work with together.\"" },
+      { "when": "When she seems embarrassed by how different her experience is from her peers", "say": "\"Your imagination and your feelings are some of the best things about you.\"" },
+      { "when": "When the effort is invisible and she feels like nobody notices how hard she tries", "say": "\"I see how hard you're working. Even when nobody else can tell.\"" },
+      { "when": "When she can't start something and the frustration is building", "say": "\"Let's find the first tiny step together. Just one.\"" },
+      { "when": "On a day when everything felt like too much", "say": "\"You don't have to be perfect at any of it. You just have to keep going, and I'll help.\"" }
+    ],
+    "doNotSay": [
+      { "when": "She's drifted again and you're frustrated", "insteadOf": "\"You never pay attention.\"", "tryThis": "\"Let me bring you back. Here's where we are.\"" },
+      { "when": "Homework hasn't started and the evening is disappearing", "insteadOf": "\"You've had all afternoon!\"", "tryThis": "\"Let's start together. I'll sit with you for the first five minutes.\"" },
+      { "when": "The emotions seem disproportionate", "insteadOf": "\"It's not worth getting so upset about.\"", "tryThis": "\"That hit hard. Tell me about it.\"" },
+      { "when": "Other girls her age seem to manage without this level of support", "insteadOf": "\"Other girls don't need this much help.\"", "tryThis": "\"Everyone's brain is different. Yours just needs a different kind of support.\"" },
+      { "when": "She seems checked out and you can't reach her", "insteadOf": "\"What is wrong with you?\"", "tryThis": "\"You've gone quiet. I'll be right here when you're ready to come back.\"" }
+    ],
+    "closingLine": "[NAME] is a Dreamy Bunny. And the world needs more of them.",
+    "whatHelps": {
+      "aboutChild": "Give one instruction at a time. Stay nearby for the start of tasks. Use visual checklists instead of spoken sequences. Don't interpret the quiet surface as 'fine' - check in regularly with genuine curiosity about how she's really doing underneath.",
+      "hiddenGift": "Protect the creative time fiercely. When [NAME] is absorbed in drawing, writing, building, or imagining, that is not wasted time - it is the mind working at its best. Give it space. Afterwards, celebrate what she made: \"Tell me about this\" is more powerful than \"Well done.\"",
+      "brain": "Make eye contact and use her name before instructions. Keep them to one step at a time. Ask her to repeat back what she heard. For tasks, give a concrete first action rather than a general instruction. Stay nearby for the first few minutes - the brain needs a co-pilot to get started.",
+      "morning": "One step at a time, with gentle re-anchoring between each one. Lay everything out the night before to reduce the executive load. If an emotional wobble arrives, acknowledge it briefly and then redirect: \"That sounds hard. Let's talk about it in the car. Right now - shoes.\"",
+      "school": "Advocate for written instructions, check-ins with a trusted adult, and preferential seating. The quiet, compliant presentation often means [NAME]'s needs go unrecognised. Make sure the school knows that looking fine and being fine are not the same thing.",
+      "afterSchool": "Give [NAME] 20-30 minutes of recovery before any demands. Let her choose how to decompress - quiet play, drawing, a snack in a calm space. Homework comes after recovery, not instead of it.",
+      "bedtime": "A predictable, calm sequence. Low lights, soft textures, same routine every night. If the mind is racing, give it something low-key to hold onto: an audiobook or soft music. A brief emotional check-in: \"Anything on your mind tonight?\"",
+      "overwhelm": "Stop all demands. Move close. Speak quietly. Don't ask her to explain - the narration can come later. Be present, be patient, and trust that the system will reset if given time and safety."
+    }
+  },
+  "tender_hedgehog": {
+    "archetypeId": "tender_hedgehog",
+    "title": "THE TENDER HEDGEHOG",
+    "innerVoiceQuote": "\"Everything is louder for me. But I feel the beautiful things more deeply too.\" \u2014 [NAME]",
+    "animalDescription": "The Hedgehog is one of nature's most misunderstood creatures. From the outside she appears prickly, defensive, difficult to get close to. But underneath those spines is one of the softest, most gentle animals you will ever encounter. The spines are protection - a nervous system's response to a world that arrives too fast, too loud, and too sharp. This particular Hedgehog is the Tender one - the girl whose softness is her defining quality, whose spines only appear when the world has pushed too hard, and whose inner life is so rich and so sensitive that the harshness of everyday environments is genuinely painful.",
+    "aboutChild": "[NAME] is the girl who feels the world through her skin. Clothes that other children wear without thought can feel unbearable. Sounds that other children barely notice can feel physically painful. Crowded, noisy environments that other children find exciting can feel genuinely threatening. And because [NAME] also experiences emotions at a higher intensity than most, the sensory overwhelm doesn't stay in the body - it floods directly into the emotional system, creating reactions that look disproportionate from the outside but are entirely proportionate to what [NAME] is actually experiencing.\n\nThe girl presentation of this profile adds an additional layer: [NAME] has often learned to mask the sensory distress, to push through discomfort rather than express it, to appear fine while her nervous system is screaming. The cost of this masking is carried privately, and it arrives as meltdowns at home, as increasing anxiety, or as a growing avoidance of the environments that cause the most pain.",
+    "hiddenGift": "The sensitivity that makes the world so challenging for [NAME] is also the source of her most remarkable qualities. She notices beauty others walk past. She feels music, art, and nature at a depth that is genuinely moving. Her empathy is not performed - it is felt, fully and physically. In calm, safe environments, [NAME] is one of the warmest, most perceptive, and most genuinely kind people in any room. She doesn't need to be toughened up. She needs a world that honours the depth of what she feels.",
+    "aboutBrain": "[NAME]'s profile is shaped by two areas where her brain works differently.",
+    "brainSections": [
+      {
+        "title": "Sensory Processing",
+        "content": "[NAME]'s brain receives sensory input at a significantly higher intensity than most children her age. The volume knob on her sensory system is set higher than average, and it does not have a manual override. What other children tolerate without thought can feel genuinely painful or overwhelming to [NAME]'s nervous system. This is neurological, not behavioural - it cannot be reasoned away or toughened out."
+      },
+      {
+        "title": "Emotional Regulation",
+        "content": "When sensory overload combines with emotional intensity, the two systems amplify each other. A sensory trigger creates physical distress, which immediately activates the emotional system, which responds with an intensity that matches the sensory pain rather than the external event. The girl presentation often adds masking on top - containing the reaction in public and releasing it in private, which creates exhaustion and anxiety over time."
+      }
+    ],
+    "dayInLife": {
+      "morning": "Getting dressed is often the first challenge. The seam on a sock feels wrong. The waistband is too tight. The fabric scratches. These are not preferences - they are genuine sensory experiences that feel as urgent to [NAME] as a stone in your shoe feels to you. When you add time pressure and the anticipation of a sensorily demanding school day, the morning can become overwhelming before it has properly begun.",
+      "school": "The school environment is one of the most sensorily demanding places [NAME] spends time. She may appear to be coping, but underneath she is managing a constant stream of sensory input that other children process automatically. By mid-morning, her sensory budget may already be running low. The emotional reactions that follow - irritability, tearfulness, withdrawal - are not moodiness. They are the overflow of a system that has been absorbing more than it can process.",
+      "afterSchool": "[NAME] arrives home having spent the entire day managing sensory input that was not designed for her nervous system. She may be tearful, irritable, or completely shut down. What she needs is sensory relief: quiet, familiar textures, dim lighting, and time without demands.",
+      "bedtime": "Bedtime can be one of the better parts of [NAME]'s day if the environment is right - quiet, soft, predictable. On a hard day, the emotions that were masked all day may finally surface, and [NAME] needs patient presence rather than problem-solving."
+    },
+    "drains": [
+      "Loud, unpredictable, or chaotic environments",
+      "Clothing or textures that feel physically uncomfortable",
+      "Being told her sensory experience isn't real or that she's overreacting",
+      "Sudden changes or transitions without warning",
+      "Having to mask sensory distress to appear normal",
+      "Crowded social situations with high sensory demand",
+      "Feeling like her sensitivity is something to be ashamed of"
+    ],
+    "fuels": [
+      "Calm, predictable spaces with controlled sensory input",
+      "Soft, familiar fabrics and the freedom to choose what feels right on her body",
+      "Adults who take her sensory experience seriously without question",
+      "Advance notice of what is coming and time to prepare",
+      "A safe, quiet space to decompress without demands",
+      "Permission to feel things deeply without being told to toughen up",
+      "Being valued for her depth, empathy, and gentleness"
+    ],
+    "overwhelm": "[NAME]'s overwhelm follows a recognisable pattern: sensory input builds, the emotional system activates, and the spines go up. In the girl presentation, this may be preceded by a period of visible effort to contain the reaction - appearing fine while the internal pressure builds. When it finally breaks, the flood is the accumulated weight of everything that was held in.\n\nReduce sensory input first. That is the intervention. Move to a quieter space, lower your voice, dim the lights. If [NAME] wants physical contact, a firm, sustained hold works better than a light touch. If she can't tolerate touch, stay close and stay quiet. Don't ask what's wrong. Once the environment is calmer, the nervous system will follow.",
+    "affirmations": [
+      { "when": "When a sensory experience has caused a reaction and [NAME] feels ashamed of it", "say": "\"I believe you. If it hurts, it hurts. We don't have to question that.\"" },
+      { "when": "When the sensitivity keeps creating friction and she's starting to feel like it's a flaw", "say": "\"Your tenderness is one of the things that makes you extraordinary.\"" },
+      { "when": "When she has been masking all day and the cost is visible", "say": "\"You don't have to pretend here. This is where you can be exactly as you are.\"" },
+      { "when": "When she needs the opposite of what everyone else seems to need", "say": "\"Some people need noise to feel alive. You need quiet. Neither is wrong.\"" },
+      { "when": "When the day has cost more than it should have", "say": "\"The world is louder for you. That's real, and I see how brave you are in it.\"" }
+    ],
+    "doNotSay": [
+      { "when": "A sensory trigger has caused a reaction that seems excessive", "insteadOf": "\"It's just a noise. Stop overreacting.\"", "tryThis": "\"That was really uncomfortable for you. Let's find somewhere quieter.\"" },
+      { "when": "Getting dressed is a battle and time is running out", "insteadOf": "\"Every other girl wears it. Just put it on.\"", "tryThis": "\"Let's find something that feels okay on your body. What part feels the worst?\"" },
+      { "when": "You want her to be tougher", "insteadOf": "\"You need to toughen up.\"", "tryThis": "\"Your sensitivity picks up things other people miss entirely. That's a real strength.\"" },
+      { "when": "The emotional weather has shifted and there's no obvious cause", "insteadOf": "\"Stop being so dramatic.\"", "tryThis": "\"Something is bothering your body or your feelings. Can you help me find what?\"" },
+      { "when": "The reaction seems out of proportion", "insteadOf": "\"It's really not a big deal.\"", "tryThis": "\"It feels like a big deal to you, and that matters to me.\"" }
+    ],
+    "closingLine": "[NAME] is a Tender Hedgehog. And the world needs more of them.",
+    "whatHelps": {
+      "aboutChild": "Cut labels out of clothes. Choose soft fabrics. Keep a sensory kit ready. Prepare for known problem settings before they start. Give [NAME] a way to manage or escape sensory input early - headphones, a quiet corner, a break card, permission to step out before the system tips over.",
+      "hiddenGift": "Find the areas where sensitivity becomes a strength: music, art, animals, caring for others. When you see it working, name it directly: \"You noticed something there that most people would have missed completely.\" That message, repeated often enough, becomes part of how she sees herself.",
+      "brain": "Learn [NAME]'s specific sensory triggers. Spend a week noticing what was happening in the environment before things went wrong. Once you know the triggers, you can reduce them proactively rather than managing the fallout afterwards. The pattern is almost always there if you look for it.",
+      "morning": "Lay out approved clothes the night before. Remove all labels. If an item is refused on the day, trust the sensory experience and switch it. The battle is not worth the cost to her nervous system, and the morning will go more smoothly without it.",
+      "school": "Ask for noise-cancelling headphones during independent work, a quiet space she can access when overwhelmed, and advance warning before transitions. Make sure the school understands that the quiet, compliant presentation does not mean she is coping.",
+      "afterSchool": "A predictable decompression routine. Quiet room, dim lighting, favourite blanket, calm music or audiobook. Give [NAME] 20-30 minutes of low-sensory time before any demands. The nervous system needs to reset before anything else is possible.",
+      "bedtime": "A consistent, low-stimulation routine that [NAME] can predict completely. Dim lighting, soft pyjamas, same sequence every night. If emotions surface, sit with them quietly. \"That was a hard day for your body and your feelings. You're safe now.\"",
+      "overwhelm": "Reduce sensory input first. Move to a quieter space, lower your voice, dim the lights. If she wants touch, make it firm and sustained. If she doesn't, stay close and stay quiet. Don't ask questions. The environment calming down is what allows the nervous system to follow."
+    }
+  },
+  "hidden_firefly": {
+    "archetypeId": "hidden_firefly",
+    "title": "THE HIDDEN FIREFLY",
+    "innerVoiceQuote": "\"My light is real. I just don't always know when it's safe to let it show.\" \u2014 [NAME]",
+    "animalDescription": "The Firefly carries its own light - a glow that appears and disappears, visible one moment and hidden the next. It does not shine constantly or predictably. It shines when conditions are right, when the environment is safe enough, when the darkness around it makes the light worth the risk. This particular Firefly is the Hidden one - the girl whose brilliance, warmth, and emotional depth are absolutely real but often invisible, tucked away behind the effort of managing a brain and a social world that don't always cooperate.",
+    "aboutChild": "[NAME] is the girl whose light flickers. When she feels safe, connected, and understood, she is warm, funny, deeply caring, and genuinely brilliant. But the combination of emotional intensity, executive dysfunction, and social vulnerability means those moments of shining are interrupted by stretches of struggle, withdrawal, or overwhelm that can make her seem inconsistent, unreliable, or hard to reach.\n\n[NAME] cares desperately about her friendships and her place in the social world. She feels every social slight, every exclusion, every moment of disconnect at a volume that is genuinely painful. But the executive system can't reliably maintain the logistics of friendship - the texts, the plans, the follow-through - and the emotional intensity means small setbacks can trigger responses that push people away rather than drawing them closer. The girl who wants most to belong is the girl who finds belonging hardest to sustain.",
+    "hiddenGift": "[NAME]'s emotional depth, social sensitivity, and creative intelligence are genuine and extraordinary. When she trusts the environment, the light is unmistakable - warm, perceptive, deeply connected, and profoundly kind. She feels things at a depth that will make her an extraordinary friend, partner, creator, and human being. The goal is not to make the light constant - it is to make the world safe enough that it can appear more often and stay longer.",
+    "aboutBrain": "[NAME]'s profile is shaped by three areas where her brain works differently.",
+    "brainSections": [
+      {
+        "title": "Emotional Intensity",
+        "content": "[NAME] experiences emotions faster, harder, and longer than most children her age. The gap between trigger and full emotional response is very short, and the return to baseline takes significantly longer. In the girl presentation, this often combines with masking - containing the emotional experience in public and releasing it in private, which creates exhaustion and anxiety."
+      },
+      {
+        "title": "Executive Function",
+        "content": "[NAME]'s internal organisational system is significantly behind her emotional and social development. She knows what she wants to do and often understands exactly what a situation requires, but the system that translates understanding into action - planning, initiating, sequencing, following through - doesn't deliver reliably. This creates a persistent gap between intention and execution."
+      },
+      {
+        "title": "Social Drive",
+        "content": "[NAME]'s need for connection is intense and genuine. She monitors social dynamics with constant vigilance, reads emotional atmospheres with accuracy, and adjusts her behaviour to maintain acceptance. The cost is that authenticity is sacrificed for belonging, and the effort of social monitoring depletes the resources available for everything else."
+      }
+    ],
+    "dayInLife": {
+      "morning": "[NAME]'s mornings are shaped by whatever emotional residue she is carrying from the night before or whatever social anxiety she is anticipating for the day ahead. Getting organised requires executive function that is already competing with emotional management. A worry about a friendship dynamic or a school situation can consume all available bandwidth and make the practical demands of the morning feel impossible.",
+      "school": "[NAME] spends much of the school day managing two invisible workloads: the academic demands and the social performance. She is tracking friendships, monitoring her place in the group, and managing emotions - all while trying to learn. The executive system can't reliably support both, and something always gives. Often it is the academic work that suffers, because the social and emotional demands feel more urgent.",
+      "afterSchool": "[NAME] arrives home carrying the full weight of the day's social and emotional labour. The mask drops, and what was held together at school releases at home. She may be tearful, withdrawn, or intensely reactive. This is genuine exhaustion, not attitude. She needs connection and recovery before anything else is asked of her.",
+      "bedtime": "Bedtime is when [NAME]'s unprocessed emotions arrive. The friendship that felt uncertain, the moment she felt excluded, the thing she said that she's not sure landed right. She replays, worries, and processes at a level of detail that can delay sleep significantly. She needs calm, non-judgmental companionship to help her set it all down."
+    },
+    "drains": [
+      "Social situations where her place feels uncertain or at risk",
+      "The constant effort of masking emotions and appearing to cope",
+      "Executive demands on top of emotional and social demands",
+      "Feeling like her inconsistency means she's not trying hard enough",
+      "Being told she's too emotional or too sensitive",
+      "Friendship dynamics that shift without explanation",
+      "Academic expectations that don't account for the invisible workload she carries",
+      "Comparison to girls who seem to manage everything effortlessly"
+    ],
+    "fuels": [
+      "Safe, trusting relationships where she can be fully herself",
+      "Adults who see past the mask and recognise the effort underneath",
+      "Help with the logistics of daily life - plans, reminders, gentle scaffolding",
+      "Permission to feel things deeply without shame",
+      "Small, stable social settings where the dynamics are predictable",
+      "Creative outlets where emotions become something beautiful rather than overwhelming",
+      "Recognition that the light is real, even when it's hidden",
+      "An adult who says \"I see who you are. And she's wonderful.\""
+    ],
+    "overwhelm": "[NAME]'s overwhelm is emotional at its core, triggered when the gap between wanting to succeed socially and feeling like she's failing becomes unbearable. The response may be tears, withdrawal, rage, or a combination that shifts rapidly. What is happening underneath is a nervous system that has been managing emotional intensity, social monitoring, and executive demands all day and has reached the point of collapse.\n\nIn these moments, connection is the intervention. Move close, speak softly, and let her know the relationship is safe. \"I'm not going anywhere. You don't have to hold it together.\" Don't try to fix the trigger - just be present through the storm. The recovery happens when [NAME] feels genuinely held, not when the problem is solved.",
+    "affirmations": [
+      { "when": "When the light has been hidden all day and she's exhausted from the effort", "say": "\"I see you. The real you. And she's wonderful.\"" },
+      { "when": "When a friendship has hurt her and she's questioning her own worth", "say": "\"The way you love people is not the problem. It's one of the best things about you.\"" },
+      { "when": "When the gap between effort and output is making her feel like a failure", "say": "\"You're working harder than anyone can see. That effort matters, even when the results don't show it yet.\"" },
+      { "when": "When she feels like nobody understands what it costs her to get through a day", "say": "\"I know how much it takes. And I'm proud of you for showing up every single time.\"" },
+      { "when": "On a day when the light felt very far away", "say": "\"Your light doesn't go out. Sometimes it just needs a safe place to come back.\"" }
+    ],
+    "doNotSay": [
+      { "when": "The emotions are big and you're struggling to validate them", "insteadOf": "\"You're being too dramatic.\"", "tryThis": "\"That felt really big. Tell me what happened.\"" },
+      { "when": "The inconsistency is frustrating and you want her to be more reliable", "insteadOf": "\"You can do it when you want to, so why don't you always?\"", "tryThis": "\"Some days your brain has more to work with than others. That's okay.\"" },
+      { "when": "Social drama is constant and you're exhausted by it", "insteadOf": "\"Stop worrying about what everyone thinks.\"", "tryThis": "\"Your friendships matter to you. Let's talk about what's going on.\"" },
+      { "when": "She's masking and you want her to just be honest", "insteadOf": "\"Just tell me what's wrong!\"", "tryThis": "\"You don't have to explain. I'm just going to sit here with you.\"" },
+      { "when": "The effort seems invisible and you're worried about her future", "insteadOf": "\"You need to try harder.\"", "tryThis": "\"You're already trying so hard. Let's find what makes it easier.\"" }
+    ],
+    "closingLine": "[NAME] is a Hidden Firefly. And the world needs more of them.",
+    "whatHelps": {
+      "aboutChild": "Create environments where [NAME] feels safe enough to let the light show. That means predictable, low-judgment, high-connection settings where she doesn't have to perform. Help with the executive logistics - the plans, the reminders, the step-by-step scaffolding - so her energy can go to the emotional and social work that matters most to her.",
+      "hiddenGift": "When the light appears, name it. \"That thing you just did, that kindness, that insight, that creative idea - that's the real you. And she's extraordinary.\" The more often [NAME] hears that her authentic self is valued, the less energy she'll spend hiding it.",
+      "brain": "Help with the executive gap by providing external structure: visual schedules, reminders, breaking tasks into one step at a time. For emotional regulation, teach her to name what she's feeling before it floods: \"I'm starting to feel overwhelmed\" is a skill that can be practised when things are calm.",
+      "morning": "Check the emotional temperature before anything else: \"How are you feeling about today?\" If anxiety is present, acknowledge it and move on: \"That sounds hard. You'll get through it.\" Keep the routine predictable and the decisions minimal.",
+      "school": "Work with the school to ensure the invisible workload is recognised. The quiet, socially aware girl who appears fine is often the one most in need of support. Request check-ins with a trusted adult, written instructions, and permission to take a break when overwhelmed.",
+      "afterSchool": "Give [NAME] 20-30 minutes of connection and recovery before demands arrive. Let her talk about the social content of the day if she wants to, or let her decompress in silence if she needs that instead. Follow her lead.",
+      "bedtime": "A calm check-in that gives [NAME] space to unload: \"What's sitting heavy tonight?\" Listen without fixing. If the social replaying is intense, gently redirect: \"That's enough for tonight. Tomorrow is a fresh start.\" Keep the routine soft, predictable, and warm.",
+      "overwhelm": "Connection is the intervention. Move close, speak softly, and let her know the relationship is safe. Don't try to fix the trigger. Be present through the storm. The recovery happens when [NAME] feels genuinely held."
+    }
+  },
+  "panda": {
+    "archetypeId": "panda",
+    "title": "THE CLOUDY PANDA",
+    "innerVoiceQuote": "\"I was just about to do it, and then I had the most incredible idea and I had to follow it immediately, obviously.\" \u2014 [NAME]",
+    "animalDescription": "The Panda is one of nature's most gentle, warm, and loveable creatures, but famously clumsy, operating on its own schedule, and seemingly unaware of how much time has passed since it last moved from one spot to the next. It is built for softness, not speed. For depth, not efficiency. For connection, not performance. This particular Panda is the Cloudy one. On clear days, [NAME] is warm, creative, emotionally rich, and genuinely wonderful company. But when the cloud rolls in, and it rolls in without warning, focus, emotions, and frustration combine into a fog that is as confusing for [NAME] as it is for everyone around [HIM/HER/THEM]. The loop is reliable and painful: drift \u2192 miss something \u2192 realise \u2192 emotionally crash \u2192 deeper fog.",
+    "aboutChild": "[NAME] is the child who starts the morning with good intentions but ends up standing in the hallway with one shoe on, staring at nothing, having completely lost the thread of what [HE/SHE/THEY] was doing. The brain drifted. The shoe was forgotten. The next step disappeared. And now [HE/SHE/THEY] is stuck, not because [HE/SHE/THEY] doesn't care, but because the executive system that was supposed to carry [HIM/HER/THEM] from intention to action simply let go without warning.\nThis is the child who appears \"more capable than [HE/SHE/THEY] performs,\" which makes the adults around [HIM/HER/THEM] expect more, push harder, and feel more frustrated when the gap between what [NAME] clearly can do and what [NAME] actually does remains stubbornly wide. That gap is not a choice. It is the central feature of this profile, and understanding it changes everything.",
+    "hiddenGift": "[NAME] has a depth of feeling that most people take a lifetime to develop. [HE/SHE/THEY] notices when someone in the room is sad before anyone else has registered it. [HE/SHE/THEY] cares about fairness with a sincerity that is impossible to fake. [HE/SHE/THEY] feels things with a richness and a texture that most adults have long since learned to suppress. Combined with a wandering mind that makes unexpected connections between ideas that nobody else thought to link, [NAME] sees the world from an angle that is genuinely original. The creativity is not separate from the struggle. It is the same brain, working the same way, producing both the difficulty and the brilliance.",
+    "aboutBrain": "[NAME]'s profile is shaped by three areas where [HIS/HER/THEIR] brain works differently, and the critical insight is that these three systems feed each other.",
+    "brainSections": [
+      {
+        "title": "Attention System",
+        "content": "[NAME]'s attention system acts as an inconsistent filter. Rather than smoothly prioritising what matters and screening out what doesn't, [HIS/HER/THEIR] brain lets everything in with roughly equal weight, or suddenly screens out exactly the thing [HE/SHE/THEY] needed to hear. The result is a child who can be completely absorbed in something fascinating one moment and completely disconnected from something important the next. This is not a choice. It is the brain's filtering system operating unreliably, and it affects every part of [NAME]'s day."
+      },
+      {
+        "title": "Executive Function",
+        "content": "[NAME]'s executive function, the brain's internal management system for planning, sequencing, initiating, and completing tasks, is developing on a significantly slower timeline than [HIS/HER/THEIR] peers. The gap between knowing what to do and being able to make [HIMSELF/HERSELF/THEMSELVES] do it is wide, persistent, and genuinely frustrating for [NAME]. [HE/SHE/THEY] is not choosing to avoid or delay. [HIS/HER/THEIR] brain is not generating the activation energy needed to begin, and every time that gap is noticed by an adult, the emotional cost compounds."
+      },
+      {
+        "title": "Emotional Regulation",
+        "content": "[NAME]'s emotional system runs hot. Feelings arrive with full force and no filter, landing with an intensity that overwhelms [HIS/HER/THEIR] ability to moderate, process, or redirect them before they are already fully expressed. Frustration does not build gradually. It arrives complete. Disappointment does not settle slowly. It crashes. And shame, which is the emotion [NAME] encounters most frequently in the gap between intention and execution, accumulates silently until it becomes the background noise of [HIS/HER/THEIR] daily experience."
+      }
+    ],
+    "dayInLife": {
+      "morning": "The morning is a collision between sequencing demands and emotional weight. [NAME] knows what needs to happen: get dressed, eat breakfast, pack bag, leave. But holding that sequence in working memory while managing the emotional residue of yesterday (or the anxiety about today) is more than [HIS/HER/THEIR] executive system can reliably handle at 7:30am. One thing goes wrong, a missing sock, a sibling's comment, a change to the plan, and the emotional system floods, the executive system stalls, and [NAME] is standing in the hallway unable to move forward.",
+      "school": "School is where the gap is most visible and most painful. [NAME] arrives carrying whatever emotional weight the morning produced, and the classroom immediately asks [HIM/HER/THEM] to do the three things [HIS/HER/THEIR] brain finds hardest: sustain attention, follow multi-step instructions, and regulate frustration when things don't go well. Teachers often describe [NAME] as \"so capable but doesn't apply [HIMSELF/HERSELF/THEMSELVES],\" which is both accurate and deeply incomplete. The capability is genuine. The application requires executive resources that are genuinely not yet available at the level the classroom demands.",
+      "afterSchool": "[NAME] arrives home with an empty tank. The effort of holding it together at school, managing the attention, the emotions, the social demands, has used everything [HE/SHE/THEY] had. What remains is a child who is tired, emotionally fragile, and profoundly low on the resources needed to do anything further. Tears, refusal, irritability, or complete withdrawal are not [NAME] being difficult. They are [NAME] being depleted. The tank needs to refill before anything else can be asked of it.",
+      "bedtime": "Bedtime is when the final processing happens. Everything that was unresolved during the day, every small failure, every moment of shame, every interaction that didn't go the way [NAME] wanted, rises to the surface in the quiet. [HIS/HER/THEIR] brain, freed from the demands of the day, begins replaying, reviewing, and feeling everything it didn't have time to feel earlier. [NAME] may become tearful, anxious, clingy, or unable to settle, not because [HE/SHE/THEY] is avoiding sleep, but because the unresolved feelings of the day have finally found a moment to arrive."
+    },
+    "drains": [
+      "Multi-step instructions delivered verbally",
+      "Time pressure and rushing",
+      "Being reminded of past mistakes",
+      "Overstimulating environments when emotionally loaded",
+      "Tasks that feel too big to start",
+      "Unexpected changes to the plan",
+      "Being told \"you're not trying\"",
+      "Comparison to siblings or peers who \"just get on with it\""
+    ],
+    "fuels": [
+      "One step at a time with visual support",
+      "Extra time built into transitions",
+      "Being acknowledged for effort, not just results",
+      "Calm spaces to decompress after hard moments",
+      "Tasks broken into visible, small steps",
+      "Advance warning and predictable routines",
+      "Being told \"I know this is hard and I'm here\"",
+      "Recognition that their brain works differently, not worse"
+    ],
+    "overwhelm": "[NAME]'s overwhelm arrives when the three systems collide simultaneously: attention has drifted, something has been missed, the emotional response to that failure floods in, and the executive system cannot organise a recovery. The result is a child who appears to shut down completely, or who erupts with a frustration that seems wildly disproportionate to whatever just happened. It is not disproportionate to [NAME]'s experience, which is the accumulated weight of drift, failure, and shame arriving all at once.\nIn these moments, do not try to reason, redirect, or problem-solve. [NAME]'s prefrontal cortex is temporarily offline. What [HE/SHE/THEY] needs is a calm, regulated adult nearby who reduces demands to zero and simply stays present. A quiet voice, a hand on the shoulder, a sentence like \"I'm here. We don't need to fix anything right now.\" Once the emotional flood recedes, [NAME] will come back, often surprisingly quickly, and will be ready to reconnect. The repair conversation matters enormously, but it can only happen after the storm.",
+    "affirmations": [
+      { "when": "After a moment of shame, when [NAME] has realised [HE/SHE/THEY] drifted and missed something important", "say": "\"Your brain wandered. That's not a character flaw. It's just how your brain works sometimes.\"" },
+      { "when": "When frustration has taken over and [NAME] is upset with [HIMSELF/HERSELF/THEMSELVES]", "say": "\"I can see how hard this feels. You don't have to be perfect to be amazing.\"" },
+      { "when": "When [NAME] feels invisible because the struggle is quiet, not loud", "say": "\"I see how hard you're working, even when nobody else notices.\"" },
+      { "when": "When emotional intensity has overwhelmed [HIM/HER/THEM] and [HE/SHE/THEY] feels broken", "say": "\"Feeling things deeply is not a weakness. It's one of your greatest strengths.\"" },
+      { "when": "When [NAME] compares [HIMSELF/HERSELF/THEMSELVES] to peers who seem to manage easily", "say": "\"Your brain works differently. That doesn't mean it works worse. It means you need different support.\"" },
+      { "when": "When [NAME] is convinced [HE/SHE/THEY] will never get it right", "say": "\"You are not behind. You are building something most people never develop, and it takes time.\"" },
+      { "when": "At the end of a hard day when everything felt like too much", "say": "\"Tomorrow is a clean start. And I'll be right here for it.\"" }
+    ],
+    "doNotSay": [
+      {
+        "when": "[NAME] has forgotten something important and you're frustrated",
+        "insteadOf": "\"How could you forget? I just told you.\"",
+        "tryThis": "\"Let's try again. One step at a time, I'll help you.\""
+      },
+      {
+        "when": "[NAME] is crying over something that seems small",
+        "insteadOf": "\"It's not that big a deal.\"",
+        "tryThis": "\"I can see that hit you hard. I'm here.\""
+      },
+      {
+        "when": "The gap between capability and output is making you question effort",
+        "insteadOf": "\"You're not even trying.\"",
+        "tryThis": "\"I know you want to do well. Let's figure out what's getting in the way.\""
+      },
+      {
+        "when": "[NAME] is reacting emotionally and you need it to stop",
+        "insteadOf": "\"Stop overreacting.\"",
+        "tryThis": "\"That feeling is real. Let's ride it out together.\""
+      },
+      {
+        "when": "A sibling is managing better and the comparison is obvious",
+        "insteadOf": "\"Why can't you be more like your brother/sister?\"",
+        "tryThis": "\"You have your own strengths. We'll find the support that fits you.\""
+      },
+      {
+        "when": "[NAME] has lost focus again and you've run out of patience",
+        "insteadOf": "\"You're so distracted all the time.\"",
+        "tryThis": "\"Let's bring you back. What's the one thing we're doing right now?\""
+      },
+      {
+        "when": "You're worried about [NAME]'s future and it slips out",
+        "insteadOf": "\"You'll never manage on your own if you can't even do this.\"",
+        "tryThis": "\"We're building skills together. You don't have to have it all figured out yet.\""
+      }
+    ],
+    "closingLine": "[NAME] is a Cloudy Panda. And the world needs more of them.",
+    "whatHelps": {
+      "aboutChild": "The most important shift is to stop expecting [NAME] to bridge the gap between intention and action alone. [HE/SHE/THEY] cannot yet. Build external scaffolding: visual checklists, one instruction at a time, a calm adult nearby during transitions. Acknowledge effort before results. And when the gap shows up, respond with support, not frustration.",
+      "hiddenGift": "Give the depth of feeling a good place to land. Let [NAME] care for animals, make art, write stories, comfort a friend. When the emotional richness is pointed at something meaningful, it stops being a problem and starts being a superpower. Name it when you see it: \"The way you noticed that about your friend, that's extraordinary.\"",
+      "brain": "The three systems feed each other, so intervene at the earliest point. Reduce sensory and emotional load before asking for focus. Break tasks into single visible steps. Stay nearby for the first minute of any task. And when the emotional system floods, stop everything else and deal with the feeling first. The task can wait. The feeling cannot.",
+      "morning": "Prepare everything possible the night before. Give one instruction at a time and wait for completion before giving the next. Build in extra time so rushing doesn't add emotional pressure. A visual checklist on the wall removes the need for verbal reminders and the conflict they create.",
+      "school": "Share this document with [NAME]'s teacher. The key accommodations are: written instructions alongside verbal ones, permission to take a brief break when emotionally overwhelmed, a quiet signal for when [NAME] needs help but doesn't want to draw attention, and recognition that the gap between capability and output is neurological, not motivational.",
+      "afterSchool": "Give [NAME] 20-30 minutes of zero demands when [HE/SHE/THEY] gets home. No homework, no questions, no tasks. A snack, a quiet space, and the freedom to do nothing. Once the tank has partially refilled, approach homework with small steps, a timer, and your presence nearby for the first few minutes.",
+      "bedtime": "A calm, predictable routine with a brief emotional check-in: \"Anything sitting heavy from today?\" Let [NAME] talk without fixing or problem-solving. If the feelings are intense, validate and contain: \"That sounds really hard. We'll come back to it tomorrow if you need to. Right now, your job is just to rest.\"",
+      "overwhelm": "When the three systems collide, stop everything. Reduce demands to zero. Stay close, stay calm, stay quiet. Do not try to reason or redirect. Once the flood recedes, reconnect gently: \"That was really hard. I'm proud of you for getting through it.\" The repair conversation is where the real learning happens."
+    }
+  },
+  "firefly": {
+    "archetypeId": "firefly",
+    "title": "THE SPARK FIREFLY",
+    "innerVoiceQuote": "\"I feel things deeply, think beautifully, and still struggle to show it the way I mean to.\" \u2014 [NAME]",
+    "animalDescription": "The Firefly glows from within, sudden, beautiful, impossible to fake. It appears on its own schedule. You cannot make a firefly shine on command, and you cannot predict when the light will come. But when it does, it stops everything around it. This particular Firefly is the Spark, the one whose emotional depth, social warmth, and creative brilliance flash with real intensity but whose ability to organise, sustain, and direct that brilliance is still catching up. The light is real. The wiring that delivers it is still being built.",
+    "aboutChild": "[NAME] is the child who surprises you. [HE/SHE/THEY] can sit quietly through an entire class and then say something so perceptive that every adult in the room stops. [HE/SHE/THEY] can spend twenty minutes struggling to start a piece of work and then produce something genuinely creative, insightful, or beautiful. [HE/SHE/THEY] can be so emotionally attuned to the people around [HIM/HER/THEM] that it takes your breath away, and then completely unable to organise [HIMSELF/HERSELF/THEMSELVES] to get out the door on time.\nThis profile is confusing to adults because [NAME] doesn't look like a typical struggling child. [HE/SHE/THEY] is articulate, socially aware, emotionally intelligent. The assumption is that a child this capable should be able to manage the basics. But the basics, the executive basics of organising, initiating, sustaining, and completing, are precisely where [NAME]'s brain needs the most support.",
+    "hiddenGift": "[NAME] has a combination of emotional intelligence and social awareness that is genuinely rare in a child. [HE/SHE/THEY] reads the room before most adults do. [HE/SHE/THEY] picks up on emotional undercurrents that are invisible to everyone else. [HE/SHE/THEY] makes connections between ideas that are unexpected and often brilliant, not through deliberate analysis but through an intuitive process that happens faster than [HE/SHE/THEY] can explain. When the right environment exists, calm, supported, low-pressure, [NAME]'s output is extraordinary. The goal is not to create that brilliance. It already exists. The goal is to build the scaffolding that lets it show up reliably.",
+    "aboutBrain": "[NAME]'s profile is shaped by three areas where [HIS/HER/THEIR] brain works differently, and the result is a loop that explains much of [HIS/HER/THEIR] daily experience.",
+    "brainSections": [
+      {
+        "title": "Emotional Intensity",
+        "content": "[NAME] feels things with a depth and speed that overwhelms [HIS/HER/THEIR] ability to moderate or redirect those feelings before they take over. Joy is ecstatic. Disappointment is devastating. Shame arrives instantly and completely. This is not sensitivity in the colloquial sense. It is a neurological reality: [NAME]'s emotional responses are faster, bigger, and longer-lasting than [HIS/HER/THEIR] peers', and they consume cognitive resources that would otherwise be available for other things."
+      },
+      {
+        "title": "Executive Function",
+        "content": "[NAME]'s executive system, the brain's capacity to plan, initiate, sequence, and sustain effort on tasks, is developing on a significantly slower timeline than [HIS/HER/THEIR] intellectual and emotional development. The result is a child who can understand a concept brilliantly but cannot organise the steps to demonstrate that understanding. Who can articulate exactly what needs to happen but cannot make [HIMSELF/HERSELF/THEMSELVES] begin. The gap between insight and execution is wide, persistent, and deeply frustrating for [NAME]."
+      },
+      {
+        "title": "Social Drive",
+        "content": "[NAME]'s social brain is highly active. [HE/SHE/THEY] is drawn to people, fascinated by relationships, and genuinely energised by connection. This is a strength, but it also creates a competing demand on cognitive resources that are already stretched thin. When the executive system fails and overwhelm arrives, [NAME] often pours [HIS/HER/THEIR] remaining energy into social connection at the expense of practical tasks, not because [HE/SHE/THEY] is avoiding work, but because connection is where [HIS/HER/THEIR] brain feels most competent and most alive."
+      }
+    ],
+    "dayInLife": {
+      "morning": "Mornings are slow for [NAME], not from laziness but from the weight of processing. Yesterday's emotions are still being sorted. Today's anxieties are already forming. The executive demands of the morning routine, getting dressed, eating, packing, leaving, require [HIM/HER/THEM] to make decisions and initiate actions at a time when [HIS/HER/THEIR] brain is still warming up. Indecision is common. So is quiet withdrawal or sudden emotional flare-ups that seem to come from nowhere but are actually yesterday's unfinished business arriving at the worst possible moment.",
+      "school": "School presents [NAME] with a paradox. [HE/SHE/THEY] is well-liked, socially skilled, and emotionally perceptive, qualities that make [HIM/HER/THEM] popular and valued by peers and teachers alike. But [HIS/HER/THEIR] work output doesn't match [HIS/HER/THEIR] capability, and the gap is visible to everyone. Teachers describe [NAME] as \"so bright but inconsistent,\" \"lovely but needs to apply [HIMSELF/HERSELF/THEMSELVES],\" or \"clearly capable but the work doesn't show it.\" These descriptions are accurate but incomplete. The capability is real. The executive bridge between capability and output is where the support is needed.",
+      "afterSchool": "[NAME] arrives home carrying the emotional and social weight of the entire day. The friendships, the interactions, the small moments of connection and disconnection, all of these have been processed at high intensity and are still being carried. [NAME] may be quiet, withdrawn, or tearful in a way that doesn't seem to have a clear cause. The cause is cumulative: six hours of emotional and social processing on top of executive effort that depleted [HIS/HER/THEIR] reserves hours ago.",
+      "bedtime": "Bedtime is when [NAME]'s deepest processing happens. Everything rises to the surface: the social interaction that didn't go right, the task that felt impossible, the moment of shame when the gap between what [HE/SHE/THEY] wanted to do and what [HE/SHE/THEY] managed to do was visible. [NAME]'s brain does not release these easily. They replay, they intensify, they demand attention. This is not [NAME] avoiding sleep. This is a brain doing the emotional work it didn't have space for during the day."
+    },
+    "drains": [
+      "Tasks that require sustained organisation without support",
+      "Social conflict or friendship instability",
+      "Being judged for inconsistent output",
+      "Having to manage multiple deadlines alone",
+      "Environments where emotional expression is unwelcome",
+      "Being perceived as lazy or unmotivated",
+      "Rapid social changes with no time to process",
+      "Open-ended tasks with no clear starting point"
+    ],
+    "fuels": [
+      "Tasks broken into steps with someone nearby to help initiate",
+      "Stable, deep, one-on-one friendships",
+      "Recognition that ability and execution are different things",
+      "External scaffolding \u2014 checklists, reminders, interim check-ins",
+      "Safe spaces to feel and process without being told to 'get over it'",
+      "Being seen for the effort that happens inside, not just the output",
+      "Advance warning and time to emotionally prepare for transitions",
+      "A clear first step and permission to do just that much"
+    ],
+    "overwhelm": "[NAME]'s overwhelm arrives when the emotional intensity, the executive failure, and the social pressure converge. The light goes out. [NAME] may shut down completely, becoming quiet, unreachable, and apparently blank, or [HE/SHE/THEY] may redirect all remaining energy into social connection, becoming intensely focused on a friendship or a conversation as a way of avoiding the thing that has become too much.\nIn these moments, do not push for productivity. The executive system is offline. Instead, offer connection without demand: \"I can see today has been really hard. You don't have to do anything right now.\" Stay close. Be patient. When [NAME] is ready, and [HE/SHE/THEY] will be, offer one small, achievable step back toward the task. Not the whole thing. Just the first step. The spark will return. It always does.",
+    "affirmations": [
+      { "when": "When the gap between what [NAME] knows [HE/SHE/THEY] can do and what [HE/SHE/THEY] managed to produce is painfully visible", "say": "\"I know there's more inside you than what showed up on that page. I've seen it.\"" },
+      { "when": "When [NAME] feels like [HE/SHE/THEY] is failing because the output doesn't match the insight", "say": "\"Your brain works in bursts. That's not a flaw. It's just a different rhythm.\"" },
+      { "when": "When social difficulty is making everything else harder", "say": "\"Friendships are complicated. You're not doing it wrong. You're doing it deeply.\"" },
+      { "when": "When [NAME] is overwhelmed and has shut down", "say": "\"You don't have to be on right now. I'll be here when you're ready.\"" },
+      { "when": "When the emotional weight of the day is visible and heavy", "say": "\"You carry a lot. I see that. And I'm carrying some of it with you.\"" },
+      { "when": "When [NAME] is frustrated with [HIMSELF/HERSELF/THEMSELVES] for not being able to just do the thing", "say": "\"Knowing and doing are different skills. You have one. We'll build the other.\"" },
+      { "when": "At the end of a day when the spark was invisible", "say": "\"The light is still there. It doesn't go away just because today was hard.\"" }
+    ],
+    "doNotSay": [
+      {
+        "when": "[NAME] hasn't started a task despite clearly understanding it",
+        "insteadOf": "\"You obviously know how to do it, so just do it.\"",
+        "tryThis": "\"I know you understand it. Let's get the first step done together.\""
+      },
+      {
+        "when": "[NAME] is emotionally overwhelmed and you need [HIM/HER/THEM] to move on",
+        "insteadOf": "\"You need to get over this and focus.\"",
+        "tryThis": "\"Take the time you need. I'll be here when you're ready to start.\""
+      },
+      {
+        "when": "The social world is consuming all of [NAME]'s energy",
+        "insteadOf": "\"Stop worrying about your friends and focus on your work.\"",
+        "tryThis": "\"I can see the friendship stuff is weighing on you. Let's deal with that first, then tackle the work.\""
+      },
+      {
+        "when": "Inconsistency is frustrating and you're losing patience",
+        "insteadOf": "\"You did it perfectly yesterday, why can't you do it today?\"",
+        "tryThis": "\"Yesterday was a good day for your brain. Today is harder. That's okay.\""
+      },
+      {
+        "when": "[NAME] appears to be doing nothing",
+        "insteadOf": "\"Stop being so lazy.\"",
+        "tryThis": "\"I can see you're stuck. Let me sit with you for the first bit.\""
+      },
+      {
+        "when": "You're worried about [NAME]'s future performance",
+        "insteadOf": "\"You'll never get anywhere if you can't organise yourself.\"",
+        "tryThis": "\"Organisation is a skill. We'll build it together, one step at a time.\""
+      },
+      {
+        "when": "[NAME] has poured energy into a friendship instead of a task",
+        "insteadOf": "\"You always have time for your friends but never for your homework.\"",
+        "tryThis": "\"I know people matter to you. Let's find time for both.\""
+      }
+    ],
+    "closingLine": "[NAME] is a Spark Firefly. And the world needs more of them.",
+    "whatHelps": {
+      "aboutChild": "Stop expecting the output to match the insight on its own. Build the bridge: sit with [NAME] for the first few minutes of any task, provide a clear first step, and stay nearby. Recognise that the inconsistency is neurological, not motivational. On good days, celebrate. On hard days, support. Both are real.",
+      "hiddenGift": "Give the emotional intelligence a legitimate role. Let [NAME] mentor younger children, mediate conflicts, create art, write stories, care for animals. The perceptiveness and empathy are real skills. When they have a purpose, they stop being a distraction and become a source of genuine confidence.",
+      "brain": "Address the executive gap with external scaffolding: visual checklists, one-step-at-a-time instructions, a parent or teacher who checks in at intervals rather than expecting sustained independent work. For emotional intensity, teach [NAME] to name what [HE/SHE/THEY] is feeling before it floods: practise when things are calm so the skill is available when they are not.",
+      "morning": "Reduce decisions the night before. Check the emotional temperature first: \"How are you feeling about today?\" If something is sitting heavy, acknowledge it briefly and move on. Keep the routine predictable and the expectations simple. One step at a time.",
+      "school": "Work with the school to recognise that [NAME]'s capability and [NAME]'s output are not the same thing, and that the gap between them is where the support needs to go. Request written instructions alongside verbal ones, interim check-ins on longer tasks, and permission for [NAME] to take a brief emotional break when needed.",
+      "afterSchool": "Give [NAME] 20 minutes of low-demand connection when [HE/SHE/THEY] gets home. Let [HIM/HER/THEM] talk about the social content of the day or decompress in silence. Follow [HIS/HER/THEIR] lead. Once the emotional tank has partially refilled, approach homework with small steps and your presence nearby.",
+      "bedtime": "A calm check-in that gives [NAME] space to process: \"What's sitting heavy tonight?\" Listen without fixing. If the replaying is intense, gently contain: \"That's enough for tonight. We can come back to it tomorrow.\" Keep the routine soft, warm, and predictable.",
+      "overwhelm": "When the spark goes out, don't try to reignite it immediately. Offer connection without demand. Stay close. Be patient. When [NAME] is ready, offer one small step. Not the whole task. Just the beginning. The spark will return. It always does."
+    }
+  },
+  "penguin": {
+    "archetypeId": "penguin",
+    "title": "THE WANDERING PENGUIN",
+    "innerVoiceQuote": "\"I start with every intention of getting there. Then my brain takes the scenic route.\" \u2014 [NAME]",
+    "animalDescription": "The Penguin is a deeply social creature, living in colonies of thousands, huddling together for warmth, sharing duties, bonding for life. But famously clumsy on land. Waddles. Trips. Falls over. In water, a completely different animal: fast, graceful, precise, breathtakingly capable. The gap between land and water is everything. This particular Penguin is the Wandering one. [NAME] loves [HIS/HER/THEIR] colony deeply, wants to be in the middle of everything, and keeps getting lost on the way there. Not because [HE/SHE/THEY] doesn't care. Because the brain that carries the warmth also carries the drift.",
+    "aboutChild": "[NAME] is the child everyone likes and nobody can rely on yet. Warm, friendly, genuinely interested in people. [HE/SHE/THEY] wants to be a good friend, remember the plan, show up on time, bring the right thing. [HE/SHE/THEY] means every word of every promise, right up until [HIS/HER/THEIR] brain drifts somewhere else and the promise simply disappears from working memory.\n[NAME] doesn't look like [HE/SHE/THEY] needs help. There are no meltdowns, no hyperactivity, no obvious signs of struggle. Just a gentle, persistent pattern of not quite managing: homework incomplete, belongings lost, plans forgotten, conversations half-finished. The adults around [HIM/HER/THEM] tend to assume [NAME] will grow out of it, or that a bit more effort would close the gap. The gap is neurological, and effort alone will not close it.",
+    "hiddenGift": "[NAME] has a social warmth that cannot be taught. [HE/SHE/THEY] makes people feel welcome without effort, strategy, or agenda. There is a genuineness to [NAME]'s interest in others that is immediately felt and deeply valued by the people around [HIM/HER/THEM]. Combined with a wandering mind that drifts through ideas and perspectives other people never visit, [NAME] sees the world from angles nobody else considered. The warmth and the wandering are the same quality expressed in different domains, and both are genuinely rare.",
+    "aboutBrain": "[NAME]'s profile is shaped by three areas where [HIS/HER/THEIR] brain works differently.",
+    "brainSections": [
+      {
+        "title": "Inattention",
+        "content": "[NAME]'s brain has a significantly looser grip on the present moment than most children [HIS/HER/THEIR] age. It drifts quietly, without warning, and without [NAME] noticing it has happened until the drift is complete. This is not a failure of effort or interest. It is a brain whose dopamine regulation system does not maintain consistent engagement with tasks that lack novelty, urgency, or genuine personal interest. The result is a child who can be fully present one moment and completely absent the next, with no awareness of the transition between the two."
+      },
+      {
+        "title": "Executive Function",
+        "content": "[NAME]'s executive system, the brain's capacity to hold information in working memory, sequence steps, track commitments, and follow through on intentions, is developing on a slower timeline than [HIS/HER/THEIR] social and verbal intelligence would suggest. This creates the painful gap that defines this profile: [NAME] can articulate exactly what [HE/SHE/THEY] intended to do and genuinely cannot explain why it didn't happen. The intention was real. The executive system simply did not carry it through."
+      },
+      {
+        "title": "Social Drive",
+        "content": "[NAME]'s social brain is highly active and genuinely skilled. [HE/SHE/THEY] reads social cues accurately, responds warmly, and is drawn to connection in a way that is both a strength and a complication. The social drive creates the commitments that the executive system then fails to deliver on, producing a painful loop: makes social commitment \u2192 brain doesn't encode the details \u2192 forgets or partially remembers \u2192 friend is let down \u2192 [NAME] doesn't fully understand why things keep going wrong."
+      }
+    ],
+    "dayInLife": {
+      "morning": "The morning is a quiet drift. [NAME] gets up with every intention of following the routine, and somewhere between the bedroom and the bathroom, five minutes pass without [HIM/HER/THEM] noticing. [HE/SHE/THEY] is standing half-dressed, not distressed, not distracted by anything specific, just somewhere else. The brain wandered and took [HIM/HER/THEM] with it. No urgency, no drama, just a gentle, persistent failure to arrive at the next step on time.",
+      "school": "[NAME] is well-liked at school. Teachers describe [HIM/HER/THEM] as pleasant, friendly, and cooperative. But the homework is incomplete, the notes are half-finished, and the conversation with the person next to [HIM/HER/THEM] somehow became more absorbing than the lesson without [NAME] deciding to let that happen. [HE/SHE/THEY] is not deliberately socialising instead of working. [HIS/HER/THEIR] brain simply gravitates toward the thing that is most alive in the room, and that is almost always a person.",
+      "afterSchool": "[NAME] wants to talk, connect, and process the social content of the day. This is not avoidance of homework. It is [HIS/HER/THEIR] social brain doing the work it finds most important. The friendships, the conversations, the micro-interactions of the school day are all being reviewed and processed. Once this social processing has been given space, [NAME] is often more available for other demands, but rushing past it will leave [HIM/HER/THEM] distracted and unsettled.",
+      "bedtime": "Bedtime is generally calmer for [NAME] than for many children with ADHD. The wandering brain drifts from thought to thought, but without the emotional intensity or physical restlessness that makes settling hard for other profiles. [NAME] may take a while to fall asleep, but it is usually a peaceful process, the brain gently touring its own landscape rather than fighting to be still."
+    },
+    "drains": [
+      "Long verbal instructions with no visual support",
+      "Being expected to manage logistics alone",
+      "Repetitive, low-stimulation tasks",
+      "Being called forgetful, careless, or unreliable",
+      "Isolation (working alone for extended periods)",
+      "Open-ended tasks with no clear starting point",
+      "Consequences for forgetting that feel like punishment",
+      "Adults who mistake the drift for not caring"
+    ],
+    "fuels": [
+      "Written or visual step-by-step guides",
+      "External scaffolding \u2014 checklists, reminders, a parent or teacher who checks in",
+      "Tasks with social connection or genuine interest built in",
+      "Recognition that intentions are real even when follow-through fails",
+      "Collaborative, social work environments",
+      "A clear first step and a visible endpoint",
+      "Systems that help catch things before they fall",
+      "Adults who see the warmth and the effort underneath the fog"
+    ],
+    "overwhelm": "[NAME]'s overwhelm is among the quietest on this list. It does not arrive as a storm or an explosion. It arrives as a deeper fog: the drift becomes more complete, the presence fades further, and [NAME] becomes genuinely unreachable, not through emotion but through absence. [HE/SHE/THEY] is still physically present, still pleasant, still apparently fine, but the connection to the task, the conversation, or the moment has been lost entirely.\nThe risk with this profile is that overwhelm goes unnoticed because it is so quiet. [NAME] does not demand attention when struggling. [HE/SHE/THEY] simply fades. The adults around [HIM/HER/THEM] need to watch for the signs: increased forgetting, longer drifts, a growing gap between commitments and follow-through, a subtle withdrawal from the social connections that normally energise [HIM/HER/THEM]. When you see these signs, reduce demands, increase support, and reconnect gently: \"I notice you seem a bit far away today. What do you need?\"",
+    "affirmations": [
+      { "when": "When [NAME] has forgotten something and can see the disappointment on your face", "say": "\"I know you meant to remember. Your brain just let it go. That's not your fault.\"" },
+      { "when": "When a friend has been let down and [NAME] feels terrible about it", "say": "\"You care about your friends more than almost anyone I know. We'll find ways to help your brain keep up with your heart.\"" },
+      { "when": "When the drift has cost [NAME] something important and shame is setting in", "say": "\"You're not careless. Your brain just works on a different channel sometimes.\"" },
+      { "when": "When [NAME] feels like [HE/SHE/THEY] keeps failing at the same things", "say": "\"We haven't found the right system yet. But we will.\"" },
+      { "when": "When [NAME] is comparing [HIMSELF/HERSELF/THEMSELVES] to friends who seem to manage effortlessly", "say": "\"You bring things to your friendships that no system can teach. That matters more than you know.\"" },
+      { "when": "When the pattern feels permanent and [NAME] is losing hope", "say": "\"This is not who you are forever. This is where we are right now, and it will change.\"" },
+      { "when": "At the end of a day when the drift was constant and nothing landed", "say": "\"Tomorrow we try again. And I'll be right beside you.\"" }
+    ],
+    "doNotSay": [
+      {
+        "when": "[NAME] has forgotten a commitment and a friend is hurt",
+        "insteadOf": "\"You're so unreliable.\"",
+        "tryThis": "\"I know you care. Let's set up a system so your brain can keep track of the things that matter to you.\""
+      },
+      {
+        "when": "The same thing has been forgotten for the third time this week",
+        "insteadOf": "\"How many times do I have to tell you?\"",
+        "tryThis": "\"Telling isn't working for your brain. Let's try writing it down or setting a reminder.\""
+      },
+      {
+        "when": "[NAME] seems to be drifting through the day with no urgency",
+        "insteadOf": "\"You don't even care.\"",
+        "tryThis": "\"I know you care. Your brain just doesn't send the urgency signal. Let's create one together.\""
+      },
+      {
+        "when": "You've watched [NAME] socialise instead of completing a task",
+        "insteadOf": "\"Stop chatting and get on with it.\"",
+        "tryThis": "\"I can see you're enjoying the conversation. Let's finish this one thing first, then you can go back to it.\""
+      },
+      {
+        "when": "[NAME] is standing in the middle of a room having clearly forgotten why [HE/SHE/THEY] went there",
+        "insteadOf": "\"What are you even doing?\"",
+        "tryThis": "\"Lost the thread? That happens. You were going to [specific task].\""
+      },
+      {
+        "when": "The gentle drifting is wearing you down over time",
+        "insteadOf": "\"You're never going to manage on your own.\"",
+        "tryThis": "\"You're building skills every day. I'll be the scaffolding until you don't need it.\""
+      },
+      {
+        "when": "[NAME]'s belongings are scattered and lost again",
+        "insteadOf": "\"You're so careless with your things.\"",
+        "tryThis": "\"Let's find one place for everything and make it a habit together.\""
+      }
+    ],
+    "closingLine": "[NAME] is a Wandering Penguin. And the world needs more of them.",
+    "whatHelps": {
+      "aboutChild": "Build the scaffolding that [NAME]'s brain cannot yet build for itself. Written reminders, visual checklists, phone alarms, a parent who checks in rather than expects independent follow-through. Accept that the warmth and the drift are the same brain, and support both.",
+      "hiddenGift": "Give the social warmth a purpose: peer mentoring, welcoming new students, caring for younger children. When [NAME]'s natural gift for connection has a legitimate role, it stops being a distraction and becomes a source of genuine pride and confidence.",
+      "brain": "For inattention: keep instructions short, written, and visible. For executive function: provide one step at a time and check completion before giving the next. For social drive: build social connection into tasks where possible (working with a partner, teaching back, collaborative projects) rather than fighting against it.",
+      "morning": "A visual checklist on the wall removes the need to hold the sequence in memory. Stay nearby during the routine, not to nag, but to gently re-anchor when the drift happens. Keep the environment low-stimulation and the decisions minimal.",
+      "school": "Share this document with [NAME]'s teacher. The most helpful accommodations are: written instructions alongside verbal ones, a buddy system for tracking homework, permission to work with a partner where possible, and recognition that the drift is neurological, not attitudinal.",
+      "afterSchool": "Give [NAME] time to talk about the social content of the day before asking for anything else. Fifteen minutes of genuine listening (\"Tell me about lunch\") fills the social processing need and frees up cognitive resources for homework afterward.",
+      "bedtime": "Keep the routine gentle and predictable. [NAME] often settles more easily than other profiles, but benefits from a brief connection: \"Anything on your mind?\" followed by calm, quiet winding down.",
+      "overwhelm": "Watch for the quiet signs: increased forgetting, longer drifts, subtle withdrawal. When you see them, reduce demands, increase support, and reconnect gently. [NAME] will not ask for help. You need to notice and offer it."
+    }
+  },
+  "eagle": {
+    "archetypeId": "eagle",
+    "title": "THE SKY EAGLE",
+    "innerVoiceQuote": "\"The whole picture comes easily to me. The pieces take more work.\" \u2014 [NAME]",
+    "animalDescription": "The Eagle sees further than almost any creature on earth. From hundreds of metres above the ground, it spots movement invisible to every other animal. Patterns, distances, possibilities that don't exist at ground level. It was built for altitude, for vision, for seeing the whole landscape at once while everything else is focused on the patch of ground in front of it. This particular Eagle is the Sky one, always up there, scanning, processing, already three moves ahead. And the details at ground level, the small steps, the sequence, the careful execution, those are harder to see from up here.",
+    "aboutChild": "[NAME] is the child who already knows how the story ends before anyone else has finished reading the first chapter. [HE/SHE/THEY] sees connections, possibilities, and outcomes with breathtaking speed, and then loses [HIS/HER/THEIR] shoes on the way out the door. The gap between what [NAME] can clearly see and what [NAME] can reliably produce is one of the hardest things about this profile, and also one of the most hopeful, because it means the capability is not in question. The delivery system is.\n[NAME] is often described as brilliant but frustrating, gifted but underperforming, full of potential but unable to follow through. Every one of these descriptions captures something real. And every one of them misses the central point: [NAME]'s brain was built for altitude, and the world keeps asking [HIM/HER/THEM] to operate at ground level.",
+    "hiddenGift": "[NAME] sees things others don't. Not the details, the big things. The pattern underneath the surface. The connection between two ideas that nobody else thought to link. The outcome that is obvious to [HIM/HER/THEM] and invisible to everyone else. Genuine big-picture thinking combined with fast, instinctive processing is extraordinarily valuable and remarkably rare. Most people learn to see patterns through years of experience. [NAME] arrives at them intuitively, instantly, and with a confidence that is often completely justified.",
+    "aboutBrain": "[NAME]'s profile is shaped by three areas where [HIS/HER/THEIR] brain works differently.",
+    "brainSections": [
+      {
+        "title": "Attention",
+        "content": "[NAME]'s attention system is wired for the big picture. [HIS/HER/THEIR] brain naturally gravitates toward patterns, concepts, and overarching themes, and disengages from routine, detail-oriented, or repetitive tasks with remarkable speed. This is not a failure of attention. It is attention operating at a different altitude. [NAME] is paying attention, just not to the thing the environment is asking [HIM/HER/THEM] to focus on. The worksheet, the step-by-step process, the careful sequential work, these feel like being asked to walk when [HIS/HER/THEIR] brain was built to fly."
+      },
+      {
+        "title": "Hyperactivity",
+        "content": "[NAME]'s nervous system operates at an elevated baseline speed. [HIS/HER/THEIR] brain processes information quickly, [HIS/HER/THEIR] body needs regular physical outlet, and [HIS/HER/THEIR] internal experience is one of constant forward momentum. This is not restlessness for the sake of it. It is a brain that requires movement and stimulation to stay regulated, and that finds enforced stillness genuinely costly."
+      },
+      {
+        "title": "Executive Function",
+        "content": "Executive function is the bridge between knowing and doing, between seeing the destination and navigating the steps to get there. For [NAME], this bridge is significantly behind [HIS/HER/THEIR] intellectual development. [HE/SHE/THEY] can see the endpoint with extraordinary clarity and genuinely cannot organise the steps to reach it. The vision is vivid. The execution requires support that [HIS/HER/THEIR] brain cannot yet provide on its own."
+      }
+    ],
+    "dayInLife": {
+      "morning": "[NAME] is already moving, already thinking, already processing by the time the day formally begins. [HE/SHE/THEY] is aware of what needs to happen, [HE/SHE/THEY] can see the morning routine as a whole, but [HE/SHE/THEY] cannot sequence the individual steps without support. The result is a child who is clearly awake, clearly active, clearly capable, and somehow not dressed, not fed, and not ready to leave. The vision of \"ready for school\" exists. The executive steps to get there do not fire in order.",
+      "school": "[NAME] understands concepts brilliantly. [HE/SHE/THEY] grasps the principle behind the lesson faster than most of [HIS/HER/THEIR] peers and is already thinking about implications and connections while the class is still working through the basics. But the worksheet is unfinished. The instructions were half-followed. The details were skipped because the brain that sees the whole picture finds it genuinely difficult to care about the individual pieces. Teachers see inconsistency. What is actually happening is a brain operating at a different altitude than the task requires.",
+      "afterSchool": "[NAME] arrives home still running high. The brain is still processing at speed, the body still needs outlet, and the executive function that was stretched thin all day is now depleted. This is when the gap between vision and execution is widest: [NAME] can tell you exactly what homework needs to be done, exactly why it matters, and exactly how [HE/SHE/THEY] would approach it, and then sit in front of it unable to begin. The engine is running. The steering needs support.",
+      "bedtime": "[NAME]'s brain does not switch off easily at bedtime. It is still at altitude, still scanning, still making connections and forming ideas. This is not defiance or avoidance. It is a brain that was built for sustained high-speed processing and does not have a natural deceleration sequence. [NAME] may want to talk about ideas, ask big questions, or suddenly remember something important. The brain is still working. It needs a gentle, predictable landing sequence."
+    },
+    "drains": [
+      "Detail-oriented tasks with no visible bigger purpose",
+      "Long periods of required stillness with no physical outlet",
+      "Multi-step instructions given all at once",
+      "Being criticised for mistakes that feel minor",
+      "Environments that reward compliance over capability",
+      "Being asked to slow down without being given a reason",
+      "Feeling like potential is going to waste"
+    ],
+    "fuels": [
+      "Understanding the big picture before tackling the details",
+      "Regular movement built into the structure of the day",
+      "One clear step at a time delivered just before it is needed",
+      "Acknowledgment of what went right alongside what needs improving",
+      "Environments that make room for speed, vision and big ideas",
+      "Understanding why slowing down serves the goal they care about",
+      "Consistent external scaffolding that bridges vision and execution"
+    ],
+    "overwhelm": "[NAME]'s overwhelm arrives when the gap between what [HE/SHE/THEY] can see and what [HE/SHE/THEY] can produce becomes unbearable. [HE/SHE/THEY] knows exactly what the finished product should look like. [HE/SHE/THEY] can see it with complete clarity. And [HE/SHE/THEY] cannot get there. The frustration of being trapped at ground level when [HIS/HER/THEIR] brain lives at altitude is genuinely painful, and when it reaches its peak, [NAME] may erupt with frustration, shut down entirely, or abandon the task with a dismissive \"it's stupid\" that masks the real feeling: \"I can't make it match what I see.\"\nIn these moments, do not try to motivate with the big picture. [NAME] already sees it, that's the problem. Instead, shrink the task to the smallest possible step: \"Just write the first line.\" \"Just do this one part.\" Remove the weight of the whole and make the next action tiny, immediate, and achievable. Once [NAME] is moving, the momentum often carries. The hardest part is always the first step down from altitude.",
+    "affirmations": [
+      { "when": "When the gap between vision and execution is making [NAME] feel like a failure", "say": "\"You see things most people don't even know are there. That's not nothing, that's extraordinary.\"" },
+      { "when": "When details have been missed and frustration is building", "say": "\"The big picture is your superpower. The details are just a skill we're building.\"" },
+      { "when": "When [NAME] is restless and the environment is demanding stillness", "say": "\"Your body needs to move. That's not a problem, it's just how you're built.\"" },
+      { "when": "When the world feels too slow and [NAME] feels trapped", "say": "\"I know your brain moves fast. We'll find the places where that speed is exactly what's needed.\"" },
+      { "when": "At the end of a hard day when nothing seemed to land", "say": "\"The things you see, the way you think, those don't go away on a hard day. They're still there.\"" }
+    ],
+    "doNotSay": [
+      {
+        "when": "Details have been skipped and the work is incomplete",
+        "insteadOf": "\"If you'd just pay attention to the details you'd be fine.\"",
+        "tryThis": "\"You got the big idea. Let's go back and fill in the pieces together.\""
+      },
+      {
+        "when": "[NAME] can't sit still and you're running out of patience",
+        "insteadOf": "\"Why can't you just sit still and concentrate?\"",
+        "tryThis": "\"Let's take a movement break and come back to this.\""
+      },
+      {
+        "when": "The potential is obvious and the output is not matching it",
+        "insteadOf": "\"You could be top of the class if you just tried.\"",
+        "tryThis": "\"I see what you're capable of. Let's build the systems that let it show up.\""
+      },
+      {
+        "when": "[NAME] has abandoned a task in frustration",
+        "insteadOf": "\"You always give up when it gets hard.\"",
+        "tryThis": "\"The task felt too far from what you could see in your head. Let's make it smaller.\""
+      },
+      {
+        "when": "[NAME] is rushing through something and making careless mistakes",
+        "insteadOf": "\"Slow down and do it properly.\"",
+        "tryThis": "\"Your brain moves fast. Let's catch the pieces it skipped.\""
+      }
+    ],
+    "closingLine": "[NAME] is a Sky Eagle. And the world needs more of them.",
+    "whatHelps": {
+      "aboutChild": "Always start with the big picture. Tell [NAME] why something matters before asking [HIM/HER/THEM] to do it. Then deliver the steps one at a time, just before they are needed. The vision is the motivation. The scaffolding is the bridge. Provide both.",
+      "hiddenGift": "Give the big-picture thinking real problems to solve. Let [NAME] strategise, plan, debate, design. When [HIS/HER/THEIR] mind has a worthy challenge, the focus and the energy align naturally. Protect those moments fiercely.",
+      "brain": "For attention: connect every detail-level task to the bigger picture it serves. For hyperactivity: build movement into the day as a feature, not a concession. For executive function: one step at a time, delivered just before it is needed, with a calm adult nearby to bridge the gap.",
+      "morning": "Tell [NAME] the plan for the morning in one sentence (\"We need to be out the door by 8:15\"), then deliver each step individually. A visual checklist helps. Movement between steps (star jumps, a quick run up the stairs) helps the body regulate and the brain reset for the next task.",
+      "school": "Ask the school to connect tasks to bigger concepts before diving into details. A brief \"here's why this matters\" before a worksheet changes everything for [NAME]. Request permission for movement breaks and fidget tools, and recognise that incomplete worksheets may reflect altitude, not absence.",
+      "afterSchool": "Give [NAME] a physical outlet first: 15 minutes of hard exercise before homework. Then sit with [HIM/HER/THEM] for the first step of each task. Once moving, [NAME] often doesn't need you. It's the start that needs support.",
+      "bedtime": "Build a gentle landing sequence: dim lights, calm music, a brief conversation about the day's ideas (not problems), and a predictable routine. Let [NAME]'s brain come down gradually rather than demanding an abrupt stop.",
+      "overwhelm": "Shrink the task. Remove the weight of the whole. Make the next action tiny, immediate, and achievable. \"Just this one part. Nothing else.\" Once [NAME] is moving, the momentum usually carries. The hardest part is always the first step."
+    }
+  },
+  "bear": {
+    "archetypeId": "bear",
+    "title": "THE BRAVE BEAR",
+    "innerVoiceQuote": "\"Sometimes my energy gets ahead of my good ideas.\" \u2014 [NAME]",
+    "animalDescription": "The Bear is one of the most powerful creatures in the natural world, strong, fast, instinctive, and capable of extraordinary tenderness. It can run at speeds that surprise everything around it, climb what looks unclimbable, and protect what it loves with a ferocity that stops the world in its tracks. This particular Bear is the Brave one, brave because [HE/SHE/THEY] faces every single day with a brain that is running too fast, feeling too much, losing track of too many things, and struggling to organise any of it, and [HE/SHE/THEY] keeps going anyway.",
+    "aboutChild": "[NAME] is the child who lives at full volume. [HE/SHE/THEY] moves fast, feels hard, forgets often, and reacts before thinking. [HIS/HER/THEIR] brain is running four systems at high speed with none of them fully under control yet. What looks like a whirlwind from the outside is, from [NAME]'s perspective, just normal: this is the only speed [HIS/HER/THEIR] brain knows.\nThe adults around [NAME] are often exhausted, and understandably so. The combination of physical energy, emotional intensity, executive disorganisation, and attentional inconsistency means that every day brings multiple moments where something has gone wrong, been forgotten, been broken, or been said too loudly. But [NAME] is not trying to be difficult. [HE/SHE/THEY] is trying to navigate a world that moves at a speed [HIS/HER/THEIR] brain cannot quite match, with tools that are not yet fully built.",
+    "hiddenGift": "[NAME] has an extraordinary combination of qualities: energetic, passionate, emotionally courageous, and physically capable. [HE/SHE/THEY] throws [HIMSELF/HERSELF/THEMSELVES] into things with a wholeness that most people lose by adulthood. The energy that exhausts you today is the same energy that will power [HIM/HER/THEM] through challenges most people would quit. The emotional intensity that creates the hardest moments is the same intensity that makes [NAME] fiercely loyal, deeply caring, and impossible to ignore. These are not separate qualities. They are the same quality, expressed in different moments.",
+    "aboutBrain": "[NAME]'s profile is shaped by four areas where [HIS/HER/THEIR] brain works differently, and all four interact to create the daily experience that defines this profile.",
+    "brainSections": [
+      {
+        "title": "Hyperactivity",
+        "content": "[NAME]'s body operates at a consistently elevated baseline. Movement is not optional, it is neurologically necessary. [HIS/HER/THEIR] brain requires physical activity to stay regulated, and enforced stillness is not restful but genuinely effortful. The fidgeting, the running, the inability to sit through a meal without moving are not choices. They are [NAME]'s nervous system doing what it needs to do to stay functional."
+      },
+      {
+        "title": "Inattention",
+        "content": "[NAME]'s attention system is inconsistent. It can lock onto something fascinating with extraordinary intensity and then completely disconnect from something routine without warning. Instructions are heard but not encoded. Steps are started but not finished. Details are noticed and then immediately lost. The brain is not absent. It is present in unpredictable bursts that make sustained, sequential work genuinely difficult."
+      },
+      {
+        "title": "Emotional Intensity",
+        "content": "[NAME]'s emotional responses arrive faster, hit harder, and last longer than [HIS/HER/THEIR] logical brain can manage. There is almost no gap between trigger and reaction. Frustration becomes fury. Disappointment becomes despair. Excitement becomes explosion. This is not a behavioural choice. It is a neurological pattern in which the emotional system consistently outpaces the moderating systems that would normally slow it down."
+      },
+      {
+        "title": "Executive Function",
+        "content": "[NAME]'s executive function, the brain's capacity to plan, sequence, organise, and regulate, is the system that would normally coordinate all of the above into managed, directed behaviour. For [NAME], this system is still developing significantly behind [HIS/HER/THEIR] age. The result is that when the body moves, the brain misses information. When something goes wrong, the emotional system floods. And when the emotional system floods, the executive function that would normally organise a recovery simply cannot keep up. The loop is reliable and painful: body moves \u2192 brain misses info \u2192 something goes wrong \u2192 emotional system floods \u2192 executive function can't organise recovery \u2192 erupts or shuts down."
+      }
+    ],
+    "dayInLife": {
+      "morning": "The engine is already running before [NAME] opens [HIS/HER/THEIR] eyes. The body is moving, the brain is active, and the morning routine, the one thing that requires the most executive control, arrives at the moment when [NAME] has the least of it. Getting dressed, eating, packing, and leaving the house requires sequential, organised, calm effort. [NAME] has energy in abundance. What [HE/SHE/THEY] does not have is the internal system to point that energy at the right tasks in the right order.",
+      "school": "The classroom demands everything [NAME] struggles with most: sitting still, sustaining attention, managing frustration, waiting for a turn, following multi-step instructions, and producing organised output. [NAME] is not failing at school because [HE/SHE/THEY] lacks intelligence or motivation. [HE/SHE/THEY] is failing at the specific set of demands that happen to be the exact areas where [HIS/HER/THEIR] brain needs the most support. The mismatch between what school asks for and what [NAME] can currently deliver is daily, visible, and painful.",
+      "afterSchool": "After school is physical chaos and emotional release. Everything that was held in, sat on, and suppressed during the school day comes out at once. The body needs to discharge. The emotions need to land. The executive function that was stretched beyond its limits all day has nothing left. This is not [NAME] being difficult. This is [NAME] being a Brave Bear who has been in a cage for six hours and has finally been let out.",
+      "bedtime": "Bedtime is the hardest transition of the day because it asks [NAME] to do the one thing [HIS/HER/THEIR] nervous system finds most difficult: stop. Be still. Lie still. The body that has been in motion all day does not have a natural deceleration sequence. The brain that has been processing at speed does not have an off switch. The emotions that have been accumulating have nowhere left to go except into the quiet, and the quiet amplifies everything."
+    },
+    "drains": [
+      "Being required to sit still for extended periods",
+      "Multi-step verbal instructions",
+      "Consequences delivered in anger or frustration",
+      "Being told they are \"bad\" or \"naughty\"",
+      "Tasks that feel too big or too long",
+      "Unexpected changes to the plan",
+      "Being compared to calmer, more organised siblings or peers",
+      "Environments with no physical outlet"
+    ],
+    "fuels": [
+      "Regular movement breaks and physical outlets built into the day",
+      "One step at a time with visual support",
+      "Calm, private, brief consequences with a clear path back",
+      "Being told their brain works differently, not defectively",
+      "Tasks broken into short, visible chunks with breaks",
+      "Advance warning and predictable routines",
+      "Recognition of their unique strengths \u2014 energy, courage, passion",
+      "Access to movement, sport, physical play every single day"
+    ],
+    "overwhelm": "[NAME]'s overwhelm arrives as escalation: bigger, louder, faster, more. The body moves more. The voice gets louder. The emotions intensify. The behaviour becomes more erratic. This is not [NAME] choosing to be difficult. It is a nervous system that has reached its limit and is discharging through the only channels available: physical movement and emotional expression.\nIn these moments, do not match the escalation. Do not raise your voice. Do not add consequences. Do not demand stillness. All of these will increase the load on a system that is already past its capacity. Instead, reduce demands to zero. If possible, provide a physical outlet: a run outside, a punching bag, jumping, anything that lets the body discharge safely. Speak quietly, move slowly, and stay nearby without crowding. Once the physical storm passes, [NAME] will return to baseline faster than you might expect, often ready to reconnect and try again with genuine willingness. The recovery, when handled well, is remarkably quick.",
+    "affirmations": [
+      { "when": "After an eruption, when [NAME] is coming back to baseline and shame is arriving", "say": "\"That was your brain, not your character. You are not a bad kid.\"" },
+      { "when": "When the energy and intensity are wearing everyone out, including [NAME]", "say": "\"Your energy is one of the best things about you. It just needs the right place to go.\"" },
+      { "when": "When [NAME] has been told [HE/SHE/THEY] is too much, too loud, or too wild", "say": "\"You are not too much. The world just hasn't caught up with your speed yet.\"" },
+      { "when": "When things have gone wrong again and [NAME] feels like [HE/SHE/THEY] can't do anything right", "say": "\"You did a hundred things today. Some of them went wrong. Most of them didn't. I noticed.\"" },
+      { "when": "When the courage it takes to face another day is invisible to everyone else", "say": "\"I see how brave you are. Every single day. And I am so proud of you.\"" },
+      { "when": "When [NAME] is frustrated with [HIMSELF/HERSELF/THEMSELVES] for losing control again", "say": "\"Your brain runs fast and feels big. We're building the systems to match. It takes time.\"" }
+    ],
+    "doNotSay": [
+      {
+        "when": "[NAME] has erupted and the situation has escalated",
+        "insteadOf": "\"You're being so naughty.\"",
+        "tryThis": "\"Your brain got too full. Let's get some of that energy out safely.\""
+      },
+      {
+        "when": "The physical energy is relentless and you're exhausted",
+        "insteadOf": "\"Why can't you just calm down?\"",
+        "tryThis": "\"Your body needs to move. Let's find somewhere for that energy to go.\""
+      },
+      {
+        "when": "[NAME] has reacted before thinking and something has gone wrong",
+        "insteadOf": "\"Why didn't you think before you did that?\"",
+        "tryThis": "\"Your body moved before your brain caught up. That happens. Let's fix what we can.\""
+      },
+      {
+        "when": "You're comparing [NAME] to a calmer child and it slips out",
+        "insteadOf": "\"Why can't you be more like [sibling/friend]?\"",
+        "tryThis": "\"You're built differently. That's not worse, it's just different, and it needs different support.\""
+      },
+      {
+        "when": "The intensity feels unmanageable and you're at your limit",
+        "insteadOf": "\"I can't deal with you anymore.\"",
+        "tryThis": "\"I need a minute to reset. Then I'm coming back and we'll figure this out together.\""
+      },
+      {
+        "when": "[NAME] has forgotten something important in the chaos",
+        "insteadOf": "\"You never remember anything.\"",
+        "tryThis": "\"Your brain was busy with a lot of things. Let's put a system in place so this one doesn't slip again.\""
+      }
+    ],
+    "closingLine": "[NAME] is a Brave Bear. And the world needs more of them.",
+    "whatHelps": {
+      "aboutChild": "Channel, don't suppress. Build movement into every part of the day as a feature, not a concession. One instruction at a time. Short tasks with visible endpoints and physical breaks between them. And when things go wrong, respond to the brain, not the behaviour. The behaviour is the output. The brain is where the support needs to go.",
+      "hiddenGift": "Find the environments where the energy, the passion, and the courage are assets: sport, outdoor education, physical challenges, performance, leadership roles in active settings. When [NAME] is in the right context, the support needs look completely different because the strengths are doing the work.",
+      "brain": "Physical activity before cognitive demands. Always. A 15-minute burst of intense movement (running, trampolining, climbing) before homework, before difficult conversations, before anything that requires sitting and concentrating. This temporarily raises the dopamine levels that [NAME]'s brain is short on and makes the next 30-45 minutes significantly more manageable.",
+      "morning": "A visual routine removes the need for verbal instructions and the conflict they create. Lay everything out the night before. Build in a physical outlet before leaving the house if possible (even five minutes of jumping or running). Keep the morning calm, predictable, and as decision-free as possible.",
+      "school": "Share this document with [NAME]'s teacher. The key accommodations: regular movement breaks, a fidget tool, permission to stand during independent work, one instruction at a time, and a private, pre-agreed signal when [NAME] is reaching [HIS/HER/THEIR] limit. The goal is to prevent the escalation, not manage it after it has arrived.",
+      "afterSchool": "Give [NAME] 20-30 minutes of unrestricted physical activity before any demands arrive. Trampoline, bike, run, whatever gets the body moving at intensity. This is not a reward. It is a neurological necessity that makes everything that follows more possible.",
+      "bedtime": "Start the wind-down 30-45 minutes before bed. Cut screens, roughhousing, and stimulating content. Use the same sequence every night: physical cool-down, bath or shower, quiet time (reading together, calm music), then lights out. If [NAME] still can't settle, a weighted blanket or a quiet audiobook can give the brain something to hold onto.",
+      "overwhelm": "Do not match the escalation. Lower your voice, reduce demands, provide a physical outlet. Once the storm passes, reconnect gently and briefly: \"That was hard. I'm here. We're okay.\" Save the conversation for later. The learning happens in the calm, not in the chaos."
+    }
+  },
+  "bee": {
+    "archetypeId": "bee",
+    "title": "THE BUZZY BEE",
+    "innerVoiceQuote": "\"My brain goes where the energy is, and the energy is usually people.\" \u2014 [NAME]",
+    "animalDescription": "The Bee is one of nature's most essential creatures, constantly in motion, visiting flower after flower, carrying energy and life wherever it goes. It doesn't choose to be busy. It is built this way, wired for movement, for connection, for the relentless transfer of something vital from one place to the next. The Buzzy Bee is the one who is everywhere at once, talking to everyone, starting everything, finishing almost nothing, and somehow making the whole garden more vibrant just by being in it.",
+    "aboutChild": "[NAME] is the child who knows everyone's name, is in the middle of every conversation, and has forgotten what [HE/SHE/THEY] was supposed to be doing three times since this sentence started. Socially magnetic, warm, funny, energetic, genuinely interested in people, and completely unable to stay on task when there is a person in the room to connect with. The social drive is so strong that every person in the room is more interesting than whatever is on the whiteboard.\n[NAME]'s energy is genuine and infectious. [HE/SHE/THEY] fills any space [HE/SHE/THEY] enters with warmth and movement and conversation. The adults around [HIM/HER/THEM] find this both endearing and exhausting, often in the same moment. The challenge is not the energy itself, it is that the energy is almost entirely directed toward social connection, and the executive systems that would normally help [NAME] manage, direct, and contain that energy are still significantly behind.",
+    "hiddenGift": "[NAME] is a connector. [HE/SHE/THEY] brings people together, starts conversations that wouldn't have happened otherwise, introduces children who would never have met, and fills any room with energy that is genuinely infectious. The social intelligence is real, the warmth is real, and the ability to make people feel included and energised is a gift that cannot be taught or manufactured. The energy that teachers find exhausting is the same energy that will make [NAME] extraordinary in the right context: leadership, teamwork, communication, community-building, performance.",
+    "aboutBrain": "[NAME]'s profile is shaped by four areas where [HIS/HER/THEIR] brain works differently, and all four feed into the buzzing, connecting, starting-everything-finishing-nothing pattern that defines [HIS/HER/THEIR] daily experience.",
+    "brainSections": [
+      {
+        "title": "Hyperactivity",
+        "content": "[NAME]'s body and brain are in constant motion. But the hyperactivity is not just physical, it is verbal. [NAME] talks constantly, not because [HE/SHE/THEY] chooses to, but because [HIS/HER/THEIR] brain processes the world through language and social interaction. The talking is not the problem. It is the brain's primary regulation strategy, and suppressing it without providing an alternative is like removing a tool without replacing it."
+      },
+      {
+        "title": "Inattention",
+        "content": "[NAME]'s brain disengages from non-social tasks with remarkable speed. It is not that [HE/SHE/THEY] cannot pay attention. It is that [HIS/HER/THEIR] brain allocates attention according to social energy rather than task importance. The lesson on the whiteboard is competing with the person sitting next to [HIM/HER/THEM], and the person wins every time, not because [NAME] is being rude, but because [HIS/HER/THEIR] brain is wired to prioritise connection over content."
+      },
+      {
+        "title": "Executive Function",
+        "content": "[NAME]'s executive system is still developing significantly slower than [HIS/HER/THEIR] social and verbal abilities. The capacity to plan, organise, sequence, initiate, and complete tasks independently is well behind what the classroom and the home expect. [NAME] can talk brilliantly about what needs to happen and genuinely cannot make [HIMSELF/HERSELF/THEMSELVES] do it without external support."
+      },
+      {
+        "title": "Social Drive",
+        "content": "[NAME] is drawn to people with a joyfulness and an intensity that is both [HIS/HER/THEIR] greatest strength and [HIS/HER/THEIR] most significant complicating factor. The social drive creates the energy. The hyperactivity amplifies it. The inattention redirects it away from tasks. And the executive function cannot organise the recovery. The loop is reliable: buzzes toward social connection \u2192 attention drifts or hyperactivity takes over \u2192 misses a cue, talks too much, does something impulsive \u2192 social interaction stumbles \u2192 executive function can't organise repair \u2192 buzzes to next connection."
+      }
+    ],
+    "dayInLife": {
+      "morning": "[NAME] is already buzzing before [HIS/HER/THEIR] feet hit the floor. The mouth is talking, the body is moving, and the morning routine is the last thing on [HIS/HER/THEIR] mind. Every person in the house is a potential conversation. Every interaction is more interesting than getting dressed. The morning routine requires sequential, quiet, independent execution, and [NAME] is built for none of those things. What helps: a visual checklist, one step at a time, and as few conversations as possible until the routine is done. Save the social connection for after the tasks are complete.",
+      "school": "The classroom is where the mismatch is sharpest. [NAME] is socially energised in an environment that demands quiet, independent, sustained focus. [HE/SHE/THEY] is drawn to every person in the room while being asked to focus on the task at [HIS/HER/THEIR] desk. The result is a child who is constantly talking, constantly connecting, constantly starting and not finishing, and genuinely unable to understand why this keeps causing problems. [NAME] is not trying to disrupt. [HE/SHE/THEY] is trying to connect, and the environment is not set up for that.",
+      "afterSchool": "[NAME] arrives home bursting with social content: who said what, who did what, who is friends with whom, what happened at lunch. This is not avoidance. It is [NAME]'s social brain doing the work it finds most important. The talking, the sharing, the processing of the day's social interactions is genuinely restorative for [NAME]. Once it has been given space, [HE/SHE/THEY] is often more available for other demands. Physical release alongside social sharing is the ideal combination.",
+      "bedtime": "Bedtime is the hardest wind-down of the day. [NAME]'s brain is still connecting, still processing, still buzzing with the social energy of the day. The body that has been in motion all day does not want to stop. The mouth that has been talking all day has not run out of things to say. The transition to quiet and stillness requires a gradual, predictable deceleration that the brain cannot generate on its own."
+    },
+    "drains": [
+      "Extended periods of sitting still and working in silence",
+      "Being told to stop talking without an alternative outlet",
+      "Multi-step instructions delivered verbally once",
+      "Being responsible for logistics they cannot manage yet",
+      "Isolation as punishment",
+      "Being labelled \"the disruptive one\"",
+      "Open-ended tasks with no visible endpoint",
+      "Environments with no people and no stimulation"
+    ],
+    "fuels": [
+      "Movement breaks, physical outlets, and active learning",
+      "A specific, legitimate time when talking will be welcomed",
+      "One step at a time with visual support",
+      "External scaffolding \u2014 checklists, reminders, an adult who helps organise",
+      "Structured social time as reward and regulation",
+      "Being recognised as the connector, the energiser",
+      "Clear, short tasks with a timer and a finish line",
+      "Collaborative, active, social environments where energy is an asset"
+    ],
+    "overwhelm": "[NAME]'s overwhelm arrives as amplification. Everything gets bigger: the talking gets louder, the movement gets faster, the behaviour gets more erratic, and the ability to read social cues, which is normally one of [NAME]'s strengths, starts to fail. [HE/SHE/THEY] talks too much, stands too close, misses the signal that someone has had enough. The social intelligence that normally guides [HIM/HER/THEM] is offline, and what remains is pure energy with no direction.\nIn these moments, do not isolate [NAME]. Isolation removes the one thing that regulates [HIM/HER/THEM]: connection. Instead, redirect the energy. A physical task with a social component (\"Help me carry these to the kitchen\"), a brief one-on-one conversation (\"Tell me one thing about today\"), or a structured physical outlet (\"Ten star jumps, then we talk\") can bring [NAME] back to baseline faster than any consequence. Once the energy has been channeled, [NAME] is often immediately ready to try again.",
+    "affirmations": [
+      { "when": "When [NAME] has been told to stop talking and feels silenced", "say": "\"Your voice matters. We just need to find the right moment for it.\"" },
+      { "when": "When the energy has caused a problem and [NAME] feels like [HE/SHE/THEY] is always in trouble", "say": "\"Your energy is not the problem. We just need to point it somewhere good.\"" },
+      { "when": "When [NAME] has been labelled the disruptive one and it's starting to stick", "say": "\"You are the one who makes the room come alive. That is a gift, not a problem.\"" },
+      { "when": "When social connection has come at the expense of a task and [NAME] feels torn", "say": "\"Caring about people is one of your best qualities. We'll find time for both.\"" },
+      { "when": "When [NAME] is frustrated that [HIS/HER/THEIR] brain won't let [HIM/HER/THEM] sit still and focus", "say": "\"Your brain is built for movement and connection. That's not broken, that's brilliant in the right setting.\"" },
+      { "when": "When the day has been full of corrections and very little praise", "say": "\"I noticed the good things today too. You brought energy to everything you touched.\"" },
+      { "when": "When [NAME] feels like [HE/SHE/THEY] doesn't fit the way school wants [HIM/HER/THEM] to", "say": "\"School isn't set up for your kind of brain yet. That doesn't mean your brain is wrong.\"" },
+      { "when": "At the end of a hard day when the buzzing caused more problems than connections", "say": "\"Tomorrow is a new day with new people to connect with. And you'll be great at it.\"" }
+    ],
+    "doNotSay": [
+      {
+        "when": "[NAME] is talking when [HE/SHE/THEY] should be working",
+        "insteadOf": "\"Stop talking.\"",
+        "tryThis": "\"I can see you have things to say. Let's finish this first, and then I want to hear all of it.\""
+      },
+      {
+        "when": "The energy is disrupting everyone around [HIM/HER/THEM]",
+        "insteadOf": "\"You're always disrupting the class.\"",
+        "tryThis": "\"Your energy is big right now. Let's find a way to use it.\""
+      },
+      {
+        "when": "[NAME] has been socialising instead of completing a task",
+        "insteadOf": "\"You spend all your time talking and none of it working.\"",
+        "tryThis": "\"People are your thing. Let's get this done first, then you can connect.\""
+      },
+      {
+        "when": "You're exhausted by the constant noise and movement",
+        "insteadOf": "\"You're exhausting.\"",
+        "tryThis": "\"I need a quiet moment. Then I'm all yours.\""
+      },
+      {
+        "when": "[NAME] can't sit still and it's been a long day for everyone",
+        "insteadOf": "\"Why can't you just sit down and be quiet?\"",
+        "tryThis": "\"Your body needs to move. Let's find the right place for that.\""
+      },
+      {
+        "when": "The impulsive social behaviour has caused a problem",
+        "insteadOf": "\"Think before you speak.\"",
+        "tryThis": "\"That came out before your brain caught up. Let's talk about what you meant.\""
+      },
+      {
+        "when": "Isolation has been used as a consequence and it's making things worse",
+        "insteadOf": "\"Go to your room until you can behave.\"",
+        "tryThis": "\"Let's take a break together. Then we'll reset.\""
+      },
+      {
+        "when": "Nothing has been finished and the day is almost over",
+        "insteadOf": "\"You haven't done a single thing today.\"",
+        "tryThis": "\"Let's pick one thing and finish just that. One thing done is a win.\""
+      }
+    ],
+    "closingLine": "[NAME] is a Buzzy Bee. And the world needs more of them.",
+    "whatHelps": {
+      "aboutChild": "Don't fight the social drive, use it. Build social connection into tasks wherever possible: working with a partner, teaching back, collaborative projects. Use structured social time as a reward and a regulation tool. And provide the external scaffolding (checklists, timers, one step at a time) that [NAME]'s executive system cannot yet generate independently.",
+      "hiddenGift": "Give [NAME] a legitimate role as a connector: greeting new students, leading group activities, organising social events, mentoring younger children. When the social energy has a purpose, it stops being a problem and becomes a genuine leadership quality.",
+      "brain": "For hyperactivity: movement breaks built into the day as a feature, not a concession. For inattention: keep non-social tasks short, timed, and immediately followed by a social reward. For executive function: one step at a time, visual support, and an adult nearby. For social drive: build connection into the structure rather than treating it as a distraction.",
+      "morning": "A visual checklist, minimal conversation, one step at a time. Save the social connection for after the routine is done. Use it as a reward: \"Get dressed and then tell me about your dream.\" The social energy is the fuel. Use it to power the morning, not derail it.",
+      "school": "Share this document with [NAME]'s teacher. The key accommodations: a designated time when talking is legitimate (partner work, class discussion), a movement break every 20-30 minutes, a visual timer for independent tasks, and recognition that the social energy is a strength that needs channeling, not suppression.",
+      "afterSchool": "Give [NAME] 15-20 minutes of social sharing and physical release before any demands. Let [HIM/HER/THEM] talk about the day while moving (a walk, a bike ride, a trampoline session). Once the social and physical needs have been met, homework becomes more possible.",
+      "bedtime": "Start winding down 30 minutes before bed. Reduce social stimulation gradually: from conversation to quiet reading to lights out. A calm, one-on-one connection (not a group, not a screen) gives the social brain something to settle on. Keep the routine the same every night.",
+      "overwhelm": "Do not isolate. Redirect. A physical task, a brief one-on-one conversation, a structured outlet. Once the energy has been channeled, [NAME] is usually ready to try again immediately. The recovery is fast when the connection is maintained."
+    }
+  },
+  "red_panda": {
+    "archetypeId": "red_panda",
+    "title": "THE RED PANDA",
+    "innerVoiceQuote": "\"I come close gently, because the world can feel loud before it feels safe.\" \u2014 [NAME]",
+    "animalDescription": "The Red Panda lives high in the quiet canopy of mountain forests, moving slowly, deliberately, almost always alone or in a pair. It does not seek the centre of attention. It watches, listens, and takes in the world from a safe distance before deciding whether to come closer. But when it does come closer, the connection is extraordinarily gentle, warm, and complete. This particular Red Panda is drawn to people, fascinated by friendships, genuinely longing to be part of the group. But the sensory reality of being close to other people overwhelms the nervous system before the connection can take root.",
+    "aboutChild": "[NAME] is the child who lights up when invited to a birthday party and then spends most of it sitting on the edge. Not shyness, [HE/SHE/THEY] genuinely wants to be there. But the moment [HE/SHE/THEY] walked through the door and the noise, lights, movement, and unpredictability hit [HIS/HER/THEIR] sensory system, the excitement was replaced by distress. [NAME] is caught between two competing needs: connection and sensory safety. Both are real, both are urgent, and they pull in opposite directions.\nThe adults around [NAME] often misread this as shyness, antisocial behaviour, or a lack of interest in other children. None of these are true. [NAME] wants to connect as much as any child. More, in some ways, because [HE/SHE/THEY] has spent so much time watching from the edge that [HE/SHE/THEY] understands the value of connection with a clarity that children who have it easily never develop.",
+    "hiddenGift": "The same sensitivity that makes crowds overwhelming makes [NAME] one of the most attuned, empathetic, and emotionally perceptive children you will ever meet. [HE/SHE/THEY] reads people with extraordinary accuracy. [HE/SHE/THEY] notices when someone is sad before they've said a word. [HE/SHE/THEY] picks up on tone, expression, and body language that most adults miss. In one-on-one settings, [NAME] is warm, funny, generous, and profoundly good company. [HE/SHE/THEY] does not need a wide social circle. [HE/SHE/THEY] needs a small number of people who understand [HIS/HER/THEIR] pace and value depth over volume.",
+    "aboutBrain": "[NAME]'s profile is shaped by two areas where [HIS/HER/THEIR] brain works differently, and understanding how they interact transforms the way you interpret [HIS/HER/THEIR] social behaviour.",
+    "brainSections": [
+      {
+        "title": "Sensory Processing",
+        "content": "[NAME]'s sensory processing operates at a significantly higher intensity than most children [HIS/HER/THEIR] age. Sound, light, movement, touch, and the unpredictable energy of groups are all processed at a volume that is genuinely overwhelming. This is not a preference or a personality trait. It is a neurological reality: [NAME]'s nervous system receives more sensory information, processes it more deeply, and reaches its limit faster than the systems of [HIS/HER/THEIR] peers. Environments that feel perfectly normal to twenty other children can feel, to [NAME], like standing in the middle of a storm."
+      },
+      {
+        "title": "Social Awareness",
+        "content": "[NAME]'s social awareness is genuinely high. [HE/SHE/THEY] reads social cues accurately, understands group dynamics intuitively, and is emotionally attuned to the people around [HIM/HER/THEM] with a precision that is rare in a child. But here is the critical point: this social skill can only operate in low-sensory environments. In a quiet room with one friend, [NAME] is socially confident, verbally skilled, and genuinely warm. In a noisy room with twenty children, [NAME] appears withdrawn, disconnected, and unable to participate. The social capability has not changed. The sensory environment has made it inaccessible."
+      }
+    ],
+    "dayInLife": {
+      "morning": "[NAME] needs a gentle start. The sensory demands of the morning, bright lights, loud voices, the texture of clothing, the unpredictability of siblings, are all processed at high intensity. A calm, predictable routine with minimal sensory surprises gives [NAME]'s nervous system the best possible start. Rushing, shouting, sudden changes, or a chaotic environment will fill [NAME]'s sensory cup before the day has even begun.",
+      "school": "School is where the tension between social desire and sensory limits is most visible. [NAME] wants to be part of things. [HE/SHE/THEY] watches the group with genuine longing, understands exactly what is happening socially, and may even move toward the edge of the group. But the noise, the movement, the unpredictability of twenty-five children in a confined space overwhelm [HIS/HER/THEIR] sensory system before the social connection can take hold. Teachers see a withdrawn child. What is actually happening is a child whose social system is fully operational but whose sensory system has shut the door.",
+      "afterSchool": "[NAME] arrives home depleted. The sensory cost of the school day, hours of processing noise, light, movement, and social energy at high intensity, has used everything [HE/SHE/THEY] had. [NAME] needs low-sensory recovery: a quiet room, familiar textures, minimal demands, and time. Do not front-load the afternoon with activities, homework, or social plans. The tank is empty and needs to refill before anything else is possible.",
+      "bedtime": "Bedtime is often the best part of [NAME]'s day. The house is quiet. The stimulation is low. The connection is one-on-one. This is the environment where [NAME]'s social warmth, verbal skill, and emotional depth are fully available. Protect this time fiercely. A calm, unhurried bedtime with genuine connection is one of the most powerful tools you have for building [NAME]'s confidence, processing the day, and strengthening your relationship."
+    },
+    "drains": [
+      "Crowded, noisy social environments",
+      "Being forced to join group activities without a way out",
+      "Being labelled as shy, antisocial, or unfriendly",
+      "Social situations with no advance warning or preparation",
+      "Losing friendships because they can't sustain the sensory cost",
+      "Feeling like something is wrong with them for needing to leave",
+      "Environments where participation is the only measure of engagement"
+    ],
+    "fuels": [
+      "One-on-one or small-group connection in quiet settings",
+      "The option to participate at their own pace, with a dignified exit available",
+      "Adults who understand that the desire for connection and the need for sensory safety can coexist",
+      "Knowing what to expect before arriving, including who will be there and how long it will last",
+      "Support in finding friends who match their pace and value depth over volume",
+      "Being told that leaving when overwhelmed is self-awareness, not failure",
+      "Adults who recognise that watching from the edge is also a form of being there"
+    ],
+    "overwhelm": "[NAME]'s overwhelm arrives as withdrawal. When the sensory load exceeds what [HIS/HER/THEIR] nervous system can process, [NAME] retreats, not angrily, not dramatically, but quietly and completely. [HE/SHE/THEY] may go silent, move to the edge of the room, cover [HIS/HER/THEIR] ears, or simply leave. This is not rudeness or rejection. It is a nervous system that has reached its limit and is protecting itself the only way it knows how.\nThe danger is that adults interpret this withdrawal as a choice or a behaviour to be corrected. Pushing [NAME] back into the environment that overwhelmed [HIM/HER/THEM] will make the overwhelm worse and the recovery longer. What [NAME] needs is permission to withdraw, a safe space to recover, and a calm adult who understands that the withdrawal is the coping strategy, not the problem. Once the sensory system has had time to reset, [NAME] will often return on [HIS/HER/THEIR] own, ready to try again at [HIS/HER/THEIR] own pace.",
+    "affirmations": [
+      { "when": "When [NAME] has left a social situation and feels like [HE/SHE/THEY] failed", "say": "\"Leaving when it's too much is one of the smartest things you can do. I'm proud of you for knowing yourself that well.\"" },
+      { "when": "When [NAME] has been called shy and feels like something is wrong with [HIM/HER/THEM]", "say": "\"You're not shy. You're careful. And there's nothing wrong with that.\"" },
+      { "when": "When the desire to connect is visible but the sensory cost is too high", "say": "\"I know you want to be in there. We'll find the way that works for you.\"" },
+      { "when": "When [NAME] has had a genuinely good one-on-one interaction and needs to hear it mattered", "say": "\"The way you are with people, one person at a time, is one of the most special things about you.\"" },
+      { "when": "When the world feels too loud and [NAME] feels too different", "say": "\"Your sensitivity is not a weakness. It's how you see things other people miss.\"" },
+      { "when": "At the end of a day when the sensory world won and connection lost", "say": "\"Some days are louder than your brain can handle. That's not your fault. Tomorrow we try again.\"" }
+    ],
+    "doNotSay": [
+      {
+        "when": "[NAME] is sitting on the edge of a group activity watching but not joining",
+        "insteadOf": "\"Just go and join in, you'll be fine.\"",
+        "tryThis": "\"I can see you're watching. That's okay. You can join when you're ready, or not. Both are fine.\""
+      },
+      {
+        "when": "[NAME] wants to leave a social situation",
+        "insteadOf": "\"We just got here, you can't leave already.\"",
+        "tryThis": "\"If it's too much, let's step outside for a minute and see how you feel.\""
+      },
+      {
+        "when": "[NAME] has been quiet all day and you're worried about socialisation",
+        "insteadOf": "\"You need to make more friends.\"",
+        "tryThis": "\"You have your own way of connecting with people. Let's find the settings where that works best.\""
+      },
+      {
+        "when": "[NAME] is covering [HIS/HER/THEIR] ears or retreating from noise",
+        "insteadOf": "\"It's not that loud, stop being dramatic.\"",
+        "tryThis": "\"I believe you that it's too loud. Let's find somewhere quieter.\""
+      },
+      {
+        "when": "You're frustrated that [NAME] can't do what other children seem to manage easily",
+        "insteadOf": "\"Other kids cope with this just fine.\"",
+        "tryThis": "\"Your nervous system works differently. That doesn't make you less capable, it just means you need different support.\""
+      }
+    ],
+    "closingLine": "[NAME] is a Red Panda. And the world needs more of them.",
+    "whatHelps": {
+      "aboutChild": "The single most important thing is to stop measuring [NAME]'s social success by the same standards as other children. [HE/SHE/THEY] does not need a wide social circle. [HE/SHE/THEY] needs one or two friends who match [HIS/HER/THEIR] pace. Create opportunities for low-sensory social connection: one friend at a time, in a quiet setting, with a clear plan and an exit strategy.",
+      "hiddenGift": "Give [NAME]'s perceptiveness a role: caring for animals, creating art, writing stories, one-on-one mentoring. The empathy and emotional depth are extraordinary and need legitimate outlets. In the right setting, [NAME] is one of the most socially skilled children in the room.",
+      "brain": "Reduce sensory load first, then ask for social engagement. Never the other way around. Identify [NAME]'s specific sensory triggers (noise, crowds, lighting, textures) and reduce them proactively. Noise-cancelling headphones, a quiet space to retreat to, and advance warning before sensory-intensive environments all make a significant difference.",
+      "morning": "Keep mornings calm, predictable, and low-sensory. Same routine every day. Soft lighting, quiet conversation, no surprises. Let [NAME] wake up gradually and build into the day at [HIS/HER/THEIR] own pace.",
+      "school": "Work with the school to provide: a quiet space [NAME] can retreat to when overwhelmed, permission to wear noise-cancelling headphones during independent work, a seat away from high-traffic areas, and structured opportunities for one-on-one or small-group interaction rather than large group activities.",
+      "afterSchool": "Give [NAME] low-sensory recovery time before anything else. A quiet room, a preferred activity, minimal demands. Once the nervous system has settled, [NAME] is often ready for gentle connection, but on [HIS/HER/THEIR] terms.",
+      "bedtime": "Protect bedtime as connection time. This is when [NAME] is most available, most verbal, most warm. Keep it calm, unhurried, and one-on-one. A brief check-in (\"What was the best bit of today? What was the hardest?\") followed by quiet reading or soft music is ideal.",
+      "overwhelm": "Do not push [NAME] back into the environment that overwhelmed [HIM/HER/THEM]. Provide a safe, quiet space. Stay nearby without crowding. Let [HIM/HER/THEM] come back on [HIS/HER/THEIR] own terms. And when [HE/SHE/THEY] does come back, welcome [HIM/HER/THEM] without commentary: \"Glad you're back. No rush.\""
+    }
   }
 } as Record<string, ArchetypeReportTemplate>;
 

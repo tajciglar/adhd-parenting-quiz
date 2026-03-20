@@ -10,6 +10,20 @@ export const ANIMAL_IMAGE: Record<string, string> = {
   dolphin: "/animals/dolphin.png",
   hedgehog: "/animals/hedgehog.png",
   bull: "/animals/bull.png",
+  red_panda: "/animals/red_panda.png",
+  panda: "/animals/panda.png",
+  firefly: "/animals/firefly.png",
+  penguin: "/animals/penguin.png",
+  eagle: "/animals/eagle.png",
+  deer: "/animals/deer.png",
+  bear: "/animals/bear.png",
+  bee: "/animals/bee.png",
+  owl: "/animals/owl.png",
+  octopus: "/animals/octopus.png",
+  swan: "/animals/swan.png",
+  bunny: "/animals/bunny.png",
+  tender_hedgehog: "/animals/hedgehog.png",
+  hidden_firefly: "/animals/firefly.png",
 };
 
 export function AnimalIcon({

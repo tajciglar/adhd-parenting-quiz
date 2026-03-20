@@ -17,6 +17,8 @@ export {
   computeScores,
   matchArchetype,
   computeTraitProfile,
+  applyGenderVariant,
+  GIRL_VARIANTS,
 } from "./assessment.js";
 
 export type {

@@ -16,7 +16,8 @@ function buildQuestionMap(): Record<string, string> {
         .replace(/\{sub\}/g, "they")
         .replace(/\{is\}/g, "are")
         .replace(/\{was\}/g, "were")
-        .replace(/\{dont\}/g, "don't");
+        .replace(/\{dont\}/g, "don't")
+        .replace(/\{knows\}/g, "know");
       map[`${cat.id}_${i}`] = text;
     }
   }

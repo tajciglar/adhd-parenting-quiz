@@ -104,8 +104,8 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
     id: "inattentive",
     subtitle: "Inattentive Traits",
     questions: [
+      "{childName} has trouble sustaining attention during tasks.",
       "Makes careless mistakes in schoolwork or chores.",
-      "Has trouble sustaining attention during play or tasks.",
       "Zones out when spoken to directly, even in a quiet setting.",
       'Fails to finish instructions or complete "boring" tasks.',
       "Frequently loses things necessary for tasks (shoes, pencils, toys).",
@@ -117,12 +117,12 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
     id: "hyperactive",
     subtitle: "Hyperactive/Impulsive Traits",
     questions: [
-      "Fidgets with hands/feet or squirms constantly in {pos} seat.",
       "Leaves {pos} seat in situations where staying seated is expected.",
+      'Talks so much it\'s hard to get a word in or "blurts out" answers before a question is finished.',
+      "Fidgets with hands/feet or squirms even when trying to sit still (like at the dinner table or in the car).",
       "Runs or climbs excessively in inappropriate situations.",
-      'Talks excessively or "blurts out" answers before a question is finished.',
-      "Has energy that seems impossible to switch off, even at bedtime.",
-      "Has extreme difficulty waiting for {pos} turn.",
+      "Has energy that won't switch off at bedtime \u2014 restless body, keeps getting up, or can't lie still.",
+      "Has difficulty waiting for {pos} turn.",
       "Does physically dangerous things without stopping to think first.",
     ],
   },
@@ -131,22 +131,21 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
     subtitle: "Sensory Processing",
     questions: [
       "Gets upset by clothing tags, sock seams, or messy textures (mud, glue).",
-      'Craves "crashing," jumping, or roughhousing to feel "centered."',
+      "Craves physical impact (jumping, crashing, roughhousing) or uses more force than needed (slams doors, hugs too hard).",
       "Is distressed by loud, sudden noises (vacuums, hand dryers, crowds).",
       "Gets overwhelmed in busy or cluttered places (toy stores, busy classrooms).",
-      "Uses more force than needed (slams doors, breaks toys, hugs too hard).",
       "Chews on clothing, pencils, or non-food objects.",
-      "Constantly needs to touch things.",
+      "Is highly selective about food \u2014 refuses or gags based on taste, texture, or smell.",
     ],
   },
   {
     id: "emotional",
     subtitle: "Dysregulation",
     questions: [
-      "Has a very low frustration tolerance, gets upset quickly over small obstacles.",
-      "Can go from happy to devastated over something that seems very small to others.",
-      'Is hypersensitive to criticism or perceived "rejection."',
-      'Has "explosive" meltdowns that seem out of proportion to the trigger.',
+      "Has a very low frustration tolerance \u2014 gets upset quickly over small obstacles.",
+      "Can go from happy to devastated over something that seems small.",
+      "Is hypersensitive to criticism or to feeling left out, even when no one meant it.",
+      "Has meltdowns that seem out of proportion to the trigger.",
       "Has trouble calming down once {sub} {is} already upset.",
       "Holds onto feelings from an argument or disappointment, long after others have moved on.",
     ],
@@ -155,12 +154,12 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
     id: "executive_function",
     subtitle: "Executive Function",
     questions: [
-      'Struggles to "get started" on a task, even knowing how.',
-      "Forgets what {sub} {was} doing mid-task (e.g., sent to get shoes, found playing instead).",
-      'Seems to have no concept of "5 minutes" vs "30 minutes."',
-      "Struggles with multi-step directions (e.g., 'Get your bag, put on shoes, and come downstairs').",
+      "Struggles to get started on a task even when {sub} {knows} how.",
+      "Forgets what {sub} {was} doing mid-task (example: sent to get shoes, found playing instead).",
+      "Seems to have no concept of 5 minutes vs 30 minutes.",
+      "Struggles with multi-step directions (example: 'Get your bag, put on shoes, and come downstairs').",
       "Gets so absorbed in a favourite activity {sub} {is} shocked when told how much time has passed.",
-      "Can't seem to start a task without someone sitting with {obj}, even when knowing what to do.",
+      "Can't seem to start a task without someone sitting with {obj}, even when {sub} {knows} what to do.",
     ],
   },
   {
@@ -168,11 +167,11 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
     subtitle: "Social Cues",
     questions: [
       "Interrupts others' conversations or games frequently.",
-      'Struggles to "read the room" (noticing when a friend is annoyed or bored).',
+      'Struggles to "read the room" (example: noticing when a friend is annoyed or bored).',
       "Struggles to understand why a friendship ended or why a peer is upset with {obj}.",
-      'Gets "stuck" on a favourite topic, even if no one else is interested.',
+      "Gets stuck on a topic they love, even if no one else is interested.",
       "Insists on controlling the rules of games and gets upset if others change them.",
-      "Shares very personal thoughts or information with strangers, seems to have no 'filter'.",
+      "Shares very personal thoughts or information with strangers \u2014 seems to have no 'filter'.",
     ],
   },
 ];
@@ -311,6 +310,16 @@ export const ARCHETYPES: Archetype[] = [
     solution: "Controlled social environments with sensory accommodations.",
 
   },
+  {
+    id: "owl",
+    animal: "The Owl",
+    typeName: "The Keen Owl",
+    primaryTrait: ["inattentive", "social"],
+    explanation: "Inattentive + Social profile.",
+    traits: "Deep focus on interests, difficulty reading social cues, hyperfocus meets social navigation.",
+    solution: "Protected interest time, direct social coaching, clear transition warnings.",
+
+  },
   // ── Tier 2: 3-trait profiles ────────────────────────────────────────────
   {
     id: "panda",
@@ -354,9 +363,9 @@ export const ARCHETYPES: Archetype[] = [
   },
   // ── Tier 1: 4-trait profiles ────────────────────────────────────────────
   {
-    id: "whale",
-    animal: "The Whale",
-    typeName: "The Gentle Whale",
+    id: "deer",
+    animal: "The Deer",
+    typeName: "The Gentle Deer",
     primaryTrait: ["inattentive", "emotional", "executive_function", "social"],
     explanation: "Inattentive + Emotional + Executive Function + Social profile.",
     traits: "Drifting attention, emotional depth, planning struggles, and social sensitivity.",
@@ -383,11 +392,63 @@ export const ARCHETYPES: Archetype[] = [
     solution: "Short tasks, movement breaks, visual schedules, and social coaching.",
 
   },
+  // ── Tier 0: pre-check profile ───────────────────────────────────────────
+  {
+    id: "octopus",
+    animal: "The Octopus",
+    typeName: "The Vivid Octopus",
+    primaryTrait: ["inattentive", "hyperactive", "sensory", "emotional", "executive_function", "social"],
+    explanation: "All traits score high - the most complex profile.",
+    traits: "Everything is happening at once across all systems.",
+    solution: "Reduce simultaneous demands, simplify the environment, step in early.",
+
+  },
+  // ── Girl Variants ──────────────────────────────────────────────────────
+  {
+    id: "swan",
+    animal: "The Swan",
+    typeName: "The Graceful Swan",
+    primaryTrait: ["inattentive", "emotional", "executive_function", "social"],
+    explanation: "Girl variant of Gentle Deer (1+4+5+6).",
+    traits: "Masks struggles behind composure, emotionally exhausted from maintaining the performance.",
+    solution: "Private check-ins, reduce masking pressure, validate the effort behind the appearance.",
+
+  },
+  {
+    id: "bunny",
+    animal: "The Bunny",
+    typeName: "The Dreamy Bunny",
+    primaryTrait: ["inattentive", "emotional", "executive_function"],
+    explanation: "Girl variant of Cloudy Panda (1+4+5).",
+    traits: "Silent drift, emotional weight carried quietly, struggles get read as laziness.",
+    solution: "Interrupt the drift gently, reduce overwhelm, step in before shame takes over.",
+
+  },
+  {
+    id: "tender_hedgehog",
+    animal: "The Hedgehog",
+    typeName: "The Tender Hedgehog",
+    primaryTrait: ["sensory", "emotional"],
+    explanation: "Girl variant of Storm Hedgehog (3+4).",
+    traits: "Internalises sensory and emotional overwhelm, withdraws quietly.",
+    solution: "Reduce sensory load, create safe spaces, validate without pushing.",
+
+  },
+  {
+    id: "hidden_firefly",
+    animal: "The Firefly",
+    typeName: "The Hidden Firefly",
+    primaryTrait: ["emotional", "executive_function", "social"],
+    explanation: "Girl variant of Spark Firefly (4+5+6).",
+    traits: "Brilliant insight hidden by inconsistent follow-through, looks capable but quietly struggling.",
+    solution: "Make basics concrete, catch problems early, judge ideas separately from execution.",
+
+  },
 ];
 
 // ─── Step Configuration ─────────────────────────────────────────────────────
 
-export const TOTAL_STEPS = 45;
+export const TOTAL_STEPS = 44;
 const BASIC_INFO_COUNT = BASIC_INFO_QUESTIONS.length; // 6
 
 /** Flat list of all Likert questions with their category info */
@@ -602,6 +663,12 @@ function nearestTier3Match(
  * Tier 1 (4-trait) → Tier 2 (3-trait) → Tier 3 (2-trait)
  */
 export function matchArchetype(scores: TraitScores): Archetype {
+  // Step 1: Vivid Octopus check
+  const highCount = CATEGORY_IDS.filter(id => scores[id] >= 3.0).length;
+  if (highCount >= 5) {
+    return ARCHETYPES.find(a => a.id === "octopus")!;
+  }
+
   const ranked = sortCategoriesByScore(scores);
   const clusterDepth = findClusterDepth(ranked, scores);
 
@@ -633,13 +700,29 @@ export function matchArchetype(scores: TraitScores): Archetype {
   return nearestTier3Match(ranked, scores);
 }
 
+export const GIRL_VARIANTS: Record<string, string> = {
+  deer: "swan",
+  panda: "bunny",
+  hedgehog: "tender_hedgehog",
+  firefly: "hidden_firefly",
+};
+
+export function applyGenderVariant(archetypeId: string, gender?: string): string {
+  if (gender === "A Girl" && GIRL_VARIANTS[archetypeId]) {
+    return GIRL_VARIANTS[archetypeId];
+  }
+  return archetypeId;
+}
+
 /**
  * Full pipeline: responses → scores → archetype → TraitProfile
  */
 export function computeTraitProfile(
   responses: Record<string, unknown>,
+  gender?: string,
 ): TraitProfile {
   const scores = computeScores(responses);
   const archetype = matchArchetype(scores);
-  return { scores, archetypeId: archetype.id };
+  const finalId = applyGenderVariant(archetype.id, gender);
+  return { scores, archetypeId: finalId };
 }
