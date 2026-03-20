@@ -374,8 +374,9 @@ export default function SalesPage() {
       const wpCheckoutUrl = import.meta.env.VITE_WP_CHECKOUT_URL;
       if (wpCheckoutUrl) {
         const params = new URLSearchParams();
-        params.set("email", email);
-        params.set("child_name", childName);
+        params.set("billing_first_name", parentName);
+        params.set("billing_email", email);
+        params.set("kids_name", childName);
         params.set("archetype", archetypeId);
         const fbp = getFbp();
         const fbc = getFbc();
