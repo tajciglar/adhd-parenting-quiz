@@ -239,7 +239,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
 
   if (useRpc) {
     // ── All RPCs in parallel ─────────────────────────────────────────────
-    type SubRow = { id: string; email: string; archetype_id: string; trait_scores: Record<string, number> | null; paid: boolean; created_at: string };
+    type SubRow = { id: string; email: string; child_name: string; child_gender: string; archetype_id: string; trait_scores: Record<string, number> | null; paid: boolean; created_at: string };
 
     const [
       { data: funnelData },
@@ -256,7 +256,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
       sb.rpc("analytics_archetype_distribution", { since_ts: sinceTs }),
       sb.rpc("analytics_avg_completion_time", { since_ts: sinceTs }),
       sb.rpc("analytics_recent_submissions", { lim: 50 }),
-      allRows<SubRow>(sb, "quiz_submissions", "id, email, archetype_id, trait_scores, paid, created_at", (q: any) => q),
+      allRows<SubRow>(sb, "quiz_submissions", "id, email, child_name, child_gender, archetype_id, trait_scores, paid, created_at", (q: any) => q),
     ]);
 
     // Funnel summary
@@ -304,7 +304,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
 
     // Recent submissions
     const recentSubmissions = (recentData ?? []).map((r: any) => ({
-      id: r.id, email: r.email, archetype_id: r.archetype_id, paid: r.paid, created_at: r.created_at,
+      id: r.id, email: r.email, child_name: r.child_name ?? "", child_gender: r.child_gender ?? "", archetype_id: r.archetype_id, paid: r.paid, created_at: r.created_at,
     }));
 
     // Trait pair grouping + distribution (needs raw rows for JSON processing)
@@ -364,11 +364,11 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   console.warn("analytics: RPCs not found, using paginated fallback. Run supabase/migrations/001_analytics_rpcs.sql to enable RPCs.");
 
   type FunnelRow = { session_id: string; event_type: string; step_number: number | null; created_at: string; metadata: Record<string, unknown> | null };
-  type SubRow = { id: string; email: string; archetype_id: string; trait_scores: Record<string, number> | null; paid: boolean; created_at: string };
+  type SubRow = { id: string; email: string; child_name: string; child_gender: string; archetype_id: string; trait_scores: Record<string, number> | null; paid: boolean; created_at: string };
 
   const [funnelRows, submissionRows] = await Promise.all([
     allRows<FunnelRow>(sb, "funnel_events", "session_id, event_type, step_number, created_at, metadata", (q: any) => q.gte("created_at", sinceTs)),
-    allRows<SubRow>(sb, "quiz_submissions", "id, email, archetype_id, trait_scores, paid, created_at", (q: any) => q),
+    allRows<SubRow>(sb, "quiz_submissions", "id, email, child_name, child_gender, archetype_id, trait_scores, paid, created_at", (q: any) => q),
   ]);
 
   // Step dropoff
@@ -402,7 +402,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
 
   // Recent submissions
   const recentSubmissions = [...submissionRows].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 50)
-    .map((r) => ({ id: r.id, email: r.email, archetype_id: r.archetype_id, paid: r.paid, created_at: r.created_at }));
+    .map((r) => ({ id: r.id, email: r.email, child_name: r.child_name ?? "", child_gender: r.child_gender ?? "", archetype_id: r.archetype_id, paid: r.paid, created_at: r.created_at }));
 
   // Trait pair grouping
   const traitPairUserMap = new Map<string, Array<{ email: string; archetype: string; paid: boolean; created_at: string }>>();

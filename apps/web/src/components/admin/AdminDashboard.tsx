@@ -1,14 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
-import { ASSESSMENT_CATEGORIES, getStepConfig } from "@adhd-parenting-quiz/shared";
+import { ASSESSMENT_CATEGORIES, ARCHETYPES, getStepConfig } from "@adhd-parenting-quiz/shared";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
+
+// Map archetype IDs to friendly display names
+const ARCHETYPE_DISPLAY: Record<string, string> = {};
+for (const a of ARCHETYPES) {
+  ARCHETYPE_DISPLAY[a.id] = a.typeName;
+}
 
 // Build a map from question keys like "inattentive_0" to real question text
 function buildQuestionMap(): Record<string, string> {
   const map: Record<string, string> = {};
   for (const cat of ASSESSMENT_CATEGORIES) {
     for (let i = 0; i < cat.questions.length; i++) {
-      // Strip pronoun placeholders for display
       const text = cat.questions[i]
         .replace(/\{childName\}/g, "the child")
         .replace(/\{pos\}/g, "their")
@@ -16,7 +21,8 @@ function buildQuestionMap(): Record<string, string> {
         .replace(/\{sub\}/g, "they")
         .replace(/\{is\}/g, "are")
         .replace(/\{was\}/g, "were")
-        .replace(/\{dont\}/g, "don't");
+        .replace(/\{dont\}/g, "don't")
+        .replace(/\{knows\}/g, "know");
       map[`${cat.id}_${i}`] = text;
     }
   }
@@ -28,15 +34,22 @@ const QUESTION_MAP: Record<string, string> = {
   childAgeRange: "How old is your child?",
   childGender: "You are raising",
   adhdJourney: "Where are you on the ADHD journey?",
+  learningEnvironment: "Where does your child primarily learn?",
   ...buildQuestionMap(),
 };
+
+function formatArchetype(id: string): string {
+  return ARCHETYPE_DISPLAY[id] ?? id.replace(/_/g, " ");
+}
 
 interface FunnelSummary {
   quizStarted: number;
   quizCompleted: number;
+  emailSubmitted: number;
   checkoutStarted: number;
   purchaseCompleted: number;
   quizCompletionRate: number;
+  emailSubmitRate: number;
   checkoutRate: number;
   purchaseRate: number;
   overallConversion: number;
@@ -52,12 +65,15 @@ interface DailyTrend {
   date: string;
   started: number;
   completed: number;
+  emailSubmitted: number;
   purchased: number;
 }
 
 interface Submission {
   id: string;
   email: string;
+  child_name: string;
+  child_gender: string;
   archetype_id: string;
   paid: boolean;
   created_at: string;
@@ -293,25 +309,35 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-harbor-bg px-6 py-8">
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-2xl font-bold text-harbor-primary">Funnel Analytics</h1>
             <p className="text-sm text-harbor-text/50">ADHD Personality Quiz Dashboard</p>
           </div>
-          <div className="flex gap-2">
-            {[7, 14, 30].map((d) => (
-              <button
-                key={d}
-                onClick={() => setDays(d)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
-                  days === d
-                    ? "bg-harbor-primary text-white"
-                    : "bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30"
-                }`}
-              >
-                {d}d
-              </button>
-            ))}
+          <div className="flex items-center gap-3">
+            <div className="flex gap-1.5">
+              {[7, 14, 30].map((d) => (
+                <button
+                  key={d}
+                  onClick={() => setDays(d)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+                    days === d
+                      ? "bg-harbor-primary text-white"
+                      : "bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30"
+                  }`}
+                >
+                  {d}d
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => void fetchAnalytics(adminKey, days)}
+              disabled={loading}
+              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30 transition disabled:opacity-50"
+              title="Refresh data"
+            >
+              {loading ? "⏳" : "🔄"}
+            </button>
           </div>
         </div>
 
@@ -321,7 +347,7 @@ export default function AdminDashboard() {
 
         {/* Funnel Summary Cards */}
         {summary ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <MetricCard
               label="Quiz Started"
               value={summary.quizStarted}
@@ -332,6 +358,12 @@ export default function AdminDashboard() {
               value={summary.quizCompleted}
               rate={summary.quizCompletionRate}
               color="text-harbor-accent"
+            />
+            <MetricCard
+              label="Email Submitted"
+              value={summary.emailSubmitted ?? 0}
+              rate={summary.emailSubmitRate ?? 0}
+              color="text-blue-600"
             />
             <MetricCard
               label="Checkout Started"
@@ -392,6 +424,7 @@ export default function AdminDashboard() {
                     <th className="text-left py-2 pr-4 text-harbor-text/50 font-medium">Date</th>
                     <th className="text-right py-2 px-4 text-harbor-text/50 font-medium">Started</th>
                     <th className="text-right py-2 px-4 text-harbor-text/50 font-medium">Completed</th>
+                    <th className="text-right py-2 px-4 text-harbor-text/50 font-medium">Email Submitted</th>
                     <th className="text-right py-2 pl-4 text-harbor-text/50 font-medium">Purchased</th>
                   </tr>
                 </thead>
@@ -401,6 +434,7 @@ export default function AdminDashboard() {
                       <td className="py-2 pr-4 text-harbor-text/70">{day.date}</td>
                       <td className="py-2 px-4 text-right tabular-nums">{day.started}</td>
                       <td className="py-2 px-4 text-right tabular-nums text-harbor-accent">{day.completed}</td>
+                      <td className="py-2 px-4 text-right tabular-nums text-blue-600">{day.emailSubmitted ?? 0}</td>
                       <td className="py-2 pl-4 text-right tabular-nums text-green-600 font-medium">{day.purchased}</td>
                     </tr>
                   ))}
@@ -434,8 +468,8 @@ export default function AdminDashboard() {
                   const maxCount = Math.max(...analytics.archetypeDistribution.map((a) => a.count), 1);
                   return analytics.archetypeDistribution.map((item) => (
                     <div key={item.archetypeId} className="flex items-center gap-3 text-sm">
-                      <span className="w-28 text-right text-harbor-text/60 capitalize truncate">
-                        {item.archetypeId}
+                      <span className="w-36 text-right text-harbor-text/60 truncate" title={item.archetypeId}>
+                        {formatArchetype(item.archetypeId)}
                       </span>
                       <div className="flex-1 h-6 bg-harbor-text/5 rounded overflow-hidden relative">
                         <div
@@ -492,7 +526,7 @@ export default function AdminDashboard() {
         {/* Answer Distribution — split into onboarding vs scoring */}
         {(() => {
           if (!analytics?.answerDistribution.length) return null;
-          const BASIC_KEYS = new Set(["caregiverType", "childAgeRange", "childGender", "adhdJourney"]);
+          const BASIC_KEYS = new Set(["caregiverType", "childAgeRange", "childGender", "adhdJourney", "learningEnvironment"]);
           // Filter out childName entirely — it's unique per user and not useful for analytics
           const onboarding = analytics.answerDistribution.filter((a) => BASIC_KEYS.has(a.questionKey));
           const scoring = analytics.answerDistribution.filter((a) => !BASIC_KEYS.has(a.questionKey));
@@ -553,27 +587,39 @@ export default function AdminDashboard() {
         {/* Recent Submissions */}
         {analytics?.recentSubmissions.length ? (
           <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
-            <h2 className="text-lg font-semibold text-harbor-primary">Recent Submissions</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-harbor-primary">Recent Submissions</h2>
+              <span className="text-xs text-harbor-text/40">{analytics.recentSubmissions.length} results</span>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-harbor-text/10">
-                    <th className="text-left py-2 pr-4 text-harbor-text/50 font-medium">Email</th>
-                    <th className="text-left py-2 px-4 text-harbor-text/50 font-medium">Archetype</th>
-                    <th className="text-center py-2 px-4 text-harbor-text/50 font-medium">Paid</th>
-                    <th className="text-right py-2 pl-4 text-harbor-text/50 font-medium">Date</th>
+                    <th className="text-left py-2 pr-3 text-harbor-text/50 font-medium">Email</th>
+                    <th className="text-left py-2 px-3 text-harbor-text/50 font-medium">Child</th>
+                    <th className="text-left py-2 px-3 text-harbor-text/50 font-medium">Archetype</th>
+                    <th className="text-center py-2 px-3 text-harbor-text/50 font-medium">Paid</th>
+                    <th className="text-right py-2 pl-3 text-harbor-text/50 font-medium">Date</th>
                   </tr>
                 </thead>
                 <tbody>
                   {analytics.recentSubmissions.map((sub) => (
-                    <tr key={sub.id} className="border-b border-harbor-text/5">
-                      <td className="py-2 pr-4 text-harbor-text/70 truncate max-w-[200px]">
+                    <tr key={sub.id} className="border-b border-harbor-text/5 hover:bg-harbor-text/[0.02] transition-colors">
+                      <td className="py-2 pr-3 text-harbor-text/70 truncate max-w-[180px]">
                         {sub.email}
                       </td>
-                      <td className="py-2 px-4 capitalize text-harbor-text/60">
-                        {sub.archetype_id}
+                      <td className="py-2 px-3 text-harbor-text/60 truncate max-w-[120px]">
+                        {sub.child_name || "—"}
+                        {sub.child_gender ? (
+                          <span className="text-xs text-harbor-text/30 ml-1">
+                            ({sub.child_gender === "A Girl" ? "♀" : sub.child_gender === "A Boy" ? "♂" : "○"})
+                          </span>
+                        ) : null}
                       </td>
-                      <td className="py-2 px-4 text-center">
+                      <td className="py-2 px-3 text-harbor-primary/70 font-medium truncate max-w-[160px]" title={sub.archetype_id}>
+                        {formatArchetype(sub.archetype_id)}
+                      </td>
+                      <td className="py-2 px-3 text-center">
                         {sub.paid ? (
                           <span className="inline-block bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full">
                             Paid
@@ -584,8 +630,8 @@ export default function AdminDashboard() {
                           </span>
                         )}
                       </td>
-                      <td className="py-2 pl-4 text-right text-harbor-text/40 tabular-nums">
-                        {new Date(sub.created_at).toLocaleDateString()}
+                      <td className="py-2 pl-3 text-right text-harbor-text/40 tabular-nums whitespace-nowrap">
+                        {new Date(sub.created_at).toLocaleDateString()} {new Date(sub.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </td>
                     </tr>
                   ))}
@@ -647,8 +693,8 @@ export default function AdminDashboard() {
                       <div key={i} className="px-4 py-2 flex items-center justify-between text-sm">
                         <span className="text-harbor-text/70 truncate max-w-[250px]">{u.email}</span>
                         <div className="flex items-center gap-3">
-                          <span className="text-xs text-harbor-primary/70 capitalize">
-                            {u.archetype.replace(/_/g, " ")}
+                          <span className="text-xs text-harbor-primary/70">
+                            {formatArchetype(u.archetype)}
                           </span>
                           {u.paid ? (
                             <span className="inline-block bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full">
