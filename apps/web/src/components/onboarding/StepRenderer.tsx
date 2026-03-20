@@ -116,24 +116,25 @@ export default function StepRenderer({
               <button
                 key={card.value}
                 onClick={() => onAnswer(step, q.key, card.value, true)}
-                className="group relative rounded-2xl border-2 border-harbor-primary/15 overflow-hidden transition-all duration-200 hover:border-harbor-primary/40 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-harbor-primary/30"
+                className="group relative rounded-2xl border-2 border-harbor-primary/15 overflow-hidden transition-all duration-200 hover:border-harbor-primary/40 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-harbor-primary/30 aspect-[4/5]"
                 style={{ background: card.bg }}
               >
-                <div className="aspect-[4/5] overflow-hidden">
-                  <img
-                    src={card.image}
-                    alt={card.label}
-                    className="w-full h-full object-cover object-top block"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = "none";
-                      const parent = (e.target as HTMLImageElement).parentElement;
-                      if (parent) {
-                        parent.innerHTML = `<span class="text-6xl">${card.emoji}</span>`;
-                      }
-                    }}
-                  />
-                </div>
-                <div className="px-3 py-2.5 bg-harbor-primary text-white font-medium text-sm flex items-center justify-between">
+                <img
+                  src={card.image}
+                  alt={card.label}
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                    const parent = (e.target as HTMLImageElement).parentElement;
+                    if (parent) {
+                      const fallback = document.createElement("span");
+                      fallback.className = "absolute inset-0 flex items-center justify-center text-6xl";
+                      fallback.textContent = card.emoji;
+                      parent.appendChild(fallback);
+                    }
+                  }}
+                />
+                <div className="absolute bottom-0 left-0 right-0 px-3 py-2.5 bg-harbor-primary text-white font-medium text-sm flex items-center justify-between">
                   <span>{card.label}</span>
                   <svg className="w-4 h-4 opacity-70 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
