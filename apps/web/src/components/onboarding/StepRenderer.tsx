@@ -117,7 +117,7 @@ export default function StepRenderer({
                 key={card.value}
                 onClick={() => onAnswer(step, q.key, card.value, true)}
                 className="group relative rounded-2xl border-2 border-harbor-primary/15 overflow-hidden transition-all duration-200 hover:border-harbor-primary/40 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-harbor-primary/30"
-                style={{ background: "#F0EBF5" }}
+                style={{ background: "#ffffff" }}
               >
                 <div className="aspect-[3/4] flex items-center justify-center overflow-hidden">
                   <img
