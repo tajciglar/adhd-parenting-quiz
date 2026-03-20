@@ -5,7 +5,7 @@ import helmet from "@fastify/helmet";
 import rawBody from "fastify-raw-body";
 import healthRoutes from "./routes/health.js";
 import guestRoutes from "./routes/guest.js";
-import stripeRoutes from "./routes/stripe.js";
+
 import adminRoutes from "./routes/admin.js";
 import woocommerceRoutes from "./routes/woocommerce.js";
 
@@ -65,7 +65,7 @@ async function buildServer() {
     const origin = request.headers.origin;
     if (!origin) return; // no origin = server-to-server (Stripe webhooks, health checks)
     if (request.url.startsWith("/health")) return;
-    if (request.url.startsWith("/api/stripe/webhook")) return; // Stripe sends webhooks without origin
+    // Stripe route removed — payments handled by WooCommerce
     if (request.url.startsWith("/api/wc/webhook")) return; // WooCommerce sends webhooks without origin
 
     if (!allowedOrigins.includes(origin)) {
@@ -90,7 +90,7 @@ async function buildServer() {
 
   await server.register(healthRoutes);
   await server.register(guestRoutes, { prefix: "/api" });
-  await server.register(stripeRoutes, { prefix: "/api" });
+
   await server.register(adminRoutes, { prefix: "/api" });
   await server.register(woocommerceRoutes, { prefix: "/api" });
 
