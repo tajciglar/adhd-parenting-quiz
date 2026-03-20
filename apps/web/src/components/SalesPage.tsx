@@ -489,7 +489,7 @@ export default function SalesPage() {
               </p>
               <div className="w-8 h-0.5 bg-harbor-primary/30 mb-2" />
               <p className="text-sm text-harbor-text leading-relaxed">
-                {reportTemplate ? reportTemplate.aboutChild.slice(0, 180) + "..." : `${name}'s brain operates with a unique combination of strengths and challenges...`}
+                {reportTemplate ? reportTemplate.aboutChild.slice(0, 300) + "..." : `${name}'s brain operates with a unique combination of strengths and challenges...`}
               </p>
             </div>
 
