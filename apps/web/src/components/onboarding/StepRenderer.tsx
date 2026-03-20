@@ -116,10 +116,10 @@ export default function StepRenderer({
               <button
                 key={card.value}
                 onClick={() => onAnswer(step, q.key, card.value, true)}
-                className="group relative rounded-2xl border-2 border-harbor-primary/15 overflow-hidden transition-all duration-200 hover:border-harbor-primary/40 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-harbor-primary/30"
+                className="group relative rounded-2xl border-2 border-harbor-primary/15 overflow-hidden transition-all duration-200 hover:border-harbor-primary/40 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-harbor-primary/30 flex flex-col aspect-[3/4]"
                 style={{ background: card.bg }}
               >
-                <div className="aspect-[3/4] flex items-center justify-center overflow-hidden">
+                <div className="flex-1 flex items-center justify-center overflow-hidden min-h-0">
                   <img
                     src={card.image}
                     alt={card.label}
@@ -133,7 +133,7 @@ export default function StepRenderer({
                     }}
                   />
                 </div>
-                <div className="relative z-10 -mt-px px-3 py-2.5 bg-harbor-primary text-white font-medium text-sm flex items-center justify-between">
+                <div className="relative z-10 px-3 py-2.5 bg-harbor-primary text-white font-medium text-sm flex items-center justify-between flex-shrink-0">
                   <span>{card.label}</span>
                   <svg className="w-4 h-4 opacity-70 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
