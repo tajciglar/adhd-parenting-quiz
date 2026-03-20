@@ -525,29 +525,18 @@ export default function SalesPage() {
           </div>
 
           {/* Blur gradient + unlock button */}
-          <div className="relative h-28">
-            <div className="px-6 space-y-3">
-              <p className="text-[10px] uppercase tracking-widest font-bold text-harbor-primary/70">
-                Hidden Gift
-              </p>
-              <div className="w-8 h-0.5 bg-harbor-primary/30" />
-              <p className="text-sm text-harbor-text leading-relaxed">
-                {reportTemplate ? reportTemplate.hiddenGift.slice(0, 120) + "..." : `The quality that makes ${name} extraordinary is something that...`}
-              </p>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-white/80 to-white backdrop-blur-[2px] flex flex-col items-center justify-end pb-5">
-              <button
-                type="button"
-                onClick={scrollToForm}
-                className="bg-harbor-primary/5 border border-harbor-primary/15 rounded-xl px-5 py-3 flex items-center gap-2 hover:bg-harbor-primary/10 active:scale-[0.98] transition-all cursor-pointer"
-              >
-                <svg className="w-4 h-4 text-harbor-primary/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
-                <span className="text-sm font-medium text-harbor-primary/70">Unlock the full report</span>
-              </button>
-            </div>
+          <div className="relative flex items-center justify-center py-4 bg-gradient-to-b from-white/40 to-white">
+            <button
+              type="button"
+              onClick={scrollToForm}
+              className="bg-harbor-primary/5 border border-harbor-primary/15 rounded-xl px-5 py-3 flex items-center gap-2 hover:bg-harbor-primary/10 active:scale-[0.98] transition-all cursor-pointer"
+            >
+              <svg className="w-4 h-4 text-harbor-primary/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              <span className="text-sm font-medium text-harbor-primary/70">Unlock the full report</span>
+            </button>
           </div>
         </div>
 
