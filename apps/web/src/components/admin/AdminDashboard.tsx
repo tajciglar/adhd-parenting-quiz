@@ -740,8 +740,13 @@ export default function AdminDashboard() {
                     headers: { "x-admin-key": adminKey },
                   });
                   if (!res.ok) throw new Error(`API error: ${res.status}`);
-                  const result = (await res.json()) as { synced: number };
-                  setSyncResult(`Synced ${result.synced} templates.`);
+                  const result = (await res.json()) as { synced: number; total: number; results?: Array<{ archetypeId: string; status: string }> };
+                  const errors = result.results?.filter((r) => r.status.startsWith("error")) ?? [];
+                  if (errors.length > 0) {
+                    setSyncResult(`Synced ${result.synced}/${result.total}. Errors: ${errors.map((e) => `${e.archetypeId}: ${e.status}`).join(", ")}`);
+                  } else {
+                    setSyncResult(`Synced ${result.synced}/${result.total} templates.`);
+                  }
                 } catch (err) {
                   setSyncResult(err instanceof Error ? err.message : "Failed to sync");
                 } finally {
