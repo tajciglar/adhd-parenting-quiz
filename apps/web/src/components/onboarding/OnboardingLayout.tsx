@@ -31,7 +31,7 @@ export default function OnboardingLayout({
       <div className="flex-1 flex flex-col items-center justify-center max-w-xl mx-auto w-full px-6">
         <SaveIndicator status={saveStatus} />
 
-        <div className="w-full py-8">
+        <div className="w-full py-4 md:py-8">
           {children}
         </div>
 

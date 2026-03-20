@@ -1,6 +1,6 @@
 export function TrustPilotReview() {
   return (
-    <div className="flex flex-col items-center space-y-3 mb-6">
+    <div className="flex flex-col items-center space-y-3 mb-6 mt-[-24px] md:mt-0">
       {/* ADHD Parenting logo */}
       <img
         src="/adhd-parenting-logo.png"

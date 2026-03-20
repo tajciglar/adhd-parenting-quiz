@@ -489,7 +489,7 @@ export default function SalesPage() {
               </p>
               <div className="w-8 h-0.5 bg-harbor-primary/30 mb-2" />
               <p className="text-sm text-harbor-text leading-relaxed">
-                {reportTemplate ? reportTemplate.aboutChild.slice(0, 300) + "..." : `${name}'s brain operates with a unique combination of strengths and challenges...`}
+                {reportTemplate ? reportTemplate.aboutChild.slice(0, 180) + "..." : `${name}'s brain operates with a unique combination of strengths and challenges...`}
               </p>
             </div>
 
@@ -505,8 +505,8 @@ export default function SalesPage() {
                   <p className="text-[9px] uppercase tracking-wider font-bold text-red-500/70">What drains {name}</p>
                   <p className="text-[9px] uppercase tracking-wider font-bold text-green-600/70">What fuels {name}</p>
                 </div>
-                {/* Paired rows — drain[i] and fuel[i] always on the same line */}
-                {reportTemplate.drains.map((d, i) => {
+                {/* Paired rows — 3 clear, 2 blurred, then stop */}
+                {reportTemplate.drains.slice(0, 5).map((d, i) => {
                   const f = reportTemplate.fuels[i] ?? "";
                   const isBlurred = i >= 3;
                   return (

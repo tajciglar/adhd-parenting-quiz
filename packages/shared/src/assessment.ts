@@ -75,19 +75,19 @@ export const BASIC_INFO_QUESTIONS: BasicInfoQuestion[] = [
     optionEmojis: ["📋", "🔍", "🤔"],
   },
   {
-    type: "text",
-    key: "childName",
-    title: "Your Child's Name",
-    emoji: "🌟",
-    placeholder: "First name",
-  },
-  {
     type: "single-select",
     key: "learningEnvironment",
     title: "Where does your child primarily learn?",
     emoji: "🏫",
     options: ["School (public or private)", "Homeschool", "Other"],
     optionEmojis: ["🏫", "🏠", "📚"],
+  },
+  {
+    type: "text",
+    key: "childName",
+    title: "Your Child's Name",
+    emoji: "🌟",
+    placeholder: "First name",
   },
 ];
 

@@ -4,13 +4,13 @@ import { clearOnboardingStorage } from "../../hooks/useOnboarding";
 import { computeTraitProfile, ARCHETYPES } from "@adhd-parenting-quiz/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
 
-const ANALYSIS_SECTIONS = [
-  "Attention patterns",
-  "Sensory responses",
-  "Emotional profile",
-  "Executive function",
-  "Social patterns",
-  "Generating report",
+const ANALYSIS_SECTION_TEMPLATES = [
+  "Reviewing attention patterns…",
+  "Mapping sensory responses…",
+  "Identifying emotional profile…",
+  "Matching executive function traits…",
+  "Cross-referencing social patterns…",
+  "Finding {name}'s ADHD Personality Type",
 ];
 
 type Phase = "analyzing" | "found";
@@ -25,8 +25,12 @@ export default function CalculatingScreen({
   const childGender = responses.childGender as string | undefined;
 
   const [phase, setPhase] = useState<Phase>("analyzing");
+  const ANALYSIS_SECTIONS = ANALYSIS_SECTION_TEMPLATES.map((t) =>
+    t.replace("{name}", childName),
+  );
+
   const [sectionProgress, setSectionProgress] = useState<number[]>(
-    () => ANALYSIS_SECTIONS.map(() => 0),
+    () => ANALYSIS_SECTION_TEMPLATES.map(() => 0),
   );
   const [activeSection, setActiveSection] = useState(0);
   const [bullseyeScale, setBullseyeScale] = useState(0);
@@ -45,14 +49,14 @@ export default function CalculatingScreen({
   useEffect(() => {
     if (phase !== "analyzing") return;
     const totalSections = ANALYSIS_SECTIONS.length;
-    const perSection = 900; // 1s per section (~6s total, down from ~7s)
+    const perSection = 700; // ~0.7s per section (~4.2s total)
     const tickInterval = 30;
     const ticksPerSection = perSection / tickInterval;
     let currentSection = 0;
     let tick = 0;
 
     let holdTicks = 0;
-    const holdDuration = 6; // shorter hold between sections
+    const holdDuration = 4; // shorter hold between sections
 
     const timer = setInterval(() => {
       if (holdTicks > 0) {
