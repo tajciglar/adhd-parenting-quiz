@@ -525,7 +525,7 @@ export default function SalesPage() {
           </div>
 
           {/* Blur gradient + unlock button */}
-          <div className="relative flex items-center justify-center py-4 bg-gradient-to-b from-white/40 to-white">
+          <div className="relative flex items-center justify-center -mt-6 pt-2 pb-4 bg-gradient-to-b from-transparent to-white">
             <button
               type="button"
               onClick={scrollToForm}
