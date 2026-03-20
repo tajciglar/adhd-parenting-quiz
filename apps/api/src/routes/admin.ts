@@ -1,4 +1,4 @@
-import { createHmac } from "crypto";
+import { createHmac, randomUUID } from "crypto";
 import type { FastifyInstance } from "fastify";
 import { getAllReportTemplates } from "@adhd-parenting-quiz/shared";
 import { getAnalytics, resetAnalytics, checkRescoreMismatches, applyRescore, applyRescoreAndResend, getRescoredPdfLinks, getSupabaseAdmin, allRows } from "../services/supabaseAdmin.js";
@@ -142,7 +142,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
           // Insert
           const { error } = await sb
             .from("report_templates")
-            .insert({ archetype_id: archetypeId, template });
+            .insert({ id: randomUUID(), archetype_id: archetypeId, template });
           results.push({ archetypeId, status: error ? `error: ${error.message}` : "created" });
         }
       }
