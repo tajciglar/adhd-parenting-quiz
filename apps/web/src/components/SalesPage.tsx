@@ -32,28 +32,55 @@ function AnimatedCounter({ base }: { base: number }) {
 
 /* ─── Latest Results Ticker ─────────────────────────────────────────────── */
 
-const LATEST_RESULTS = [
-  { name: "Donna", flag: "🇺🇸", archetype: "Dreamy Koala" },
-  { name: "Sophia", flag: "🇬🇧", archetype: "Fierce Tiger" },
-  { name: "Martina", flag: "🇮🇹", archetype: "Flash Hummingbird" },
-  { name: "Maria", flag: "🇩🇪", archetype: "Gentle Elephant" },
-  { name: "Annika", flag: "🇸🇪", archetype: "Observing Meerkat" },
-  { name: "Camille", flag: "🇫🇷", archetype: "Clever Fox" },
-  { name: "Lisa", flag: "🇦🇹", archetype: "Cloudy Panda" },
-  { name: "Anna", flag: "🇬🇧", archetype: "Splashy Dolphin" },
-  { name: "Elena", flag: "🇪🇸", archetype: "Dreamy Koala" },
-  { name: "Kate", flag: "🇮🇪", archetype: "Clever Fox" },
-  { name: "Katarina", flag: "🇭🇷", archetype: "Wild Stallion" },
-  { name: "Laura", flag: "🇳🇱", archetype: "Fierce Tiger" },
-  { name: "Ingrid", flag: "🇳🇴", archetype: "Justice Elephant" },
-  { name: "Amanda", flag: "🇬🇧", archetype: "Fierce Tiger" },
-  { name: "Christine", flag: "🇺🇸", archetype: "Fearless Bull" },
-  { name: "Petra", flag: "🇨🇿", archetype: "Storm Hedgehog" },
-  { name: "Isabelle", flag: "🇧🇪", archetype: "Busy Rabbit" },
-  { name: "Eva", flag: "🇩🇰", archetype: "Dreamy Koala" },
-  { name: "Sarah", flag: "🇨🇦", archetype: "Observing Meerkat" },
-  { name: "Marta", flag: "🇵🇱", archetype: "Flash Hummingbird" },
+/* ─── Randomised social-proof data ─────────────────────────────────────── */
+const NAMES = [
+  "Martina", "Maria", "Annika", "Camille", "Lisa", "Anna", "Elena", "Kate",
+  "Katarina", "Laura", "Ingrid", "Amanda", "Christine", "Petra", "Isabelle",
+  "Eva", "Sarah", "Marta", "Sofia", "Emma", "Olivia", "Chloe", "Hana",
+  "Yuki", "Priya", "Aisha", "Fatima", "Zara", "Nina", "Lucia",
+  "Freya", "Astrid", "Nadia", "Lena", "Julia", "Clara", "Bianca", "Gemma",
+  "Rachel", "Natalie", "Heidi", "Margot", "Signe", "Anja", "Monika",
+  "Donna", "Sophia", "Mei", "Tatiana", "Yara", "Dina", "Reem", "Leila", "Mia",
 ];
+
+const FLAGS = [
+  "🇮🇹", "🇩🇪", "🇸🇪", "🇫🇷", "🇦🇹", "🇬🇧", "🇪🇸", "🇮🇪", "🇭🇷", "🇳🇱",
+  "🇳🇴", "🇺🇸", "🇨🇿", "🇧🇪", "🇩🇰", "🇨🇦", "🇵🇱", "🇦🇺", "🇳🇿", "🇨🇭",
+  "🇵🇹", "🇬🇷", "🇷🇴", "🇧🇬", "🇫🇮", "🇸🇰", "🇸🇮", "🇱🇹", "🇱🇻", "🇪🇪",
+  "🇮🇸", "🇿🇦", "🇧🇷", "🇲🇽", "🇦🇷", "🇯🇵", "🇰🇷", "🇮🇳", "🇮🇱", "🇦🇪",
+  "🇸🇬", "🇲🇾", "🇹🇭", "🇵🇭", "🇨🇴", "🇨🇱",
+];
+
+const ARCHETYPE_NAMES = [
+  "Dreamy Koala", "Flash Hummingbird", "Fierce Tiger", "Observing Meerkat",
+  "Wild Stallion", "Clever Fox", "Busy Rabbit", "Just Elephant",
+  "Splashy Dolphin", "Storm Hedgehog", "Fearless Bull", "Red Panda",
+  "Keen Owl", "Cloudy Panda", "Spark Firefly", "Wandering Penguin",
+  "Sky Eagle", "Gentle Deer", "Brave Bear", "Buzzy Bee", "Vivid Octopus",
+  "Graceful Swan", "Dreamy Bunny", "Tender Hedgehog", "Hidden Firefly",
+];
+
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function generateLatestResults(count: number) {
+  const names = shuffleArray(NAMES).slice(0, count);
+  const flags = shuffleArray(FLAGS);
+  const types = shuffleArray(ARCHETYPE_NAMES);
+  return names.map((name, i) => ({
+    name,
+    flag: flags[i % flags.length],
+    archetype: types[i % types.length],
+  }));
+}
+
+const LATEST_RESULTS = generateLatestResults(20);
 
 function LatestResultsTicker() {
   const [visibleIndex, setVisibleIndex] = useState(0);
@@ -258,7 +285,15 @@ export default function SalesPage() {
   const responses = state.responses ?? JSON.parse(sessionStorage.getItem("wildprint_responses") ?? "null");
   const childName = state.childName ?? sessionStorage.getItem("wildprint_childName") ?? "your child";
   const childGender = state.childGender ?? sessionStorage.getItem("wildprint_childGender") ?? "";
-  const archetypeId = state.archetypeId ?? sessionStorage.getItem("wildprint_archetypeId") ?? "";
+  const rawArchetypeId = state.archetypeId ?? sessionStorage.getItem("wildprint_archetypeId") ?? "";
+  // Ensure girl variant is applied even if archetypeId was stored before variant logic
+  const archetypeId = (() => {
+    if (childGender === "A Girl") {
+      const variants: Record<string, string> = { deer: "swan", panda: "bunny", hedgehog: "tender_hedgehog", firefly: "hidden_firefly" };
+      return variants[rawArchetypeId] ?? rawArchetypeId;
+    }
+    return rawArchetypeId;
+  })();
 
   const archetype = ARCHETYPES.find((a) => a.id === archetypeId) ?? ARCHETYPES[0];
 
@@ -423,7 +458,9 @@ export default function SalesPage() {
           <div className="p-6 space-y-4">
             {/* Title + animal row */}
             <div className="flex items-center gap-3">
-              <AnimalIcon id={archetypeId} className="w-12 h-12 flex-shrink-0" />
+              <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center">
+                <AnimalIcon id={archetypeId} className="max-w-full max-h-full" />
+              </div>
               <div>
                 <h3 className="text-xl font-bold text-harbor-primary leading-tight uppercase tracking-wide">
                   {archetype.typeName}
@@ -454,42 +491,26 @@ export default function SalesPage() {
                   Creating the right environment for {name}
                 </p>
                 <div className="w-8 h-0.5 bg-harbor-primary/30 mb-2" />
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <p className="text-[9px] uppercase tracking-wider font-bold text-red-500/70 mb-1">What drains {name}</p>
-                    {reportTemplate.drains.slice(0, 3).map((d, i) => (
-                      <p key={i} className="text-xs text-harbor-text/70 leading-relaxed flex items-start gap-1.5 mb-1">
+                {/* Table header */}
+                <div className="grid grid-cols-2 gap-2 mb-1">
+                  <p className="text-[9px] uppercase tracking-wider font-bold text-red-500/70">What drains {name}</p>
+                  <p className="text-[9px] uppercase tracking-wider font-bold text-green-600/70">What fuels {name}</p>
+                </div>
+                {/* Paired rows — drain[i] and fuel[i] always on the same line */}
+                {reportTemplate.drains.map((d, i) => {
+                  const f = reportTemplate.fuels[i] ?? "";
+                  const isBlurred = i >= 3;
+                  return (
+                    <div key={i} className={`grid grid-cols-2 gap-2 ${isBlurred ? "blur-[3px] select-none" : ""}`}>
+                      <p className="text-xs text-harbor-text/70 leading-relaxed flex items-start gap-1.5 mb-1">
                         <span className="text-red-400 mt-0.5 flex-shrink-0">&#10005;</span> {d}
                       </p>
-                    ))}
-                    {reportTemplate.drains.length > 3 && (
-                      <div className="space-y-1">
-                        {reportTemplate.drains.slice(3).map((d, i) => (
-                          <p key={i} className="text-xs text-harbor-text/70 leading-relaxed flex items-start gap-1.5 blur-[3px] select-none">
-                            <span className="text-red-400 mt-0.5 flex-shrink-0">&#10005;</span> {d}
-                          </p>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-[9px] uppercase tracking-wider font-bold text-green-600/70 mb-1">What fuels {name}</p>
-                    {reportTemplate.fuels.slice(0, 3).map((f, i) => (
-                      <p key={i} className="text-xs text-harbor-text/70 leading-relaxed flex items-start gap-1.5 mb-1">
+                      <p className="text-xs text-harbor-text/70 leading-relaxed flex items-start gap-1.5 mb-1">
                         <span className="text-green-500 mt-0.5 flex-shrink-0">&#10003;</span> {f}
                       </p>
-                    ))}
-                    {reportTemplate.fuels.length > 3 && (
-                      <div className="space-y-1">
-                        {reportTemplate.fuels.slice(3).map((f, i) => (
-                          <p key={i} className="text-xs text-harbor-text/70 leading-relaxed flex items-start gap-1.5 blur-[3px] select-none">
-                            <span className="text-green-500 mt-0.5 flex-shrink-0">&#10003;</span> {f}
-                          </p>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

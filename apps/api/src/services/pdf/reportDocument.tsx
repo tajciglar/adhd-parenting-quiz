@@ -43,7 +43,7 @@ const ANIMAL_IMAGE: Record<string, string> = {
   bull: path.resolve(__dirname, "../../../../web/public/animals/bull.png"),
   red_panda: path.resolve(__dirname, "../../../../web/public/animals/redpanda.png"),
   panda: path.resolve(__dirname, "../../../../web/public/animals/cloudypanda.png"),
-  firefly: path.resolve(__dirname, "../../../../web/public/animals/sparkfirefly.png"),
+  firefly: path.resolve(__dirname, "../../../../web/public/animals/spark_firefly.png"),
   penguin: path.resolve(__dirname, "../../../../web/public/animals/penguin.png"),
   eagle: path.resolve(__dirname, "../../../../web/public/animals/eagle.png"),
   deer: path.resolve(__dirname, "../../../../web/public/animals/deer.png"),
@@ -53,8 +53,8 @@ const ANIMAL_IMAGE: Record<string, string> = {
   octopus: path.resolve(__dirname, "../../../../web/public/animals/octopus.png"),
   swan: path.resolve(__dirname, "../../../../web/public/animals/swan.png"),
   bunny: path.resolve(__dirname, "../../../../web/public/animals/bunny.png"),
-  tender_hedgehog: path.resolve(__dirname, "../../../../web/public/animals/tenderhedgehog.png"),
-  hidden_firefly: path.resolve(__dirname, "../../../../web/public/animals/hiddenfirefly.png"),
+  tender_hedgehog: path.resolve(__dirname, "../../../../web/public/animals/tender_hedgehog.png"),
+  hidden_firefly: path.resolve(__dirname, "../../../../web/public/animals/hidden_firefly.png"),
 };
 
 import fs from "fs";
