@@ -188,6 +188,8 @@ export default function AdminDashboard() {
     Array<{ id: string; email: string; childName: string; childGender: string; currentArchetype: string; correctArchetype: string; newPdfUrl?: string }> | null
   >(null);
   const [rescoreTotal, setRescoreTotal] = useState(0);
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<string | null>(null);
 
   const fetchAnalytics = useCallback(
     async (key: string, numDays: number) => {
@@ -673,12 +675,50 @@ export default function AdminDashboard() {
           </div>
         ) : null}
 
+        {/* Sync Templates */}
+        <div className="bg-white rounded-xl border border-blue-200 p-6 space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-blue-700">Sync Report Templates</h2>
+            <p className="text-sm text-harbor-text/60 mt-1">
+              Push all report templates from code into the database. Run this after deploying new or updated templates.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              disabled={syncing}
+              onClick={async () => {
+                setSyncing(true);
+                setSyncResult(null);
+                try {
+                  const res = await fetch(`${API_URL}/api/admin/sync-templates`, {
+                    method: "POST",
+                    headers: { "x-admin-key": adminKey },
+                  });
+                  if (!res.ok) throw new Error(`API error: ${res.status}`);
+                  const result = (await res.json()) as { synced: number };
+                  setSyncResult(`Synced ${result.synced} templates.`);
+                } catch (err) {
+                  setSyncResult(err instanceof Error ? err.message : "Failed to sync");
+                } finally {
+                  setSyncing(false);
+                }
+              }}
+              className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition disabled:opacity-50"
+            >
+              {syncing ? "Syncing..." : "Sync All Templates to DB"}
+            </button>
+            {syncResult ? (
+              <span className="text-sm text-blue-700 font-medium">{syncResult}</span>
+            ) : null}
+          </div>
+        </div>
+
         {/* Re-score Check */}
         <div className="bg-white rounded-xl border border-amber-200 p-6 space-y-4">
           <div>
             <h2 className="text-lg font-semibold text-amber-700">Re-score Submissions</h2>
             <p className="text-sm text-harbor-text/60 mt-1">
-              Check if any existing submissions would get a different archetype with the current archetype map.
+              Check if any existing submissions would get a different archetype with the current scoring algorithm. Also regenerates PDF download links.
             </p>
           </div>
 
