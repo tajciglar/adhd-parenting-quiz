@@ -86,11 +86,11 @@ export default function StepRenderer({
 
     // ─── Landing page (step 1): photo card grid ───────────────────────────
     if (step === 1 && q.key === "caregiverType") {
-      const CAREGIVER_CARDS: Array<{ value: string; label: string; image: string; emoji: string; bg: string }> = [
-        { value: "Mom", label: "Mom", image: "/landing/mom.png", emoji: "👩", bg: "#FAF7FC" },
-        { value: "Dad", label: "Dad", image: "/landing/dad.png", emoji: "👨", bg: "#FAF7FC" },
-        { value: "Grandma / Grandpa", label: "Grandma / Grandpa", image: "/landing/grandparent.png", emoji: "👴", bg: "#FAF7FC" },
-        { value: "Other", label: "Other", image: "/landing/teacher.png", emoji: "🧑", bg: "#FAF7FC" },
+      const CAREGIVER_CARDS: Array<{ value: string; label: string; image: string; emoji: string }> = [
+        { value: "Mom", label: "Mom", image: "/landing/mom.png", emoji: "👩" },
+        { value: "Dad", label: "Dad", image: "/landing/dad.png", emoji: "👨" },
+        { value: "Grandma / Grandpa", label: "Grandma / Grandpa", image: "/landing/grandparent.png", emoji: "👴" },
+        { value: "Other", label: "Other", image: "/landing/teacher.png", emoji: "🧑" },
       ];
 
       return (
@@ -116,8 +116,7 @@ export default function StepRenderer({
               <button
                 key={card.value}
                 onClick={() => onAnswer(step, q.key, card.value, true)}
-                className="group relative rounded-2xl border-2 border-harbor-primary/15 overflow-hidden transition-all duration-200 hover:border-harbor-primary/40 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-harbor-primary/30 aspect-[4/5]"
-                style={{ background: card.bg }}
+                className="group relative rounded-2xl border-2 border-harbor-primary/15 overflow-hidden transition-all duration-200 hover:border-harbor-primary/40 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-harbor-primary/30 aspect-[4/5] bg-harbor-primary"
               >
                 <img
                   src={card.image}
@@ -134,7 +133,6 @@ export default function StepRenderer({
                     }
                   }}
                 />
-                <div className="absolute bottom-[30px] left-0 right-0 h-6 bg-gradient-to-b from-transparent to-harbor-primary pointer-events-none" />
                 <div className="absolute bottom-[-2px] left-[-2px] right-[-2px] px-3 py-2.5 rounded-b-2xl bg-harbor-primary text-white font-medium text-sm flex items-center justify-between">
                   <span>{card.label}</span>
                   <svg className="w-4 h-4 opacity-70 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
