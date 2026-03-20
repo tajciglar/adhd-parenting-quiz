@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback, useState, useMemo } from "react";
 import { useLocation, useNavigate, Navigate } from "react-router-dom";
-import { ARCHETYPES, getReportTemplate, renderReportTemplate } from "@adhd-parenting-quiz/shared";
+import { ARCHETYPES, getReportTemplate, renderReportTemplate, computeTraitProfile } from "@adhd-parenting-quiz/shared";
 import type { ArchetypeReportTemplate } from "@adhd-parenting-quiz/shared";
 import { trackPixelEvent, generateEventId, getFbp, getFbc } from "../lib/fbq";
 import { trackFunnelEvent } from "../lib/analytics";
@@ -286,13 +286,21 @@ export default function SalesPage() {
   const childName = state.childName ?? sessionStorage.getItem("wildprint_childName") ?? "your child";
   const childGender = state.childGender ?? sessionStorage.getItem("wildprint_childGender") ?? "";
   const rawArchetypeId = state.archetypeId ?? sessionStorage.getItem("wildprint_archetypeId") ?? "";
-  // Ensure girl variant is applied even if archetypeId was stored before variant logic
+  // Compute archetype from responses if not stored (e.g. console testing)
   const archetypeId = (() => {
-    if (childGender === "A Girl") {
-      const variants: Record<string, string> = { deer: "swan", panda: "bunny", hedgehog: "tender_hedgehog", firefly: "hidden_firefly" };
-      return variants[rawArchetypeId] ?? rawArchetypeId;
+    let id = rawArchetypeId;
+    if (!id && responses && Object.keys(responses).length > 0) {
+      const profile = computeTraitProfile(responses as Record<string, unknown>, childGender);
+      id = profile.archetypeId;
+      // Store for future reads
+      sessionStorage.setItem("wildprint_archetypeId", id);
     }
-    return rawArchetypeId;
+    // Ensure girl variant is applied
+    if (id && childGender === "A Girl") {
+      const variants: Record<string, string> = { deer: "swan", panda: "bunny", hedgehog: "tender_hedgehog", firefly: "hidden_firefly" };
+      return variants[id] ?? id;
+    }
+    return id;
   })();
 
   const archetype = ARCHETYPES.find((a) => a.id === archetypeId) ?? ARCHETYPES[0];
