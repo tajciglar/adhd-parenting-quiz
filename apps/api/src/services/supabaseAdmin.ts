@@ -345,7 +345,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     // Answer distribution — still needs raw funnel events with metadata
     // Use paginated fetch for answer_submitted events only
     type AnswerRow = { metadata: Record<string, unknown> | null };
-    const answerRows = await allRows<AnswerRow>(sb, "funnel_events", "metadata", (q: any) => q.eq("event_type", "answer_submitted").gte("created_at", sinceTs));
+    const answerRows = await allRows<AnswerRow>(sb, "funnel_events", "metadata", (q: any) => q.eq("event_type", "answer_submitted").gte("created_at", effectiveSinceTs));
 
     const answerMap = new Map<string, Map<string, number>>();
     for (const row of answerRows) {
@@ -374,7 +374,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   type SubRow = { id: string; email: string; child_name: string; child_gender: string; archetype_id: string; trait_scores: Record<string, number> | null; paid: boolean; created_at: string; is_test?: boolean };
 
   const [rawFunnelRows, rawSubmissionRows] = await Promise.all([
-    allRows<FunnelRow>(sb, "funnel_events", "session_id, event_type, step_number, created_at, metadata, is_test", (q: any) => q.gte("created_at", sinceTs)),
+    allRows<FunnelRow>(sb, "funnel_events", "session_id, event_type, step_number, created_at, metadata, is_test", (q: any) => q.gte("created_at", effectiveSinceTs)),
     allRows<SubRow>(sb, "quiz_submissions", "id, email, child_name, child_gender, archetype_id, trait_scores, paid, created_at, is_test", (q: any) =>
       q.gte("created_at", effectiveSinceTs)
     ),
@@ -525,28 +525,22 @@ export async function getAnalyticsResetAt(): Promise<string | null> {
 
 // ─── Reset Analytics ──────────────────────────────────────────────────────────
 
-export async function resetAnalytics(): Promise<{ deletedEvents: number; resetAt: string }> {
+export async function resetAnalytics(): Promise<{ resetAt: string }> {
   const sb = getSupabaseAdmin();
   if (!sb) throw new Error("Supabase not configured");
 
+  // Use Slovenia local time (CET/CEST = Europe/Ljubljana)
   const resetAt = new Date().toISOString();
 
-  // Delete all funnel events (gte epoch to match all rows)
-  const { count: eventCount, error: eventError } = await sb
-    .from("funnel_events")
-    .delete({ count: "exact" })
-    .gte("created_at", "1970-01-01T00:00:00.000Z");
-
-  if (eventError) throw new Error(`Failed to delete funnel_events: ${eventError.message}`);
-
-  // Store reset timestamp so submission-based analytics are filtered
+  // Store reset timestamp — all analytics queries filter by this cutoff
+  // No data is deleted; funnel events and submissions are preserved in DB
   const { error: settingsError } = await sb
     .from("admin_settings")
     .upsert({ key: "analytics_reset_at", value: resetAt }, { onConflict: "key" });
 
-  if (settingsError) console.warn("Failed to store analytics_reset_at:", settingsError.message);
+  if (settingsError) throw new Error(`Failed to store analytics_reset_at: ${settingsError.message}`);
 
-  return { deletedEvents: eventCount ?? 0, resetAt };
+  return { resetAt };
 }
 
 // ─── Re-score helpers ───────────────────────────────────────────────────────

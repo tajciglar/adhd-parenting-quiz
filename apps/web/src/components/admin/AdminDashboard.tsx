@@ -945,7 +945,7 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl border border-red-200 p-6 space-y-3">
           <h2 className="text-lg font-semibold text-red-600">Danger Zone</h2>
           <p className="text-sm text-harbor-text/60">
-            Reset the analytics dashboard. Deletes all funnel events and hides older quiz submissions from the dashboard. All data is preserved in the database.
+            Reset the analytics dashboard. The dashboard will only show data from this point forward. All historical data is preserved in the database.
           </p>
           <button
             onClick={() => setShowResetConfirm(true)}
@@ -964,7 +964,7 @@ export default function AdminDashboard() {
                 <h3 className="text-lg font-bold text-red-600">Are you sure?</h3>
               </div>
               <p className="text-sm text-harbor-text/70 text-center">
-                This will reset the dashboard: delete funnel events and hide older submissions from analytics. All quiz data stays in the database.
+                This will reset the dashboard to show only new data from this point forward. No data is deleted — everything stays in the database.
               </p>
               <div className="flex gap-3">
                 <button
@@ -979,7 +979,7 @@ export default function AdminDashboard() {
                   disabled={resetting}
                   className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition disabled:opacity-50"
                 >
-                  {resetting ? "Deleting..." : "Yes, Delete Everything"}
+                  {resetting ? "Resetting..." : "Yes, Reset Dashboard"}
                 </button>
               </div>
             </div>
