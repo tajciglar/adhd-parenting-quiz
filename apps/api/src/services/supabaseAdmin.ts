@@ -54,26 +54,6 @@ export async function insertQuizSubmission(
   return row?.id ?? null;
 }
 
-export async function updateSubmissionPayment(
-  submissionId: string,
-  stripePaymentId: string,
-  stripeSessionId: string,
-): Promise<void> {
-  const sb = getSupabaseAdmin();
-  if (!sb) { console.warn("Supabase not configured — skipping payment update"); return; }
-  const { error } = await sb
-    .from("quiz_submissions")
-    .update({
-      paid: true,
-      stripe_payment_id: stripePaymentId,
-      stripe_session_id: stripeSessionId,
-    })
-    .eq("id", submissionId);
-
-  if (error) {
-    console.error("supabaseAdmin.updateSubmissionPayment failed:", error.message);
-  }
-}
 
 /** Mark a submission as paid by matching its signed PDF URL */
 export async function markPaidByPdfUrl(pdfUrl: string): Promise<void> {
@@ -275,7 +255,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
       sb.rpc("analytics_daily_trend", { since_ts: sinceTs }),
       sb.rpc("analytics_archetype_distribution", { since_ts: sinceTs }),
       sb.rpc("analytics_avg_completion_time", { since_ts: sinceTs }),
-      sb.rpc("analytics_recent_submissions", { lim: 50 }),
+      sb.from("quiz_submissions").select("id, email, child_name, child_gender, archetype_id, paid, created_at").order("created_at", { ascending: false }).limit(50),
       allRows<SubRow>(sb, "quiz_submissions", "id, email, child_name, child_gender, archetype_id, trait_scores, paid, created_at, is_test", (q: any) => q),
     ]);
 

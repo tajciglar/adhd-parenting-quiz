@@ -63,9 +63,8 @@ async function buildServer() {
 
   server.addHook("onRequest", async (request, reply) => {
     const origin = request.headers.origin;
-    if (!origin) return; // no origin = server-to-server (Stripe webhooks, health checks)
+    if (!origin) return; // no origin = server-to-server (webhooks, health checks)
     if (request.url.startsWith("/health")) return;
-    // Stripe route removed — payments handled by WooCommerce
     if (request.url.startsWith("/api/wc/webhook")) return; // WooCommerce sends webhooks without origin
 
     if (!allowedOrigins.includes(origin)) {
@@ -80,7 +79,7 @@ async function buildServer() {
     allowList: (request) => request.method === "OPTIONS",
   });
 
-  // Raw body for Stripe webhook signature verification
+  // Raw body for webhook signature verification
   await server.register(rawBody, {
     field: "rawBody",
     global: false, // only parse when route opts rawBody=true

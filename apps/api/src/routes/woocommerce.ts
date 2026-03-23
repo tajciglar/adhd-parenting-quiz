@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import crypto from "crypto";
-import { updateSubmissionPayment, insertFunnelEvent, getSupabaseAdmin } from "../services/supabaseAdmin.js";
+import { insertFunnelEvent, getSupabaseAdmin } from "../services/supabaseAdmin.js";
 import { sendMetaEvent } from "../services/metaCapi.js";
 
 /**
@@ -127,11 +127,9 @@ export default async function woocommerceRoutes(fastify: FastifyInstance) {
 
         if (submissions?.length && submissions[0].id) {
           submissionId = String(submissions[0].id);
-          void updateSubmissionPayment(
-            submissionId,
-            `wc_${orderId}`,
-            `wc_order_${orderId}`,
-          );
+          void sb.from("quiz_submissions")
+            .update({ paid: true })
+            .eq("id", submissionId);
         }
       }
 
