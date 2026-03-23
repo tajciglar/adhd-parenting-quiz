@@ -1,3 +1,4 @@
+# bust-cache: 2026-03-23
 FROM node:22-slim AS base
 
 ENV PNPM_HOME="/pnpm"
