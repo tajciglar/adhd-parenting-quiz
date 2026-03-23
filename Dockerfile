@@ -11,6 +11,7 @@ WORKDIR /app
 # Copy workspace config and lockfile first for layer caching
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
 COPY packages/shared/package.json ./packages/shared/
 
 # Install all dependencies (frozen lockfile for reproducibility)
@@ -41,6 +42,7 @@ WORKDIR /app
 
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
 COPY packages/shared/package.json ./packages/shared/
 
 # Install all dependencies (prisma CLI needed for migrate deploy at startup)
