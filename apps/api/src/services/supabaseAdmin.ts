@@ -224,6 +224,10 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   since.setDate(since.getDate() - days);
   const sinceTs = since.toISOString();
 
+  // If analytics were reset, use the reset timestamp as the floor
+  const resetAt = await getAnalyticsResetAt();
+  const submissionCutoff = resetAt && resetAt > sinceTs ? resetAt : null;
+
   const pct = (n: number, d: number) => (d > 0 ? Number(((n / d) * 100).toFixed(1)) : 0);
 
   // ── Try RPC-based analytics (server-side aggregation, no row limits) ─────
@@ -368,7 +372,9 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
 
   const [rawFunnelRows, rawSubmissionRows] = await Promise.all([
     allRows<FunnelRow>(sb, "funnel_events", "session_id, event_type, step_number, created_at, metadata, is_test", (q: any) => q.gte("created_at", sinceTs)),
-    allRows<SubRow>(sb, "quiz_submissions", "id, email, child_name, child_gender, archetype_id, trait_scores, paid, created_at, is_test", (q: any) => q),
+    allRows<SubRow>(sb, "quiz_submissions", "id, email, child_name, child_gender, archetype_id, trait_scores, paid, created_at, is_test", (q: any) =>
+      submissionCutoff ? q.gte("created_at", submissionCutoff) : q
+    ),
   ]);
 
   // Filter out test data
@@ -498,11 +504,29 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   return { stepDropoff, funnelSummary, recentSubmissions, dailyTrend, archetypeDistribution, traitPairDistribution, answerDistribution, avgCompletionTime, submissionsByTraitPair };
 }
 
+// ─── Analytics Reset Cutoff ───────────────────────────────────────────────────
+// Stored in admin_settings table (key: "analytics_reset_at").
+// When set, all analytics queries only show data created after this timestamp.
+// Quiz submissions remain in the DB for AI app / user access.
+
+export async function getAnalyticsResetAt(): Promise<string | null> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return null;
+  const { data } = await sb
+    .from("admin_settings")
+    .select("value")
+    .eq("key", "analytics_reset_at")
+    .single();
+  return data?.value ?? null;
+}
+
 // ─── Reset Analytics ──────────────────────────────────────────────────────────
 
-export async function resetAnalytics(): Promise<{ deletedEvents: number }> {
+export async function resetAnalytics(): Promise<{ deletedEvents: number; resetAt: string }> {
   const sb = getSupabaseAdmin();
   if (!sb) throw new Error("Supabase not configured");
+
+  const resetAt = new Date().toISOString();
 
   // Delete all funnel events (gte epoch to match all rows)
   const { count: eventCount, error: eventError } = await sb
@@ -512,7 +536,14 @@ export async function resetAnalytics(): Promise<{ deletedEvents: number }> {
 
   if (eventError) throw new Error(`Failed to delete funnel_events: ${eventError.message}`);
 
-  return { deletedEvents: eventCount ?? 0 };
+  // Store reset timestamp so submission-based analytics are filtered
+  const { error: settingsError } = await sb
+    .from("admin_settings")
+    .upsert({ key: "analytics_reset_at", value: resetAt }, { onConflict: "key" });
+
+  if (settingsError) console.warn("Failed to store analytics_reset_at:", settingsError.message);
+
+  return { deletedEvents: eventCount ?? 0, resetAt };
 }
 
 // ─── Re-score helpers ───────────────────────────────────────────────────────
