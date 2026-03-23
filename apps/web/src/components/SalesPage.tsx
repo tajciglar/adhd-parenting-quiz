@@ -379,6 +379,7 @@ export default function SalesPage() {
         params.set("billing_email", email);
         params.set("kids_name", childName);
         params.set("archetype", archetypeId);
+        params.set("archetype_name", archetype.typeName);
         const fbp = getFbp();
         const fbc = getFbc();
         if (fbp) params.set("_fbp", fbp);
