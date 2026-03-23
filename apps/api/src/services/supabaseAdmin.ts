@@ -234,7 +234,8 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
 
   // ── Try RPC-based analytics (server-side aggregation, no row limits) ─────
   // Falls back to paginated client-side aggregation if RPCs aren't installed.
-  const useRpc = await (async () => {
+  // Skip RPCs when a reset cutoff is active — RPCs don't support the cutoff filter
+  const useRpc = submissionCutoff ? false : await (async () => {
     try {
       const { error } = await sb.rpc("analytics_funnel_summary", { since_ts: sinceTs });
       return !error; // RPCs are installed
