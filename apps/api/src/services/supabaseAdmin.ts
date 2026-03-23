@@ -488,7 +488,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
 
 // ─── Reset Analytics ──────────────────────────────────────────────────────────
 
-export async function resetAnalytics(): Promise<{ deletedEvents: number; deletedSubmissions: number }> {
+export async function resetAnalytics(): Promise<{ deletedEvents: number }> {
   const sb = getSupabaseAdmin();
   if (!sb) throw new Error("Supabase not configured");
 
@@ -500,15 +500,7 @@ export async function resetAnalytics(): Promise<{ deletedEvents: number; deleted
 
   if (eventError) throw new Error(`Failed to delete funnel_events: ${eventError.message}`);
 
-  // Delete all quiz submissions
-  const { count: subCount, error: subError } = await sb
-    .from("quiz_submissions")
-    .delete({ count: "exact" })
-    .gte("created_at", "1970-01-01T00:00:00.000Z");
-
-  if (subError) throw new Error(`Failed to delete quiz_submissions: ${subError.message}`);
-
-  return { deletedEvents: eventCount ?? 0, deletedSubmissions: subCount ?? 0 };
+  return { deletedEvents: eventCount ?? 0 };
 }
 
 // ─── Re-score helpers ───────────────────────────────────────────────────────
