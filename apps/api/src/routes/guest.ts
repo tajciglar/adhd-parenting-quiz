@@ -474,7 +474,7 @@ export default async function guestRoutes(fastify: FastifyInstance) {
   // Anonymous funnel event tracking for analytics dashboard
   const trackBodySchema = z.object({
     sessionId: z.string().min(1).max(128),
-    eventType: z.enum(["step_viewed", "quiz_completed", "checkout_started", "purchase_completed", "answer_submitted", "optin_completed", "optin_thankyou"]),
+    eventType: z.enum(["step_viewed", "quiz_completed", "checkout_started", "purchase_completed", "answer_submitted", "optin_completed", "optin_thankyou", "wp_checkout_redirect"]),
     stepNumber: z.number().int().min(0).max(100).optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),
     isTest: z.boolean().optional(),

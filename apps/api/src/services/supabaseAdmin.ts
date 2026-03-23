@@ -396,12 +396,16 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   }
   const quizStarted = eventSessions.get("step_viewed")?.size ?? 0;
   const quizCompleted = eventSessions.get("quiz_completed")?.size ?? 0;
-  const checkoutStarted = eventSessions.get("checkout_started")?.size ?? 0;
+  const emailSubmitted = eventSessions.get("optin_completed")?.size ?? 0;
+  const checkoutStarted = (eventSessions.get("wp_checkout_redirect")?.size ?? 0) + (eventSessions.get("checkout_started")?.size ?? 0);
   const purchaseCompleted = eventSessions.get("purchase_completed")?.size ?? 0;
+  // Also count paid submissions as purchased (PDF download marks paid=true)
+  const paidSubmissions = submissionRows.filter((r) => r.paid).length;
+  const purchased = Math.max(purchaseCompleted, paidSubmissions);
   const funnelSummary = {
-    quizStarted, quizCompleted, checkoutStarted, purchaseCompleted,
-    quizCompletionRate: pct(quizCompleted, quizStarted), checkoutRate: pct(checkoutStarted, quizCompleted),
-    purchaseRate: pct(purchaseCompleted, checkoutStarted), overallConversion: pct(purchaseCompleted, quizStarted),
+    quizStarted, quizCompleted, emailSubmitted, checkoutStarted, purchaseCompleted: purchased,
+    quizCompletionRate: pct(quizCompleted, quizStarted), checkoutRate: pct(checkoutStarted, emailSubmitted),
+    purchaseRate: pct(purchased, checkoutStarted), overallConversion: pct(purchased, quizStarted),
   };
 
   // Recent submissions
@@ -422,16 +426,24 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   const submissionsByTraitPair = [...traitPairUserMap.entries()].map(([pair, users]) => ({ pair, users })).sort((a, b) => b.users.length - a.users.length);
 
   // Daily trend
-  const dailyMap = new Map<string, { started: Set<string>; completed: Set<string>; purchased: Set<string> }>();
+  const dailyMap = new Map<string, { started: Set<string>; completed: Set<string>; emailSubmitted: Set<string>; purchased: Set<string> }>();
   for (const row of funnelRows) {
     const date = row.created_at.slice(0, 10);
-    if (!dailyMap.has(date)) dailyMap.set(date, { started: new Set(), completed: new Set(), purchased: new Set() });
+    if (!dailyMap.has(date)) dailyMap.set(date, { started: new Set(), completed: new Set(), emailSubmitted: new Set(), purchased: new Set() });
     const day = dailyMap.get(date)!;
     if (row.event_type === "step_viewed") day.started.add(row.session_id);
     if (row.event_type === "quiz_completed") day.completed.add(row.session_id);
-    if (row.event_type === "purchase_completed") day.purchased.add(row.session_id);
+    if (row.event_type === "optin_completed") day.emailSubmitted.add(row.session_id);
+    if (row.event_type === "purchase_completed" || row.event_type === "wp_checkout_redirect") day.purchased.add(row.session_id);
   }
-  const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, sets]) => ({ date, started: sets.started.size, completed: sets.completed.size, purchased: sets.purchased.size }));
+  // Also count paid submissions by date
+  for (const row of submissionRows) {
+    if (!row.paid) continue;
+    const date = row.created_at.slice(0, 10);
+    if (!dailyMap.has(date)) dailyMap.set(date, { started: new Set(), completed: new Set(), emailSubmitted: new Set(), purchased: new Set() });
+    dailyMap.get(date)!.purchased.add(row.id);
+  }
+  const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, sets]) => ({ date, started: sets.started.size, completed: sets.completed.size, emailSubmitted: sets.emailSubmitted.size, purchased: sets.purchased.size }));
 
   // Archetype + trait pair distribution
   const sinceDate = new Date(sinceTs);
