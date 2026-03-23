@@ -89,8 +89,7 @@ export default function StepRenderer({
       const CAREGIVER_CARDS: Array<{ value: string; label: string; image: string; emoji: string }> = [
         { value: "Mom", label: "Mom", image: "/landing/mom.png", emoji: "👩" },
         { value: "Dad", label: "Dad", image: "/landing/dad.png", emoji: "👨" },
-        { value: "Grandma / Grandpa", label: "Grandma / Grandpa", image: "/landing/grandparent.png", emoji: "👴" },
-        { value: "Other", label: "Other", image: "/landing/teacher.png", emoji: "🧑" },
+        { value: "Other", label: "Other", image: "/landing/grandma.png", emoji: "🧑" },
       ];
 
       return (
@@ -110,8 +109,8 @@ export default function StepRenderer({
             <h2 className="text-lg font-semibold text-harbor-text">{title}</h2>
           </div>
 
-          {/* 2x2 photo card grid */}
-          <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
+          {/* 3-card photo grid */}
+          <div className="grid grid-cols-3 gap-3 max-w-md mx-auto">
             {CAREGIVER_CARDS.map((card) => (
               <button
                 key={card.value}

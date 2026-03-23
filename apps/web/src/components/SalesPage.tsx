@@ -579,10 +579,9 @@ export default function SalesPage() {
             </p>
           </div>
           <div className="bg-white rounded-xl border border-harbor-text/10 p-4 space-y-1.5">
-            <p className="text-xs font-semibold text-harbor-primary">✅ 100% satisfaction guarantee</p>
+            <p className="text-xs font-semibold text-harbor-primary">✅ 7-Day Money-Back Guarantee</p>
             <p className="text-harbor-text text-xs italic leading-relaxed">
-              If the report doesn't feel like it was written specifically about
-              your child, email us and we'll refund you, no questions asked.
+              If the report doesn't feel like it was written specifically about your child, email us in the next 7 days and we'll refund you, no questions asked.
             </p>
           </div>
         </div>
