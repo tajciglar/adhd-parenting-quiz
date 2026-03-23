@@ -362,6 +362,15 @@ export default function AdminDashboard() {
             >
               Export CSV
             </button>
+            <a
+              href="/onboarding?test=true"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-harbor-primary text-white hover:bg-harbor-primary/90 transition inline-flex items-center gap-1"
+              title="Open quiz in test mode (won't affect analytics)"
+            >
+              Test Site
+            </a>
           </div>
         </div>
 
