@@ -9,7 +9,7 @@ import {
   type ArchetypeReportTemplate,
 } from "@adhd-parenting-quiz/shared";
 import { generateReportPdf } from "../services/pdf/generateReportPdf.js";
-import { insertQuizSubmission, insertFunnelEvent } from "../services/supabaseAdmin.js";
+import { insertQuizSubmission, insertFunnelEvent, markPaidByPdfUrl } from "../services/supabaseAdmin.js";
 import { sendMetaEvent } from "../services/metaCapi.js";
 
 function toSlug(value: string): string {
@@ -404,6 +404,11 @@ export default async function guestRoutes(fastify: FastifyInstance) {
     }
 
     const { archetypeId, childName, childGender } = payload;
+
+    // Mark submission as paid (this URL is only sent after purchase)
+    const baseUrl = (process.env.API_BASE_URL ?? "http://localhost:3000").trim().replace(/\/$/, "");
+    const pdfUrl = `${baseUrl}/api/guest/pdf?data=${data}&sig=${sig}`;
+    void markPaidByPdfUrl(pdfUrl);
 
     // Regenerate report and PDF
     const rawTemplate = getReportTemplate(archetypeId);

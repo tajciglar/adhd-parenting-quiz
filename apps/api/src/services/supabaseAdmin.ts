@@ -75,6 +75,21 @@ export async function updateSubmissionPayment(
   }
 }
 
+/** Mark a submission as paid by matching its signed PDF URL */
+export async function markPaidByPdfUrl(pdfUrl: string): Promise<void> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return;
+  const { error } = await sb
+    .from("quiz_submissions")
+    .update({ paid: true })
+    .eq("pdf_url", pdfUrl)
+    .eq("paid", false);
+
+  if (error) {
+    console.error("supabaseAdmin.markPaidByPdfUrl failed:", error.message);
+  }
+}
+
 // ─── Funnel Events ───────────────────────────────────────────────────────────
 
 export async function insertFunnelEvent(
