@@ -53,7 +53,7 @@ const FLAGS = [
 
 const ARCHETYPE_NAMES = [
   "Dreamy Koala", "Flash Hummingbird", "Fierce Tiger", "Observing Meerkat",
-  "Wild Stallion", "Clever Fox", "Busy Rabbit", "Just Elephant",
+  "Wild Stallion", "Clever Fox", "Busy Rabbit", "Justice Elephant",
   "Splashy Dolphin", "Storm Hedgehog", "Fearless Bull", "Red Panda",
   "Keen Owl", "Cloudy Panda", "Spark Firefly", "Wandering Penguin",
   "Sky Eagle", "Gentle Deer", "Brave Bear", "Buzzy Bee", "Vivid Octopus",
