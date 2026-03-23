@@ -351,6 +351,7 @@ export default function SalesPage() {
       // Submit quiz to API (this saves to DB, sends CAPI Lead, syncs AC)
       const result = (await api.post("/api/guest/submit", {
         email,
+        parentName: parentName.trim(),
         responses,
         childName,
         childGender,

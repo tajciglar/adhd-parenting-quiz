@@ -50,6 +50,7 @@ function generatePdfUrl(opts: {
 // Sync contact to AC: store PDF download URL as custom field, subscribe to list, apply tags
 async function syncToActiveCampaign(opts: {
   email: string;
+  parentName?: string;
   childName: string;
   archetypeId: string;
   archetypeName: string;
@@ -70,7 +71,7 @@ async function syncToActiveCampaign(opts: {
     const contactRes = await fetch(`${apiUrl}/api/3/contact/sync`, {
       method: "POST",
       headers,
-      body: JSON.stringify({ contact: { email: opts.email } }),
+      body: JSON.stringify({ contact: { email: opts.email, ...(opts.parentName && { firstName: opts.parentName }) } }),
     });
 
     if (!contactRes.ok) {
@@ -251,6 +252,7 @@ async function checkAlreadySubmitted(email: string): Promise<boolean> {
 
 const submitBodySchema = z.object({
   email: z.string().email(),
+  parentName: z.string().max(100).optional(),
   responses: z.record(z.string(), z.unknown()),
   childName: z.string().min(1).max(100),
   childGender: z.string().optional(),
@@ -287,7 +289,7 @@ export default async function guestRoutes(fastify: FastifyInstance) {
         });
       }
 
-      const { email, responses, childName, childGender, fbc, fbp, eventSourceUrl, isTest } = parsed.data;
+      const { email, parentName, responses, childName, childGender, fbc, fbp, eventSourceUrl, isTest } = parsed.data;
 
       // 0. Duplicate email check
       const alreadySubmitted = await checkAlreadySubmitted(email);
@@ -346,6 +348,7 @@ export default async function guestRoutes(fastify: FastifyInstance) {
       // 5. Sync to AC: store PDF URL, subscribe to list, apply tags (fire and forget)
       void syncToActiveCampaign({
         email,
+        parentName,
         childName,
         archetypeId: traitProfile.archetypeId,
         archetypeName: archetype?.animal ?? "",
