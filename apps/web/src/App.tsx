@@ -1,6 +1,10 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react"
+import { initTestMode } from "./lib/analytics";
+
+// Capture ?test=true from URL before any components render
+initTestMode();
 
 /**
  * Wrap lazy() so a failed chunk load (stale deploy) triggers a full page reload.

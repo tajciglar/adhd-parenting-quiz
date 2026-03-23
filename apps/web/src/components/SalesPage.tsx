@@ -3,7 +3,7 @@ import { useLocation, useNavigate, Navigate } from "react-router-dom";
 import { ARCHETYPES, getReportTemplate, renderReportTemplate, computeTraitProfile } from "@adhd-parenting-quiz/shared";
 import type { ArchetypeReportTemplate } from "@adhd-parenting-quiz/shared";
 import { trackPixelEvent, generateEventId, getFbp, getFbc } from "../lib/fbq";
-import { trackFunnelEvent } from "../lib/analytics";
+import { trackFunnelEvent, isTestMode } from "../lib/analytics";
 import { AnimalIcon } from "../lib/animalImages";
 import { api } from "../lib/api";
 import type { OnboardingResponses } from "../types/onboarding";
@@ -357,6 +357,7 @@ export default function SalesPage() {
         fbc: getFbc(),
         fbp: getFbp(),
         eventSourceUrl: window.location.href,
+        ...(isTestMode() && { isTest: true }),
       })) as { report: ArchetypeReportTemplate; submissionId?: string; pdfUrl?: string };
 
       // Client-side Lead event

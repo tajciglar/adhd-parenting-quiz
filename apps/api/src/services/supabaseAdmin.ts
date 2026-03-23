@@ -32,6 +32,7 @@ export interface QuizSubmissionInsert {
   trait_scores: Record<string, number>;
   responses: Record<string, unknown>;
   pdf_url?: string;
+  is_test?: boolean;
 }
 
 export async function insertQuizSubmission(
@@ -81,6 +82,7 @@ export async function insertFunnelEvent(
   eventType: string,
   stepNumber?: number | null,
   metadata?: Record<string, unknown>,
+  isTest?: boolean,
 ): Promise<void> {
   const sb = getSupabaseAdmin();
   if (!sb) return; // silently skip if Supabase not configured
@@ -89,6 +91,7 @@ export async function insertFunnelEvent(
     event_type: eventType,
     step_number: stepNumber ?? null,
     metadata: metadata ?? {},
+    is_test: isTest ?? false,
   });
 
   if (error) {
@@ -239,7 +242,9 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
 
   if (useRpc) {
     // ── All RPCs in parallel ─────────────────────────────────────────────
-    type SubRow = { id: string; email: string; child_name: string; child_gender: string; archetype_id: string; trait_scores: Record<string, number> | null; paid: boolean; created_at: string };
+    // NOTE: RPCs don't filter is_test yet — fall through to fallback path
+    // which does filter. TODO: update RPCs to accept is_test param.
+    type SubRow = { id: string; email: string; child_name: string; child_gender: string; archetype_id: string; trait_scores: Record<string, number> | null; paid: boolean; created_at: string; is_test?: boolean };
 
     const [
       { data: funnelData },
@@ -256,7 +261,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
       sb.rpc("analytics_archetype_distribution", { since_ts: sinceTs }),
       sb.rpc("analytics_avg_completion_time", { since_ts: sinceTs }),
       sb.rpc("analytics_recent_submissions", { lim: 50 }),
-      allRows<SubRow>(sb, "quiz_submissions", "id, email, child_name, child_gender, archetype_id, trait_scores, paid, created_at", (q: any) => q),
+      allRows<SubRow>(sb, "quiz_submissions", "id, email, child_name, child_gender, archetype_id, trait_scores, paid, created_at, is_test", (q: any) => q),
     ]);
 
     // Funnel summary
@@ -363,13 +368,17 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   // Used when RPCs aren't installed yet. Works correctly but slower.
   console.warn("analytics: RPCs not found, using paginated fallback. Run supabase/migrations/001_analytics_rpcs.sql to enable RPCs.");
 
-  type FunnelRow = { session_id: string; event_type: string; step_number: number | null; created_at: string; metadata: Record<string, unknown> | null };
-  type SubRow = { id: string; email: string; child_name: string; child_gender: string; archetype_id: string; trait_scores: Record<string, number> | null; paid: boolean; created_at: string };
+  type FunnelRow = { session_id: string; event_type: string; step_number: number | null; created_at: string; metadata: Record<string, unknown> | null; is_test?: boolean };
+  type SubRow = { id: string; email: string; child_name: string; child_gender: string; archetype_id: string; trait_scores: Record<string, number> | null; paid: boolean; created_at: string; is_test?: boolean };
 
-  const [funnelRows, submissionRows] = await Promise.all([
-    allRows<FunnelRow>(sb, "funnel_events", "session_id, event_type, step_number, created_at, metadata", (q: any) => q.gte("created_at", sinceTs)),
-    allRows<SubRow>(sb, "quiz_submissions", "id, email, child_name, child_gender, archetype_id, trait_scores, paid, created_at", (q: any) => q),
+  const [rawFunnelRows, rawSubmissionRows] = await Promise.all([
+    allRows<FunnelRow>(sb, "funnel_events", "session_id, event_type, step_number, created_at, metadata, is_test", (q: any) => q.gte("created_at", sinceTs)),
+    allRows<SubRow>(sb, "quiz_submissions", "id, email, child_name, child_gender, archetype_id, trait_scores, paid, created_at, is_test", (q: any) => q),
   ]);
+
+  // Filter out test data
+  const funnelRows = rawFunnelRows.filter((r) => !r.is_test);
+  const submissionRows = rawSubmissionRows.filter((r) => !r.is_test);
 
   // Step dropoff
   const stepCounts = new Map<number, Set<string>>();

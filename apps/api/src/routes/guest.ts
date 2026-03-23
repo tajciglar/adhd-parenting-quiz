@@ -257,6 +257,7 @@ const submitBodySchema = z.object({
   fbc: z.string().optional(),
   fbp: z.string().optional(),
   eventSourceUrl: z.string().optional(),
+  isTest: z.boolean().optional(),
 });
 
 const pdfQuerySchema = z.object({
@@ -286,7 +287,7 @@ export default async function guestRoutes(fastify: FastifyInstance) {
         });
       }
 
-      const { email, responses, childName, childGender, fbc, fbp, eventSourceUrl } = parsed.data;
+      const { email, responses, childName, childGender, fbc, fbp, eventSourceUrl, isTest } = parsed.data;
 
       // 0. Duplicate email check
       const alreadySubmitted = await checkAlreadySubmitted(email);
@@ -366,6 +367,7 @@ export default async function guestRoutes(fastify: FastifyInstance) {
           trait_scores: traitProfile.scores as unknown as Record<string, number>,
           responses,
           pdf_url: pdfUrl,
+          is_test: isTest ?? false,
         });
       } catch (err) {
         request.log.error({ err }, "guest.submit.supabase_insert_failed");
@@ -470,6 +472,7 @@ export default async function guestRoutes(fastify: FastifyInstance) {
     eventType: z.enum(["step_viewed", "quiz_completed", "checkout_started", "purchase_completed", "answer_submitted", "optin_completed", "optin_thankyou"]),
     stepNumber: z.number().int().min(0).max(100).optional(),
     metadata: z.record(z.string(), z.unknown()).optional(),
+    isTest: z.boolean().optional(),
   });
 
   fastify.post(
@@ -489,10 +492,10 @@ export default async function guestRoutes(fastify: FastifyInstance) {
         return reply.status(400).send({ error: "Validation failed" });
       }
 
-      const { sessionId, eventType, stepNumber, metadata } = parsed.data;
+      const { sessionId, eventType, stepNumber, metadata, isTest } = parsed.data;
 
       // Fire and forget — don't block response
-      void insertFunnelEvent(sessionId, eventType, stepNumber, metadata);
+      void insertFunnelEvent(sessionId, eventType, stepNumber, metadata, isTest);
 
       return reply.status(204).send();
     },
