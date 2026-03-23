@@ -224,9 +224,11 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   since.setDate(since.getDate() - days);
   const sinceTs = since.toISOString();
 
-  // If analytics were reset, use the reset timestamp as the floor
+  // If analytics were reset, use the reset timestamp as the floor for ALL queries
   const resetAt = await getAnalyticsResetAt();
-  const submissionCutoff = resetAt && resetAt > sinceTs ? resetAt : null;
+  const submissionCutoff = resetAt ?? null;
+  // For submissions, always use resetAt if set (regardless of days filter)
+  const effectiveSinceTs = submissionCutoff && submissionCutoff > sinceTs ? submissionCutoff : sinceTs;
 
   const pct = (n: number, d: number) => (d > 0 ? Number(((n / d) * 100).toFixed(1)) : 0);
 
@@ -259,8 +261,8 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
       sb.rpc("analytics_daily_trend", { since_ts: sinceTs }),
       sb.rpc("analytics_archetype_distribution", { since_ts: sinceTs }),
       sb.rpc("analytics_avg_completion_time", { since_ts: sinceTs }),
-      sb.from("quiz_submissions").select("id, email, child_name, child_gender, archetype_id, paid, created_at").order("created_at", { ascending: false }).limit(50),
-      allRows<SubRow>(sb, "quiz_submissions", "id, email, child_name, child_gender, archetype_id, trait_scores, paid, created_at, is_test", (q: any) => q),
+      sb.from("quiz_submissions").select("id, email, child_name, child_gender, archetype_id, paid, created_at").gte("created_at", effectiveSinceTs).order("created_at", { ascending: false }).limit(50),
+      allRows<SubRow>(sb, "quiz_submissions", "id, email, child_name, child_gender, archetype_id, trait_scores, paid, created_at, is_test", (q: any) => q.gte("created_at", effectiveSinceTs)),
     ]);
 
     // Funnel summary
@@ -373,7 +375,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   const [rawFunnelRows, rawSubmissionRows] = await Promise.all([
     allRows<FunnelRow>(sb, "funnel_events", "session_id, event_type, step_number, created_at, metadata, is_test", (q: any) => q.gte("created_at", sinceTs)),
     allRows<SubRow>(sb, "quiz_submissions", "id, email, child_name, child_gender, archetype_id, trait_scores, paid, created_at, is_test", (q: any) =>
-      submissionCutoff ? q.gte("created_at", submissionCutoff) : q
+      q.gte("created_at", effectiveSinceTs)
     ),
   ]);
 
