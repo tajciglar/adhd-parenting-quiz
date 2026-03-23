@@ -340,6 +340,28 @@ export default function AdminDashboard() {
             >
               {loading ? "⏳" : "🔄"}
             </button>
+            <button
+              onClick={() => {
+                const link = document.createElement("a");
+                link.href = `${API_URL}/api/admin/export-csv`;
+                link.setAttribute("download", "");
+                // Pass admin key via a temporary fetch
+                void fetch(`${API_URL}/api/admin/export-csv`, {
+                  headers: { "X-Admin-Key": adminKey },
+                }).then((res) => res.blob()).then((blob) => {
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `submissions-${new Date().toISOString().slice(0, 10)}.csv`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                });
+              }}
+              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30 transition"
+              title="Export all submissions as CSV"
+            >
+              Export CSV
+            </button>
           </div>
         </div>
 

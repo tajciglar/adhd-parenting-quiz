@@ -156,9 +156,9 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     }
   });
 
-  // ── GET /api/admin/export-submissions ─────────────────────────────────
-  // Export: email, caregiver_type, child_age_range, archetype_id, trait_scores
-  fastify.get("/admin/export-submissions", async (request, reply) => {
+  // ── GET /api/admin/export-csv ─────────────────────────────────────────
+  // Full CSV export of all submissions
+  fastify.get("/admin/export-csv", async (request, reply) => {
     try {
       const sb = getSupabaseAdmin();
       if (!sb) return reply.status(503).send({ error: "Supabase not configured" });
@@ -166,41 +166,55 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       const rows = await allRows<{
         id: string;
         email: string;
+        child_name: string | null;
+        child_gender: string | null;
         caregiver_type: string | null;
         child_age_range: string | null;
+        adhd_journey: string | null;
         archetype_id: string;
-        trait_scores: Record<string, unknown>;
+        trait_scores: Record<string, number> | null;
+        paid: boolean;
+        pdf_url: string | null;
         created_at: string;
       }>(
         sb,
         "quiz_submissions",
-        "id, email, caregiver_type, child_age_range, archetype_id, trait_scores, created_at",
+        "id, email, child_name, child_gender, caregiver_type, child_age_range, adhd_journey, archetype_id, trait_scores, paid, pdf_url, created_at",
         (q: any) => q.order("created_at", { ascending: false }),
       );
 
-      const { format } = request.query as { format?: string };
+      // CSV helper: quote fields that contain commas/quotes/newlines
+      const esc = (v: string) => {
+        if (v.includes(",") || v.includes('"') || v.includes("\n")) {
+          return `"${v.replace(/"/g, '""')}"`;
+        }
+        return v;
+      };
 
-      if (format === "csv") {
-        const header = "email,caregiver_type,child_age_range,archetype_id,trait_scores,created_at";
-        const csvRows = rows.map((r) =>
-          [
-            r.email ?? "",
-            r.caregiver_type ?? "",
-            r.child_age_range ?? "",
-            r.archetype_id ?? "",
-            JSON.stringify(r.trait_scores ?? {}).replace(/,/g, ";"),
-            r.created_at ?? "",
-          ].join(",")
-        );
-        reply
-          .header("Content-Type", "text/csv")
-          .header("Content-Disposition", "attachment; filename=submissions.csv");
-        return reply.send([header, ...csvRows].join("\n"));
-      }
+      const header = "email,child_name,child_gender,caregiver_type,child_age_range,adhd_journey,archetype_id,paid,trait_scores,pdf_url,created_at";
+      const csvRows = rows.map((r) =>
+        [
+          esc(r.email ?? ""),
+          esc(r.child_name ?? ""),
+          esc(r.child_gender ?? ""),
+          esc(r.caregiver_type ?? ""),
+          esc(r.child_age_range ?? ""),
+          esc(r.adhd_journey ?? ""),
+          esc(r.archetype_id ?? ""),
+          r.paid ? "yes" : "no",
+          esc(r.trait_scores ? JSON.stringify(r.trait_scores) : ""),
+          esc(r.pdf_url ?? ""),
+          esc(r.created_at ?? ""),
+        ].join(","),
+      );
 
-      return reply.send({ count: rows.length, rows });
+      const date = new Date().toISOString().slice(0, 10);
+      reply
+        .header("Content-Type", "text/csv; charset=utf-8")
+        .header("Content-Disposition", `attachment; filename="submissions-${date}.csv"`);
+      return reply.send([header, ...csvRows].join("\n"));
     } catch (err) {
-      request.log.error({ err }, "admin.export_submissions.failed");
+      request.log.error({ err }, "admin.export_csv.failed");
       return reply.status(500).send({ error: "Failed to export submissions" });
     }
   });
