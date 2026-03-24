@@ -17,7 +17,7 @@ export default function TextInput({
     <div>
       <h2 className="text-2xl font-semibold text-harbor-text mb-2 text-center">{title}</h2>
       {subtitle && (
-        <p className="text-harbor-text/50 mb-8">{subtitle}</p>
+        <p className="text-xs text-gray-500 leading-relaxed text-center mb-4">{subtitle}</p>
       )}
       <input
         type="text"
