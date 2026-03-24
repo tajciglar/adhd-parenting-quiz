@@ -160,9 +160,14 @@ export default function StepRenderer({
         {q.emoji && (
           <div className="text-4xl mb-4 text-center">{q.emoji}</div>
         )}
+        {q.key === "childName" && (
+          <p className="text-xs text-gray-500 leading-relaxed text-center mt-4">
+            This name will appear throughout your child's personalized report, so use the name they go by.
+          </p>
+        )}
         {inner}
         {q.key === "childName" && (
-          <p className="text-xs text-gray-400 leading-relaxed text-center mt-4">
+          <p className="text-xs text-gray-500 leading-relaxed text-center mt-4">
             We ask for your child’s name so we can personalise their report for you. It won’t be shared, sold, or seen by anyone other than you. This is your report only.
           </p>
         )}

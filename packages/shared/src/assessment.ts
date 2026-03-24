@@ -85,9 +85,9 @@ export const BASIC_INFO_QUESTIONS: BasicInfoQuestion[] = [
   {
     type: "text",
     key: "childName",
-    title: "Your Child's Name",
+    title: "What's your child's first name?",
     emoji: "🌟",
-    placeholder: "First name",
+    placeholder: "e.g. Emma",
   },
 ];
 
