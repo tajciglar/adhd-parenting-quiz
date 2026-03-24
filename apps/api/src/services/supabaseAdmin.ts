@@ -443,7 +443,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     if (row.event_type === "step_viewed") day.started.add(row.session_id);
     if (row.event_type === "quiz_completed") day.completed.add(row.session_id);
     if (row.event_type === "optin_completed") day.emailSubmitted.add(row.session_id);
-    if (row.event_type === "purchase_completed" || row.event_type === "wp_checkout_redirect") day.purchased.add(row.session_id);
+    if (row.event_type === "purchase_completed") day.purchased.add(row.session_id);
   }
   // Also count paid submissions by date
   for (const row of submissionRows) {
@@ -452,7 +452,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     if (!dailyMap.has(date)) dailyMap.set(date, { started: new Set(), completed: new Set(), emailSubmitted: new Set(), purchased: new Set() });
     dailyMap.get(date)!.purchased.add(row.id);
   }
-  const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, sets]) => ({ date, started: sets.started.size, completed: sets.completed.size, emailSubmitted: sets.emailSubmitted.size, purchased: sets.purchased.size }));
+  const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([date, sets]) => ({ date, started: sets.started.size, completed: sets.completed.size, emailSubmitted: sets.emailSubmitted.size, purchased: sets.purchased.size }));
 
   // Archetype + trait pair distribution
   const sinceDate = new Date(sinceTs);
