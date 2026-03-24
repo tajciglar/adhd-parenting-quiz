@@ -403,7 +403,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     if (!eventSessions.has(row.event_type)) eventSessions.set(row.event_type, new Set());
     eventSessions.get(row.event_type)!.add(row.session_id);
   }
-  const quizStarted = eventSessions.get("step_viewed")?.size ?? 0;
+  const quizStarted = stepCounts.get(1)?.size ?? eventSessions.get("step_viewed")?.size ?? 0;
   const quizCompleted = eventSessions.get("quiz_completed")?.size ?? 0;
   const emailSubmitted = eventSessions.get("optin_completed")?.size ?? 0;
   const checkoutStarted = (eventSessions.get("wp_checkout_redirect")?.size ?? 0) + (eventSessions.get("checkout_started")?.size ?? 0);
@@ -413,7 +413,9 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   const purchased = Math.max(purchaseCompleted, paidSubmissions);
   const funnelSummary = {
     quizStarted, quizCompleted, emailSubmitted, checkoutStarted, purchaseCompleted: purchased,
-    quizCompletionRate: pct(quizCompleted, quizStarted), checkoutRate: pct(checkoutStarted, emailSubmitted),
+    quizCompletionRate: pct(quizCompleted, quizStarted),
+    emailSubmitRate: pct(emailSubmitted, quizCompleted),
+    checkoutRate: pct(checkoutStarted, emailSubmitted),
     purchaseRate: pct(purchased, checkoutStarted), overallConversion: pct(purchased, quizStarted),
   };
 
