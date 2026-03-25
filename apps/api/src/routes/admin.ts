@@ -1,7 +1,7 @@
 import { createHmac, randomUUID } from "crypto";
 import type { FastifyInstance } from "fastify";
 import { getAllReportTemplates } from "@adhd-parenting-quiz/shared";
-import { getAnalytics, resetAnalytics, checkRescoreMismatches, applyRescore, applyRescoreAndResend, getRescoredPdfLinks, getSupabaseAdmin, allRows } from "../services/supabaseAdmin.js";
+import { getAnalytics, resetAnalytics, checkRescoreMismatches, applyRescore, applyRescoreAndResend, getRescoredPdfLinks, getSupabaseAdmin, allRows, fetchPdfUrlMismatches, applyPdfUrlFix } from "../services/supabaseAdmin.js";
 
 function generatePdfUrl(opts: { archetypeId: string; childName: string; childGender?: string }): string {
   const baseUrl = (process.env.API_BASE_URL ?? "http://localhost:3000").trim().replace(/\/$/, "");
@@ -99,6 +99,89 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       request.log.error({ err }, "admin.rescore_resend.failed");
       return reply.status(500).send({ error: "Failed to rescore and generate new PDF links" });
     }
+  });
+
+  // ── GET /api/admin/pdf-url-check ─────────────────────────────────────────
+  // Read-only: find submissions where pdf_url encodes a different archetype than archetype_id.
+  // Useful after a rescore that updated archetype_id but left pdf_url unchanged.
+  fastify.get("/admin/pdf-url-check", async (request, reply) => {
+    try {
+      const result = await fetchPdfUrlMismatches();
+      return reply.send(result);
+    } catch (err) {
+      request.log.error({ err }, "admin.pdf_url_check.failed");
+      return reply.status(500).send({ error: "Failed to check pdf url mismatches" });
+    }
+  });
+
+  // ── POST /api/admin/resync-ac-urls ────────────────────────────────────────
+  // Fixes pdf_url in Supabase AND updates the PDF_URL custom field in AC for all
+  // submissions where pdf_url encodes the wrong archetype (e.g. after a rescore).
+  fastify.post("/admin/resync-ac-urls", async (request, reply) => {
+    const apiUrl = process.env.AC_API_URL?.replace(/\/$/, "");
+    const apiKey = process.env.AC_API_KEY;
+
+    // Fix Supabase pdf_url first
+    const result = await applyPdfUrlFix(
+      (archetypeId, childName, childGender) =>
+        generatePdfUrl({ archetypeId, childName, childGender }),
+    ).catch((err: unknown) => {
+      request.log.error({ err }, "admin.resync_ac_urls.fix_failed");
+      return null;
+    });
+
+    if (!result) return reply.status(500).send({ error: "Failed to fix pdf_url in database" });
+
+    // If AC is not configured, return DB-only results
+    if (!apiUrl || !apiKey) {
+      return reply.send({ ...result, acUpdated: 0, acNote: "AC not configured" });
+    }
+
+    const headers = { "Content-Type": "application/json", "Api-Token": apiKey };
+
+    // Find the PDF_URL field id once
+    let fieldId = "";
+    try {
+      const searchRes = await fetch(`${apiUrl}/api/3/fields?limit=100`, { headers });
+      const searchData = (await searchRes.json()) as { fields: Array<{ id: number | string; perstag: string }> };
+      fieldId = String(searchData.fields.find((f) => f.perstag.replace(/%/g, "") === "PDF_URL")?.id ?? "");
+    } catch (err) {
+      request.log.error({ err }, "admin.resync_ac_urls.field_lookup_failed");
+      return reply.send({ ...result, acUpdated: 0, acNote: "Failed to look up PDF_URL field in AC" });
+    }
+
+    if (!fieldId || fieldId === "undefined") {
+      return reply.send({ ...result, acUpdated: 0, acNote: "PDF_URL field not found in AC" });
+    }
+
+    let acUpdated = 0;
+    for (const change of result.changes) {
+      try {
+        // Look up contact by email
+        const contactRes = await fetch(`${apiUrl}/api/3/contact/sync`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ contact: { email: change.email } }),
+        });
+        if (!contactRes.ok) continue;
+        const contactData = (await contactRes.json()) as { contact: { id: number | string } };
+        const contactId = String(contactData.contact.id);
+
+        // Update PDF_URL field
+        const fvRes = await fetch(`${apiUrl}/api/3/fieldValues`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ fieldValue: { contact: contactId, field: fieldId, value: change.newPdfUrl } }),
+        });
+        if (fvRes.ok) acUpdated++;
+        else request.log.warn({ email: change.email, status: fvRes.status }, "admin.resync_ac_urls.field_value_failed");
+      } catch (err) {
+        request.log.error({ err, email: change.email }, "admin.resync_ac_urls.contact_update_failed");
+      }
+    }
+
+    request.log.info({ dbUpdated: result.updated, acUpdated }, "admin.resync_ac_urls.done");
+    return reply.send({ ...result, acUpdated });
   });
 
   // ── POST /api/admin/reset ───────────────────────────────────────────────

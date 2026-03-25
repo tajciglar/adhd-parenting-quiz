@@ -651,3 +651,78 @@ export async function getRescoredPdfLinks(
   }));
   return { total, count: links.length, links };
 }
+
+export interface PdfUrlMismatch {
+  id: string;
+  email: string;
+  childName: string;
+  childGender: string;
+  archetypeId: string;
+  oldPdfUrl: string;
+}
+
+/**
+ * Finds submissions where the archetype encoded in pdf_url differs from the current archetype_id.
+ * Useful after a rescore that updated archetype_id but left pdf_url unchanged.
+ */
+export async function fetchPdfUrlMismatches(): Promise<{ total: number; mismatches: PdfUrlMismatch[] }> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return { total: 0, mismatches: [] };
+
+  const { data: rows, error } = await sb
+    .from("quiz_submissions")
+    .select("id, email, child_name, child_gender, archetype_id, pdf_url");
+
+  if (error || !rows) throw new Error(`Failed to fetch submissions: ${error?.message}`);
+
+  const mismatches: PdfUrlMismatch[] = [];
+  for (const row of rows) {
+    if (!row.pdf_url || !row.archetype_id) continue;
+    try {
+      const url = new URL(row.pdf_url);
+      const data = url.searchParams.get("data");
+      if (!data) continue;
+      const payload = JSON.parse(Buffer.from(data, "base64url").toString("utf8")) as { archetypeId?: string };
+      if (payload.archetypeId !== row.archetype_id) {
+        mismatches.push({
+          id: row.id,
+          email: row.email,
+          childName: row.child_name ?? "",
+          childGender: row.child_gender ?? "Other",
+          archetypeId: row.archetype_id,
+          oldPdfUrl: row.pdf_url,
+        });
+      }
+    } catch {
+      // skip rows with malformed pdf_url
+    }
+  }
+
+  return { total: rows.length, mismatches };
+}
+
+/**
+ * For each pdf_url mismatch: generates a new correct URL, updates Supabase, and returns the results.
+ * AC update is handled by the caller (admin route) since it needs env vars and logging.
+ */
+export async function applyPdfUrlFix(
+  pdfUrlGenerator: (archetypeId: string, childName: string, childGender: string) => string,
+): Promise<{ total: number; updated: number; changes: Array<PdfUrlMismatch & { newPdfUrl: string }> }> {
+  const sb = getSupabaseAdmin();
+  if (!sb) return { total: 0, updated: 0, changes: [] };
+
+  const { total, mismatches } = await fetchPdfUrlMismatches();
+  const applied: Array<PdfUrlMismatch & { newPdfUrl: string }> = [];
+
+  for (const m of mismatches) {
+    const newPdfUrl = pdfUrlGenerator(m.archetypeId, m.childName, m.childGender);
+    const { error } = await sb
+      .from("quiz_submissions")
+      .update({ pdf_url: newPdfUrl })
+      .eq("id", m.id);
+
+    if (!error) applied.push({ ...m, newPdfUrl });
+  }
+
+  return { total, updated: applied.length, changes: applied };
+}
