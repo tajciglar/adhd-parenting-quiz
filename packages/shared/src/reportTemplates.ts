@@ -715,7 +715,7 @@ const REPORT_TEMPLATES: Record<string, ArchetypeReportTemplate> = {
       "Adults who are consistent, transparent, and willing to explain their reasoning",
       "Being recognised as someone with genuine courage and principle"
     ],
-    "title": "THE JUST ELEPHANT",
+    "title": "THE JUSTICE ELEPHANT",
     "drains": [
       "Rules that are applied inconsistently or without explanation",
       "Feeling dismissed or minimised when raising a genuine concern",
