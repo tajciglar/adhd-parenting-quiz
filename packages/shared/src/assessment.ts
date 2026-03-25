@@ -262,7 +262,7 @@ export const ARCHETYPES: Archetype[] = [
   {
     id: "elephant",
     animal: "The Elephant",
-    typeName: "The Just Elephant",
+    typeName: "The Justice Elephant",
     primaryTrait: ["emotional", "social"],
     explanation: "Emotional + Social profile.",
     traits: "Deep sense of fairness, strong emotional reactions to perceived injustice, reads the room intensely.",
