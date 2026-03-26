@@ -9,7 +9,7 @@ export default function ProgressBar({ current }: ProgressBarProps) {
   const percentage = Math.min((current / TOTAL_STEPS) * 100, 100);
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-1.5 bg-harbor-primary/20 z-50">
+    <div className="w-full h-1.5 bg-harbor-primary/20">
       <motion.div
         className="h-full bg-harbor-primary"
         initial={false}

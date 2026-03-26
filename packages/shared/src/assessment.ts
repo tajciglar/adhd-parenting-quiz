@@ -44,11 +44,11 @@ export interface BasicInfoQuestion {
 export const BASIC_INFO_QUESTIONS: BasicInfoQuestion[] = [
   {
     type: "single-select",
-    key: "caregiverType",
-    title: "You are",
+    key: "childGender",
+    title: "I'm here for...",
     emoji: "",
-    options: ["Mom", "Dad", "Grandma / Grandpa", "Other Caregiver"],
-    optionEmojis: ["👩", "👨", "👴", "🧑"],
+    options: ["My Son", "My Daughter"],
+    optionEmojis: ["👦", "👧"],
   },
   {
     type: "single-select",
@@ -57,14 +57,6 @@ export const BASIC_INFO_QUESTIONS: BasicInfoQuestion[] = [
     emoji: "🎂",
     options: ["3-5", "6-8", "9-11", "12-14", "15+"],
     optionEmojis: ["👶", "🧒", "👦", "🧑‍🎓", "🎓"],
-  },
-  {
-    type: "single-select",
-    key: "childGender",
-    title: "You are raising:",
-    emoji: "👶",
-    options: ["A Boy", "A Girl", "A Non-binary/Other"],
-    optionEmojis: ["👦", "👧", "🌈"],
   },
   {
     type: "single-select",
@@ -82,14 +74,16 @@ export const BASIC_INFO_QUESTIONS: BasicInfoQuestion[] = [
     options: ["School (public or private)", "Homeschool", "Other"],
     optionEmojis: ["🏫", "🏠", "📚"],
   },
-  {
-    type: "text",
-    key: "childName",
-    title: "What's your child's first name?",
-    emoji: "🌟",
-    placeholder: "e.g. Emma",
-  },
 ];
+
+/** childName is asked after all assessment questions (last step) */
+export const CHILD_NAME_QUESTION: BasicInfoQuestion = {
+  type: "text",
+  key: "childName",
+  title: "What's your child's first name?",
+  emoji: "🌟",
+  placeholder: "e.g. Emma",
+};
 
 // ─── Assessment Categories (steps 7-37) ─────────────────────────────────────
 
@@ -104,7 +98,7 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
     id: "inattentive",
     subtitle: "Inattentive Traits",
     questions: [
-      "{childName} has trouble sustaining attention during tasks.",
+      "Your child has trouble sustaining attention during tasks.",
       "Makes careless mistakes in schoolwork or chores.",
       "Zones out when spoken to directly, even in a quiet setting.",
       'Fails to finish instructions or complete "boring" tasks.',
@@ -448,8 +442,8 @@ export const ARCHETYPES: Archetype[] = [
 
 // ─── Step Configuration ─────────────────────────────────────────────────────
 
-export const TOTAL_STEPS = 44;
-const BASIC_INFO_COUNT = BASIC_INFO_QUESTIONS.length; // 6
+export const TOTAL_STEPS = 43; // 4 basic + 38 likert + 1 childName
+const BASIC_INFO_COUNT = BASIC_INFO_QUESTIONS.length; // 4
 
 /** Flat list of all Likert questions with their category info */
 export interface LikertStepConfig {
@@ -485,6 +479,13 @@ export function getStepConfig(step: number): StepConfig {
     return {
       type: "basic-info",
       question: BASIC_INFO_QUESTIONS[step - 1],
+    };
+  }
+  // Last step is childName
+  if (step === TOTAL_STEPS) {
+    return {
+      type: "basic-info",
+      question: CHILD_NAME_QUESTION,
     };
   }
   const likertIndex = step - BASIC_INFO_COUNT - 1;
@@ -708,7 +709,8 @@ export const GIRL_VARIANTS: Record<string, string> = {
 };
 
 export function applyGenderVariant(archetypeId: string, gender?: string): string {
-  if (gender === "A Girl" && GIRL_VARIANTS[archetypeId]) {
+  const isGirl = gender === "A Girl" || gender === "My Daughter";
+  if (isGirl && GIRL_VARIANTS[archetypeId]) {
     return GIRL_VARIANTS[archetypeId];
   }
   return archetypeId;

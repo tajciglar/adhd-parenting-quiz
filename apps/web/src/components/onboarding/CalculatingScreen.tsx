@@ -6,14 +6,41 @@ import type { OnboardingResponses } from "../../types/onboarding";
 
 const ANALYSIS_SECTION_TEMPLATES = [
   "Reviewing attention patterns…",
-  "Mapping sensory responses…",
   "Identifying emotional profile…",
   "Matching executive function traits…",
-  "Cross-referencing social patterns…",
   "Finding {name}'s ADHD Personality Type",
 ];
 
-type Phase = "analyzing" | "found";
+const TESTIMONIALS = [
+  {
+    name: "Frederick",
+    text: "Skeptical at first, but the accuracy amazed me. It's helping me parent my daughter the way she needs.",
+  },
+  {
+    name: "Vanessa",
+    text: "My son took the assessment with me so that I could make sure the questions were answered accurately and not just from my perspective. He read the final report and said, \"How do they know who I am?!\"",
+  },
+  {
+    name: "Fiona",
+    text: "By the end of page 3, I burst into tears. But those were tears of awareness after knowing that there's nothing wrong with any of us, but only wired differently. And unconditional love is the answer to almost any issue.",
+  },
+  {
+    name: "Kim",
+    text: "What I learned about my child boosted my confidence in parenting.",
+  },
+];
+
+function FiveStars() {
+  return (
+    <div className="flex items-center justify-center gap-0.5">
+      {[...Array(5)].map((_, i) => (
+        <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
 
 export default function CalculatingScreen({
   responses,
@@ -24,7 +51,6 @@ export default function CalculatingScreen({
   const childName = ((responses.childName as string | undefined) ?? "your child").trim();
   const childGender = responses.childGender as string | undefined;
 
-  const [phase, setPhase] = useState<Phase>("analyzing");
   const ANALYSIS_SECTIONS = ANALYSIS_SECTION_TEMPLATES.map((t) =>
     t.replace("{name}", childName),
   );
@@ -33,7 +59,7 @@ export default function CalculatingScreen({
     () => ANALYSIS_SECTION_TEMPLATES.map(() => 0),
   );
   const [activeSection, setActiveSection] = useState(0);
-  const [bullseyeScale, setBullseyeScale] = useState(0);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   // Compute archetype client-side
   const traitProfile = useMemo(
@@ -45,18 +71,17 @@ export default function CalculatingScreen({
     [traitProfile.archetypeId],
   );
 
-  // Section-by-section progress: each fills 0→100 sequentially, ~6s total (1s shorter)
+  // Section-by-section progress: 4 sections × 3s each = 12s total
   useEffect(() => {
-    if (phase !== "analyzing") return;
     const totalSections = ANALYSIS_SECTIONS.length;
-    const perSection = 700; // ~0.7s per section (~4.2s total)
+    const perSection = 3000; // 3s per section
     const tickInterval = 30;
     const ticksPerSection = perSection / tickInterval;
     let currentSection = 0;
     let tick = 0;
 
     let holdTicks = 0;
-    const holdDuration = 4; // shorter hold between sections
+    const holdDuration = 4;
 
     const timer = setInterval(() => {
       if (holdTicks > 0) {
@@ -65,7 +90,23 @@ export default function CalculatingScreen({
           currentSection++;
           if (currentSection >= totalSections) {
             clearInterval(timer);
-            setTimeout(() => setPhase("found"), 300);
+            // Navigate after completion
+            setTimeout(() => {
+              sessionStorage.setItem("wildprint_responses", JSON.stringify(responses));
+              sessionStorage.setItem("wildprint_childName", childName);
+              sessionStorage.setItem("wildprint_childGender", childGender ?? "");
+              sessionStorage.setItem("wildprint_archetypeId", archetype.id);
+              clearOnboardingStorage();
+              navigate("/results", {
+                replace: true,
+                state: {
+                  responses,
+                  childName,
+                  childGender,
+                  archetypeId: archetype.id,
+                },
+              });
+            }, 500);
           }
         }
         return;
@@ -88,78 +129,18 @@ export default function CalculatingScreen({
     }, tickInterval);
 
     return () => clearInterval(timer);
-  }, [phase]);
+  }, []);
 
-  // "We found it" — expanding bullseye animation then navigate
+  // Cycle testimonials every 3s (in sync with sections)
   useEffect(() => {
-    if (phase !== "found") return;
+    const timer = setInterval(() => {
+      setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
 
-    // Animate bullseye scale: 0 → 1 over 0.6s via CSS transition
-    const scaleTimer = requestAnimationFrame(() => setBullseyeScale(1));
-
-    const timer = setTimeout(() => {
-      // Store responses in sessionStorage so the sales page can submit to API
-      sessionStorage.setItem("wildprint_responses", JSON.stringify(responses));
-      sessionStorage.setItem("wildprint_childName", childName);
-      sessionStorage.setItem("wildprint_childGender", childGender ?? "");
-      sessionStorage.setItem("wildprint_archetypeId", archetype.id);
-
-      clearOnboardingStorage();
-
-      navigate("/results", {
-        replace: true,
-        state: {
-          responses,
-          childName,
-          childGender,
-          archetypeId: archetype.id,
-        },
-      });
-    }, 2500);
-    return () => {
-      clearTimeout(timer);
-      cancelAnimationFrame(scaleTimer);
-    };
-  }, [phase, responses, childName, childGender, archetype.id, navigate]);
-
-  // ─── "We found it" frame ────────────────────────────────────────────────
-  if (phase === "found") {
-    return (
-      <div className="h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-12 overflow-hidden">
-        <div className="max-w-sm w-full space-y-6 text-center">
-          {/* Expanding bullseye */}
-          <div
-            className="text-7xl mx-auto transition-transform duration-700 ease-out"
-            style={{ transform: `scale(${bullseyeScale})` }}
-          >
-            🎯
-          </div>
-          <h2
-            className="text-2xl font-bold text-harbor-primary"
-            style={{ animation: "fadeInUp 0.6s ease-out 0.3s both" }}
-          >
-            We found it!
-          </h2>
-          <p
-            className="text-harbor-text/60 text-sm"
-            style={{ animation: "fadeInUp 0.5s ease-out 0.6s both" }}
-          >
-            {childName}'s ADHD personality profile is ready
-          </p>
-        </div>
-        <style>{`
-          @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: none; }
-          }
-        `}</style>
-      </div>
-    );
-  }
-
-  // ─── Analyzing phase ──────────────────────────────────────────────────────
   return (
-    <div className="h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-12 overflow-hidden">
+    <div className="min-h-[100dvh] bg-harbor-bg flex flex-col items-center justify-center px-6 py-12 overflow-hidden">
       <div className="max-w-sm w-full space-y-8 text-center">
         <div className="space-y-3">
           <div className="text-5xl animate-pulse">🧠</div>
@@ -168,6 +149,7 @@ export default function CalculatingScreen({
           </h2>
         </div>
 
+        {/* Progress sections */}
         <div className="space-y-3 text-left">
           {ANALYSIS_SECTIONS.map((label, i) => {
             const rawPct = sectionProgress[i];
@@ -217,7 +199,31 @@ export default function CalculatingScreen({
             );
           })}
         </div>
+
+        {/* Testimonials */}
+        <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-5 space-y-3 min-h-[160px] flex flex-col items-center justify-center overflow-hidden">
+          <FiveStars />
+          <div
+            key={activeTestimonial}
+            className="text-center space-y-2"
+            style={{ animation: "slideInRight 0.5s ease-out both" }}
+          >
+            <p className="text-sm text-harbor-text leading-relaxed italic">
+              &ldquo;{TESTIMONIALS[activeTestimonial].text}&rdquo;
+            </p>
+            <p className="text-xs font-semibold text-harbor-primary">
+              — {TESTIMONIALS[activeTestimonial].name}
+            </p>
+          </div>
+        </div>
       </div>
+
+      <style>{`
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(40px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
     </div>
   );
 }

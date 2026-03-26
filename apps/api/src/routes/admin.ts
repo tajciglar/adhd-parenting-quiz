@@ -46,6 +46,53 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     }
   });
 
+  // ── GET /api/admin/daily-step-dropoff ────────────────────────────────────
+  fastify.get("/admin/daily-step-dropoff", async (request, reply) => {
+    const { date } = request.query as { date?: string };
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return reply.status(400).send({ error: "date query param required (YYYY-MM-DD)" });
+    }
+
+    try {
+      const sb = getSupabaseAdmin();
+      if (!sb) return reply.status(503).send({ error: "Database not configured" });
+
+      const dayStart = `${date}T00:00:00.000Z`;
+      const dayEnd = `${date}T23:59:59.999Z`;
+
+      const { data: rows } = await sb
+        .from("funnel_events")
+        .select("session_id, step_number")
+        .eq("event_type", "step_viewed")
+        .gte("created_at", dayStart)
+        .lte("created_at", dayEnd)
+        .not("is_test", "eq", true);
+
+      // Count unique sessions per step
+      const stepSessions = new Map<number, Set<string>>();
+      for (const row of rows ?? []) {
+        if (row.step_number == null) continue;
+        if (!stepSessions.has(row.step_number)) stepSessions.set(row.step_number, new Set());
+        stepSessions.get(row.step_number)!.add(row.session_id);
+      }
+
+      const sortedSteps = [...stepSessions.entries()]
+        .map(([step, sessions]) => ({ step, views: sessions.size }))
+        .sort((a, b) => a.step - b.step);
+
+      const stepDropoff = sortedSteps.map((item, i) => {
+        const prev = i > 0 ? sortedSteps[i - 1].views : item.views;
+        const dropoffRate = prev > 0 ? Number((((prev - item.views) / prev) * 100).toFixed(1)) : 0;
+        return { ...item, dropoffRate };
+      });
+
+      return reply.send({ date, stepDropoff });
+    } catch (err) {
+      request.log.error({ err }, "admin.daily_step_dropoff.failed");
+      return reply.status(500).send({ error: "Failed to fetch daily step dropoff" });
+    }
+  });
+
   // ── GET /api/admin/rescore-check ─────────────────────────────────────────
   fastify.get("/admin/rescore-check", async (request, reply) => {
     try {

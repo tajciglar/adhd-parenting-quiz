@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useOnboarding } from "../../hooks/useOnboarding";
-import { TOTAL_STEPS } from "../../lib/constants";
-import { getStepConfig, ASSESSMENT_CATEGORIES, BASIC_INFO_QUESTIONS } from "@adhd-parenting-quiz/shared";
+import { TOTAL_STEPS, getStepConfig, ASSESSMENT_CATEGORIES, BASIC_INFO_QUESTIONS } from "@adhd-parenting-quiz/shared";
 import type { CategoryId } from "@adhd-parenting-quiz/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
 import { trackFunnelEvent } from "../../lib/analytics";
@@ -15,7 +14,10 @@ import InterstitialScreen from "./InterstitialScreen";
 import HalfwayScreen from "./HalfwayScreen";
 
 // Derived from shared package so it stays in sync automatically
-const BASIC_INFO_COUNT = BASIC_INFO_QUESTIONS.length;
+const BASIC_INFO_COUNT = BASIC_INFO_QUESTIONS.length; // 4
+
+// childName is the last step (TOTAL_STEPS = 43)
+const NAME_STEP = TOTAL_STEPS;
 
 // Halfway step: show after sensory category (3rd category)
 const HALFWAY_STEP = BASIC_INFO_COUNT +
@@ -28,7 +30,6 @@ const INTERSTITIAL_TRIGGER_STEPS = new Map<number, CategoryId>();
   for (let i = 0; i < ASSESSMENT_CATEGORIES.length - 1; i++) {
     offset += ASSESSMENT_CATEGORIES[i].questions.length;
     const catId = ASSESSMENT_CATEGORIES[i].id as CategoryId;
-    // Show interstitials after inattentive, emotional, and executive_function
     if (catId === "inattentive" || catId === "emotional" || catId === "executive_function") {
       INTERSTITIAL_TRIGGER_STEPS.set(offset, catId);
     }
@@ -59,11 +60,9 @@ function isStepValid(step: number, responses: OnboardingResponses): boolean {
 }
 
 function IntroScreen({
-  childName,
   objPronoun,
   onReady,
 }: {
-  childName: string;
   objPronoun: string;
   onReady: () => void;
 }) {
@@ -74,7 +73,7 @@ function IntroScreen({
           <div className="text-center">
             <div className="text-4xl mb-4">🔍</div>
             <h2 className="text-xl font-bold text-harbor-primary leading-snug">
-              Great! Let's find {childName}'s ADHD Personality Type.
+              Great! Let's find your child's ADHD Personality Type.
             </h2>
           </div>
 
@@ -86,8 +85,8 @@ function IntroScreen({
 
           <p className="text-harbor-text leading-relaxed text-center">
             Answer based on what you see at home, not what you hope for or what
-            happens on a good day. The more honest you are, the more accurate{" "}
-            {childName}'s profile will be.
+            happens on a good day. The more honest you are, the more accurate
+            your child's profile will be.
           </p>
 
           <button
@@ -127,14 +126,34 @@ export default function OnboardingPage() {
     }
   }, [currentStep]);
 
-  const childName = ((responses.childName as string | undefined) ?? "your child").trim();
   const gender = ((responses.childGender as string) ?? "").toLowerCase();
-  const objPronoun = gender.includes("boy") ? "him" : gender.includes("girl") ? "her" : "them";
+  const objPronoun = gender.includes("boy") || gender.includes("son") ? "him" : gender.includes("girl") || gender.includes("daughter") ? "her" : "them";
 
   const handleShowCalculating = useCallback(() => {
     trackFunnelEvent("quiz_completed");
     setShowCalculating(true);
   }, []);
+
+  // Determine what happens after a step completes
+  const advanceFromStep = useCallback(
+    (step: number) => {
+      // After last likert question (step before NAME_STEP), go to name step
+      // After name step, show calculating
+      if (step === NAME_STEP) {
+        handleShowCalculating();
+      } else if (step === BASIC_INFO_COUNT) {
+        // After last basic info question, show intro screen
+        setShowIntro(true);
+      } else if (step === HALFWAY_STEP) {
+        setShowHalfway(true);
+      } else if (INTERSTITIAL_TRIGGER_STEPS.has(step)) {
+        setInterstitialCategory(INTERSTITIAL_TRIGGER_STEPS.get(step)!);
+      } else {
+        goNext();
+      }
+    },
+    [goNext, handleShowCalculating],
+  );
 
   const handleAnswer = useCallback(
     (
@@ -162,22 +181,10 @@ export default function OnboardingPage() {
         config.type === "likert";
 
       if (shouldAutoAdvance) {
-        setTimeout(() => {
-          if (step === TOTAL_STEPS) {
-            handleShowCalculating();
-          } else if (step === BASIC_INFO_COUNT) {
-            setShowIntro(true);
-          } else if (step === HALFWAY_STEP) {
-            setShowHalfway(true);
-          } else if (INTERSTITIAL_TRIGGER_STEPS.has(step)) {
-            setInterstitialCategory(INTERSTITIAL_TRIGGER_STEPS.get(step)!);
-          } else {
-            goNext();
-          }
-        }, 400);
+        setTimeout(() => advanceFromStep(step), 400);
       }
     },
-    [saveAnswer, goNext, handleShowCalculating],
+    [saveAnswer, advanceFromStep],
   );
 
   if (showCalculating) {
@@ -187,7 +194,7 @@ export default function OnboardingPage() {
   if (showHalfway) {
     return (
       <HalfwayScreen
-        childName={childName}
+        childName="your child"
         onContinue={() => {
           setShowHalfway(false);
           goNext();
@@ -200,7 +207,7 @@ export default function OnboardingPage() {
     return (
       <InterstitialScreen
         categoryId={interstitialCategory}
-        childName={childName}
+        childName="your child"
         onContinue={() => {
           setInterstitialCategory(null);
           goNext();
@@ -212,7 +219,6 @@ export default function OnboardingPage() {
   if (showIntro) {
     return (
       <IntroScreen
-        childName={childName}
         objPronoun={objPronoun}
         onReady={() => {
           setShowIntro(false);
@@ -236,21 +242,9 @@ export default function OnboardingPage() {
       saveStatus="idle"
       canContinue={canContinue}
       showContinue={showContinue}
-      hideBack={currentStep === 5}
+      hideBack={currentStep === 1}
       onBack={goBack}
-      onContinue={() => {
-        if (currentStep === TOTAL_STEPS) {
-          handleShowCalculating();
-        } else if (currentStep === BASIC_INFO_COUNT) {
-          setShowIntro(true);
-        } else if (currentStep === HALFWAY_STEP) {
-          setShowHalfway(true);
-        } else if (INTERSTITIAL_TRIGGER_STEPS.has(currentStep)) {
-          setInterstitialCategory(INTERSTITIAL_TRIGGER_STEPS.get(currentStep)!);
-        } else {
-          goNext();
-        }
-      }}
+      onContinue={() => advanceFromStep(currentStep)}
     >
       <AnimationWrapper stepKey={currentStep} direction={direction}>
         <MicroCopy step={currentStep} />
