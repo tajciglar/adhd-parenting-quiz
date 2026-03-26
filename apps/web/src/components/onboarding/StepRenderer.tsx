@@ -84,8 +84,13 @@ export default function StepRenderer({
         return null;
     }
 
-    // ─── Landing page (step 1): hero + first question ───────────────────
-    if (step === 1) {
+    // ─── Landing page (step 1): photo card grid ───────────────────────────
+    if (step === 1 && q.key === "childGender") {
+      const GENDER_CARDS: Array<{ value: string; label: string; image: string; emoji: string }> = [
+        { value: "My Son", label: "My Son", image: "/landing/boy.png", emoji: "👦" },
+        { value: "My Daughter", label: "My Daughter", image: "/landing/girl.png", emoji: "👧" },
+      ];
+
       return (
         <div className="space-y-6">
           <div className="text-center space-y-3">
@@ -97,7 +102,42 @@ export default function StepRenderer({
             </p>
           </div>
 
-          {inner}
+          <div className="text-center">
+            <h2 className="text-lg font-semibold text-harbor-text">{title}</h2>
+          </div>
+
+          {/* 2-card photo grid */}
+          <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
+            {GENDER_CARDS.map((card) => (
+              <button
+                key={card.value}
+                onClick={() => onAnswer(step, q.key, card.value, true)}
+                className="group relative rounded-2xl border-2 border-harbor-primary/15 overflow-hidden transition-all duration-200 hover:border-harbor-primary/40 hover:shadow-md active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-harbor-primary/30 aspect-[4/5] bg-black"
+              >
+                <img
+                  src={card.image}
+                  alt={card.label}
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                    const parent = (e.target as HTMLImageElement).parentElement;
+                    if (parent) {
+                      const fallback = document.createElement("span");
+                      fallback.className = "absolute inset-0 flex items-center justify-center text-6xl bg-harbor-bg";
+                      fallback.textContent = card.emoji;
+                      parent.appendChild(fallback);
+                    }
+                  }}
+                />
+                <div className="absolute bottom-[-2px] left-[-2px] right-[-2px] px-3 py-2.5 rounded-b-2xl bg-harbor-primary text-white font-medium text-sm flex items-center justify-between">
+                  <span>{card.label}</span>
+                  <svg className="w-4 h-4 opacity-70 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </button>
+            ))}
+          </div>
 
           <div className="text-center space-y-3 max-w-lg mx-auto">
             <p className="text-xs text-harbor-text/60 leading-relaxed italic">
