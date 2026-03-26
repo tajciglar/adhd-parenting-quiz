@@ -98,7 +98,7 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
     id: "inattentive",
     subtitle: "Inattentive Traits",
     questions: [
-      "Your child has trouble sustaining attention during tasks.",
+      "{Sub} has trouble sustaining attention during tasks.",
       "Makes careless mistakes in schoolwork or chores.",
       "Zones out when spoken to directly, even in a quiet setting.",
       'Fails to finish instructions or complete "boring" tasks.',
@@ -152,7 +152,7 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
       "Forgets what {sub} {was} doing mid-task (example: sent to get shoes, found playing instead).",
       "Seems to have no concept of 5 minutes vs 30 minutes.",
       "Struggles with multi-step directions (example: 'Get your bag, put on shoes, and come downstairs').",
-      "Gets so absorbed in a favourite activity {sub} {is} shocked when told how much time has passed.",
+      "{gets} so absorbed in a favourite activity {sub} {is} shocked when told how much time has passed.",
       "Can't seem to start a task without someone sitting with {obj}, even when {sub} {knows} what to do.",
     ],
   },

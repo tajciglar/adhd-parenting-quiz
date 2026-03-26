@@ -1,14 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { clearOnboardingStorage } from "../../hooks/useOnboarding";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { computeTraitProfile, ARCHETYPES } from "@adhd-parenting-quiz/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
 
-const ANALYSIS_SECTION_TEMPLATES = [
+const ANALYSIS_SECTIONS = [
   "Reviewing attention patterns…",
   "Identifying emotional profile…",
   "Matching executive function traits…",
-  "Finding {name}'s ADHD Personality Type",
+  "Finding your child's ADHD Personality Type",
 ];
 
 const TESTIMONIALS = [
@@ -44,22 +42,27 @@ function FiveStars() {
 
 export default function CalculatingScreen({
   responses,
+  onNameSubmit,
+  onComplete,
 }: {
   responses: OnboardingResponses;
+  onNameSubmit: (name: string) => void;
+  onComplete: (data: { childName: string; childGender: string; archetypeId: string }) => void;
 }) {
-  const navigate = useNavigate();
-  const childName = ((responses.childName as string | undefined) ?? "your child").trim();
   const childGender = responses.childGender as string | undefined;
 
-  const ANALYSIS_SECTIONS = ANALYSIS_SECTION_TEMPLATES.map((t) =>
-    t.replace("{name}", childName),
-  );
-
   const [sectionProgress, setSectionProgress] = useState<number[]>(
-    () => ANALYSIS_SECTION_TEMPLATES.map(() => 0),
+    () => ANALYSIS_SECTIONS.map(() => 0),
   );
   const [activeSection, setActiveSection] = useState(0);
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [showNamePopup, setShowNamePopup] = useState(false);
+  const [nameValue, setNameValue] = useState("");
+  const [childName, setChildName] = useState(
+    ((responses.childName as string | undefined) ?? "").trim(),
+  );
+  const pausedRef = useRef(false);
+  const nameSubmittedRef = useRef(!!childName);
+  const childNameRef = useRef(childName);
 
   // Compute archetype client-side
   const traitProfile = useMemo(
@@ -71,12 +74,14 @@ export default function CalculatingScreen({
     [traitProfile.archetypeId],
   );
 
-  // Section-by-section progress: 4 sections × 3s each = 12s total
+  const finalChildName = childName || "your child";
+
+  // Section speeds: first 2 at 5s (before name popup), last 2 at 3s (after popup)
+  const SECTION_DURATIONS = [5000, 5000, 3000, 3000];
+
   useEffect(() => {
     const totalSections = ANALYSIS_SECTIONS.length;
-    const perSection = 3000; // 3s per section
     const tickInterval = 30;
-    const ticksPerSection = perSection / tickInterval;
     let currentSection = 0;
     let tick = 0;
 
@@ -84,27 +89,21 @@ export default function CalculatingScreen({
     const holdDuration = 4;
 
     const timer = setInterval(() => {
+      // Pause while name popup is showing
+      if (pausedRef.current) return;
+
       if (holdTicks > 0) {
         holdTicks--;
         if (holdTicks === 0) {
           currentSection++;
           if (currentSection >= totalSections) {
             clearInterval(timer);
-            // Navigate after completion
+            // Signal completion — parent handles next screen
             setTimeout(() => {
-              sessionStorage.setItem("wildprint_responses", JSON.stringify(responses));
-              sessionStorage.setItem("wildprint_childName", childName);
-              sessionStorage.setItem("wildprint_childGender", childGender ?? "");
-              sessionStorage.setItem("wildprint_archetypeId", archetype.id);
-              clearOnboardingStorage();
-              navigate("/results", {
-                replace: true,
-                state: {
-                  responses,
-                  childName,
-                  childGender,
-                  archetypeId: archetype.id,
-                },
+              onComplete({
+                childName: childNameRef.current || "your child",
+                childGender: childGender ?? "",
+                archetypeId: archetype.id,
               });
             }, 500);
           }
@@ -113,6 +112,7 @@ export default function CalculatingScreen({
       }
 
       tick++;
+      const ticksPerSection = (SECTION_DURATIONS[currentSection] ?? 5000) / tickInterval;
       const pct = Math.min(100, Math.round((tick / ticksPerSection) * 100));
 
       setSectionProgress((prev) => {
@@ -125,27 +125,39 @@ export default function CalculatingScreen({
       if (pct >= 100) {
         tick = 0;
         holdTicks = holdDuration;
+
+        // After section 2 completes (index 1), show name popup if not already submitted
+        if (currentSection === 1 && !nameSubmittedRef.current) {
+          pausedRef.current = true;
+          setShowNamePopup(true);
+        }
       }
     }, tickInterval);
 
     return () => clearInterval(timer);
   }, []);
 
-  // Cycle testimonials every 3s (in sync with sections)
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
-    }, 3000);
-    return () => clearInterval(timer);
-  }, []);
+  const handleNameSubmit = () => {
+    const trimmed = nameValue.trim();
+    if (!trimmed) return;
+    setChildName(trimmed);
+    childNameRef.current = trimmed;
+    nameSubmittedRef.current = true;
+    onNameSubmit(trimmed);
+    setShowNamePopup(false);
+    pausedRef.current = false;
+  };
+
+  // Testimonial is tied to the active section
+  const activeTestimonial = activeSection % TESTIMONIALS.length;
 
   return (
-    <div className="min-h-[100dvh] bg-harbor-bg flex flex-col items-center justify-center px-6 py-12 overflow-hidden">
+    <div className="min-h-[100dvh] bg-harbor-bg flex flex-col items-center justify-center px-6 py-12 overflow-hidden relative">
       <div className="max-w-sm w-full space-y-8 text-center">
         <div className="space-y-3">
           <div className="text-5xl animate-pulse">🧠</div>
           <h2 className="text-2xl font-bold text-harbor-primary">
-            Analysing {childName}'s profile…
+            Analysing your child's profile…
           </h2>
         </div>
 
@@ -218,10 +230,63 @@ export default function CalculatingScreen({
         </div>
       </div>
 
+      {/* Name popup modal */}
+      {showNamePopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-6"
+          style={{ animation: "fadeIn 0.3s ease-out both" }}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-xl max-w-md w-full p-7 space-y-5"
+            style={{ animation: "slideUp 0.3s ease-out both" }}
+          >
+            <div className="text-center space-y-2">
+              <div className="text-4xl">🌟</div>
+              <h3 className="text-xl font-bold text-harbor-primary">
+                What's your child's first name?
+              </h3>
+              <p className="text-sm text-harbor-text/60 leading-relaxed">
+                This name will appear throughout your child's personalized report, so use the name they go by.
+              </p>
+            </div>
+
+            <input
+              type="text"
+              value={nameValue}
+              onChange={(e) => setNameValue(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleNameSubmit(); }}
+              placeholder="e.g. Emma"
+              autoFocus
+              className="w-full rounded-xl border-2 border-harbor-text/10 focus:border-harbor-primary focus:ring-0 outline-none px-4 py-3.5 text-base text-harbor-text placeholder:text-harbor-text/30 transition-colors"
+            />
+
+            <p className="text-xs text-gray-500 leading-relaxed text-center">
+              We ask for your child's name so we can personalise their report for you. It won't be shared, sold, or seen by anyone other than you. This is your report only.
+            </p>
+
+            <button
+              type="button"
+              onClick={handleNameSubmit}
+              disabled={!nameValue.trim()}
+              className="w-full rounded-xl bg-harbor-primary text-white px-5 py-4 font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
+
       <style>{`
         @keyframes slideInRight {
           from { opacity: 0; transform: translateX(40px); }
           to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
