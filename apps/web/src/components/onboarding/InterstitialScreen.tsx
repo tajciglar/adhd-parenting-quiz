@@ -97,7 +97,7 @@ export default function InterstitialScreen({
   return (
     <div className="min-h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-12 overflow-y-auto">
       <div className="max-w-md w-full space-y-6">
-        <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-7 space-y-4 text-center">
+        <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-5 space-y-3 text-center">
           {card.image && (
             <img
               src={card.image}
@@ -143,7 +143,7 @@ export default function InterstitialScreen({
             <img
               src={card.bottomImage}
               alt=""
-              className="mx-auto h-32 object-contain mt-2"
+              className="mx-auto h-20 object-contain mt-0"
             />
           )}
         </div>
