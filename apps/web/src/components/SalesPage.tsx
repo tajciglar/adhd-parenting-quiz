@@ -403,7 +403,7 @@ export default function SalesPage() {
       }
       setIsSubmitting(false);
     }
-  }, [isSubmitting, email, parentName, responses, childName, childGender, archetypeId, navigate]);
+  }, [isSubmitting, email, parentName, responses, childName, childGender, archetypeId, archetype, navigate]);
 
   // If no quiz data, redirect to start
   if (!responses || !archetypeId) return <Navigate to="/" replace />;
