@@ -113,8 +113,8 @@ export default function StepRenderer({
     // ─── Landing page (step 1): photo card grid ───────────────────────────
     if (step === 1 && q.key === "childGender") {
       const GENDER_CARDS: Array<{ value: string; label: string; image: string; emoji: string; scale?: string }> = [
-        { value: "My Son", label: "My Son", image: "/landing/boy.png", emoji: "👦", scale: "scale-90" },
-        { value: "My Daughter", label: "My Daughter", image: "/landing/girl.png", emoji: "👧", scale: "scale-90" },
+        { value: "My Son", label: "My Son", image: "/landing/boy.webp", emoji: "👦", scale: "scale-90" },
+        { value: "My Daughter", label: "My Daughter", image: "/landing/girl.webp", emoji: "👧", scale: "scale-90" },
       ];
 
       return (

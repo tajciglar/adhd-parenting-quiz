@@ -13,7 +13,7 @@ interface InterstitialCard {
 
 const CARDS: Record<CategoryId, InterstitialCard> = {
   inattentive: {
-    image: "/flow/ChildReading.png",
+    image: "/flow/ChildReading.webp",
     headline: "It's not about intelligence.",
     body: [
       "Children with ADHD are up to 3 years behind their peers in reading, writing, and math. Not because they lack intelligence, but because their attention system works differently.",
@@ -22,7 +22,7 @@ const CARDS: Record<CategoryId, InterstitialCard> = {
     ],
   },
   hyperactive: {
-    image: "/flow/mom&child.png",
+    image: "/flow/mom&child.webp",
     headline: "When parents truly understand their child's ADHD profile, everything changes.",
     body: [
       "Children whose parents adapt their parenting approach show up to 74% improvement in:",
@@ -37,7 +37,7 @@ const CARDS: Record<CategoryId, InterstitialCard> = {
     buttonText: "I agree",
   },
   sensory: {
-    image: "/flow/father&child.png",
+    image: "/flow/father&child.webp",
     headline: "No two ADHD kids are the same.",
     body: [
       "That's why a one-size-fits-all approach never works. And that's exactly why you're here. {Sub} is lucky to have you.",
@@ -51,10 +51,10 @@ const CARDS: Record<CategoryId, InterstitialCard> = {
       "Research from the University of Cambridge found that 1 in 2 children with ADHD experience significant emotional dysregulation, reacting with an intensity that doesn't match the situation.",
       "This is one of the most misunderstood parts of ADHD — and one of the most important to get right.",
     ],
-    bottomImage: "/flow/cambridge-logo.png",
+    bottomImage: "/flow/cambridge-logo.webp",
   },
   executive_function: {
-    image: "/flow/child&mom.png",
+    image: "/flow/child&mom.webp",
     headline: "It's not that they won't. It's that they can't — yet.",
     body: [
       "Executive function develops later in ADHD kids, sometimes years later. What looks like laziness or defiance is actually a brain that's still building its wiring.",

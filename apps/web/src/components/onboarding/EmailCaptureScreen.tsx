@@ -29,7 +29,7 @@ export default function EmailCaptureScreen({
           {/* Illustration */}
           <div className="flex justify-center">
             <img
-              src="/flow/letter-computer.png"
+              src="/flow/letter-computer.webp"
               alt="Send results"
               className="h-40 object-contain"
               onError={(e) => {

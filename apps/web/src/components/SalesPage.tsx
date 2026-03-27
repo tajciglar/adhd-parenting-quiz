@@ -140,18 +140,18 @@ function LatestResultsTicker() {
 
 /* ─── Logo Marquee ──────────────────────────────────────────────────────── */
 const LOGO_IMAGES = [
-  { src: "/logoMarque/Time.png", alt: "TIME" },
-  { src: "/logoMarque/WashingtonPost.png", alt: "Washington Post" },
-  { src: "/logoMarque/HuffPost.png", alt: "HuffPost" },
+  { src: "/logoMarque/Time.webp", alt: "TIME" },
+  { src: "/logoMarque/WashingtonPost.webp", alt: "Washington Post" },
+  { src: "/logoMarque/HuffPost.webp", alt: "HuffPost" },
   { src: "/logoMarque/TheGuardian.webp", alt: "The Guardian" },
-  { src: "/logoMarque/Aleteia.png", alt: "Aleteia" },
-  { src: "/logoMarque/atlantic.png", alt: "The Atlantic" },
-  { src: "/logoMarque/forbes.png", alt: "Forbes" },
-  { src: "/logoMarque/ScientificAmerican.png", alt: "Scientific American" },
-  { src: "/logoMarque/BBC.png", alt: "BBC" },
+  { src: "/logoMarque/Aleteia.webp", alt: "Aleteia" },
+  { src: "/logoMarque/atlantic.webp", alt: "The Atlantic" },
+  { src: "/logoMarque/forbes.webp", alt: "Forbes" },
+  { src: "/logoMarque/ScientificAmerican.webp", alt: "Scientific American" },
+  { src: "/logoMarque/BBC.webp", alt: "BBC" },
   { src: "/logoMarque/USAToday.webp", alt: "USA Today" },
-  { src: "/logoMarque/NewYorkTimes.png", alt: "New York Times" },
-  { src: "/logoMarque/TedX.png", alt: "TEDx" },
+  { src: "/logoMarque/NewYorkTimes.webp", alt: "New York Times" },
+  { src: "/logoMarque/TedX.webp", alt: "TEDx" },
 ];
 
 function LogoMarquee() {
@@ -174,10 +174,10 @@ function LogoMarquee() {
 function PaymentLogos() {
   const logos = [
     { src: "/payments/visa.svg", alt: "Visa" },
-    { src: "/payments/mastercard.png", alt: "Mastercard" },
-    { src: "/payments/paypal.png", alt: "PayPal" },
-    { src: "/payments/amex.jpg", alt: "American Express" },
-    { src: "/payments/discover.jpg", alt: "Discover" },
+    { src: "/payments/mastercard.webp", alt: "Mastercard" },
+    { src: "/payments/paypal.webp", alt: "PayPal" },
+    { src: "/payments/amex.webp", alt: "American Express" },
+    { src: "/payments/discover.webp", alt: "Discover" },
   ];
   return (
     <div className="text-center space-y-1.5">

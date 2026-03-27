@@ -25,7 +25,7 @@ export default function CredibilityScreen({
 
           <div className="flex items-center justify-center gap-2">
             <img
-              src="/flow/credibility-people.png"
+              src="/flow/credibility-people.webp"
               alt="Satisfied parents"
               className="h-6 object-contain"
               onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
