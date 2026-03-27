@@ -1,0 +1,91 @@
+---
+import Base from '../layouts/Base.astro'
+import UpsellOffer from '../components/checkout/UpsellOffer'
+import { getProducts } from '../lib/getProducts'
+
+const sessionId    = Astro.url.searchParams.get('session_id') ?? ''
+const upsellStatus = Astro.url.searchParams.get('upsell')
+const childName    = Astro.url.searchParams.get('childName') ?? 'your child'
+const email        = Astro.url.searchParams.get('email') ?? ''
+const gender       = Astro.url.searchParams.get('gender') ?? 'their' // 'his' | 'her' | 'their'
+const showUpsell   = sessionId && !upsellStatus
+
+// Pronoun: URL param 'gender' = 'male' | 'female' | 'other'
+const pronoun = gender === 'male' ? 'his' : gender === 'female' ? 'her' : 'their'
+
+const products = await getProducts()
+---
+
+<Base title="Thank You! — ADHD Personality Report">
+  <div style="max-width:640px; margin:0 auto; padding:48px 20px 80px;">
+
+    {/* Success card */}
+    <div class="card" style="text-align:center; margin-bottom:24px;">
+      <div style="font-size:48px; margin-bottom:20px;">💜</div>
+
+      <h1 style="font-size:var(--text-2xl); font-weight:var(--weight-bold); color:var(--color-primary); line-height:1.3; margin-bottom:20px;">
+        Congratulations! You just invested in understanding {childName} more deeply.
+      </h1>
+
+      <p style="font-size:var(--text-base); color:var(--color-text-body); line-height:1.7; margin-bottom:16px;">
+        What you just did – taking the time to truly see how <strong>{pronoun} brain works</strong> – is one of the most powerful things a parent can do.
+      </p>
+
+      <p style="font-size:var(--text-base); color:var(--color-text-body); line-height:1.7; margin-bottom:16px;">
+        <strong>{childName}'s full ADHD Personality Report is on its way to your inbox right now.</strong>
+        It should arrive in 2 minutes.
+        {email && (
+          <span> Check <span style="color:var(--color-primary); font-weight:var(--weight-medium);">{email}</span></span>
+        )}
+      </p>
+
+      <p style="font-size:var(--text-sm); color:var(--color-text-muted); line-height:1.6;">
+        If you don't see it, check your spam folder and mark us as a contact:{' '}
+        <a href="mailto:info@adhdparenting.com" style="color:var(--color-primary); text-decoration:underline;">
+          info@adhdparenting.com
+        </a>
+      </p>
+    </div>
+
+    {upsellStatus === 'success' && (
+      <div class="card" style="border-color:var(--color-success); margin-bottom:24px;">
+        <p style="font-size:var(--text-base); color:var(--color-success); font-weight:var(--weight-medium);">
+          ✅ {products.upsell.name} added to your order!
+        </p>
+      </div>
+    )}
+
+    {showUpsell && (
+      <div style="margin-bottom:32px;">
+        <UpsellOffer
+          client:load
+          product={products.upsell}
+          sessionId={sessionId}
+          onAccept={() => {
+            window.location.href = `/thank-you?session_id=${sessionId}&upsell=success&childName=${encodeURIComponent(childName)}&email=${encodeURIComponent(email)}&gender=${gender}`
+          }}
+          onDecline={() => {
+            window.location.href = `/thank-you?session_id=${sessionId}&upsell=declined&childName=${encodeURIComponent(childName)}&email=${encodeURIComponent(email)}&gender=${gender}`
+          }}
+        />
+      </div>
+    )}
+
+    {/* What happens next */}
+    <div class="card">
+      <h2 class="section-heading" style="font-size:var(--text-lg);">What happens next?</h2>
+      <ol style="padding-left:20px; display:flex; flex-direction:column; gap:10px;">
+        <li style="font-size:var(--text-base); color:var(--color-text-body); line-height:1.5;">
+          Check your email — your report will arrive within 2 minutes.
+        </li>
+        <li style="font-size:var(--text-base); color:var(--color-text-body); line-height:1.5;">
+          Open {childName}'s ADHD Personality Report and read {pronoun} full profile.
+        </li>
+        <li style="font-size:var(--text-base); color:var(--color-text-body); line-height:1.5;">
+          Use the strategies section to start implementing changes today.
+        </li>
+      </ol>
+    </div>
+
+  </div>
+</Base>

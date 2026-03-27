@@ -4,14 +4,21 @@
     {
       "name": "api",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "@adhd-ai-assistant/api", "dev"],
-      "port": 3001
+      "runtimeArgs": ["--filter", "@adhd-parenting-quiz/api", "dev"],
+      "port": 3001,
+      "autoPort": true
     },
     {
       "name": "web",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "web", "dev"],
       "port": 5173
+    },
+    {
+      "name": "checkout",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@adhd-parenting-quiz/checkout", "dev"],
+      "port": 4321
     }
   ]
 }
