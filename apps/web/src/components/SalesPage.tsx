@@ -185,9 +185,9 @@ function PaymentLogos() {
         <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
         Pay safe &amp; secure
       </p>
-      <div className="flex items-center justify-center gap-2 flex-wrap">
+      <div className="flex items-center justify-center gap-2">
         {logos.map((logo) => (
-          <img key={logo.alt} src={logo.src} alt={logo.alt} className="h-5 w-auto object-contain" />
+          <img key={logo.alt} src={logo.src} alt={logo.alt} className="h-4 w-auto object-contain" />
         ))}
       </div>
       <p className="text-[10px] text-harbor-text/40">🔒 All transactions are secure and encrypted</p>
@@ -489,20 +489,18 @@ export default function SalesPage() {
         </div>
 
         {/* ── Section 5: Product Box ── */}
-        <div ref={buyRef} className="rounded-2xl border-2 border-violet-200 shadow-lg overflow-hidden">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-violet-100 to-purple-100 px-6 py-5 text-center border-b border-purple-200">
-            <p className="font-extrabold text-2xl text-gray-900 leading-snug">{name}'s Full ADHD Personality Report</p>
-          </div>
-
-          <div className="bg-white p-6 space-y-4">
+        <div ref={buyRef} className="rounded-2xl border-2 border-violet-200 shadow-lg overflow-hidden bg-gradient-to-b from-violet-50 to-purple-50">
+          <div className="p-6 space-y-4">
+            <p className="font-extrabold text-2xl text-gray-900 leading-snug text-center">{name}'s Full ADHD Personality Report</p>
             {/* Pricing */}
-            <div className="text-center space-y-1">
-              <p className="text-sm text-harbor-text/50">Regular price: <span className="line-through">$49</span></p>
-              <div className="flex items-center justify-center gap-2">
+            <div className="space-y-1">
+              <p className="text-sm text-harbor-text/50 text-center">Regular price: <span className="line-through">$49</span></p>
+              <div className="flex items-center justify-center gap-2 overflow-visible pl-10">
                 <p className="text-sm font-bold text-gray-900">Your price today:</p>
-                <span className="text-4xl font-extrabold text-green-600">$19</span>
-                <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap self-start mt-1">61% OFF</span>
+                <span className="relative pr-10">
+                  <span className="text-2xl font-extrabold text-green-600">$19</span>
+                  <span className="bg-red-500 text-white text-[9px] font-bold px-1 py-0.5 rounded absolute -top-2 -right-2">61%&nbsp;OFF</span>
+                </span>
               </div>
             </div>
 
@@ -659,17 +657,17 @@ export default function SalesPage() {
         <LatestResultsTicker />
 
         {/* ── Section 14: Repeat Product Box ── */}
-        <div className="rounded-2xl border-2 border-violet-200 shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-violet-100 to-purple-100 px-6 py-5 text-center border-b border-purple-200">
-            <p className="font-extrabold text-2xl text-gray-900 leading-snug">{name}'s Full ADHD Personality Report</p>
-          </div>
-          <div className="bg-white p-6 space-y-4">
-            <div className="text-center space-y-1">
-              <p className="text-sm text-harbor-text/50">Regular price: <span className="line-through">$49</span></p>
-              <div className="flex items-center justify-center gap-2">
+        <div className="rounded-2xl border-2 border-violet-200 shadow-lg overflow-hidden bg-gradient-to-b from-violet-50 to-purple-50">
+          <div className="p-6 space-y-4">
+            <p className="font-extrabold text-2xl text-gray-900 leading-snug text-center">{name}'s Full ADHD Personality Report</p>
+            <div className="space-y-1">
+              <p className="text-sm text-harbor-text/50 text-center">Regular price: <span className="line-through">$49</span></p>
+              <div className="flex items-center justify-center gap-2 overflow-visible pl-10">
                 <p className="text-sm font-bold text-gray-900">Your price today:</p>
-                <span className="text-4xl font-extrabold text-green-600">$19</span>
-                <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap self-start mt-1">61% OFF</span>
+                <span className="relative pr-10">
+                  <span className="text-2xl font-extrabold text-green-600">$19</span>
+                  <span className="bg-red-500 text-white text-[9px] font-bold px-1 py-0.5 rounded absolute -top-2 -right-2">61%&nbsp;OFF</span>
+                </span>
               </div>
             </div>
             <p className="text-center text-harbor-text/60 text-sm">
