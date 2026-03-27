@@ -314,7 +314,7 @@ export default function SalesPage() {
         if (fbp) params.set("_fbp", fbp);
         if (fbc) params.set("_fbc", fbc);
         const separator = checkoutUrl.includes("?") ? "&" : "?";
-        trackFunnelEvent("checkout_redirect");
+        trackFunnelEvent("wp_checkout_redirect");
         window.location.href = `${checkoutUrl}${separator}${params.toString()}`;
       } else {
         navigate("/thank-you", { replace: true });
