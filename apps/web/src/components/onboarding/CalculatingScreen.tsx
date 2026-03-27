@@ -241,7 +241,7 @@ export default function CalculatingScreen({
             <div className="text-center space-y-2">
               <div className="text-4xl">🌟</div>
               <h3 className="text-xl font-bold text-harbor-primary">
-                What's your child's first name?
+                What's your {(childGender ?? "").toLowerCase().includes("son") || (childGender ?? "").toLowerCase().includes("boy") ? "son" : (childGender ?? "").toLowerCase().includes("daughter") || (childGender ?? "").toLowerCase().includes("girl") ? "daughter" : "child"}'s first name?
               </h3>
               <p className="text-sm text-harbor-text/60 leading-relaxed">
                 This name will appear throughout your child's personalized report, so use the name they go by.
