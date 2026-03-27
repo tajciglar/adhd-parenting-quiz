@@ -17,7 +17,7 @@ export default function EmailCaptureScreen({
   };
 
   return (
-    <div className="min-h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-12 overflow-y-auto">
+    <div className="min-h-[100dvh] flex items-center justify-center px-6 py-12 overflow-y-auto" style={{ backgroundColor: "#faf5e8" }}>
       <div className="max-w-md w-full space-y-6">
         <div className="text-center space-y-1">
           <h1 className="text-2xl font-bold text-harbor-primary leading-snug">
