@@ -174,10 +174,10 @@ function LogoMarquee() {
 function PaymentLogos() {
   const logos = [
     { src: "/payments/visa.svg", alt: "Visa" },
-    { src: "/payments/mastercard.webp", alt: "Mastercard" },
-    { src: "/payments/paypal.webp", alt: "PayPal" },
-    { src: "/payments/amex.webp", alt: "American Express" },
-    { src: "/payments/discover.webp", alt: "Discover" },
+    { src: "/payments/mastercard.png", alt: "Mastercard" },
+    { src: "/payments/paypal.png", alt: "PayPal" },
+    { src: "/payments/amex.jpg", alt: "American Express" },
+    { src: "/payments/discover.jpg", alt: "Discover" },
   ];
   return (
     <div className="text-center space-y-1.5">
