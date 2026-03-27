@@ -6,6 +6,12 @@ import type { CheckoutConfig } from '../../types/checkout'
 interface CheckoutFlowProps {
   config: CheckoutConfig
   publishableKey: string
+  email?: string
+  childName?: string
+  archetype?: string
+  gender?: string
+  fbp?: string
+  fbc?: string
 }
 
 function formatPrice(cents: number): string {
@@ -34,16 +40,16 @@ function GuaranteeCard({ className }: { className?: string }) {
   )
 }
 
-export default function CheckoutFlow({ config, publishableKey }: CheckoutFlowProps) {
+export default function CheckoutFlow({ config, publishableKey, email = '', childName: childNameProp = '', archetype = '', gender = '', fbp = '', fbc = '' }: CheckoutFlowProps) {
   const [bumpIncluded, setBumpIncluded] = useState(false)
 
-  const [params, setParams] = useState({ childName: '', animalType: '' })
+  const [params, setParams] = useState({ childName: childNameProp, animalType: archetype })
 
   useEffect(() => {
     const p = new URLSearchParams(window.location.search)
     setParams({
-      childName:  p.get('childName')  ?? '',
-      animalType: p.get('animalType') ?? '',
+      childName:  p.get('childName')  ?? childNameProp,
+      animalType: p.get('archetype')  ?? archetype,
     })
   }, [])
 
@@ -128,7 +134,16 @@ export default function CheckoutFlow({ config, publishableKey }: CheckoutFlowPro
           <StripeElementsCheckout
             bumpIncluded={bumpIncluded}
             publishableKey={publishableKey}
-            returnUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/thank-you`}
+            returnUrl={(() => {
+              const base = typeof window !== 'undefined' ? window.location.origin : ''
+              const p = new URLSearchParams()
+              if (email)          p.set('email', email)
+              if (params.childName) p.set('childName', params.childName)
+              if (gender)         p.set('gender', gender)
+              if (fbp)            p.set('_fbp', fbp)
+              if (fbc)            p.set('_fbc', fbc)
+              return `${base}/thank-you?${p.toString()}`
+            })()}
           />
         </div>
 

@@ -110,6 +110,8 @@ async function handlePaymentIntentSucceeded(pi: Stripe.PaymentIntent) {
   }
 }
 
+const PURCHASE_TAG = 'ADHD Personality Type'
+
 async function syncToActiveCampaign({
   email,
   firstName,
@@ -121,7 +123,7 @@ async function syncToActiveCampaign({
   fullName: string
   country: string
 }) {
-  const acApiUrl = import.meta.env.AC_API_URL as string | undefined
+  const acApiUrl = (import.meta.env.AC_API_URL as string | undefined)?.replace(/\/$/, '')
   const acApiKey = import.meta.env.AC_API_KEY as string | undefined
 
   if (!acApiUrl || !acApiKey) {
@@ -129,30 +131,69 @@ async function syncToActiveCampaign({
     return
   }
 
+  const headers = {
+    'Api-Token': acApiKey,
+    'Content-Type': 'application/json',
+  }
+
   const lastName = fullName.includes(' ') ? fullName.slice(fullName.indexOf(' ') + 1) : ''
 
   try {
-    const res = await fetch(`${acApiUrl}/api/3/contacts`, {
+    // 1. Create or update contact
+    const res = await fetch(`${acApiUrl}/api/3/contact/sync`, {
       method: 'POST',
-      headers: {
-        'Api-Token': acApiKey,
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({
         contact: {
           email,
           firstName,
           lastName,
-          fieldValues: country ? [{ field: 'COUNTRY', value: country }] : [],
+          ...(country ? { fieldValues: [{ field: 'COUNTRY', value: country }] } : {}),
         },
       }),
     })
 
     if (!res.ok) {
       const body = await res.text()
-      console.error('[AC] Failed to create contact:', res.status, body)
-    } else {
-      console.log('[AC] Contact synced:', email)
+      console.error('[AC] Failed to sync contact:', res.status, body)
+      return
+    }
+
+    const contactData = (await res.json()) as { contact: { id: number | string } }
+    const contactId = String(contactData.contact.id)
+    console.log('[AC] Contact synced:', email, 'id:', contactId)
+
+    // 2. Find or create the purchase tag
+    const tagSearchRes = await fetch(
+      `${acApiUrl}/api/3/tags?search=${encodeURIComponent(PURCHASE_TAG)}`,
+      { headers },
+    )
+    const tagSearchData = (await tagSearchRes.json()) as {
+      tags: Array<{ id: number | string; tag: string }>
+    }
+
+    let tagId = String(
+      tagSearchData.tags.find((t) => t.tag === PURCHASE_TAG)?.id ?? '',
+    )
+
+    if (!tagId || tagId === 'undefined') {
+      const createTagRes = await fetch(`${acApiUrl}/api/3/tags`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ tag: { tag: PURCHASE_TAG, tagType: 'contact', description: '' } }),
+      })
+      const createTagData = (await createTagRes.json()) as { tag?: { id: number | string } }
+      if (createTagData.tag?.id) tagId = String(createTagData.tag.id)
+    }
+
+    // 3. Apply the tag to the contact
+    if (tagId && tagId !== 'undefined') {
+      await fetch(`${acApiUrl}/api/3/contactTags`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ contactTag: { contact: contactId, tag: tagId } }),
+      })
+      console.log('[AC] Tag applied:', PURCHASE_TAG, 'to contact:', email)
     }
   } catch (err) {
     console.error('[AC] Error syncing contact:', err)

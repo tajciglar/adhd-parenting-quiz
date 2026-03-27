@@ -301,20 +301,21 @@ export default function SalesPage() {
       trackPixelEvent("Lead", { content_category: "adhd_report" }, eventId);
       trackFunnelEvent("checkout_started");
 
-      const wpCheckoutUrl = import.meta.env.VITE_WP_CHECKOUT_URL;
-      if (wpCheckoutUrl) {
+      const checkoutUrl = import.meta.env.VITE_CHECKOUT_URL;
+      if (checkoutUrl) {
         const params = new URLSearchParams();
-        params.set("billing_email", email);
-        params.set("kids_name", childName);
+        params.set("email", email);
+        params.set("childName", childName);
         params.set("archetype", archetypeId);
         params.set("archetype_name", archetype.typeName);
+        params.set("gender", childGender ?? "");
         const fbp = getFbp();
         const fbc = getFbc();
         if (fbp) params.set("_fbp", fbp);
         if (fbc) params.set("_fbc", fbc);
-        const separator = wpCheckoutUrl.includes("?") ? "&" : "?";
-        trackFunnelEvent("wp_checkout_redirect");
-        window.location.href = `${wpCheckoutUrl}${separator}${params.toString()}`;
+        const separator = checkoutUrl.includes("?") ? "&" : "?";
+        trackFunnelEvent("checkout_redirect");
+        window.location.href = `${checkoutUrl}${separator}${params.toString()}`;
       } else {
         navigate("/thank-you", { replace: true });
       }
