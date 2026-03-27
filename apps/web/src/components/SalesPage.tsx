@@ -478,10 +478,10 @@ export default function SalesPage() {
             {/* Pricing */}
             <div className="space-y-1">
               <p className="text-sm text-harbor-text/50 text-center">Regular price: <span className="line-through">$49</span></p>
-              <div className="flex items-center justify-center gap-2 overflow-visible pl-10">
-                <p className="text-base font-bold text-gray-900">Your price today:</p>
+              <div className="flex items-end justify-center gap-2 overflow-visible pl-10">
+                <p className="text-base font-bold text-gray-900 leading-none mb-1">Your price today:</p>
                 <span className="relative pr-10">
-                  <span className="text-3xl font-extrabold text-green-600">$19</span>
+                  <span className="text-3xl font-extrabold text-green-600 leading-none">$19</span>
                   <span className="bg-red-500 text-white text-[9px] font-bold px-1 py-0.5 rounded absolute -top-2 -right-2">61%&nbsp;OFF</span>
                 </span>
               </div>
@@ -642,13 +642,19 @@ export default function SalesPage() {
         {/* ── Section 14: Repeat Product Box ── */}
         <div className="rounded-2xl border-2 border-violet-200 shadow-lg overflow-hidden bg-gradient-to-b from-violet-50 to-purple-50">
           <div className="p-6 space-y-4">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-20 h-20 flex items-center justify-center">
+                <AnimalIcon id={archetypeId} className="max-w-full max-h-full" />
+              </div>
+              <p className="text-xs font-bold uppercase tracking-widest text-harbor-primary/70">{archetype.typeName}</p>
+            </div>
             <p className="font-extrabold text-2xl text-gray-900 leading-snug text-center">{name}'s Full ADHD Personality Report</p>
             <div className="space-y-1">
               <p className="text-sm text-harbor-text/50 text-center">Regular price: <span className="line-through">$49</span></p>
-              <div className="flex items-center justify-center gap-2 overflow-visible pl-10">
-                <p className="text-sm font-bold text-gray-900">Your price today:</p>
+              <div className="flex items-end justify-center gap-2 overflow-visible pl-10">
+                <p className="text-base font-bold text-gray-900 leading-none mb-1">Your price today:</p>
                 <span className="relative pr-10">
-                  <span className="text-2xl font-extrabold text-green-600">$19</span>
+                  <span className="text-3xl font-extrabold text-green-600 leading-none">$19</span>
                   <span className="bg-red-500 text-white text-[9px] font-bold px-1 py-0.5 rounded absolute -top-2 -right-2">61%&nbsp;OFF</span>
                 </span>
               </div>
