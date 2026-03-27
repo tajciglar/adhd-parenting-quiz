@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback, useState, useMemo } from "react";
+import { useEffect, useRef, useCallback, useState, useMemo } from "react";
 import { useLocation, useNavigate, Navigate } from "react-router-dom";
 import { ARCHETYPES, getReportTemplate, renderReportTemplate, computeTraitProfile } from "@adhd-parenting-quiz/shared";
 import type { ArchetypeReportTemplate } from "@adhd-parenting-quiz/shared";
@@ -21,7 +21,7 @@ interface LocationState {
 const TIMER_KEY = "adhd_offer_timer_end";
 const TIMER_DURATION = 10 * 60 * 1000; // 10 minutes
 
-function CountdownTimer({ onGetReport, childName }: { onGetReport?: () => void; childName?: string }) {
+function CountdownTimer({ onGetReport }: { onGetReport?: () => void }) {
   const [timeLeft, setTimeLeft] = useState<number>(() => {
     const stored = sessionStorage.getItem(TIMER_KEY);
     if (stored) {
@@ -366,7 +366,7 @@ export default function SalesPage() {
     <div className="min-h-screen bg-harbor-bg overflow-y-auto">
       {/* Sticky timer bar only */}
       <div className="sticky top-0 z-50">
-        <CountdownTimer onGetReport={scrollToBuy} childName={name} />
+        <CountdownTimer onGetReport={scrollToBuy} />
       </div>
 
       <div className="max-w-lg w-full mx-auto px-6 py-10 space-y-10">
