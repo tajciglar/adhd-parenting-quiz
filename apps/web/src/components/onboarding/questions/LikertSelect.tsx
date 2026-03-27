@@ -52,6 +52,8 @@ const EMOJI_SCALE = [
   { face: "😣", bg: "bg-red-500", selectedRing: "ring-red-300" },
 ];
 
+const CIRCLE_LABELS = ["Never", "Hardly", "Sometimes", "Often", "Always"];
+
 function CirclesVariant({ value, onChange }: { value: number | undefined; onChange: (v: number) => void }) {
   return (
     <div className="flex items-end justify-between w-full px-2">
@@ -70,7 +72,7 @@ function CirclesVariant({ value, onChange }: { value: number | undefined; onChan
               />
             </div>
             <span className="text-[13px] font-medium text-gray-600 whitespace-nowrap">
-              {opt.label}
+              {CIRCLE_LABELS[opt.value]}
             </span>
           </div>
         );

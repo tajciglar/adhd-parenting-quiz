@@ -253,6 +253,23 @@ export default function SalesPage() {
 
   const archetype = ARCHETYPES.find((a) => a.id === archetypeId) ?? ARCHETYPES[0];
 
+  // Archetype-specific accent colors for the blurred report preview
+  const ARCHETYPE_COLORS: Record<string, { bg: string; border: string; header: string }> = {
+    koala:       { bg: "bg-blue-50",    border: "border-blue-200",   header: "bg-blue-50" },
+    hummingbird: { bg: "bg-green-50",   border: "border-green-200",  header: "bg-green-50" },
+    tiger:       { bg: "bg-orange-50",  border: "border-orange-200", header: "bg-orange-50" },
+    meerkat:     { bg: "bg-yellow-50",  border: "border-yellow-200", header: "bg-yellow-50" },
+    stallion:    { bg: "bg-amber-50",   border: "border-amber-200",  header: "bg-amber-50" },
+    fox:         { bg: "bg-orange-50",  border: "border-orange-300", header: "bg-orange-50" },
+    rabbit:      { bg: "bg-pink-50",    border: "border-pink-200",   header: "bg-pink-50" },
+    elephant:    { bg: "bg-slate-50",   border: "border-slate-200",  header: "bg-slate-50" },
+    dolphin:     { bg: "bg-cyan-50",    border: "border-cyan-200",   header: "bg-cyan-50" },
+    hedgehog:    { bg: "bg-stone-50",   border: "border-stone-200",  header: "bg-stone-50" },
+    bull:        { bg: "bg-red-50",     border: "border-red-200",    header: "bg-red-50" },
+    red_panda:   { bg: "bg-rose-50",    border: "border-rose-200",   header: "bg-rose-50" },
+  };
+  const archetypeColor = ARCHETYPE_COLORS[archetypeId] ?? { bg: "bg-white", border: "border-harbor-text/10", header: "bg-white" };
+
   const reportTemplate = useMemo(() => {
     const raw = getReportTemplate(archetypeId);
     if (!raw) return null;
@@ -381,8 +398,8 @@ export default function SalesPage() {
         </div>
 
         {/* ── Section 2: Blurred Report Preview ── */}
-        <div className="relative rounded-sm border border-harbor-text/10 shadow-xl overflow-hidden bg-white">
-          <div className="bg-white px-6 py-3 flex items-center justify-between border-b border-harbor-text/[0.08]">
+        <div className={`relative rounded-sm border shadow-xl overflow-hidden ${archetypeColor.bg} ${archetypeColor.border}`}>
+          <div className={`${archetypeColor.header} px-6 py-3 flex items-center justify-between border-b border-harbor-text/[0.08]`}>
             <span className="text-[10px] text-harbor-text/40 uppercase tracking-widest font-semibold">{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
             <span className="text-[10px] text-harbor-text/30">{name}'s unique profile</span>
           </div>
@@ -456,7 +473,7 @@ export default function SalesPage() {
           <ul className="space-y-4">
             {WHAT_CHANGES.map((item, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="mt-1 flex-shrink-0 text-harbor-primary font-bold text-base leading-none">•</span>
+                <span className="mt-0.5 flex-shrink-0 text-harbor-primary font-bold text-base leading-none">→</span>
                 <div>
                   <p className="text-harbor-text text-sm font-semibold leading-snug">{item.bold}</p>
                   <p className="text-harbor-text/55 text-sm leading-snug">{item.sub}</p>
@@ -510,7 +527,7 @@ export default function SalesPage() {
               </div>
             </div>
 
-            <p className="text-center text-harbor-text/60 text-sm">
+            <p className="text-center text-harbor-text/60 text-sm italic">
               Less than a single parenting book — written specifically about <strong>your</strong> child.
             </p>
 
@@ -583,9 +600,8 @@ export default function SalesPage() {
         {/* ── Section 9: Trustpilot (no box) ── */}
         <div className="text-center space-y-3">
           <h3 className="text-xl font-bold text-gray-900">Trusted by 111,813 parents worldwide</h3>
-          <div className="flex items-center justify-center gap-2">
-            <img src="/trustpilot-stars.png" alt="Trustpilot 4.9 stars" className="h-8 object-contain" />
-            <span className="text-2xl font-bold text-gray-900">4.9</span>
+          <div className="flex items-center justify-center">
+            <img src="/trustpilot-stars.png" alt="Trustpilot stars" className="h-12 object-contain" />
           </div>
         </div>
 
@@ -633,26 +649,6 @@ export default function SalesPage() {
           </div>
         </div>
 
-        {/* ── Section 11: 3 Mini Testimonials ── */}
-        <div className="space-y-3">
-          {[
-            { quote: "The assessment nailed my son's ADHD personality! It's like having a guide to understanding my son better.", name: "Sandra M." },
-            { quote: "Skeptical at first, but the accuracy amazed me. It's helping me parent my daughter the way she needs.", name: "Frederick" },
-            { quote: "What I learned about my child boosted my confidence in parenting.", name: "Kim" },
-          ].map((t, i) => (
-            <div key={i} className="px-1 py-2 space-y-1.5 border-b border-harbor-text/10 last:border-0">
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, j) => (
-                  <svg key={j} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                  </svg>
-                ))}
-              </div>
-              <p className="text-sm text-harbor-text italic leading-relaxed">"{t.quote}"</p>
-              <p className="text-xs font-bold text-harbor-primary">— {t.name}</p>
-            </div>
-          ))}
-        </div>
 
         {/* ── Section 12: Featured In ── */}
         <div className="space-y-3 text-center">
