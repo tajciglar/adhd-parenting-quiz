@@ -48,7 +48,7 @@ export default function EmailCaptureScreen({
             }}
             placeholder="Your email"
             autoFocus
-            className="w-full rounded-xl border-2 border-harbor-text/10 focus:border-harbor-primary focus:ring-0 outline-none px-4 py-3.5 text-base text-harbor-text placeholder:text-harbor-text/30 transition-colors"
+            className="w-full rounded-xl border-2 border-harbor-text/10 focus:border-harbor-primary focus:ring-0 outline-none px-4 py-3.5 text-base text-harbor-text placeholder:text-harbor-text/30 transition-colors bg-white"
           />
 
           <p className="text-xs text-harbor-text/40 leading-relaxed">
