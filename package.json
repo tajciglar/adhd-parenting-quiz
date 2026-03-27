@@ -8,7 +8,9 @@
     "dev:api": "pnpm run build:shared && pnpm --filter @adhd-parenting-quiz/api dev",
     "build:api": "pnpm run build:shared && pnpm --filter @adhd-parenting-quiz/api build",
     "dev:web": "pnpm run build:shared && pnpm --filter web dev",
-    "build:web": "pnpm run build:shared && pnpm --filter web build"
+    "build:web": "pnpm run build:shared && pnpm --filter web build",
+    "dev:checkout": "pnpm --filter @adhd-parenting-quiz/checkout dev",
+    "build:checkout": "pnpm --filter @adhd-parenting-quiz/checkout build"
   },
   "keywords": [],
   "author": "",

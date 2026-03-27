@@ -369,22 +369,22 @@ export default function SalesPage() {
         <CountdownTimer onGetReport={scrollToBuy} />
       </div>
 
-      <div className="max-w-lg w-full mx-auto px-6 py-10 space-y-10">
+      <div className="max-w-lg w-full mx-auto px-[10px] py-10 space-y-10">
 
         {/* ── Section 1: Headline ── */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-2 px-[10px]">
           <h1 className="text-3xl font-bold text-harbor-primary leading-tight">
             There's a reason {name} does what {heShe} does.
           </h1>
           <p className="text-harbor-text/70 text-lg leading-snug">
-            It's all inside {HisHer} ADHD Personality Report…
+            It's all inside {heShe === "he" ? "his" : heShe === "she" ? "her" : "their"} ADHD Personality Report…
           </p>
         </div>
 
         {/* ── Section 2: Blurred Report Preview ── */}
-        <div className="relative rounded-2xl border border-harbor-text/10 shadow-sm overflow-hidden bg-white">
-          <div className="bg-harbor-primary/5 px-6 py-3 flex items-center justify-between border-b border-harbor-text/[0.08]">
-            <span className="text-[10px] text-harbor-text/40 uppercase tracking-widest font-semibold">ADHD Personality Report</span>
+        <div className="relative rounded-sm border border-harbor-text/10 shadow-xl overflow-hidden bg-white">
+          <div className="bg-white px-6 py-3 flex items-center justify-between border-b border-harbor-text/[0.08]">
+            <span className="text-[10px] text-harbor-text/40 uppercase tracking-widest font-semibold">{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
             <span className="text-[10px] text-harbor-text/30">{name}'s unique profile</span>
           </div>
           <div className="p-6 space-y-4">
@@ -450,18 +450,14 @@ export default function SalesPage() {
         </div>
 
         {/* ── Section 3: What changes after ── */}
-        <div className="space-y-4">
+        <div className="space-y-4 p-5">
           <h2 className="text-xl font-bold text-harbor-primary text-center leading-snug">
             What changes after you read {name}'s report:
           </h2>
           <ul className="space-y-4">
             {WHAT_CHANGES.map((item, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
-                  <svg className="w-3.5 h-3.5 text-green-600" viewBox="0 0 12 12" fill="none">
-                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </span>
+                <span className="mt-1 flex-shrink-0 text-harbor-primary font-bold text-base leading-none">•</span>
                 <div>
                   <p className="text-harbor-text text-sm font-semibold leading-snug">{item.bold}</p>
                   <p className="text-harbor-text/55 text-sm leading-snug">{item.sub}</p>
@@ -475,13 +471,32 @@ export default function SalesPage() {
         <div ref={buyRef} className="rounded-2xl border-2 border-violet-200 shadow-lg overflow-hidden bg-gradient-to-b from-violet-50 to-purple-50">
           <div className="p-6 space-y-4">
             <p className="font-extrabold text-2xl text-gray-900 leading-snug text-center">{name}'s Full ADHD Personality Report</p>
+            {/* Archetype + Animal */}
+            <div className="flex flex-col items-center gap-2">
+               <p className="text-xs font-bold uppercase tracking-widest text-harbor-primary/70">{archetype.typeName}</p>
+              <div className="w-20 h-20 flex items-center justify-center">
+                <AnimalIcon id={archetypeId} className="max-w-full max-h-full" />
+              </div>
+            </div>
+
+            {/* What's inside checkmarks */}
+            <p className="text-sm font-bold text-harbor-text">What's inside:</p>
+            <ul className="space-y-2 text-sm text-harbor-text">
+              <li className="flex items-start gap-2"><span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center"><svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span><span>The neuroscience behind {name}'s specific profile</span></li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center"><svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span><span>"A Day in {name}'s Life" with practical tips</span></li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center"><svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span><span>What drains {name} vs. what fuels {heShe === "he" ? "him" : heShe === "she" ? "her" : "them"}</span></li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center"><svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span><span>What to say and what never to say</span></li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center"><svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span><span>{name}'s hidden gift</span></li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center"><svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span><span>What {name} needs to hear most</span></li>
+            </ul>
+
             {/* Pricing */}
             <div className="space-y-1">
               <p className="text-sm text-harbor-text/50 text-center">Regular price: <span className="line-through">$49</span></p>
-              <div className="flex items-center justify-center gap-2 overflow-visible pl-10">
-                <p className="text-sm font-bold text-gray-900">Your price today:</p>
+              <div className="flex items-end justify-center gap-2 overflow-visible pl-10">
+                <p className="text-base font-bold text-gray-900 leading-none mb-1">Your price today:</p>
                 <span className="relative pr-10">
-                  <span className="text-2xl font-extrabold text-green-600">$19</span>
+                  <span className="text-3xl font-extrabold text-green-600 leading-none">$19</span>
                   <span className="bg-red-500 text-white text-[9px] font-bold px-1 py-0.5 rounded absolute -top-2 -right-2">61%&nbsp;OFF</span>
                 </span>
               </div>
@@ -527,7 +542,7 @@ export default function SalesPage() {
         </div>
 
         {/* ── Section 7: 3 Testimonials (Fiona, Vanessa, Tamara) ── */}
-        <div className="space-y-3">
+        <div className="space-y-3 p-5">
           {[
             { title: "By page 3, I burst into tears.", quote: "But those were tears of awareness after knowing that there's nothing wrong with any of us, but only wired differently. And unconditional love is the answer to almost any issue.", name: "Fiona" },
             { title: '"How do they know who I am?!"', quote: "My son took the assessment with me so I could make sure the questions were answered accurately. He read the final report and said, 'How do they know who I am?!'. Absolutely priceless!", name: "Vanessa" },
@@ -550,9 +565,10 @@ export default function SalesPage() {
 
         {/* ── Section 8: Authority Badge ── */}
         <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-6 space-y-4 text-center">
-          <img src="/flow/authority-badge.webp" alt="Authority badge" className="h-24 object-contain mx-auto" />
+          <img src="/flow/authority-badge.webp" alt="Authority badge" className="w-[120px] h-[120px] object-contain mx-auto" />
+          <h3 className="text-lg font-bold text-black">Created by ADHD specialists</h3>
           <p className="text-harbor-text text-sm leading-relaxed">
-            <strong className="text-harbor-primary">Created by ADHD specialists</strong> with over 40 years of combined clinical experience. This isn't a generic personality assessment. Every question, every profile, and every recommendation is grounded in decades of real work with real ADHD families.
+            With over 40 years of combined clinical experience. This isn't a generic personality assessment. Every question, every profile, and every recommendation is grounded in decades of real work with real ADHD families.
           </p>
         </div>
 
@@ -560,8 +576,7 @@ export default function SalesPage() {
         <div className="text-center space-y-3">
           <h3 className="text-xl font-bold text-gray-900">Trusted by 111,813 parents worldwide</h3>
           <div className="flex items-center justify-center gap-2">
-            <img src="/trustpilot-stars.png" alt="Trustpilot 4.9 stars" className="h-8 object-contain" />
-            <span className="text-2xl font-bold text-gray-900">4.9</span>
+            <img src="/trustpilot-stars.png" alt="Trustpilot 4.9 stars" className="h-12 object-contain" />
           </div>
         </div>
 
@@ -610,7 +625,7 @@ export default function SalesPage() {
         </div>
 
         {/* ── Section 11: 3 Mini Testimonials ── */}
-        <div className="space-y-3">
+        <div className="space-y-3 p-5">
           {[
             { quote: "The assessment nailed my son's ADHD personality! It's like having a guide to understanding my son better.", name: "Sandra M." },
             { quote: "Skeptical at first, but the accuracy amazed me. It's helping me parent my daughter the way she needs.", name: "Frederick" },
@@ -643,12 +658,30 @@ export default function SalesPage() {
         <div className="rounded-2xl border-2 border-violet-200 shadow-lg overflow-hidden bg-gradient-to-b from-violet-50 to-purple-50">
           <div className="p-6 space-y-4">
             <p className="font-extrabold text-2xl text-gray-900 leading-snug text-center">{name}'s Full ADHD Personality Report</p>
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-20 h-20 flex items-center justify-center">
+                <AnimalIcon id={archetypeId} className="max-w-full max-h-full" />
+              </div>
+              <p className="text-xs font-bold uppercase tracking-widest text-harbor-primary/70">{archetype.typeName}</p>
+            </div>
+
+            {/* What's inside checkmarks */}
+            <p className="text-sm font-bold text-harbor-text">What's inside:</p>
+            <ul className="space-y-2 text-sm text-harbor-text">
+              <li className="flex items-start gap-2"><span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center"><svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span><span>The neuroscience behind {name}'s specific profile</span></li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center"><svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span><span>"A Day in {name}'s Life" with practical tips</span></li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center"><svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span><span>What drains {name} vs. what fuels {heShe === "he" ? "him" : heShe === "she" ? "her" : "them"}</span></li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center"><svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span><span>What to say and what never to say</span></li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center"><svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span><span>{name}'s hidden gift</span></li>
+              <li className="flex items-start gap-2"><span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center"><svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></span><span>What {name} needs to hear most</span></li>
+            </ul>
+
             <div className="space-y-1">
               <p className="text-sm text-harbor-text/50 text-center">Regular price: <span className="line-through">$49</span></p>
-              <div className="flex items-center justify-center gap-2 overflow-visible pl-10">
-                <p className="text-sm font-bold text-gray-900">Your price today:</p>
+              <div className="flex items-end justify-center gap-2 overflow-visible pl-10">
+                <p className="text-base font-bold text-gray-900 leading-none mb-1">Your price today:</p>
                 <span className="relative pr-10">
-                  <span className="text-2xl font-extrabold text-green-600">$19</span>
+                  <span className="text-3xl font-extrabold text-green-600 leading-none">$19</span>
                   <span className="bg-red-500 text-white text-[9px] font-bold px-1 py-0.5 rounded absolute -top-2 -right-2">61%&nbsp;OFF</span>
                 </span>
               </div>

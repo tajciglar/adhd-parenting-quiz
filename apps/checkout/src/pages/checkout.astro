@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro'
+import CheckoutFlow from '../components/checkout/CheckoutFlow'
+import { getProducts } from '../lib/getProducts'
+
+const publishableKey = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ''
+const products = await getProducts()
+
+const testimonials = [
+  {
+    quote: 'My son took the assessment with me so that I could make sure the questions were answered accurately and not just from my perspective. He read the final report and said, "How do they know who I am?!"',
+    author: 'Vanessa',
+  },
+  {
+    quote: 'Simple, clear, to the point and awakening — taking away any guilt & shame both from parents & the child! Something that you can rarely find on this path these days. To me it even spoke from the spiritual perspective & got to know about my unanswered questions in a straightforward tone. I appreciate your hard kind work.',
+    author: 'Elham',
+  },
+  {
+    quote: "This made me realize that Harry isn't alone and his traits fit a pattern and type that just need the right kind of support.",
+    author: 'Tamara',
+  },
+  {
+    quote: "By the end of page 3, I burst into tears. But those were tears of awareness after knowing that there's nothing wrong with any of us, but only wired differently. And unconditional love is the answer to almost any issue.",
+    author: 'Fiona',
+  },
+]
+---
+
+<Base title="Complete Your Order — ADHD Personality Report">
+  <div class="checkout-wrapper">
+    <header style="text-align:center; margin-bottom: 28px;">
+      <p style="font-size: var(--text-sm); color: var(--color-text-muted); margin-top: 4px;">
+        Secure checkout · 14-day money-back guarantee
+      </p>
+    </header>
+
+    <CheckoutFlow
+      client:load
+      config={products}
+      publishableKey={publishableKey}
+      testimonials={testimonials}
+    />
+  </div>
+</Base>
