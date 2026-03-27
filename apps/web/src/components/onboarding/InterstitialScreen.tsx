@@ -143,7 +143,7 @@ export default function InterstitialScreen({
             <img
               src={card.bottomImage}
               alt=""
-              className="mx-auto h-36 object-contain mt-0"
+              className="mx-auto h-44 object-contain mt-0"
             />
           )}
         </div>
