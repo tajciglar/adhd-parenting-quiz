@@ -379,11 +379,13 @@ export default function SalesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-harbor-bg overflow-y-auto">
-      {/* Sticky timer bar only */}
-      <div className="sticky top-0 z-50">
+    <div className="min-h-screen bg-harbor-bg">
+      {/* Sticky timer bar */}
+      <div className="fixed top-0 left-0 right-0 z-50">
         <CountdownTimer onGetReport={scrollToBuy} />
       </div>
+      {/* Spacer so content doesn't hide behind fixed timer */}
+      <div className="h-[60px]" />
 
       <div className="max-w-lg w-full mx-auto px-[10px] py-10 space-y-10">
 
