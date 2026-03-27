@@ -533,7 +533,7 @@ export default function SalesPage() {
             { title: '"How do they know who I am?!"', quote: "My son took the assessment with me so I could make sure the questions were answered accurately. He read the final report and said, 'How do they know who I am?!'. Absolutely priceless!", name: "Vanessa" },
             { title: "He's not alone.", quote: "This report made me realize that Harry isn't alone and his traits fit a pattern and type that just need the right kind of support.", name: "Tamara" },
           ].map((t, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm px-5 py-4 space-y-2">
+            <div key={i} className="px-1 py-2 space-y-1.5 border-b border-harbor-text/10 last:border-0">
               <div className="flex gap-0.5 mb-1">
                 {[...Array(5)].map((_, j) => (
                   <svg key={j} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
@@ -616,7 +616,7 @@ export default function SalesPage() {
             { quote: "Skeptical at first, but the accuracy amazed me. It's helping me parent my daughter the way she needs.", name: "Frederick" },
             { quote: "What I learned about my child boosted my confidence in parenting.", name: "Kim" },
           ].map((t, i) => (
-            <div key={i} className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm px-5 py-4 space-y-2">
+            <div key={i} className="px-1 py-2 space-y-1.5 border-b border-harbor-text/10 last:border-0">
               <div className="flex gap-0.5">
                 {[...Array(5)].map((_, j) => (
                   <svg key={j} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
