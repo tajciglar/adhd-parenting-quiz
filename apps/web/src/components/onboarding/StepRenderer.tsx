@@ -6,7 +6,7 @@ import TextInput from "./questions/TextInput";
 import NumberInput from "./questions/NumberInput";
 import LikertSelect from "./questions/LikertSelect";
 import type { LikertVariant } from "./questions/LikertSelect";
-import { TrustPilotReview } from "./TrustPilotReview";
+
 
 
 // Fixed pseudo-random sequence: varied run lengths so it doesn't feel repetitive

@@ -322,7 +322,7 @@ export default function SalesPage() {
       setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setIsSubmitting(false);
     }
-  }, [isSubmitting, email, responses, childName, childGender, archetypeId, navigate]);
+  }, [isSubmitting, email, responses, childName, childGender, archetypeId, archetype, navigate]);
 
   if (!responses || !archetypeId) return <Navigate to="/" replace />;
 
@@ -332,8 +332,6 @@ export default function SalesPage() {
   const isMale = gL.includes("son") || gL.includes("boy");
   const isFemale = gL.includes("daughter") || gL.includes("girl");
   const heShe = isMale ? "he" : isFemale ? "she" : "they";
-  const HeShe = isMale ? "He" : isFemale ? "She" : "They";
-  const hisHer = isMale ? "his" : isFemale ? "her" : "their";
   const HisHer = isMale ? "His" : isFemale ? "Her" : "Their";
   const himHer = isMale ? "him" : isFemale ? "her" : "them";
 
@@ -361,21 +359,6 @@ export default function SalesPage() {
     {
       bold: "You'll have word-for-word scripts",
       sub: `To boost ${name}'s self-esteem in the moments that matter most`,
-    },
-  ];
-
-  const TESTIMONIALS = [
-    {
-      quote: "By page 3, I burst into tears. But those were tears of awareness after knowing that there's nothing wrong with any of us, but only wired differently. And unconditional love is the answer to almost any issue.",
-      name: "Fiona",
-    },
-    {
-      quote: "My son took the assessment with me so I could make sure the questions were answered accurately. He read the final report and said, 'How do they know who I am?!'. Absolutely priceless!",
-      name: "Vanessa",
-    },
-    {
-      quote: "This report made me realize that Harry isn't alone and his traits fit a pattern and type that just need the right kind of support.",
-      name: "Tamara",
     },
   ];
 

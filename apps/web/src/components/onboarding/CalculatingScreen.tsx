@@ -74,7 +74,6 @@ export default function CalculatingScreen({
     [traitProfile.archetypeId],
   );
 
-  const finalChildName = childName || "your child";
 
   // Section speeds: first 2 at 5s (before name popup), last 2 at 3s (after popup)
   const SECTION_DURATIONS = [5000, 5000, 3000, 3000];
