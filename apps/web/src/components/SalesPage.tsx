@@ -332,7 +332,6 @@ export default function SalesPage() {
   const isMale = gL.includes("son") || gL.includes("boy");
   const isFemale = gL.includes("daughter") || gL.includes("girl");
   const heShe = isMale ? "he" : isFemale ? "she" : "they";
-  const HisHer = isMale ? "His" : isFemale ? "Her" : "Their";
   const himHer = isMale ? "him" : isFemale ? "her" : "them";
 
   const WHAT_CHANGES = [
@@ -450,18 +449,14 @@ export default function SalesPage() {
         </div>
 
         {/* ── Section 3: What changes after ── */}
-        <div className="space-y-4">
+        <div className="space-y-4 p-5">
           <h2 className="text-xl font-bold text-harbor-primary text-center leading-snug">
             What changes after you read {name}'s report:
           </h2>
           <ul className="space-y-4">
             {WHAT_CHANGES.map((item, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
-                  <svg className="w-3.5 h-3.5 text-green-600" viewBox="0 0 12 12" fill="none">
-                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </span>
+                <span className="mt-1 flex-shrink-0 text-harbor-primary font-bold text-base leading-none">•</span>
                 <div>
                   <p className="text-harbor-text text-sm font-semibold leading-snug">{item.bold}</p>
                   <p className="text-harbor-text/55 text-sm leading-snug">{item.sub}</p>
@@ -482,6 +477,26 @@ export default function SalesPage() {
               </div>
               <p className="text-xs font-bold uppercase tracking-widest text-harbor-primary/70">{archetype.typeName}</p>
             </div>
+
+            {/* What's inside */}
+            <p className="text-sm font-bold text-harbor-text">What's inside:</p>
+            <ul className="space-y-2 text-sm text-harbor-text">
+              {[
+                `The neuroscience behind ${name}'s specific profile`,
+                `"A Day in ${name}'s Life" with practical tips`,
+                `What drains ${name} vs. what fuels ${heShe === "he" ? "him" : heShe === "she" ? "her" : "them"}`,
+                "What to say and what never to say",
+                `${name}'s hidden gift`,
+                `What ${name} needs to hear most`,
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+                    <svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
 
             {/* Pricing */}
             <div className="space-y-1">
@@ -558,9 +573,10 @@ export default function SalesPage() {
 
         {/* ── Section 8: Authority Badge ── */}
         <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-6 space-y-4 text-center">
-          <img src="/flow/authority-badge.webp" alt="Authority badge" className="h-24 object-contain mx-auto" />
+          <img src="/flow/authority-badge.webp" alt="Authority badge" className="w-[120px] h-[120px] object-contain mx-auto" />
+          <h3 className="text-lg font-bold text-harbor-primary">Created by ADHD specialists</h3>
           <p className="text-harbor-text text-sm leading-relaxed">
-            <strong className="text-harbor-primary">Created by ADHD specialists</strong> with over 40 years of combined clinical experience. This isn't a generic personality assessment. Every question, every profile, and every recommendation is grounded in decades of real work with real ADHD families.
+            With over 40 years of combined clinical experience. This isn't a generic personality assessment. Every question, every profile, and every recommendation is grounded in decades of real work with real ADHD families.
           </p>
         </div>
 
@@ -657,6 +673,27 @@ export default function SalesPage() {
               </div>
               <p className="text-xs font-bold uppercase tracking-widest text-harbor-primary/70">{archetype.typeName}</p>
             </div>
+
+            {/* What's inside */}
+            <p className="text-sm font-bold text-harbor-text">What's inside:</p>
+            <ul className="space-y-2 text-sm text-harbor-text">
+              {[
+                `The neuroscience behind ${name}'s specific profile`,
+                `"A Day in ${name}'s Life" with practical tips`,
+                `What drains ${name} vs. what fuels ${heShe === "he" ? "him" : heShe === "she" ? "her" : "them"}`,
+                "What to say and what never to say",
+                `${name}'s hidden gift`,
+                `What ${name} needs to hear most`,
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
+                    <svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+
             <div className="space-y-1">
               <p className="text-sm text-harbor-text/50 text-center">Regular price: <span className="line-through">$49</span></p>
               <div className="flex items-end justify-center gap-2 overflow-visible pl-10">
