@@ -56,7 +56,7 @@ function CountdownTimer({ onGetReport }: { onGetReport?: () => void }) {
       <div className="flex items-center gap-2 min-w-0">
         <span className="text-base leading-none">⏳</span>
         <div className="flex flex-col leading-tight">
-          <span className="text-[10px] uppercase tracking-widest font-semibold text-purple-500">Discount reserved for</span>
+          <span className="text-[10px] uppercase tracking-widest font-semibold text-purple-500">Discount expires in:</span>
           <span className="font-mono font-bold text-xl tracking-widest leading-none text-gray-900">
             {mm}<span className="text-purple-400 mx-0.5">:</span>{ss}
           </span>

@@ -248,15 +248,22 @@ export default function CalculatingScreen({
               </p>
             </div>
 
-            <input
-              type="text"
-              value={nameValue}
-              onChange={(e) => setNameValue(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") handleNameSubmit(); }}
-              placeholder="e.g. Emma"
-              autoFocus
-              className="w-full rounded-xl border-2 border-harbor-text/10 focus:border-harbor-primary focus:ring-0 outline-none px-4 py-3.5 text-base text-harbor-text placeholder:text-harbor-text/30 transition-colors"
-            />
+            <div className="space-y-1.5">
+              <input
+                type="text"
+                value={nameValue}
+                onChange={(e) => setNameValue(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") handleNameSubmit(); }}
+                placeholder="e.g. Emma"
+                autoFocus
+                className="w-full rounded-xl border-2 border-harbor-text/10 focus:border-harbor-primary focus:ring-0 outline-none px-4 py-3.5 text-base text-harbor-text placeholder:text-harbor-text/30 transition-colors"
+              />
+              {nameValue.trim().length === 1 && (
+                <p className="text-xs text-red-500 leading-relaxed px-1">
+                  💡 This name will appear throughout your child's personalized report — use the name they go by, even a nickname works!
+                </p>
+              )}
+            </div>
 
             <p className="text-xs text-gray-500 leading-relaxed text-center">
               We ask for your child's name so we can personalise their report for you. It won't be shared, sold, or seen by anyone other than you. This is your report only.
