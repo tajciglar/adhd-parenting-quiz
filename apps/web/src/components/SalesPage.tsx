@@ -449,9 +449,32 @@ export default function SalesPage() {
           </div>
         </div>
 
+        {/* ── Section 3: What changes after ── */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold text-harbor-primary text-center leading-snug">
+            What changes after you read {name}'s report:
+          </h2>
+          <ul className="space-y-4">
+            {WHAT_CHANGES.map((item, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <span className="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                  <svg className="w-3.5 h-3.5 text-green-600" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <div>
+                  <p className="text-harbor-text text-sm font-semibold leading-snug">{item.bold}</p>
+                  <p className="text-harbor-text/55 text-sm leading-snug">{item.sub}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
         {/* ── Section 5: Product Box ── */}
         <div ref={buyRef} className="rounded-2xl border-2 border-violet-200 shadow-lg overflow-hidden bg-gradient-to-b from-violet-50 to-purple-50">
           <div className="p-6 space-y-4">
+            <p className="font-extrabold text-2xl text-gray-900 leading-snug text-center">{name}'s Full ADHD Personality Report</p>
             {/* Archetype + Animal */}
             <div className="flex flex-col items-center gap-2">
               <div className="w-20 h-20 flex items-center justify-center">
@@ -459,21 +482,6 @@ export default function SalesPage() {
               </div>
               <p className="text-xs font-bold uppercase tracking-widest text-harbor-primary/70">{archetype.typeName}</p>
             </div>
-            <p className="font-extrabold text-2xl text-gray-900 leading-snug text-center">{name}'s Full ADHD Personality Report</p>
-
-            {/* Bullets */}
-            <ul className="space-y-3 text-left">
-              {WHAT_CHANGES.map((item, i) => (
-                <li key={i} className="flex items-start gap-2.5">
-                  <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
-                    <svg className="w-3 h-3 text-green-600" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </span>
-                  <p className="text-harbor-text text-sm font-semibold leading-snug">{item.bold}</p>
-                </li>
-              ))}
-            </ul>
 
             {/* Pricing */}
             <div className="space-y-1">
@@ -642,13 +650,13 @@ export default function SalesPage() {
         {/* ── Section 14: Repeat Product Box ── */}
         <div className="rounded-2xl border-2 border-violet-200 shadow-lg overflow-hidden bg-gradient-to-b from-violet-50 to-purple-50">
           <div className="p-6 space-y-4">
+            <p className="font-extrabold text-2xl text-gray-900 leading-snug text-center">{name}'s Full ADHD Personality Report</p>
             <div className="flex flex-col items-center gap-2">
               <div className="w-20 h-20 flex items-center justify-center">
                 <AnimalIcon id={archetypeId} className="max-w-full max-h-full" />
               </div>
               <p className="text-xs font-bold uppercase tracking-widest text-harbor-primary/70">{archetype.typeName}</p>
             </div>
-            <p className="font-extrabold text-2xl text-gray-900 leading-snug text-center">{name}'s Full ADHD Personality Report</p>
             <div className="space-y-1">
               <p className="text-sm text-harbor-text/50 text-center">Regular price: <span className="line-through">$49</span></p>
               <div className="flex items-end justify-center gap-2 overflow-visible pl-10">
