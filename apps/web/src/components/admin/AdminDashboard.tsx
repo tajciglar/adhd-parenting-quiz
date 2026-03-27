@@ -30,9 +30,9 @@ function buildQuestionMap(): Record<string, string> {
 }
 
 const QUESTION_MAP: Record<string, string> = {
-  caregiverType: "You are",
+  caregiverType: "You are (legacy)",
   childAgeRange: "How old is your child?",
-  childGender: "You are raising",
+  childGender: "I'm here for...",
   adhdJourney: "Where are you on the ADHD journey?",
   learningEnvironment: "Where does your child primarily learn?",
   ...buildQuestionMap(),
@@ -205,6 +205,32 @@ export default function AdminDashboard() {
   const [rescoreTotal, setRescoreTotal] = useState(0);
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<string | null>(null);
+
+  // Per-date step dropoff
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [dailyDropoff, setDailyDropoff] = useState<StepDropoff[] | null>(null);
+  const [dailyDropoffLoading, setDailyDropoffLoading] = useState(false);
+
+  const fetchDailyDropoff = useCallback(
+    async (date: string) => {
+      if (!date) return;
+      setDailyDropoffLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/api/admin/daily-step-dropoff?date=${date}`, {
+          headers: { "x-admin-key": adminKey },
+        });
+        if (!res.ok) throw new Error(`API error: ${res.status}`);
+        const data = (await res.json()) as { date: string; stepDropoff: StepDropoff[] };
+        setDailyDropoff(data.stepDropoff);
+      } catch (err) {
+        alert(err instanceof Error ? err.message : "Failed to fetch daily dropoff");
+        setDailyDropoff(null);
+      } finally {
+        setDailyDropoffLoading(false);
+      }
+    },
+    [adminKey],
+  );
 
   const fetchAnalytics = useCallback(
     async (key: string, numDays: number) => {
@@ -446,6 +472,45 @@ export default function AdminDashboard() {
           </div>
         ) : null}
 
+        {/* Per-Date Step Dropoff */}
+        <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-harbor-primary">Daily Step Dropoff</h2>
+              <p className="text-xs text-harbor-text/40">Select a date to see step-by-step dropoff for that day</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => {
+                  setSelectedDate(e.target.value);
+                  if (e.target.value) void fetchDailyDropoff(e.target.value);
+                }}
+                max={new Date().toISOString().slice(0, 10)}
+                className="rounded-lg border border-harbor-text/20 bg-harbor-bg px-3 py-1.5 text-sm text-harbor-text focus:outline-none focus:ring-2 focus:ring-harbor-primary/30"
+              />
+              {dailyDropoffLoading && <span className="text-xs text-harbor-text/40">Loading...</span>}
+            </div>
+          </div>
+          {dailyDropoff !== null && selectedDate ? (
+            dailyDropoff.length > 0 ? (
+              <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
+                {(() => {
+                  const maxDailyViews = Math.max(...dailyDropoff.map((s) => s.views), 1);
+                  return dailyDropoff.map((item) => (
+                    <DropoffBar key={item.step} {...item} maxViews={maxDailyViews} />
+                  ));
+                })()}
+              </div>
+            ) : (
+              <p className="text-sm text-harbor-text/40 text-center py-4">No data for {selectedDate}</p>
+            )
+          ) : (
+            <p className="text-sm text-harbor-text/30 text-center py-4">Pick a date above to view dropoff data</p>
+          )}
+        </div>
+
         {/* Daily Trend */}
         {analytics?.dailyTrend.length ? (
           <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
@@ -463,7 +528,15 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody>
                   {analytics.dailyTrend.map((day) => (
-                    <tr key={day.date} className="border-b border-harbor-text/5">
+                    <tr
+                      key={day.date}
+                      className={`border-b border-harbor-text/5 cursor-pointer hover:bg-harbor-primary/5 transition-colors ${selectedDate === day.date ? "bg-harbor-primary/10" : ""}`}
+                      onClick={() => {
+                        setSelectedDate(day.date);
+                        void fetchDailyDropoff(day.date);
+                      }}
+                      title="Click to view step dropoff for this date"
+                    >
                       <td className="py-2 pr-4 text-harbor-text/70">{day.date}</td>
                       <td className="py-2 px-4 text-right tabular-nums">{day.started}</td>
                       <td className="py-2 px-4 text-right tabular-nums text-harbor-accent">{day.completed}</td>

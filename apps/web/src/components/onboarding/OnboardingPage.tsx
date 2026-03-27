@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useOnboarding } from "../../hooks/useOnboarding";
-import { TOTAL_STEPS } from "../../lib/constants";
-import { getStepConfig, ASSESSMENT_CATEGORIES, BASIC_INFO_QUESTIONS } from "@adhd-parenting-quiz/shared";
+import { useNavigate } from "react-router-dom";
+import { useOnboarding, clearOnboardingStorage } from "../../hooks/useOnboarding";
+import { TOTAL_STEPS, getStepConfig, ASSESSMENT_CATEGORIES, BASIC_INFO_QUESTIONS } from "@adhd-parenting-quiz/shared";
 import type { CategoryId } from "@adhd-parenting-quiz/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
 import { trackFunnelEvent } from "../../lib/analytics";
@@ -12,26 +12,23 @@ import StepRenderer from "./StepRenderer";
 import MicroCopy from "./MicroCopy";
 import CalculatingScreen from "./CalculatingScreen";
 import InterstitialScreen from "./InterstitialScreen";
-import HalfwayScreen from "./HalfwayScreen";
+import CredibilityScreen from "./CredibilityScreen";
+import EmailCaptureScreen from "./EmailCaptureScreen";
 
 // Derived from shared package so it stays in sync automatically
-const BASIC_INFO_COUNT = BASIC_INFO_QUESTIONS.length;
+const BASIC_INFO_COUNT = BASIC_INFO_QUESTIONS.length; // 4
 
-// Halfway step: show after sensory category (3rd category)
-const HALFWAY_STEP = BASIC_INFO_COUNT +
-  ASSESSMENT_CATEGORIES.slice(0, 3).reduce((sum, cat) => sum + cat.questions.length, 0);
+// Last likert step (before the old name step)
+const LAST_QUIZ_STEP = TOTAL_STEPS - 1;
 
-// Show interstitials after inattentive, emotional, and executive_function categories.
+// Show interstitials after every category except social (the last one).
 const INTERSTITIAL_TRIGGER_STEPS = new Map<number, CategoryId>();
 {
   let offset = BASIC_INFO_COUNT;
   for (let i = 0; i < ASSESSMENT_CATEGORIES.length - 1; i++) {
     offset += ASSESSMENT_CATEGORIES[i].questions.length;
     const catId = ASSESSMENT_CATEGORIES[i].id as CategoryId;
-    // Show interstitials after inattentive, emotional, and executive_function
-    if (catId === "inattentive" || catId === "emotional" || catId === "executive_function") {
-      INTERSTITIAL_TRIGGER_STEPS.set(offset, catId);
-    }
+    INTERSTITIAL_TRIGGER_STEPS.set(offset, catId);
   }
 }
 
@@ -58,51 +55,6 @@ function isStepValid(step: number, responses: OnboardingResponses): boolean {
   return typeof val === "number" && val >= 0 && val <= 4;
 }
 
-function IntroScreen({
-  childName,
-  objPronoun,
-  onReady,
-}: {
-  childName: string;
-  objPronoun: string;
-  onReady: () => void;
-}) {
-  return (
-    <div className="min-h-[100dvh] bg-harbor-bg flex items-center justify-center px-6 py-8 overflow-y-auto">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-6 space-y-5">
-          <div className="text-center">
-            <div className="text-4xl mb-4">🔍</div>
-            <h2 className="text-xl font-bold text-harbor-primary leading-snug">
-              Great! Let's find {childName}'s ADHD Personality Type.
-            </h2>
-          </div>
-
-          <p className="text-harbor-text leading-relaxed text-center">
-            You're about to discover your child's unique brain profile, their
-            strengths, their struggles, and the hidden superpower most people
-            around {objPronoun} completely miss.
-          </p>
-
-          <p className="text-harbor-text leading-relaxed text-center">
-            Answer based on what you see at home, not what you hope for or what
-            happens on a good day. The more honest you are, the more accurate{" "}
-            {childName}'s profile will be.
-          </p>
-
-          <button
-            type="button"
-            onClick={onReady}
-            className="w-full rounded-xl bg-harbor-primary text-white px-5 py-3 font-medium hover:opacity-90 active:scale-[0.98] transition-all"
-          >
-            I'm ready →
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function OnboardingPage() {
   const {
     currentStep,
@@ -113,9 +65,11 @@ export default function OnboardingPage() {
     goBack,
   } = useOnboarding();
 
-  const [showIntro, setShowIntro] = useState(false);
+  const navigate = useNavigate();
+  const [showCredibility, setShowCredibility] = useState(false);
   const [showCalculating, setShowCalculating] = useState(false);
-  const [showHalfway, setShowHalfway] = useState(false);
+  const [showEmailCapture, setShowEmailCapture] = useState(false);
+  const [calcResult, setCalcResult] = useState<{ childName: string; childGender: string; archetypeId: string } | null>(null);
   const [interstitialCategory, setInterstitialCategory] = useState<CategoryId | null>(null);
 
   // Fire FB Pixel ViewContent when quiz starts (step 1)
@@ -127,14 +81,30 @@ export default function OnboardingPage() {
     }
   }, [currentStep]);
 
-  const childName = ((responses.childName as string | undefined) ?? "your child").trim();
-  const gender = ((responses.childGender as string) ?? "").toLowerCase();
-  const objPronoun = gender.includes("boy") ? "him" : gender.includes("girl") ? "her" : "them";
+  const childGender = (responses.childGender as string) ?? "";
 
   const handleShowCalculating = useCallback(() => {
     trackFunnelEvent("quiz_completed");
     setShowCalculating(true);
   }, []);
+
+  // Determine what happens after a step completes
+  const advanceFromStep = useCallback(
+    (step: number) => {
+      // After last quiz question, skip name step and go straight to calculating
+      if (step >= LAST_QUIZ_STEP) {
+        handleShowCalculating();
+      } else if (step === BASIC_INFO_COUNT) {
+        // After last basic info question, show credibility screen
+        setShowCredibility(true);
+      } else if (INTERSTITIAL_TRIGGER_STEPS.has(step)) {
+        setInterstitialCategory(INTERSTITIAL_TRIGGER_STEPS.get(step)!);
+      } else {
+        goNext();
+      }
+    },
+    [goNext, handleShowCalculating],
+  );
 
   const handleAnswer = useCallback(
     (
@@ -162,35 +132,48 @@ export default function OnboardingPage() {
         config.type === "likert";
 
       if (shouldAutoAdvance) {
-        setTimeout(() => {
-          if (step === TOTAL_STEPS) {
-            handleShowCalculating();
-          } else if (step === BASIC_INFO_COUNT) {
-            setShowIntro(true);
-          } else if (step === HALFWAY_STEP) {
-            setShowHalfway(true);
-          } else if (INTERSTITIAL_TRIGGER_STEPS.has(step)) {
-            setInterstitialCategory(INTERSTITIAL_TRIGGER_STEPS.get(step)!);
-          } else {
-            goNext();
-          }
-        }, 400);
+        setTimeout(() => advanceFromStep(step), 400);
       }
     },
-    [saveAnswer, goNext, handleShowCalculating],
+    [saveAnswer, advanceFromStep],
   );
 
-  if (showCalculating) {
-    return <CalculatingScreen responses={responses} />;
+  if (showEmailCapture && calcResult) {
+    return (
+      <EmailCaptureScreen
+        childName={calcResult.childName}
+        onSubmit={(email) => {
+          sessionStorage.setItem("wildprint_responses", JSON.stringify(responses));
+          sessionStorage.setItem("wildprint_childName", calcResult.childName);
+          sessionStorage.setItem("wildprint_childGender", calcResult.childGender);
+          sessionStorage.setItem("wildprint_archetypeId", calcResult.archetypeId);
+          sessionStorage.setItem("wildprint_email", email);
+          clearOnboardingStorage();
+          navigate("/results", {
+            replace: true,
+            state: {
+              responses,
+              childName: calcResult.childName,
+              childGender: calcResult.childGender,
+              archetypeId: calcResult.archetypeId,
+              email,
+            },
+          });
+        }}
+      />
+    );
   }
 
-  if (showHalfway) {
+  if (showCalculating) {
     return (
-      <HalfwayScreen
-        childName={childName}
-        onContinue={() => {
-          setShowHalfway(false);
-          goNext();
+      <CalculatingScreen
+        responses={responses}
+        onNameSubmit={(name) => {
+          saveAnswer(LAST_QUIZ_STEP + 1, "childName", name);
+        }}
+        onComplete={(data) => {
+          setCalcResult(data);
+          setShowEmailCapture(true);
         }}
       />
     );
@@ -200,7 +183,8 @@ export default function OnboardingPage() {
     return (
       <InterstitialScreen
         categoryId={interstitialCategory}
-        childName={childName}
+        childName="your child"
+        childGender={childGender}
         onContinue={() => {
           setInterstitialCategory(null);
           goNext();
@@ -209,13 +193,11 @@ export default function OnboardingPage() {
     );
   }
 
-  if (showIntro) {
+  if (showCredibility) {
     return (
-      <IntroScreen
-        childName={childName}
-        objPronoun={objPronoun}
-        onReady={() => {
-          setShowIntro(false);
+      <CredibilityScreen
+        onContinue={() => {
+          setShowCredibility(false);
           goNext();
         }}
       />
@@ -236,21 +218,9 @@ export default function OnboardingPage() {
       saveStatus="idle"
       canContinue={canContinue}
       showContinue={showContinue}
-      hideBack={currentStep === 5}
+      hideBack={currentStep === 1}
       onBack={goBack}
-      onContinue={() => {
-        if (currentStep === TOTAL_STEPS) {
-          handleShowCalculating();
-        } else if (currentStep === BASIC_INFO_COUNT) {
-          setShowIntro(true);
-        } else if (currentStep === HALFWAY_STEP) {
-          setShowHalfway(true);
-        } else if (INTERSTITIAL_TRIGGER_STEPS.has(currentStep)) {
-          setInterstitialCategory(INTERSTITIAL_TRIGGER_STEPS.get(currentStep)!);
-        } else {
-          goNext();
-        }
-      }}
+      onContinue={() => advanceFromStep(currentStep)}
     >
       <AnimationWrapper stepKey={currentStep} direction={direction}>
         <MicroCopy step={currentStep} />

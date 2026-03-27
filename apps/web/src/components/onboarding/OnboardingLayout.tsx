@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import ProgressBar from "../ui/ProgressBar";
 import SaveIndicator from "../ui/SaveIndicator";
 import Button from "../ui/Button";
+import { TrustPilotReview } from "./TrustPilotReview";
 
 interface OnboardingLayoutProps {
   currentStep: number;
@@ -26,12 +27,27 @@ export default function OnboardingLayout({
 }: OnboardingLayoutProps) {
   return (
     <div className="min-h-[100dvh] overflow-y-auto bg-harbor-bg flex flex-col">
-      <ProgressBar current={currentStep} />
+      {/* Persistent header with logo */}
+      <header className="sticky top-0 z-50 bg-harbor-bg">
+        <div className="flex items-center justify-center py-3">
+          <img
+            src="/adhd-parenting-logo.png"
+            alt="ADHD Parenting"
+            className="h-12 object-contain"
+          />
+        </div>
+        <ProgressBar current={currentStep} />
+        {currentStep === 1 && (
+          <div className="py-2">
+            <TrustPilotReview />
+          </div>
+        )}
+      </header>
 
-      <div className="flex-1 flex flex-col items-center justify-center max-w-xl mx-auto w-full px-6">
+      <div className="flex-1 flex flex-col items-center max-w-xl mx-auto w-full px-6">
         <SaveIndicator status={saveStatus} />
 
-        <div className="w-full py-4 md:py-8">
+        <div className="w-full py-2 md:py-4">
           {children}
         </div>
 
