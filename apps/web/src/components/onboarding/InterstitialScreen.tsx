@@ -46,7 +46,7 @@ const CARDS: Record<CategoryId, InterstitialCard> = {
   },
   emotional: {
     emoji: "💛",
-    headline: "It's not just \"big feelings.\"",
+    headline: "Emotional dysregulation is the most misunderstood part of ADHD",
     body: [
       "Research from the University of Cambridge found that 1 in 2 children with ADHD experience significant emotional dysregulation, reacting with an intensity that doesn't match the situation.",
       "This is one of the most misunderstood parts of ADHD — and one of the most important to get right.",
@@ -143,7 +143,7 @@ export default function InterstitialScreen({
             <img
               src={card.bottomImage}
               alt=""
-              className="mx-auto h-28 object-contain mt-0"
+              className="mx-auto h-36 object-contain mt-0"
             />
           )}
         </div>

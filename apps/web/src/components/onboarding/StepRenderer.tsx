@@ -9,21 +9,20 @@ import type { LikertVariant } from "./questions/LikertSelect";
 
 
 
-// Fixed pseudo-random sequence: varied run lengths so it doesn't feel repetitive
-// 38 questions total across 6 categories, 3 template variants
+// One consistent variant per section — no mixing within a section
 const VARIANT_SEQUENCE: LikertVariant[] = [
   // inattentive (7 questions)
-  "circles", "circles", "vertical", "emoji", "emoji", "vertical", "circles",
+  "vertical", "vertical", "vertical", "vertical", "vertical", "vertical", "vertical",
   // hyperactive (7 questions)
-  "vertical", "vertical", "vertical", "emoji", "circles", "circles", "emoji",
+  "circles", "circles", "circles", "circles", "circles", "circles", "circles",
   // sensory (6 questions)
-  "emoji", "emoji", "circles", "vertical", "vertical", "emoji",
+  "emoji", "emoji", "emoji", "emoji", "emoji", "emoji",
   // emotional (6 questions)
-  "vertical", "circles", "circles", "emoji", "vertical", "vertical",
+  "vertical", "vertical", "vertical", "vertical", "vertical", "vertical",
   // executive_function (6 questions)
-  "circles", "emoji", "emoji", "vertical", "circles", "vertical",
+  "circles", "circles", "circles", "circles", "circles", "circles",
   // social (6 questions)
-  "vertical", "emoji", "circles", "circles", "emoji", "vertical",
+  "emoji", "emoji", "emoji", "emoji", "emoji", "emoji",
 ];
 
 interface StepRendererProps {
