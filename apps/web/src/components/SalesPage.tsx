@@ -369,22 +369,22 @@ export default function SalesPage() {
         <CountdownTimer onGetReport={scrollToBuy} />
       </div>
 
-      <div className="max-w-lg w-full mx-auto px-6 py-10 space-y-10">
+      <div className="max-w-lg w-full mx-auto px-[10px] py-10 space-y-10">
 
         {/* ── Section 1: Headline ── */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-2 px-[10px]">
           <h1 className="text-3xl font-bold text-harbor-primary leading-tight">
             There's a reason {name} does what {heShe} does.
           </h1>
           <p className="text-harbor-text/70 text-lg leading-snug">
-            It's all inside {HisHer} ADHD Personality Report…
+            It's all inside {heShe === "he" ? "his" : heShe === "she" ? "her" : "their"} ADHD Personality Report…
           </p>
         </div>
 
         {/* ── Section 2: Blurred Report Preview ── */}
-        <div className="relative rounded-2xl border border-harbor-text/10 shadow-sm overflow-hidden bg-white">
-          <div className="bg-harbor-primary/5 px-6 py-3 flex items-center justify-between border-b border-harbor-text/[0.08]">
-            <span className="text-[10px] text-harbor-text/40 uppercase tracking-widest font-semibold">ADHD Personality Report</span>
+        <div className="relative rounded-sm border border-harbor-text/10 shadow-xl overflow-hidden bg-white">
+          <div className="bg-white px-6 py-3 flex items-center justify-between border-b border-harbor-text/[0.08]">
+            <span className="text-[10px] text-harbor-text/40 uppercase tracking-widest font-semibold">{new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
             <span className="text-[10px] text-harbor-text/30">{name}'s unique profile</span>
           </div>
           <div className="p-6 space-y-4">
