@@ -1,16 +1,12 @@
 ---
 import Base from '../layouts/Base.astro'
-import UpsellOffer from '../components/checkout/UpsellOffer'
 import { getProducts } from '../lib/getProducts'
 
-const paymentIntentId = Astro.url.searchParams.get('payment_intent') ?? ''
-const upsellStatus    = Astro.url.searchParams.get('upsell')
-const childName       = Astro.url.searchParams.get('childName') ?? 'your child'
-const email           = Astro.url.searchParams.get('email') ?? ''
-const gender          = Astro.url.searchParams.get('gender') ?? 'their' // 'his' | 'her' | 'their'
-const showUpsell      = paymentIntentId && !upsellStatus
+const upsellStatus = Astro.url.searchParams.get('upsell')
+const childName    = Astro.url.searchParams.get('childName') ?? 'your child'
+const email        = Astro.url.searchParams.get('email') ?? ''
+const gender       = Astro.url.searchParams.get('gender') ?? ''
 
-// Pronoun: URL param 'gender' = 'male' | 'female' | 'other'
 const pronoun = gender === 'male' ? 'his' : gender === 'female' ? 'her' : 'their'
 
 const products = await getProducts()
@@ -52,22 +48,6 @@ const products = await getProducts()
         <p style="font-size:var(--text-base); color:var(--color-success); font-weight:var(--weight-medium);">
           ✅ {products.upsell.name} added to your order!
         </p>
-      </div>
-    )}
-
-    {showUpsell && (
-      <div style="margin-bottom:32px;">
-        <UpsellOffer
-          client:load
-          product={products.upsell}
-          paymentIntentId={paymentIntentId}
-          onAccept={() => {
-            window.location.href = `/thank-you?payment_intent=${paymentIntentId}&upsell=success&childName=${encodeURIComponent(childName)}&email=${encodeURIComponent(email)}&gender=${gender}`
-          }}
-          onDecline={() => {
-            window.location.href = `/thank-you?payment_intent=${paymentIntentId}&upsell=declined&childName=${encodeURIComponent(childName)}&email=${encodeURIComponent(email)}&gender=${gender}`
-          }}
-        />
       </div>
     )}
 

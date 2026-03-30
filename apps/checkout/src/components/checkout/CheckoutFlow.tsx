@@ -142,7 +142,7 @@ export default function CheckoutFlow({ config, publishableKey, email = '', child
               if (gender)         p.set('gender', gender)
               if (fbp)            p.set('_fbp', fbp)
               if (fbc)            p.set('_fbc', fbc)
-              return `${base}/thank-you?${p.toString()}`
+              return `${base}/upsell?${p.toString()}`
             })()}
           />
         </div>

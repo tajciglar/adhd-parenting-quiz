@@ -1,0 +1,49 @@
+---
+import Base from '../layouts/Base.astro'
+import UpsellOffer from '../components/checkout/UpsellOffer'
+import { getProducts } from '../lib/getProducts'
+
+const paymentIntentId = Astro.url.searchParams.get('payment_intent') ?? ''
+const childName       = Astro.url.searchParams.get('childName') ?? 'your child'
+const email           = Astro.url.searchParams.get('email') ?? ''
+const gender          = Astro.url.searchParams.get('gender') ?? ''
+const fbp             = Astro.url.searchParams.get('_fbp') ?? ''
+const fbc             = Astro.url.searchParams.get('_fbc') ?? ''
+
+// If no payment intent, redirect to home
+if (!paymentIntentId) {
+  return Astro.redirect('/')
+}
+
+const products = await getProducts()
+
+const thankYouBase = `/thank-you?payment_intent=${paymentIntentId}&childName=${encodeURIComponent(childName)}&email=${encodeURIComponent(email)}&gender=${gender}&_fbp=${fbp}&_fbc=${fbc}`
+---
+
+<Base title="Special One-Time Offer — ADHD Personality Report">
+  <div style="max-width:640px; margin:0 auto; padding:48px 20px 80px;">
+
+    <div style="text-align:center; margin-bottom:32px;">
+      <div style="font-size:40px; margin-bottom:12px;">🎉</div>
+      <h1 style="font-size:var(--text-2xl); font-weight:var(--weight-bold); color:var(--color-text-primary); line-height:1.3; margin-bottom:8px;">
+        Your payment was successful!
+      </h1>
+      <p style="font-size:var(--text-base); color:var(--color-text-body);">
+        Before you go — we have a special one-time offer for you.
+      </p>
+    </div>
+
+    <UpsellOffer
+      client:load
+      product={products.upsell}
+      paymentIntentId={paymentIntentId}
+      onAccept={() => {
+        window.location.href = `${thankYouBase}&upsell=success`
+      }}
+      onDecline={() => {
+        window.location.href = `${thankYouBase}&upsell=declined`
+      }}
+    />
+
+  </div>
+</Base>
