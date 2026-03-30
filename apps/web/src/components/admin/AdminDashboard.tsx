@@ -143,7 +143,6 @@ function getStepLabel(step: number): string {
   const config = getStepConfig(step);
   if (!config) return `Step ${step}`;
   if (config.type === "basic-info") {
-    // Step 43 is the child name — in V2 this maps to the processing screen popup
     return config.question.title;
   }
   // Shorten long category subtitles
@@ -154,15 +153,44 @@ function getStepLabel(step: number): string {
   return `${shortCat} (Q${config.questionIndex + 1})`;
 }
 
-function DropoffBar({ step, views, dropoffRate, maxViews }: StepDropoff & { maxViews: number }) {
+// V1 had 6 basic-info steps (caregiverType, childAgeRange, childGender,
+// adhdJourney, learningEnvironment, childName) then 38 Likert starting at step 7.
+// V2/current has 4 basic-info + Likert from step 5 — so V1 Likert step N = current step (N-2).
+const V1_BASIC_LABELS: Record<number, string> = {
+  1: "You are (Caregiver)",
+  2: "How old is your child?",
+  3: "You are raising:",
+  4: "ADHD Journey",
+  5: "Learning Environment",
+  6: "Child's First Name ★",
+};
+
+function getStepLabelV1(step: number): string {
+  if (V1_BASIC_LABELS[step]) return V1_BASIC_LABELS[step];
+  // Likert questions in V1 start at step 7 → same as current config step (step - 2)
+  const shifted = step - 2;
+  const config = getStepConfig(shifted);
+  if (!config) return `Step ${step}`;
+  if (config.type === "likert") {
+    const shortCat = config.categorySubtitle
+      .replace(" Traits", "")
+      .replace("Hyperactive/Impulsive", "Hyperactive")
+      .replace("Executive Function", "Exec. Function");
+    return `${shortCat} (Q${config.questionIndex + 1})`;
+  }
+  return `Step ${step}`;
+}
+
+function DropoffBar({ step, views, dropoffRate, maxViews, version }: StepDropoff & { maxViews: number; version?: "v1" | "v2" }) {
+  const label = version === "v1" ? getStepLabelV1(step) : getStepLabel(step);
   const width = maxViews > 0 ? (views / maxViews) * 100 : 0;
   const isHighDropoff = dropoffRate > 15;
   const isMedDropoff = dropoffRate > 8;
 
   return (
     <div className="flex items-center gap-3 text-sm">
-      <span className="w-44 text-right text-harbor-text/50 truncate" title={`${step}. ${getStepLabel(step)}`}>
-        <span className="tabular-nums">{step}.</span> {getStepLabel(step)}
+      <span className="w-44 text-right text-harbor-text/50 truncate" title={`${step}. ${label}`}>
+        <span className="tabular-nums">{step}.</span> {label}
       </span>
       <div className="flex-1 h-6 bg-harbor-text/5 rounded overflow-hidden relative">
         <div
@@ -597,7 +625,7 @@ export default function AdminDashboard() {
                     {(() => {
                       const maxV = Math.max(...versionDropoffV1.map((s) => s.views), 1);
                       return versionDropoffV1.map((item) => (
-                        <DropoffBar key={item.step} {...item} maxViews={maxV} />
+                        <DropoffBar key={item.step} {...item} maxViews={maxV} version="v1" />
                       ));
                     })()}
                   </div>
@@ -612,7 +640,7 @@ export default function AdminDashboard() {
                     {(() => {
                       const maxV = Math.max(...versionDropoffV2.map((s) => s.views), 1);
                       return versionDropoffV2.map((item) => (
-                        <DropoffBar key={item.step} {...item} maxViews={maxV} />
+                        <DropoffBar key={item.step} {...item} maxViews={maxV} version="v2" />
                       ));
                     })()}
                   </div>
@@ -629,7 +657,7 @@ export default function AdminDashboard() {
                   {(() => {
                     const maxV = Math.max(...data.map((s) => s.views), 1);
                     return data.map((item) => (
-                      <DropoffBar key={item.step} {...item} maxViews={maxV} />
+                      <DropoffBar key={item.step} {...item} maxViews={maxV} version={(versionView === 'v1' ? 'v1' : 'v2') as 'v1' | 'v2'} />
                     ));
                   })()}
                 </div>
@@ -714,7 +742,7 @@ export default function AdminDashboard() {
                     {(() => {
                       const maxV = Math.max(...versionDropoffV1.map((s) => s.views), 1);
                       return versionDropoffV1.map((item) => (
-                        <DropoffBar key={item.step} {...item} maxViews={maxV} />
+                        <DropoffBar key={item.step} {...item} maxViews={maxV} version="v1" />
                       ));
                     })()}
                   </div>
@@ -729,7 +757,7 @@ export default function AdminDashboard() {
                     {(() => {
                       const maxV = Math.max(...versionDropoffV2.map((s) => s.views), 1);
                       return versionDropoffV2.map((item) => (
-                        <DropoffBar key={item.step} {...item} maxViews={maxV} />
+                        <DropoffBar key={item.step} {...item} maxViews={maxV} version="v2" />
                       ));
                     })()}
                   </div>
@@ -745,7 +773,7 @@ export default function AdminDashboard() {
                 if (!data?.length) return <p className="text-sm text-harbor-text/40 text-center py-4">No data</p>;
                 const maxV = Math.max(...data.map((s) => s.views), 1);
                 return data.map((item) => (
-                  <DropoffBar key={item.step} {...item} maxViews={maxV} />
+                  <DropoffBar key={item.step} {...item} maxViews={maxV} version={(versionView === 'v1' ? 'v1' : 'v2') as 'v1' | 'v2'} />
                 ));
               })()}
             </div>
