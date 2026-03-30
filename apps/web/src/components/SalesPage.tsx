@@ -66,7 +66,7 @@ function CountdownTimer({ onGetReport }: { onGetReport?: () => void }) {
       <button
         type="button"
         onClick={onGetReport}
-        className="bg-harbor-primary text-white font-bold text-sm px-4 py-2.5 rounded-xl whitespace-nowrap active:scale-95 transition-all flex-shrink-0 shadow-sm hover:opacity-90"
+        className="bg-harbor-primary text-white font-bold text-sm px-4 py-2.5 rounded-xl whitespace-nowrap active:scale-95 transition-all flex-shrink-0 shadow-sm hover:opacity-90 cursor-pointer"
       >
         Get Report →
       </button>
@@ -469,7 +469,7 @@ export default function SalesPage() {
             <button
               type="button"
               onClick={scrollToBuy}
-              className="bg-green-500 hover:bg-green-600 active:scale-[0.98] text-white rounded-xl px-5 py-3 flex items-center gap-2 transition-all shadow-md font-semibold text-sm"
+              className="bg-green-500 hover:bg-green-600 active:scale-[0.98] text-white rounded-xl px-5 py-3 flex items-center gap-2 transition-all shadow-md font-semibold text-sm cursor-pointer"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -554,7 +554,7 @@ export default function SalesPage() {
               type="button"
               onClick={() => void handleBuy()}
               disabled={isSubmitting}
-              className="w-full rounded-xl bg-harbor-primary hover:opacity-90 text-white px-5 py-4 font-bold text-lg active:scale-[0.98] transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-xl bg-harbor-primary hover:opacity-90 text-white px-5 py-4 font-bold text-lg active:scale-[0.98] transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isSubmitting ? "Processing…" : "Get Personalized Report →"}
             </button>
@@ -725,7 +725,7 @@ export default function SalesPage() {
               type="button"
               onClick={() => void handleBuy()}
               disabled={isSubmitting}
-              className="w-full rounded-xl bg-harbor-primary hover:opacity-90 text-white px-5 py-4 font-bold text-lg active:scale-[0.98] transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-xl bg-harbor-primary hover:opacity-90 text-white px-5 py-4 font-bold text-lg active:scale-[0.98] transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isSubmitting ? "Processing…" : "Get Personalized Report →"}
             </button>

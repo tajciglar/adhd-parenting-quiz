@@ -190,7 +190,7 @@ export default function ReportPage() {
             <button
               onClick={() => void handleDownloadPdf()}
               disabled={downloading}
-              className="rounded-xl bg-harbor-primary text-white px-5 py-3 font-medium hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-xl bg-harbor-primary text-white px-5 py-3 font-medium hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {downloading ? "Generating PDF..." : "Download PDF"}
             </button>

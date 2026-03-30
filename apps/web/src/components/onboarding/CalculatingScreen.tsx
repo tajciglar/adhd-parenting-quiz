@@ -281,7 +281,7 @@ export default function CalculatingScreen({
               type="button"
               onClick={handleNameSubmit}
               disabled={!nameValue.trim()}
-              className="w-full rounded-xl bg-harbor-primary text-white px-5 py-4 font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full rounded-xl bg-harbor-primary text-white px-5 py-4 font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               Continue
             </button>

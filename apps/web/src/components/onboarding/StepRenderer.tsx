@@ -137,7 +137,7 @@ export default function StepRenderer({
               <button
                 key={card.value}
                 onClick={() => onAnswer(step, q.key, card.value, true)}
-                className="group relative rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-lg active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-harbor-primary/30 aspect-[3/4] bg-[#e8e0f0]"
+                className="group relative rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-lg active:scale-[0.97] focus:outline-none focus:ring-2 focus:ring-harbor-primary/30 aspect-[3/4] bg-[#e8e0f0] cursor-pointer"
               >
                 <img
                   src={card.image}

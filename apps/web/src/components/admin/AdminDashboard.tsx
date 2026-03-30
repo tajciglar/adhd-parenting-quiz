@@ -339,7 +339,7 @@ export default function AdminDashboard() {
           ) : null}
           <button
             onClick={handleLogin}
-            className="w-full rounded-xl bg-harbor-primary text-white px-5 py-3 font-medium hover:opacity-90 transition"
+            className="w-full rounded-xl bg-harbor-primary text-white px-5 py-3 font-medium hover:opacity-90 transition cursor-pointer"
           >
             Sign In
           </button>
@@ -398,7 +398,7 @@ export default function AdminDashboard() {
                 <button
                   key={d}
                   onClick={() => setDays(d)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer ${
                     days === d
                       ? "bg-harbor-primary text-white"
                       : "bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30"
@@ -411,7 +411,7 @@ export default function AdminDashboard() {
             <button
               onClick={() => void fetchAnalytics(adminKey, days)}
               disabled={loading}
-              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30 transition disabled:opacity-50"
+              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30 transition disabled:opacity-50 cursor-pointer"
               title="Refresh data"
             >
               {loading ? "⏳" : "🔄"}
@@ -433,7 +433,7 @@ export default function AdminDashboard() {
                   URL.revokeObjectURL(url);
                 });
               }}
-              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30 transition"
+              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30 transition cursor-pointer"
               title="Export all submissions as CSV"
             >
               Export CSV
@@ -1126,7 +1126,7 @@ export default function AdminDashboard() {
                                   void navigator.clipboard.writeText(m.newPdfUrl!);
                                   alert(`Copied link for ${m.email}`);
                                 }}
-                                className="px-2 py-1 rounded text-xs bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition"
+                                className="px-2 py-1 rounded text-xs bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition cursor-pointer"
                               >
                                 Copy Link
                               </button>
@@ -1150,7 +1150,7 @@ export default function AdminDashboard() {
           </p>
           <button
             onClick={() => setShowResetConfirm(true)}
-            className="px-4 py-2 rounded-lg border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition"
+            className="px-4 py-2 rounded-lg border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition cursor-pointer"
           >
             Reset All Analytics
           </button>
@@ -1171,14 +1171,14 @@ export default function AdminDashboard() {
                 <button
                   onClick={() => setShowResetConfirm(false)}
                   disabled={resetting}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-harbor-text/20 text-harbor-text/70 text-sm font-medium hover:bg-harbor-text/5 transition disabled:opacity-50"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-harbor-text/20 text-harbor-text/70 text-sm font-medium hover:bg-harbor-text/5 transition disabled:opacity-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => void handleReset()}
                   disabled={resetting}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition disabled:opacity-50"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition disabled:opacity-50 cursor-pointer"
                 >
                   {resetting ? "Resetting..." : "Yes, Reset Dashboard"}
                 </button>

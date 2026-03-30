@@ -39,7 +39,7 @@ export default function CredibilityScreen({
         <button
           type="button"
           onClick={onContinue}
-          className="w-full rounded-xl bg-harbor-primary text-white px-5 py-4 font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-sm"
+          className="w-full rounded-xl bg-harbor-primary text-white px-5 py-4 font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-sm cursor-pointer"
         >
           I'm ready →
         </button>
