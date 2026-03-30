@@ -492,13 +492,13 @@ export default async function guestRoutes(fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const body = request.body as { eventId?: string; sourceUrl?: string; fbp?: string; fbc?: string } | null;
+      const body = request.body as { eventId?: string; sourceUrl?: string; fbp?: string; fbc?: string; email?: string } | null;
       const eventId = body?.eventId ?? `vc_${Date.now()}`;
 
       void sendMetaEvent({
         eventName: "ViewContent",
         eventId,
-        email: "",             // no email yet on results page — match by fbp/fbc only
+        email: body?.email ?? "",
         sourceUrl: body?.sourceUrl ?? "",
         clientIp: request.ip ?? "",
         userAgent: request.headers["user-agent"] ?? "",

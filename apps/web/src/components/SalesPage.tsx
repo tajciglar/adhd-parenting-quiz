@@ -293,6 +293,7 @@ export default function SalesPage() {
       sourceUrl: window.location.href,
       fbp: getFbp(),
       fbc: getFbc(),
+      ...(email ? { email } : {}),
     }).catch(() => { /* non-critical */ });
   }, [archetypeId]);
 
@@ -340,8 +341,10 @@ export default function SalesPage() {
         if (fbp) params.set("_fbp", fbp);
         if (fbc) params.set("_fbc", fbc);
         const separator = wpCheckoutUrl.includes("?") ? "&" : "?";
+        const redirectUrl = `${wpCheckoutUrl}${separator}${params.toString()}`;
         trackFunnelEvent("wp_checkout_redirect");
-        window.location.href = `${wpCheckoutUrl}${separator}${params.toString()}`;
+        // Small delay so InitiateCheckout pixel fires before browser navigates away
+        setTimeout(() => { window.location.href = redirectUrl; }, 300);
       } else {
         navigate("/thank-you", { replace: true });
       }

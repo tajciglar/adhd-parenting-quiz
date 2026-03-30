@@ -331,7 +331,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
         }
       }
     }
-    const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, d]) => ({ date, ...d }));
+    const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([date, d]) => ({ date, ...d }));
 
     // Archetype distribution
     const archetypeDistribution = (archetypeData ?? []).map((r: any) => ({ archetypeId: String(r.archetype_id), count: Number(r.count) }));
@@ -485,7 +485,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     if (!dailyMap.has(date)) dailyMap.set(date, { started: new Set(), completed: new Set(), emailSubmitted: new Set(), purchased: new Set() });
     dailyMap.get(date)!.purchased.add(row.id);
   }
-  const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, sets]) => ({ date, started: sets.started.size, completed: sets.completed.size, emailSubmitted: sets.emailSubmitted.size, purchased: sets.purchased.size }));
+  const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([date, sets]) => ({ date, started: sets.started.size, completed: sets.completed.size, emailSubmitted: sets.emailSubmitted.size, purchased: sets.purchased.size }));
 
   // Archetype + trait pair distribution
   const sinceDate = new Date(sinceTs);
