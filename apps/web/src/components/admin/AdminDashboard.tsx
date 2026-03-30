@@ -211,6 +211,12 @@ export default function AdminDashboard() {
   const [dailyDropoff, setDailyDropoff] = useState<StepDropoff[] | null>(null);
   const [dailyDropoffLoading, setDailyDropoffLoading] = useState(false);
 
+  // Version comparison
+  const [versionView, setVersionView] = useState<'v1' | 'v2' | 'compare'>('v2');
+  const [versionDropoffV1, setVersionDropoffV1] = useState<StepDropoff[] | null>(null);
+  const [versionDropoffV2, setVersionDropoffV2] = useState<StepDropoff[] | null>(null);
+  const [versionLoading, setVersionLoading] = useState(false);
+
   const fetchDailyDropoff = useCallback(
     async (date: string) => {
       if (!date) return;
@@ -231,6 +237,22 @@ export default function AdminDashboard() {
     },
     [adminKey],
   );
+
+  const fetchVersionDropoff = useCallback(async () => {
+    setVersionLoading(true);
+    try {
+      const [r1, r2] = await Promise.all([
+        fetch(`${API_URL}/api/admin/version-dropoff?version=v1`, { headers: { 'x-admin-key': adminKey } }),
+        fetch(`${API_URL}/api/admin/version-dropoff?version=v2`, { headers: { 'x-admin-key': adminKey } }),
+      ]);
+      const d1 = await r1.json() as { stepDropoff: StepDropoff[] };
+      const d2 = await r2.json() as { stepDropoff: StepDropoff[] };
+      setVersionDropoffV1(d1.stepDropoff);
+      setVersionDropoffV2(d2.stepDropoff);
+    } catch { /* ignore */ } finally {
+      setVersionLoading(false);
+    }
+  }, [adminKey]);
 
   const fetchAnalytics = useCallback(
     async (key: string, numDays: number) => {
@@ -288,8 +310,9 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (authenticated && adminKey) {
       void fetchAnalytics(adminKey, days);
+      void fetchVersionDropoff();
     }
-  }, [authenticated, adminKey, days, fetchAnalytics]);
+  }, [authenticated, adminKey, days, fetchAnalytics, fetchVersionDropoff]);
 
   // Login gate
   if (!authenticated) {
@@ -334,7 +357,31 @@ export default function AdminDashboard() {
   const maxViews = Math.max(...(analytics?.stepDropoff.map((s) => s.views) ?? [1]));
 
   return (
-    <div className="min-h-screen bg-harbor-bg px-6 py-8">
+    <div className="min-h-screen bg-harbor-bg flex">
+      {/* Sidebar */}
+      <nav className="hidden md:flex flex-col w-52 shrink-0 sticky top-0 h-screen overflow-y-auto bg-white border-r border-harbor-text/10 py-6 px-3 space-y-1">
+        {[
+          { emoji: '📊', label: 'Funnel Overview', id: 'section-funnel' },
+          { emoji: '📉', label: 'Step Dropoff', id: 'section-step-dropoff' },
+          { emoji: '📅', label: 'Daily Dropoff', id: 'section-daily-dropoff' },
+          { emoji: '🔀', label: 'Version Comparison', id: 'section-version-dropoff' },
+          { emoji: '📈', label: 'Daily Trend', id: 'section-daily-trend' },
+          { emoji: '🧬', label: 'Archetypes', id: 'section-archetypes' },
+          { emoji: '📋', label: 'Submissions', id: 'section-submissions' },
+          { emoji: '👥', label: 'By Category', id: 'section-category-users' },
+          { emoji: '⚙️', label: 'Settings', id: 'section-settings' },
+        ].map(({ emoji, label, id }) => (
+          <button
+            key={id}
+            onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
+            className="w-full text-left px-3 py-2 rounded-lg text-sm text-harbor-text/70 hover:bg-harbor-primary/5 hover:text-harbor-primary transition flex items-center gap-2"
+          >
+            <span>{emoji}</span> {label}
+          </button>
+        ))}
+      </nav>
+      {/* Main content */}
+      <div className="flex-1 px-6 py-8 min-w-0">
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
@@ -406,7 +453,7 @@ export default function AdminDashboard() {
 
         {/* Funnel Summary Cards */}
         {summary ? (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div id="section-funnel" className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <MetricCard
               label="Quiz Started"
               value={summary.quizStarted}
@@ -449,7 +496,7 @@ export default function AdminDashboard() {
 
         {/* Step Dropoff */}
         {analytics?.stepDropoff.length ? (
-          <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
+          <div id="section-step-dropoff" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-harbor-primary">Step-by-Step Dropoff</h2>
               <div className="flex items-center gap-3 text-xs text-harbor-text/40">
@@ -473,7 +520,7 @@ export default function AdminDashboard() {
         ) : null}
 
         {/* Per-Date Step Dropoff */}
-        <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
+        <div id="section-daily-dropoff" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <h2 className="text-lg font-semibold text-harbor-primary">Daily Step Dropoff</h2>
@@ -511,9 +558,87 @@ export default function AdminDashboard() {
           )}
         </div>
 
+        {/* Version Comparison */}
+        <div id="section-version-dropoff" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-harbor-primary">Version Comparison</h2>
+            <p className="text-xs text-harbor-text/40 mt-0.5">
+              V1 = before Mar 28 (name at start) · V2 = from Mar 28 (name at end)
+            </p>
+          </div>
+          {/* Version tabs */}
+          <div className="flex gap-1.5">
+            {(['v1', 'v2', 'compare'] as const).map((v) => (
+              <button
+                key={v}
+                onClick={() => setVersionView(v)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+                  versionView === v
+                    ? 'bg-harbor-primary text-white'
+                    : 'bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30'
+                }`}
+              >
+                {v === 'v1' ? 'V1' : v === 'v2' ? 'V2' : 'Side by Side'}
+              </button>
+            ))}
+          </div>
+          {versionLoading ? (
+            <p className="text-sm text-harbor-text/40 text-center py-4">Loading version data...</p>
+          ) : versionView === 'compare' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-sm font-semibold text-harbor-text/60 mb-2">V1 — Before Mar 28</h3>
+                {versionDropoffV1?.length ? (
+                  <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
+                    {(() => {
+                      const maxV = Math.max(...versionDropoffV1.map((s) => s.views), 1);
+                      return versionDropoffV1.map((item) => (
+                        <DropoffBar key={item.step} {...item} maxViews={maxV} />
+                      ));
+                    })()}
+                  </div>
+                ) : (
+                  <p className="text-sm text-harbor-text/40 text-center py-4">No V1 data</p>
+                )}
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-harbor-text/60 mb-2">V2 — From Mar 28</h3>
+                {versionDropoffV2?.length ? (
+                  <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
+                    {(() => {
+                      const maxV = Math.max(...versionDropoffV2.map((s) => s.views), 1);
+                      return versionDropoffV2.map((item) => (
+                        <DropoffBar key={item.step} {...item} maxViews={maxV} />
+                      ));
+                    })()}
+                  </div>
+                ) : (
+                  <p className="text-sm text-harbor-text/40 text-center py-4">No V2 data</p>
+                )}
+              </div>
+            </div>
+          ) : (
+            (() => {
+              const data = versionView === 'v1' ? versionDropoffV1 : versionDropoffV2;
+              return data?.length ? (
+                <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
+                  {(() => {
+                    const maxV = Math.max(...data.map((s) => s.views), 1);
+                    return data.map((item) => (
+                      <DropoffBar key={item.step} {...item} maxViews={maxV} />
+                    ));
+                  })()}
+                </div>
+              ) : (
+                <p className="text-sm text-harbor-text/40 text-center py-4">No data for {versionView.toUpperCase()}</p>
+              );
+            })()
+          )}
+        </div>
+
         {/* Daily Trend */}
         {analytics?.dailyTrend.length ? (
-          <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
+          <div id="section-daily-trend" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
             <h2 className="text-lg font-semibold text-harbor-primary">Daily Trend</h2>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -551,7 +676,7 @@ export default function AdminDashboard() {
         ) : null}
 
         {/* Avg Completion Time + Archetype Distribution */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div id="section-archetypes" className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Avg Completion Time */}
           <div className="bg-white rounded-xl border border-harbor-text/10 p-5 space-y-1">
             <p className="text-xs font-semibold uppercase tracking-wider text-harbor-text/40">
@@ -673,7 +798,7 @@ export default function AdminDashboard() {
           return (
             <>
               {onboarding.length ? (
-                <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
+                <div id="section-answers" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
                   <h2 className="text-lg font-semibold text-harbor-primary">Onboarding Answers</h2>
                   <p className="text-xs text-harbor-text/40">Demographics and basic info questions</p>
                   <AnswerTable items={onboarding} />
@@ -692,7 +817,7 @@ export default function AdminDashboard() {
 
         {/* Recent Submissions */}
         {analytics?.recentSubmissions.length ? (
-          <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
+          <div id="section-submissions" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-harbor-primary">Recent Submissions</h2>
               <span className="text-xs text-harbor-text/40">{analytics.recentSubmissions.length} results</span>
@@ -749,7 +874,7 @@ export default function AdminDashboard() {
 
         {/* Users by Category Pair */}
         {analytics?.submissionsByTraitPair?.length ? (
-          <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-5">
+          <div id="section-category-users" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-5">
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-harbor-primary">Users by Category Pair</h2>
@@ -825,7 +950,7 @@ export default function AdminDashboard() {
         ) : null}
 
         {/* Sync Templates */}
-        <div className="bg-white rounded-xl border border-blue-200 p-6 space-y-4">
+        <div id="section-settings" className="bg-white rounded-xl border border-blue-200 p-6 space-y-4">
           <div>
             <h2 className="text-lg font-semibold text-blue-700">Sync Report Templates</h2>
             <p className="text-sm text-harbor-text/60 mt-1">
@@ -1058,6 +1183,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         ) : null}
+      </div>
       </div>
     </div>
   );

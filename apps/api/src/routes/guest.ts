@@ -61,6 +61,9 @@ async function syncToActiveCampaign(opts: {
   const apiKey = process.env.AC_API_KEY;
   if (!apiUrl || !apiKey) return;
 
+  // Skip internal team emails
+  if (opts.email.toLowerCase().includes('@wecreatecourses')) return;
+
   const headers = {
     "Content-Type": "application/json",
     "Api-Token": apiKey,

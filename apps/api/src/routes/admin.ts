@@ -106,6 +106,73 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     }
   });
 
+  // ── GET /api/admin/version-dropoff ──────────────────────────────────────
+  // Returns step dropoff for V1 (before Mar 28) or V2 (from Mar 28 onwards)
+  fastify.get("/admin/version-dropoff", async (request, reply) => {
+    const { version } = request.query as { version?: string };
+    const v = version === "v1" ? "v1" : "v2";
+    const V2_CUTOFF = '2026-03-28T00:00:00.000Z';
+
+    try {
+      const sb = getSupabaseAdmin();
+      if (!sb) return reply.status(503).send({ error: "Database not configured" });
+
+      const resetAt = await getAnalyticsResetAt();
+      const epoch = '1970-01-01T00:00:00.000Z';
+      const now = new Date().toISOString();
+
+      let rangeStart: string;
+      let rangeEnd: string;
+
+      if (v === "v1") {
+        rangeStart = resetAt ?? epoch;
+        rangeEnd = V2_CUTOFF;
+      } else {
+        rangeStart = resetAt && resetAt > V2_CUTOFF ? resetAt : V2_CUTOFF;
+        rangeEnd = now;
+      }
+
+      // If range is empty (e.g. reset is after V2_CUTOFF for v1), return empty
+      if (rangeStart >= rangeEnd) {
+        return reply.send({ version: v, stepDropoff: [] });
+      }
+
+      const rows = await allRows<{ session_id: string; step_number: number | null }>(
+        sb,
+        "funnel_events",
+        "session_id, step_number",
+        (q: any) =>
+          q.eq("event_type", "step_viewed")
+            .gte("created_at", rangeStart)
+            .lt("created_at", rangeEnd)
+            .not("is_test", "eq", true),
+      );
+
+      // Count unique sessions per step
+      const stepSessions = new Map<number, Set<string>>();
+      for (const row of rows) {
+        if (row.step_number == null) continue;
+        if (!stepSessions.has(row.step_number)) stepSessions.set(row.step_number, new Set());
+        stepSessions.get(row.step_number)!.add(row.session_id);
+      }
+
+      const sortedSteps = [...stepSessions.entries()]
+        .map(([step, sessions]) => ({ step, views: sessions.size }))
+        .sort((a, b) => a.step - b.step);
+
+      const stepDropoff = sortedSteps.map((item, i) => {
+        const prev = i > 0 ? sortedSteps[i - 1].views : item.views;
+        const dropoffRate = prev > 0 ? Number((((prev - item.views) / prev) * 100).toFixed(1)) : 0;
+        return { ...item, dropoffRate };
+      });
+
+      return reply.send({ version: v, stepDropoff });
+    } catch (err) {
+      request.log.error({ err }, "admin.version_dropoff.failed");
+      return reply.status(500).send({ error: "Failed to fetch version dropoff" });
+    }
+  });
+
   // ── GET /api/admin/rescore-check ─────────────────────────────────────────
   fastify.get("/admin/rescore-check", async (request, reply) => {
     try {
