@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro'
 import { getStripe } from '../../lib/stripe'
+import type Stripe from 'stripe'
 
 interface RequestBody {
   paymentIntentId: string
@@ -23,17 +24,30 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   try {
-    // Retrieve the original PaymentIntent to get the saved payment method
-    const originalPI = await stripe.paymentIntents.retrieve(paymentIntentId)
+    // Retrieve original PaymentIntent with payment method expanded
+    const originalPI = await stripe.paymentIntents.retrieve(paymentIntentId, {
+      expand: ['payment_method'],
+    })
 
     if (originalPI.status !== 'succeeded') {
       return json({ error: 'Original payment not completed' }, 400)
     }
 
-    const paymentMethodId = originalPI.payment_method as string | null
-    if (!paymentMethodId) {
+    const pm = originalPI.payment_method as Stripe.PaymentMethod | null
+    if (!pm) {
       return json({ error: 'No payment method found on original payment' }, 400)
     }
+
+    // Get billing details from the payment method
+    const email = pm.billing_details?.email ?? ''
+    const name  = pm.billing_details?.name  ?? ''
+
+    // Create a customer and attach the payment method so Stripe allows reuse
+    const customer = await stripe.customers.create({
+      ...(email ? { email } : {}),
+      ...(name  ? { name  } : {}),
+      payment_method: pm.id,
+    })
 
     // Retrieve price
     const price = await stripe.prices.retrieve(priceId)
@@ -44,14 +58,14 @@ export const POST: APIRoute = async ({ request }) => {
       return json({ error: 'Price has no unit amount' }, 400)
     }
 
-    // Charge the saved payment method — user is present on the page
+    // Charge off-session — customer + attached payment method
     const upsellPI = await stripe.paymentIntents.create({
       amount,
       currency,
-      payment_method: paymentMethodId,
+      customer: customer.id,
+      payment_method: pm.id,
       confirm: true,
-      // User is on-page so no off_session — avoids needing a customer object
-      return_url: request.headers.get('origin') + '/thank-you',
+      off_session: true,
       metadata: {
         upsell: 'true',
         priceId,
