@@ -26,7 +26,6 @@ export default function UpsellOffer({ product, paymentIntentId, acceptUrl, decli
         return
       }
 
-      // 3DS required — open Stripe's authentication flow
       if (data.requires_action && data.client_secret) {
         const { loadStripe } = await import('@stripe/stripe-js')
         const publishableKey = document.querySelector<HTMLMetaElement>('meta[name="stripe-key"]')?.content ?? ''
@@ -46,124 +45,52 @@ export default function UpsellOffer({ product, paymentIntentId, acceptUrl, decli
   }
 
   return (
-    <div style={{
-      background: 'var(--color-bg-surface)',
-      border: `2px solid var(--color-primary)`,
-      borderRadius: 'var(--radius-card)',
-      padding: 'var(--space-card)',
-      maxWidth: 560,
-      margin: '0 auto',
-    }}>
-      <div style={{
-        display: 'inline-block',
-        background: 'var(--color-accent)',
-        color: '#fff',
-        fontSize: 'var(--text-xs)',
-        fontWeight: 'var(--weight-bold)',
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-        padding: '3px 10px',
-        borderRadius: 4,
-        marginBottom: 14,
-      }}>
-        Wait — Special One-Time Offer
-      </div>
-
-      {product.image && (
-        <img
-          src={product.image}
-          alt={product.name}
-          style={{
-            width: '100%',
-            maxWidth: 200,
-            display: 'block',
-            margin: '0 auto 16px',
-            borderRadius: 'var(--radius-thumb)',
-          }}
-        />
-      )}
-
-      <h2 style={{
-        fontSize: 'var(--text-2xl)',
-        fontWeight: 'var(--weight-bold)',
-        color: 'var(--color-text-primary)',
-        marginBottom: 8,
-        textAlign: 'center',
-      }}>
-        {product.name}
-      </h2>
-
-      {product.description && (
-        <p style={{
-          fontSize: 'var(--text-base)',
-          color: 'var(--color-text-body)',
-          textAlign: 'center',
-          marginBottom: 16,
-          lineHeight: 1.6,
-        }}>
-          {product.description}
-        </p>
-      )}
-
-      <div style={{
-        textAlign: 'center',
-        marginBottom: 24,
-      }}>
-        {product.originalPrice && (
-          <span style={{
-            color: 'var(--color-danger)',
-            textDecoration: 'line-through',
-            fontSize: 'var(--text-lg)',
-            marginRight: 8,
-          }}>
-            {formatPrice(product.originalPrice)}
-          </span>
-        )}
-        <span style={{
-          fontSize: 'var(--text-2xl)',
-          fontWeight: 'var(--weight-bold)',
-          color: 'var(--color-primary)',
-        }}>
-          {formatPrice(product.price)}
-        </span>
-      </div>
-
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {state === 'error' && (
         <p style={{
           color: 'var(--color-danger-dark)',
           fontSize: 'var(--text-sm)',
           textAlign: 'center',
-          marginBottom: 12,
+          background: 'rgba(208,1,27,0.06)',
+          border: '1px solid var(--color-danger)',
+          borderRadius: 8,
+          padding: '10px 14px',
         }}>
           {errorMsg}
         </p>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <button
-          onClick={handleAccept}
-          disabled={state === 'loading'}
-          className="btn-cta"
-        >
-          {state === 'loading' ? 'Processing…' : `Yes! Add ${product.name} — ${formatPrice(product.price)}`}
-        </button>
+      <button
+        onClick={handleAccept}
+        disabled={state === 'loading'}
+        className="btn-cta"
+        style={{ fontSize: 17, padding: '16px 24px' }}
+      >
+        {state === 'loading'
+          ? 'Processing…'
+          : `✅ Yes! Add Sanity School To My Order — ${formatPrice(product.price)}`}
+      </button>
 
-        <button
-          onClick={() => { window.location.href = declineUrl }}
-          disabled={state === 'loading'}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--color-text-muted)',
-            fontSize: 'var(--text-sm)',
-            cursor: 'pointer',
-            textDecoration: 'underline',
-            padding: '8px 0',
-          }}
-        >
-          No thanks, I don't want this offer
-        </button>
-      </div>
+      <button
+        onClick={() => { window.location.href = declineUrl }}
+        disabled={state === 'loading'}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: 'var(--color-text-muted)',
+          fontSize: 'var(--text-sm)',
+          cursor: 'pointer',
+          textDecoration: 'underline',
+          padding: '8px 0',
+          textAlign: 'center',
+        }}
+      >
+        No thanks, I'll find a different solution on my own.
+      </button>
+
+      <p style={{ fontSize: 12, color: 'var(--color-text-muted)', textAlign: 'center', marginTop: 4 }}>
+        By clicking the button above, {formatPrice(product.price)} will be automatically added to your order.
+      </p>
     </div>
   )
 }

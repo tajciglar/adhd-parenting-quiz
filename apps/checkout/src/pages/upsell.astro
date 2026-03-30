@@ -10,7 +10,6 @@ const gender          = Astro.url.searchParams.get('gender') ?? ''
 const fbp             = Astro.url.searchParams.get('_fbp') ?? ''
 const fbc             = Astro.url.searchParams.get('_fbc') ?? ''
 
-// If no payment intent, redirect to home
 if (!paymentIntentId) {
   return Astro.redirect('/')
 }
@@ -22,26 +21,174 @@ const acceptUrl  = `${thankYouBase}&upsell=success`
 const declineUrl = `${thankYouBase}&upsell=declined`
 ---
 
-<Base title="Special One-Time Offer — ADHD Personality Report">
-  <div style="max-width:640px; margin:0 auto; padding:48px 20px 80px;">
+<Base title="Special One-Time Offer — ADHD Parenting">
+<style>
+  .upsell-wrap { max-width: 680px; margin: 0 auto; padding: 32px 20px 80px; font-family: var(--font-primary); }
+  .badge { display: inline-block; background: #e8520a; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 4px 14px; border-radius: 4px; margin-bottom: 18px; }
+  .headline { font-size: clamp(22px, 5vw, 32px); font-weight: 800; color: var(--color-text-primary); line-height: 1.25; margin-bottom: 10px; }
+  .subhead { font-size: 17px; color: var(--color-text-body); line-height: 1.6; margin-bottom: 28px; }
+  .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--color-primary); margin-bottom: 14px; }
+  .result-list { list-style: none; padding: 0; margin: 0 0 24px; display: flex; flex-direction: column; gap: 10px; }
+  .result-list li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; color: var(--color-text-body); line-height: 1.5; }
+  .result-list li::before { content: "✓"; color: #16a34a; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .principles { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+  .principle { background: #f8f5ff; border-left: 3px solid var(--color-primary); border-radius: 0 8px 8px 0; padding: 12px 16px; }
+  .principle-title { font-size: 13px; font-weight: 700; color: var(--color-primary); margin-bottom: 4px; }
+  .principle-body { font-size: 14px; color: var(--color-text-body); line-height: 1.5; }
+  .modules-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+  .module-row { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; background: var(--color-bg-surface); border: 1px solid var(--color-border-subtle); border-radius: 10px; }
+  .module-num { background: var(--color-primary); color: #fff; font-size: 11px; font-weight: 700; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .module-title { font-size: 14px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 2px; }
+  .module-bullets { font-size: 13px; color: var(--color-text-muted); line-height: 1.5; }
+  .testimonials { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+  .testimonial { background: var(--color-bg-surface); border: 1px solid var(--color-border-subtle); border-radius: 12px; padding: 16px; }
+  .testimonial-quote { font-size: 14px; color: var(--color-text-body); line-height: 1.6; margin-bottom: 10px; font-style: italic; }
+  .testimonial-author { font-size: 13px; font-weight: 600; color: var(--color-text-primary); }
+  .what-inside { background: #f8f5ff; border: 2px solid var(--color-primary); border-radius: 14px; padding: 20px 24px; margin-bottom: 24px; }
+  .what-inside-title { font-size: 17px; font-weight: 700; color: var(--color-primary); margin-bottom: 14px; text-align: center; }
+  .includes-list { list-style: none; padding: 0; margin: 0 0 16px; display: flex; flex-direction: column; gap: 9px; }
+  .includes-list li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--color-text-body); line-height: 1.4; }
+  .includes-list li .icon { font-size: 16px; flex-shrink: 0; }
+  .price-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 16px 0 8px; }
+  .price-original { font-size: 18px; color: var(--color-danger); text-decoration: line-through; }
+  .price-new { font-size: 32px; font-weight: 800; color: var(--color-primary); }
+  .price-save { background: #16a34a; color: #fff; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+  .price-note { font-size: 12px; color: var(--color-text-muted); text-align: center; margin-bottom: 16px; }
+  .guarantee-row { display: flex; gap: 14px; align-items: center; background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 14px; margin-bottom: 8px; }
+  .guarantee-icon { font-size: 32px; flex-shrink: 0; }
+  .guarantee-text { font-size: 13px; color: #166534; line-height: 1.5; }
+  .guarantee-text strong { display: block; font-size: 14px; margin-bottom: 2px; }
+  .divider { border: none; border-top: 1px solid var(--color-border-subtle); margin: 24px 0; }
+</style>
 
-    <div style="text-align:center; margin-bottom:32px;">
-      <div style="font-size:40px; margin-bottom:12px;">🎉</div>
-      <h1 style="font-size:var(--text-2xl); font-weight:var(--weight-bold); color:var(--color-text-primary); line-height:1.3; margin-bottom:8px;">
-        Your payment was successful!
-      </h1>
-      <p style="font-size:var(--text-base); color:var(--color-text-body);">
-        Before you go — we have a special one-time offer for you.
-      </p>
-    </div>
+<div class="upsell-wrap">
 
-    <UpsellOffer
-      client:load
-      product={products.upsell}
-      paymentIntentId={paymentIntentId}
-      acceptUrl={acceptUrl}
-      declineUrl={declineUrl}
-    />
-
+  <!-- Header -->
+  <div style="text-align:center; margin-bottom:28px;">
+    <div class="badge">⚡ Wait — Special One-Time Offer</div>
+    <h1 class="headline">
+      The Report Tells You <em>Who</em> {childName} Is.<br/>
+      Sanity School Teaches You <em>How</em> To Parent Them.
+    </h1>
+    <p class="subhead">
+      Now that you know {childName}'s ADHD personality type, the next step is learning the exact parenting approach that works <strong>with their brain</strong> — not against it. That's exactly what Sanity School teaches.
+    </p>
   </div>
+
+  <!-- What changes -->
+  <div class="card" style="margin-bottom:24px;">
+    <p class="section-title">Parents who learn the Coach Approach report:</p>
+    <ul class="result-list">
+      <li>Morning routines that are <strong>less stressful</strong> (no more yelling!)</li>
+      <li>Children who are <strong>actually turning in their homework</strong> (no more Sunday night panic)</li>
+      <li>Kids who cooperate with chores <strong>without 17 reminders</strong> and an eventual meltdown</li>
+      <li>Children who <strong>openly share</strong> what's going on in their lives — the good, the bad, and the messy</li>
+    </ul>
+  </div>
+
+  <!-- 4 Principles -->
+  <div style="margin-bottom:28px;">
+    <p class="section-title">The 4 principles of the Coach Approach</p>
+    <div class="principles">
+      <div class="principle">
+        <div class="principle-title">Principle #1 — Work With Your Child's Brain, Not Against It</div>
+        <div class="principle-body">Recognize when they're hungry, sleepy, or fidgety and use specific strategies to actively engage their brain instead of fighting their neurobiology.</div>
+      </div>
+      <div class="principle">
+        <div class="principle-title">Principle #2 — Connection Before Correction</div>
+        <div class="principle-body">When children feel like you're on their side, your ability to parent and influence is magnified exponentially. Relationship first, always.</div>
+      </div>
+      <div class="principle">
+        <div class="principle-title">Principle #3 — Meet Your Child Where They Are Right Now</div>
+        <div class="principle-body">Children with ADHD are often 3–5 years behind their peers in executive function. You parent the child you have, not the child you wish you had.</div>
+      </div>
+      <div class="principle">
+        <div class="principle-title">Principle #4 — Use Systems That Actually Work With ADHD Brains</div>
+        <div class="principle-body">Prevention, management, and reinforcement — all tailored to your child's unique wiring, not generic parenting advice.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 Modules -->
+  <div style="margin-bottom:28px;">
+    <p class="section-title">What's inside Sanity School — 6 modules</p>
+    <div class="modules-grid">
+      {[
+        { title: "Parenting Complex Kids with A Coach Approach", bullets: "Mindset shifts · Prevention & management strategies · From desperation to inspiration" },
+        { title: "Activating the Brain", bullets: "Executive function · Understanding motivation · Stress management strategies" },
+        { title: "Parenting Positively", bullets: "Strength-based approach · Trigger management · Communication techniques" },
+        { title: "Shifting Expectations", bullets: "Realistic expectations · Neurological vs. naughty · Fostering independence" },
+        { title: "Using Systems & Structures", bullets: "Getting buy-in · The 5 motivators · Routines that actually stick" },
+        { title: "Completing the Action Model", bullets: "Problem-solving together · Self-care · Fostering resilience" },
+      ].map((m, i) => (
+        <div class="module-row">
+          <div class="module-num">{i + 1}</div>
+          <div>
+            <div class="module-title">{m.title}</div>
+            <div class="module-bullets">{m.bullets}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div style="margin-bottom:28px;">
+    <p class="section-title">What parents are saying</p>
+    <div class="testimonials">
+      <div class="testimonial">
+        <p class="testimonial-quote">"Gone is the screaming, blaming, nagging, and stress. It is the second time this month my teen son has come to me with a problem — which he didn't do before, since he said I always over-reacted."</p>
+        <div class="testimonial-author">— Jane O.</div>
+      </div>
+      <div class="testimonial">
+        <p class="testimonial-quote">"I had lost hope in a solution. I was exhausted, frustrated, and afraid. I felt like the worst parent in the world. I ended up rediscovering the joy of being my daughter's mom. Our family is empowered with skills, compassion, resources, and hope."</p>
+        <div class="testimonial-author">— Stephanie P.</div>
+      </div>
+      <div class="testimonial">
+        <p class="testimonial-quote">"A treasure trove of practical, sensible, results-oriented information. I've recommended this to teachers, social workers, guidance counselors and school psychologists."</p>
+        <div class="testimonial-author">— Jerome Schultz, Ph.D — Clinical Neuropsychologist, Harvard Medical School</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- What's included + price -->
+  <div class="what-inside">
+    <div class="what-inside-title">Sanity School Mastery Program</div>
+    <ul class="includes-list">
+      <li><span class="icon">🎬</span><span><strong>6 Video Modules</strong> — 540 minutes of ADHD parenting advice in an ADHD-friendly format</span></li>
+      <li><span class="icon">📓</span><span><strong>62-Page Workbook</strong> — Turn information into action with step-by-step exercises</span></li>
+      <li><span class="icon">🎯</span><span><strong>Step-by-Step Instructions</strong> — Master the Coach Approach as fast as possible</span></li>
+      <li><span class="icon">🎁</span><span><strong>BONUS: Live Q&A Call</strong> with Elaine & Diane, the creators of Sanity School</span></li>
+      <li><span class="icon">📬</span><span><strong>BONUS: Weekly Accountability Emails</strong> to keep you on track</span></li>
+    </ul>
+    <p style="font-size:13px; color:var(--color-text-muted); text-align:center; margin-bottom:12px;">Total bonuses value: <strong>$493</strong></p>
+    <div class="price-row">
+      <span class="price-original">$497</span>
+      <span class="price-new">$197</span>
+      <span class="price-save">Save 60%</span>
+    </div>
+    <p class="price-note">⚠️ This special price is only available right now and expires when you leave this page.</p>
+  </div>
+
+  <!-- Guarantee -->
+  <div class="guarantee-row" style="margin-bottom:24px;">
+    <div class="guarantee-icon">🛡️</div>
+    <div class="guarantee-text">
+      <strong>14-Day Money-Back Guarantee</strong>
+      If Sanity School doesn't help you manage your child's ADHD, simply email us within 14 days and we'll refund you — no questions asked.
+    </div>
+  </div>
+
+  <!-- CTA buttons -->
+  <UpsellOffer
+    client:load
+    product={products.upsell}
+    paymentIntentId={paymentIntentId}
+    acceptUrl={acceptUrl}
+    declineUrl={declineUrl}
+  />
+
+</div>
 </Base>
