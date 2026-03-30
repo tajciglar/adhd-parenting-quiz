@@ -1,7 +1,7 @@
 import { createHmac, randomUUID } from "crypto";
 import type { FastifyInstance } from "fastify";
 import { getAllReportTemplates } from "@adhd-parenting-quiz/shared";
-import { getAnalytics, resetAnalytics, checkRescoreMismatches, applyRescore, applyRescoreAndResend, getRescoredPdfLinks, getSupabaseAdmin, allRows, fetchPdfUrlMismatches, applyPdfUrlFix } from "../services/supabaseAdmin.js";
+import { getAnalytics, resetAnalytics, checkRescoreMismatches, applyRescore, applyRescoreAndResend, getRescoredPdfLinks, getSupabaseAdmin, allRows, fetchPdfUrlMismatches, applyPdfUrlFix, getAnalyticsResetAt } from "../services/supabaseAdmin.js";
 
 function generatePdfUrl(opts: { archetypeId: string; childName: string; childGender?: string }): string {
   const baseUrl = (process.env.API_BASE_URL ?? "http://localhost:3000").trim().replace(/\/$/, "");
@@ -57,20 +57,33 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       const sb = getSupabaseAdmin();
       if (!sb) return reply.status(503).send({ error: "Database not configured" });
 
+      // Respect analytics reset cutoff
+      const resetAt = await getAnalyticsResetAt();
       const dayStart = `${date}T00:00:00.000Z`;
       const dayEnd = `${date}T23:59:59.999Z`;
 
-      const { data: rows } = await sb
-        .from("funnel_events")
-        .select("session_id, step_number")
-        .eq("event_type", "step_viewed")
-        .gte("created_at", dayStart)
-        .lte("created_at", dayEnd)
-        .not("is_test", "eq", true);
+      // If the reset cutoff is after this day's end, return empty
+      if (resetAt && resetAt > dayEnd) {
+        return reply.send({ date, stepDropoff: [] });
+      }
+
+      const effectiveStart = resetAt && resetAt > dayStart ? resetAt : dayStart;
+
+      // Paginated fetch to avoid Supabase 1000-row default limit
+      const rows = await allRows<{ session_id: string; step_number: number | null }>(
+        sb,
+        "funnel_events",
+        "session_id, step_number",
+        (q: any) =>
+          q.eq("event_type", "step_viewed")
+            .gte("created_at", effectiveStart)
+            .lte("created_at", dayEnd)
+            .not("is_test", "eq", true),
+      );
 
       // Count unique sessions per step
       const stepSessions = new Map<number, Set<string>>();
-      for (const row of rows ?? []) {
+      for (const row of rows) {
         if (row.step_number == null) continue;
         if (!stepSessions.has(row.step_number)) stepSessions.set(row.step_number, new Set());
         stepSessions.get(row.step_number)!.add(row.session_id);

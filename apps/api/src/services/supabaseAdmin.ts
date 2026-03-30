@@ -269,7 +269,9 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     // Funnel summary
     const eventMap = new Map<string, number>();
     for (const row of funnelData ?? []) eventMap.set(row.event_type, Number(row.unique_sessions));
-    const quizStarted = eventMap.get("step_viewed") ?? 0;
+    // Use step 1 count as "quizStarted" for consistency with fallback path
+    const step1Data = (stepData ?? []).find((r: any) => Number(r.step_number) === 1);
+    const quizStarted = step1Data ? Number(step1Data.unique_sessions) : (eventMap.get("step_viewed") ?? 0);
     const quizCompleted = eventMap.get("quiz_completed") ?? 0;
     const checkoutStarted = eventMap.get("checkout_started") ?? 0;
     const purchaseCompleted = eventMap.get("purchase_completed") ?? 0;
@@ -290,16 +292,44 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
       return { ...item, dropoffRate };
     });
 
-    // Daily trend
+    // Daily trend — use step1_trend RPC for accurate "started" count (step 1 only)
+    // Fall back to step_viewed if step1 RPC not available
+    let step1TrendData: any[] | null = null;
+    let step1Err: any = null;
+    try {
+      const res = await sb.rpc("analytics_daily_step1_trend", { since_ts: sinceTs });
+      step1TrendData = res.data;
+      step1Err = res.error;
+    } catch {
+      step1Err = true;
+    }
+
     const dailyMap = new Map<string, { started: number; completed: number; purchased: number }>();
+    // Populate completed + purchased from the original trend RPC
     for (const row of trendData ?? []) {
       const date = String(row.day);
       if (!dailyMap.has(date)) dailyMap.set(date, { started: 0, completed: 0, purchased: 0 });
       const day = dailyMap.get(date)!;
       const count = Number(row.unique_sessions);
-      if (row.event_type === "step_viewed") day.started = count;
       if (row.event_type === "quiz_completed") day.completed = count;
       if (row.event_type === "purchase_completed") day.purchased = count;
+    }
+    // Populate "started" from step1 RPC (accurate) or fall back to step_viewed (all steps)
+    if (!step1Err && step1TrendData) {
+      for (const row of step1TrendData) {
+        const date = String(row.day);
+        if (!dailyMap.has(date)) dailyMap.set(date, { started: 0, completed: 0, purchased: 0 });
+        dailyMap.get(date)!.started = Number(row.unique_sessions);
+      }
+    } else {
+      // Fallback: use all step_viewed (less accurate but still works)
+      for (const row of trendData ?? []) {
+        if (row.event_type === "step_viewed") {
+          const date = String(row.day);
+          if (!dailyMap.has(date)) dailyMap.set(date, { started: 0, completed: 0, purchased: 0 });
+          dailyMap.get(date)!.started = Number(row.unique_sessions);
+        }
+      }
     }
     const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, d]) => ({ date, ...d }));
 
@@ -442,7 +472,8 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     const date = row.created_at.slice(0, 10);
     if (!dailyMap.has(date)) dailyMap.set(date, { started: new Set(), completed: new Set(), emailSubmitted: new Set(), purchased: new Set() });
     const day = dailyMap.get(date)!;
-    if (row.event_type === "step_viewed") day.started.add(row.session_id);
+    // Only count step 1 as "started" — otherwise sessions continuing on later steps inflate the count
+    if (row.event_type === "step_viewed" && row.step_number === 1) day.started.add(row.session_id);
     if (row.event_type === "quiz_completed") day.completed.add(row.session_id);
     if (row.event_type === "optin_completed") day.emailSubmitted.add(row.session_id);
     if (row.event_type === "purchase_completed") day.purchased.add(row.session_id);
@@ -454,7 +485,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     if (!dailyMap.has(date)) dailyMap.set(date, { started: new Set(), completed: new Set(), emailSubmitted: new Set(), purchased: new Set() });
     dailyMap.get(date)!.purchased.add(row.id);
   }
-  const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([date, sets]) => ({ date, started: sets.started.size, completed: sets.completed.size, emailSubmitted: sets.emailSubmitted.size, purchased: sets.purchased.size }));
+  const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, sets]) => ({ date, started: sets.started.size, completed: sets.completed.size, emailSubmitted: sets.emailSubmitted.size, purchased: sets.purchased.size }));
 
   // Archetype + trait pair distribution
   const sinceDate = new Date(sinceTs);
