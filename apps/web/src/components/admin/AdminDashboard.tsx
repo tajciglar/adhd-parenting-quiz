@@ -139,6 +139,7 @@ function MetricCard({
 
 function getStepLabel(step: number): string {
   // V2 virtual steps: 43 = processing screen reached, 44 = name submitted in popup
+  if (step === 43) return "What's your child's name? ★";
   if (step === 44) return "Name Submitted (Popup)";
   const config = getStepConfig(step);
   if (!config) return `Step ${step}`;
@@ -155,8 +156,10 @@ function getStepLabel(step: number): string {
 
 function DropoffBar({ step, views, dropoffRate, maxViews }: StepDropoff & { maxViews: number }) {
   const width = maxViews > 0 ? (views / maxViews) * 100 : 0;
-  const isHighDropoff = dropoffRate > 15;
-  const isMedDropoff = dropoffRate > 8;
+  // Step 43 was added Mar 26 — older sessions don't have it, so dropoff is artificially inflated
+  const isDataGap = step === 43;
+  const isHighDropoff = !isDataGap && dropoffRate > 15;
+  const isMedDropoff = !isDataGap && dropoffRate > 8;
 
   return (
     <div className="flex items-center gap-3 text-sm">
@@ -182,8 +185,9 @@ function DropoffBar({ step, views, dropoffRate, maxViews }: StepDropoff & { maxV
         className={`w-14 text-right text-xs tabular-nums ${
           isHighDropoff ? "text-red-600 font-semibold" : "text-harbor-text/40"
         }`}
+        title={isDataGap ? "Tracking added Mar 26 — older sessions skew this number" : undefined}
       >
-        {dropoffRate > 0 ? `-${dropoffRate}%` : "—"}
+        {isDataGap ? "~new" : dropoffRate > 0 ? `-${dropoffRate}%` : "—"}
       </span>
     </div>
   );
