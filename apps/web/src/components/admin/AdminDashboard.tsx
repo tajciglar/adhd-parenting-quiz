@@ -138,7 +138,7 @@ function MetricCard({
 }
 
 function getStepLabel(step: number): string {
-  // V2 virtual steps (beyond quiz)
+  // V2 virtual steps: 43 = processing screen reached, 44 = name submitted in popup
   if (step === 44) return "Name Submitted (Popup)";
   const config = getStepConfig(step);
   if (!config) return `Step ${step}`;
@@ -214,7 +214,7 @@ export default function AdminDashboard() {
   const [dailyDropoff, setDailyDropoff] = useState<StepDropoff[] | null>(null);
   const [dailyDropoffLoading, setDailyDropoffLoading] = useState(false);
 
-  // Version comparison
+  // Version comparison (V1 vs V2)
   const [versionView, setVersionView] = useState<'v1' | 'v2' | 'compare'>('v2');
   const [versionDropoffV1, setVersionDropoffV1] = useState<StepDropoff[] | null>(null);
   const [versionDropoffV2, setVersionDropoffV2] = useState<StepDropoff[] | null>(null);
@@ -248,11 +248,12 @@ export default function AdminDashboard() {
         fetch(`${API_URL}/api/admin/version-dropoff?version=v1`, { headers: { 'x-admin-key': adminKey } }),
         fetch(`${API_URL}/api/admin/version-dropoff?version=v2`, { headers: { 'x-admin-key': adminKey } }),
       ]);
-      const d1 = await r1.json() as { stepDropoff: StepDropoff[] };
-      const d2 = await r2.json() as { stepDropoff: StepDropoff[] };
+      const [d1, d2] = await Promise.all([r1.json(), r2.json()]) as [{ stepDropoff: StepDropoff[] }, { stepDropoff: StepDropoff[] }];
       setVersionDropoffV1(d1.stepDropoff);
       setVersionDropoffV2(d2.stepDropoff);
-    } catch { /* ignore */ } finally {
+    } catch {
+      // silently fail
+    } finally {
       setVersionLoading(false);
     }
   }, [adminKey]);
@@ -677,6 +678,79 @@ export default function AdminDashboard() {
             </div>
           </div>
         ) : null}
+
+        {/* Version Comparison */}
+        <div id="section-version-dropoff" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-harbor-primary">Version Comparison</h2>
+            <p className="text-xs text-harbor-text/40 mt-0.5">
+              V1 = before Mar 26 (name at start, step 5–6) · V2 = from Mar 26 (name in processing screen popup, steps 43–44)
+            </p>
+          </div>
+          {/* Version tabs */}
+          <div className="flex gap-1.5">
+            {(['v1', 'v2', 'compare'] as const).map((v) => (
+              <button
+                key={v}
+                onClick={() => setVersionView(v)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer ${
+                  versionView === v
+                    ? 'bg-harbor-primary text-white'
+                    : 'bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30'
+                }`}
+              >
+                {v === 'v1' ? 'V1' : v === 'v2' ? 'V2' : 'Side by Side'}
+              </button>
+            ))}
+          </div>
+          {versionLoading ? (
+            <p className="text-sm text-harbor-text/40 text-center py-4">Loading version data...</p>
+          ) : versionView === 'compare' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-sm font-semibold text-harbor-text/60 mb-2">V1 — Before Mar 26</h3>
+                {versionDropoffV1?.length ? (
+                  <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
+                    {(() => {
+                      const maxV = Math.max(...versionDropoffV1.map((s) => s.views), 1);
+                      return versionDropoffV1.map((item) => (
+                        <DropoffBar key={item.step} {...item} maxViews={maxV} />
+                      ));
+                    })()}
+                  </div>
+                ) : (
+                  <p className="text-sm text-harbor-text/40 text-center py-4">No V1 data</p>
+                )}
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-harbor-text/60 mb-2">V2 — From Mar 26</h3>
+                {versionDropoffV2?.length ? (
+                  <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
+                    {(() => {
+                      const maxV = Math.max(...versionDropoffV2.map((s) => s.views), 1);
+                      return versionDropoffV2.map((item) => (
+                        <DropoffBar key={item.step} {...item} maxViews={maxV} />
+                      ));
+                    })()}
+                  </div>
+                ) : (
+                  <p className="text-sm text-harbor-text/40 text-center py-4">No V2 data</p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
+              {(() => {
+                const data = versionView === 'v1' ? versionDropoffV1 : versionDropoffV2;
+                if (!data?.length) return <p className="text-sm text-harbor-text/40 text-center py-4">No data</p>;
+                const maxV = Math.max(...data.map((s) => s.views), 1);
+                return data.map((item) => (
+                  <DropoffBar key={item.step} {...item} maxViews={maxV} />
+                ));
+              })()}
+            </div>
+          )}
+        </div>
 
         {/* Avg Completion Time + Archetype Distribution */}
         <div id="section-archetypes" className="grid grid-cols-1 md:grid-cols-3 gap-4">

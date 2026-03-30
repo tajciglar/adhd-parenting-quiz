@@ -107,9 +107,8 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   });
 
   // ── GET /api/admin/version-dropoff ──────────────────────────────────────
-  // Returns step dropoff for V1 (before Mar 26) or V2 (from Mar 26 onwards)
-  // V1 = old flow: child name captured as quiz step 43
-  // V2 = new flow: child name captured in processing screen popup (steps 43+44)
+  // V1 = before Mar 26 (childName was basic-info step 5-6, shown at start of quiz)
+  // V2 = from Mar 26  (childName moved to processing screen popup: step 43 = screen reached, step 44 = name submitted)
   fastify.get("/admin/version-dropoff", async (request, reply) => {
     const { version } = request.query as { version?: string };
     const v = version === "v1" ? "v1" : "v2";
@@ -139,15 +138,16 @@ export default async function adminRoutes(fastify: FastifyInstance) {
         return reply.send({ version: v, stepDropoff: [] });
       }
 
+      // Count all event types with a step_number — V1 uses answer_submitted, V2 also has step_viewed
       const rows = await allRows<{ session_id: string; step_number: number | null }>(
         sb,
         "funnel_events",
         "session_id, step_number",
-        (q: any) =>
-          q.eq("event_type", "step_viewed")
-            .gte("created_at", rangeStart)
-            .lt("created_at", rangeEnd)
-            .not("is_test", "eq", true),
+        (q) => q
+          .not("step_number", "is", null)
+          .eq("is_test", false)
+          .gte("created_at", rangeStart)
+          .lt("created_at", rangeEnd),
       );
 
       // Count unique sessions per step
