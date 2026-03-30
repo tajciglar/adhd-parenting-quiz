@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro'
 import { getStripe } from '../../../lib/stripe'
+import { syncContactWithTags } from '../../../lib/activecampaign'
 import type Stripe from 'stripe'
 
 // In-memory idempotency guard for the POC.
@@ -83,121 +84,42 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     paymentMethodId,
   })
 
-  // Send to ActiveCampaign
+  // Send to ActiveCampaign with purchase tag
   if (email) {
-    await syncToActiveCampaign({ email, firstName, fullName, country })
+    const lastName = fullName.includes(' ') ? fullName.slice(fullName.indexOf(' ') + 1) : ''
+    await syncContactWithTags({
+      email,
+      firstName,
+      lastName,
+      country,
+      tags: ['ASTRO TEST PURCHASE'],
+    })
   }
 }
 
 async function handlePaymentIntentSucceeded(pi: Stripe.PaymentIntent) {
-  const email     = pi.receipt_email ?? (pi.payment_method_data as Record<string, unknown> | undefined)?.['billing_details'] as string ?? ''
   const billingDetails = pi.charges?.data?.[0]?.billing_details
+  const email     = pi.receipt_email ?? billingDetails?.email ?? ''
   const fullName  = billingDetails?.name  ?? ''
   const country   = billingDetails?.address?.country ?? ''
   const firstName = fullName.split(' ')[0] ?? fullName
-  const bumpIncluded = pi.metadata?.bumpIncluded === 'true'
 
   console.log('[webhook] payment_intent.succeeded', {
     intentId: pi.id,
     email,
     fullName,
     country,
-    bumpIncluded,
   })
 
   if (email) {
-    await syncToActiveCampaign({ email, firstName, fullName, country })
-  }
-}
-
-const PURCHASE_TAGS = ['ADHD Personality Type', 'astro checkout']
-
-async function syncToActiveCampaign({
-  email,
-  firstName,
-  fullName,
-  country,
-}: {
-  email: string
-  firstName: string
-  fullName: string
-  country: string
-}) {
-  const acApiUrl = (import.meta.env.AC_API_URL as string | undefined)?.replace(/\/$/, '')
-  const acApiKey = import.meta.env.AC_API_KEY as string | undefined
-
-  if (!acApiUrl || !acApiKey) {
-    console.warn('[AC] AC_API_URL or AC_API_KEY not set — skipping ActiveCampaign sync')
-    return
-  }
-
-  const headers = {
-    'Api-Token': acApiKey,
-    'Content-Type': 'application/json',
-  }
-
-  const lastName = fullName.includes(' ') ? fullName.slice(fullName.indexOf(' ') + 1) : ''
-
-  try {
-    // 1. Create or update contact
-    const res = await fetch(`${acApiUrl}/api/3/contact/sync`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        contact: {
-          email,
-          firstName,
-          lastName,
-          ...(country ? { fieldValues: [{ field: 'COUNTRY', value: country }] } : {}),
-        },
-      }),
+    const lastName = fullName.includes(' ') ? fullName.slice(fullName.indexOf(' ') + 1) : ''
+    await syncContactWithTags({
+      email,
+      firstName,
+      lastName,
+      country,
+      tags: ['ASTRO TEST PURCHASE'],
     })
-
-    if (!res.ok) {
-      const body = await res.text()
-      console.error('[AC] Failed to sync contact:', res.status, body)
-      return
-    }
-
-    const contactData = (await res.json()) as { contact: { id: number | string } }
-    const contactId = String(contactData.contact.id)
-    console.log('[AC] Contact synced:', email, 'id:', contactId)
-
-    // 2. Find or create each tag and apply to contact
-    for (const tagName of PURCHASE_TAGS) {
-      const tagSearchRes = await fetch(
-        `${acApiUrl}/api/3/tags?search=${encodeURIComponent(tagName)}`,
-        { headers },
-      )
-      const tagSearchData = (await tagSearchRes.json()) as {
-        tags: Array<{ id: number | string; tag: string }>
-      }
-
-      let tagId = String(
-        tagSearchData.tags.find((t) => t.tag === tagName)?.id ?? '',
-      )
-
-      if (!tagId || tagId === 'undefined') {
-        const createTagRes = await fetch(`${acApiUrl}/api/3/tags`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ tag: { tag: tagName, tagType: 'contact', description: '' } }),
-        })
-        const createTagData = (await createTagRes.json()) as { tag?: { id: number | string } }
-        if (createTagData.tag?.id) tagId = String(createTagData.tag.id)
-      }
-
-      if (tagId && tagId !== 'undefined') {
-        await fetch(`${acApiUrl}/api/3/contactTags`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ contactTag: { contact: contactId, tag: tagId } }),
-        })
-        console.log('[AC] Tag applied:', tagName, 'to contact:', email)
-      }
-    }
-  } catch (err) {
-    console.error('[AC] Error syncing contact:', err)
   }
 }
 

@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro'
 import { getStripe } from '../../lib/stripe'
+import { syncContactWithTags } from '../../lib/activecampaign'
 import type Stripe from 'stripe'
 
 interface RequestBody {
@@ -74,6 +75,20 @@ export const POST: APIRoute = async ({ request }) => {
     })
 
     if (upsellPI.status === 'succeeded') {
+      // Tag contact in ActiveCampaign for upsell purchase
+      if (email) {
+        const fullName = pm.billing_details?.name ?? ''
+        const firstName = fullName.split(' ')[0] ?? fullName
+        const lastName = fullName.includes(' ') ? fullName.slice(fullName.indexOf(' ') + 1) : ''
+        const country = pm.billing_details?.address?.country ?? ''
+        await syncContactWithTags({
+          email,
+          firstName,
+          lastName,
+          country,
+          tags: ['ASTRO TEST PURCHASE', 'ASTRO TEST UPSELL'],
+        })
+      }
       return json({ success: true })
     }
 
