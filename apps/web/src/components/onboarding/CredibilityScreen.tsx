@@ -8,7 +8,7 @@ export default function CredibilityScreen({
       <div className="max-w-md w-full space-y-6">
         <div className="bg-white rounded-2xl border border-harbor-text/10 shadow-sm p-7 space-y-5 text-center">
           <img
-            src="/flow/Our Team no Juhi.webp"
+            src="/flow/Thedreamteam.webp"
             alt="ADHD Parenting team"
             className="w-full rounded-xl object-cover"
           />

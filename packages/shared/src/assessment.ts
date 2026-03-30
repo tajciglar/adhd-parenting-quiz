@@ -1,11 +1,11 @@
 // ─── Likert Scale ───────────────────────────────────────────────────────────
 
 export const LIKERT_OPTIONS = [
-  { label: "Not really", value: 0 },
-  { label: "Rarely", value: 1 },
-  { label: "Sometimes", value: 2 },
-  { label: "Often", value: 3 },
-  { label: "Always", value: 4 },
+  { label: "❌ Never", value: 0 },
+  { label: "🫤 Hardly ever", value: 1 },
+  { label: "🤷 Now and then", value: 2 },
+  { label: "👍 Most of the time", value: 3 },
+  { label: "💯 All the time", value: 4 },
 ] as const;
 
 // ─── Category IDs ───────────────────────────────────────────────────────────

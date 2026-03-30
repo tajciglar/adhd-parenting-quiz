@@ -18,7 +18,7 @@ const CIRCLE_STYLES: Record<
   { size: string; unselected: string; selected: string }
 > = {
   0: {
-    size: "w-14 h-14",
+    size: "w-12 h-12",
     unselected: "border-purple-300 bg-purple-50",
     selected: "border-purple-500 bg-purple-500 ring-4 ring-purple-200",
   },
@@ -28,7 +28,7 @@ const CIRCLE_STYLES: Record<
     selected: "border-purple-400 bg-purple-400 ring-4 ring-purple-200",
   },
   2: {
-    size: "w-10 h-10",
+    size: "w-12 h-12",
     unselected: "border-harbor-text/20 bg-harbor-text/5",
     selected: "border-harbor-text/40 bg-harbor-text/30 ring-4 ring-harbor-text/10",
   },
@@ -38,7 +38,7 @@ const CIRCLE_STYLES: Record<
     selected: "border-emerald-400 bg-emerald-400 ring-4 ring-emerald-200",
   },
   4: {
-    size: "w-14 h-14",
+    size: "w-12 h-12",
     unselected: "border-emerald-300 bg-emerald-50",
     selected: "border-emerald-500 bg-emerald-500 ring-4 ring-emerald-200",
   },
@@ -51,6 +51,8 @@ const EMOJI_SCALE = [
   { face: "😟", bg: "bg-orange-400", selectedRing: "ring-orange-200" },
   { face: "😣", bg: "bg-red-500", selectedRing: "ring-red-300" },
 ];
+
+const CIRCLE_LABELS = ["Never", "Hardly", "Sometimes", "Often", "Always"];
 
 function CirclesVariant({ value, onChange }: { value: number | undefined; onChange: (v: number) => void }) {
   return (
@@ -70,7 +72,7 @@ function CirclesVariant({ value, onChange }: { value: number | undefined; onChan
               />
             </div>
             <span className="text-[13px] font-medium text-gray-600 whitespace-nowrap">
-              {opt.label}
+              {CIRCLE_LABELS[opt.value]}
             </span>
           </div>
         );

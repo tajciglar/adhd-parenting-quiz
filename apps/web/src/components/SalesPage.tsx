@@ -56,7 +56,7 @@ function CountdownTimer({ onGetReport }: { onGetReport?: () => void }) {
       <div className="flex items-center gap-2 min-w-0">
         <span className="text-base leading-none">⏳</span>
         <div className="flex flex-col leading-tight">
-          <span className="text-[10px] uppercase tracking-widest font-semibold text-purple-500">Discount reserved for</span>
+          <span className="text-[10px] uppercase tracking-widest font-semibold text-purple-500">Discount expires in:</span>
           <span className="font-mono font-bold text-xl tracking-widest leading-none text-gray-900">
             {mm}<span className="text-purple-400 mx-0.5">:</span>{ss}
           </span>
@@ -253,6 +253,23 @@ export default function SalesPage() {
 
   const archetype = ARCHETYPES.find((a) => a.id === archetypeId) ?? ARCHETYPES[0];
 
+  // Archetype-specific accent colors for the blurred report preview
+  const ARCHETYPE_COLORS: Record<string, { text: string; divider: string }> = {
+    koala:       { text: "text-blue-600",    divider: "bg-blue-300" },
+    hummingbird: { text: "text-green-600",   divider: "bg-green-300" },
+    tiger:       { text: "text-orange-600",  divider: "bg-orange-300" },
+    meerkat:     { text: "text-yellow-600",  divider: "bg-yellow-300" },
+    stallion:    { text: "text-amber-600",   divider: "bg-amber-300" },
+    fox:         { text: "text-orange-700",  divider: "bg-orange-400" },
+    rabbit:      { text: "text-pink-600",    divider: "bg-pink-300" },
+    elephant:    { text: "text-slate-600",   divider: "bg-slate-300" },
+    dolphin:     { text: "text-cyan-600",    divider: "bg-cyan-300" },
+    hedgehog:    { text: "text-stone-600",   divider: "bg-stone-300" },
+    bull:        { text: "text-red-600",     divider: "bg-red-300" },
+    red_panda:   { text: "text-rose-600",    divider: "bg-rose-300" },
+  };
+  const archetypeColor = ARCHETYPE_COLORS[archetypeId] ?? { text: "text-harbor-primary", divider: "bg-harbor-primary/30" };
+
   const reportTemplate = useMemo(() => {
     const raw = getReportTemplate(archetypeId);
     if (!raw) return null;
@@ -363,11 +380,13 @@ export default function SalesPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-harbor-bg overflow-y-auto">
-      {/* Sticky timer bar only */}
-      <div className="sticky top-0 z-50">
+    <div className="min-h-screen bg-harbor-bg">
+      {/* Sticky timer bar */}
+      <div className="fixed top-0 left-0 right-0 z-50">
         <CountdownTimer onGetReport={scrollToBuy} />
       </div>
+      {/* Spacer so content doesn't hide behind fixed timer */}
+      <div className="h-[60px]" />
 
       <div className="max-w-lg w-full mx-auto px-[10px] py-10 space-y-10">
 
@@ -393,7 +412,7 @@ export default function SalesPage() {
                 <AnimalIcon id={archetypeId} className="max-w-full max-h-full" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-harbor-primary leading-tight uppercase tracking-wide">
+                <h3 className={`text-xl font-bold leading-tight uppercase tracking-wide ${archetypeColor.text}`}>
                   {archetype.typeName}
                 </h3>
                 {reportTemplate && (
@@ -402,16 +421,16 @@ export default function SalesPage() {
               </div>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-widest font-bold text-harbor-primary/70 mb-1">About {name}</p>
-              <div className="w-8 h-0.5 bg-harbor-primary/30 mb-2" />
+              <p className={`text-[10px] uppercase tracking-widest font-bold mb-1 ${archetypeColor.text}`}>About {name}</p>
+              <div className={`w-8 h-0.5 mb-2 ${archetypeColor.divider}`} />
               <p className="text-sm text-harbor-text leading-relaxed">
                 {reportTemplate ? reportTemplate.aboutChild.slice(0, 300) + "..." : `${name}'s brain operates with a unique combination of strengths and challenges...`}
               </p>
             </div>
             {reportTemplate && (
               <div>
-                <p className="text-[10px] uppercase tracking-widest font-bold text-harbor-primary/70 mb-1">Creating the right environment for {name}</p>
-                <div className="w-8 h-0.5 bg-harbor-primary/30 mb-2" />
+                <p className={`text-[10px] uppercase tracking-widest font-bold mb-1 ${archetypeColor.text}`}>Creating the right environment for {name}</p>
+                <div className={`w-8 h-0.5 mb-2 ${archetypeColor.divider}`} />
                 <div className="grid grid-cols-2 gap-2 mb-1">
                   <p className="text-[9px] uppercase tracking-wider font-bold text-red-500/70">What drains {name}</p>
                   <p className="text-[9px] uppercase tracking-wider font-bold text-green-600/70">What fuels {name}</p>
@@ -457,7 +476,7 @@ export default function SalesPage() {
           <ul className="space-y-4">
             {WHAT_CHANGES.map((item, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="mt-1 flex-shrink-0 text-harbor-primary font-bold text-base leading-none">•</span>
+                <span className="mt-0.5 flex-shrink-0 text-harbor-primary font-bold text-base leading-none">→</span>
                 <div>
                   <p className="text-harbor-text text-sm font-semibold leading-snug">{item.bold}</p>
                   <p className="text-harbor-text/55 text-sm leading-snug">{item.sub}</p>
@@ -473,10 +492,10 @@ export default function SalesPage() {
             <p className="font-extrabold text-2xl text-gray-900 leading-snug text-center">{name}'s Full ADHD Personality Report</p>
             {/* Archetype + Animal */}
             <div className="flex flex-col items-center gap-2">
+              <p className="text-xs font-bold uppercase tracking-widest text-harbor-primary/70">{archetype.typeName}</p>
               <div className="w-20 h-20 flex items-center justify-center">
                 <AnimalIcon id={archetypeId} className="max-w-full max-h-full" />
               </div>
-              <p className="text-xs font-bold uppercase tracking-widest text-harbor-primary/70">{archetype.typeName}</p>
             </div>
 
             {/* What's inside */}
@@ -511,7 +530,7 @@ export default function SalesPage() {
               </div>
             </div>
 
-            <p className="text-center text-harbor-text/60 text-sm">
+            <p className="text-center text-harbor-text/60 text-sm italic">
               Less than a single parenting book — written specifically about <strong>your</strong> child.
             </p>
 
@@ -584,9 +603,8 @@ export default function SalesPage() {
         {/* ── Section 9: Trustpilot (no box) ── */}
         <div className="text-center space-y-3">
           <h3 className="text-xl font-bold text-gray-900">Trusted by 111,813 parents worldwide</h3>
-          <div className="flex items-center justify-center gap-2">
-            <img src="/trustpilot-stars.png" alt="Trustpilot 4.9 stars" className="h-8 object-contain" />
-            <span className="text-2xl font-bold text-gray-900">4.9</span>
+          <div className="flex items-center justify-center">
+            <img src="/trustpilot-stars.png" alt="Trustpilot stars" className="h-12 object-contain" />
           </div>
         </div>
 
@@ -634,26 +652,6 @@ export default function SalesPage() {
           </div>
         </div>
 
-        {/* ── Section 11: 3 Mini Testimonials ── */}
-        <div className="space-y-3">
-          {[
-            { quote: "The assessment nailed my son's ADHD personality! It's like having a guide to understanding my son better.", name: "Sandra M." },
-            { quote: "Skeptical at first, but the accuracy amazed me. It's helping me parent my daughter the way she needs.", name: "Frederick" },
-            { quote: "What I learned about my child boosted my confidence in parenting.", name: "Kim" },
-          ].map((t, i) => (
-            <div key={i} className="px-1 py-2 space-y-1.5 border-b border-harbor-text/10 last:border-0">
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, j) => (
-                  <svg key={j} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                  </svg>
-                ))}
-              </div>
-              <p className="text-sm text-harbor-text italic leading-relaxed">"{t.quote}"</p>
-              <p className="text-xs font-bold text-harbor-primary">— {t.name}</p>
-            </div>
-          ))}
-        </div>
 
         {/* ── Section 12: Featured In ── */}
         <div className="space-y-3 text-center">
@@ -669,10 +667,10 @@ export default function SalesPage() {
           <div className="p-6 space-y-4">
             <p className="font-extrabold text-2xl text-gray-900 leading-snug text-center">{name}'s Full ADHD Personality Report</p>
             <div className="flex flex-col items-center gap-2">
+              <p className="text-xs font-bold uppercase tracking-widest text-harbor-primary/70">{archetype.typeName}</p>
               <div className="w-20 h-20 flex items-center justify-center">
                 <AnimalIcon id={archetypeId} className="max-w-full max-h-full" />
               </div>
-              <p className="text-xs font-bold uppercase tracking-widest text-harbor-primary/70">{archetype.typeName}</p>
             </div>
 
             {/* What's inside */}
