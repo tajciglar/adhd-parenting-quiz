@@ -13,6 +13,7 @@ const { title, description = 'ADHD Parenting Quiz — Checkout' } = Astro.props
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <meta name="stripe-key" content={import.meta.env.PUBLIC_STRIPE_KEY} />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>

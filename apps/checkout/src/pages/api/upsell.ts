@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro'
 import { getStripe } from '../../lib/stripe'
 
 interface RequestBody {
-  sessionId: string
+  paymentIntentId: string
   priceId: string
 }
 
@@ -16,31 +16,26 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: 'Invalid JSON' }, 400)
   }
 
-  const { sessionId, priceId } = body
+  const { paymentIntentId, priceId } = body
 
-  if (!sessionId || !priceId) {
-    return json({ error: 'sessionId and priceId are required' }, 400)
+  if (!paymentIntentId || !priceId) {
+    return json({ error: 'paymentIntentId and priceId are required' }, 400)
   }
 
   try {
-    // Retrieve the completed checkout session to get customer + payment method
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['payment_intent'],
-    })
+    // Retrieve the original PaymentIntent to get the saved payment method
+    const originalPI = await stripe.paymentIntents.retrieve(paymentIntentId)
 
-    if (session.payment_status !== 'paid') {
-      return json({ error: 'Session not paid' }, 400)
+    if (originalPI.status !== 'succeeded') {
+      return json({ error: 'Original payment not completed' }, 400)
     }
 
-    const customerId = session.customer as string | null
-    const pi = session.payment_intent as import('stripe').Stripe.PaymentIntent | null
-    const paymentMethodId = pi?.payment_method as string | null
-
-    if (!customerId || !paymentMethodId) {
-      return json({ error: 'Missing customer or payment method on session' }, 400)
+    const paymentMethodId = originalPI.payment_method as string | null
+    if (!paymentMethodId) {
+      return json({ error: 'No payment method found on original payment' }, 400)
     }
 
-    // Retrieve price to get the amount
+    // Retrieve price
     const price = await stripe.prices.retrieve(priceId)
     const amount = price.unit_amount
     const currency = price.currency
@@ -49,26 +44,31 @@ export const POST: APIRoute = async ({ request }) => {
       return json({ error: 'Price has no unit amount' }, 400)
     }
 
-    // One-click off-session charge
-    const paymentIntent = await stripe.paymentIntents.create({
+    // Charge the saved payment method — user is present on the page
+    const upsellPI = await stripe.paymentIntents.create({
       amount,
       currency,
-      customer: customerId,
       payment_method: paymentMethodId,
       confirm: true,
-      off_session: true,
+      // User is on-page so no off_session — avoids needing a customer object
+      return_url: request.headers.get('origin') + '/thank-you',
       metadata: {
         upsell: 'true',
         priceId,
-        originalSessionId: sessionId,
+        originalPaymentIntentId: paymentIntentId,
       },
     })
 
-    if (paymentIntent.status === 'succeeded') {
+    if (upsellPI.status === 'succeeded') {
       return json({ success: true })
     }
 
-    return json({ error: `Unexpected status: ${paymentIntent.status}` }, 400)
+    // 3DS required — return client_secret for frontend to handle
+    if (upsellPI.status === 'requires_action') {
+      return json({ requires_action: true, client_secret: upsellPI.client_secret })
+    }
+
+    return json({ error: `Unexpected status: ${upsellPI.status}` }, 400)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Stripe error'
     return json({ error: message }, 500)

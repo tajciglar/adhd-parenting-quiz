@@ -19,7 +19,7 @@ export interface OrderBumpProps {
 
 export interface UpsellOfferProps {
   product: Product
-  sessionId: string
+  paymentIntentId: string
   onAccept: () => void
   onDecline: () => void
 }

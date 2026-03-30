@@ -44,7 +44,7 @@ function CheckoutForm({ returnUrl }: { returnUrl: string }) {
     setStatus('submitting')
     setErrorMsg('')
 
-    const { error } = await stripe.confirmPayment({
+    const result = await stripe.confirmPayment({
       elements,
       confirmParams: {
         return_url: returnUrl,
@@ -58,11 +58,13 @@ function CheckoutForm({ returnUrl }: { returnUrl: string }) {
       redirect: 'if_required',
     })
 
-    if (error) {
-      setErrorMsg(error.message ?? 'Payment failed')
+    if (result.error) {
+      setErrorMsg(result.error.message ?? 'Payment failed')
       setStatus('error')
     } else {
-      window.location.href = returnUrl
+      const piId = result.paymentIntent?.id
+      const url = piId ? `${returnUrl}&payment_intent=${piId}` : returnUrl
+      window.location.href = url
     }
   }
 
@@ -96,7 +98,7 @@ function CheckoutForm({ returnUrl }: { returnUrl: string }) {
           setStatus('submitting')
           setErrorMsg('')
 
-          const { error } = await stripe.confirmPayment({
+          const result = await stripe.confirmPayment({
             elements,
             confirmParams: {
               return_url: returnUrl,
@@ -110,11 +112,13 @@ function CheckoutForm({ returnUrl }: { returnUrl: string }) {
             redirect: 'if_required',
           })
 
-          if (error) {
-            setErrorMsg(error.message ?? 'Payment failed')
+          if (result.error) {
+            setErrorMsg(result.error.message ?? 'Payment failed')
             setStatus('error')
           } else {
-            window.location.href = returnUrl
+            const piId = result.paymentIntent?.id
+            const url = piId ? `${returnUrl}&payment_intent=${piId}` : returnUrl
+            window.location.href = url
           }
         }}
         onReady={({ availablePaymentMethods }) => {

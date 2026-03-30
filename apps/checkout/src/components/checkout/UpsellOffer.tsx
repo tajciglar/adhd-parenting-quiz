@@ -5,7 +5,7 @@ function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`
 }
 
-export default function UpsellOffer({ product, sessionId, onAccept, onDecline }: UpsellOfferProps) {
+export default function UpsellOffer({ product, paymentIntentId, onAccept, onDecline }: UpsellOfferProps) {
   const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -16,13 +16,29 @@ export default function UpsellOffer({ product, sessionId, onAccept, onDecline }:
       const res = await fetch('/api/upsell', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, priceId: product.stripePriceId }),
+        body: JSON.stringify({ paymentIntentId, priceId: product.stripePriceId }),
       })
-      const data = await res.json() as { success?: boolean; error?: string }
-      if (!res.ok || !data.success) {
-        throw new Error(data.error ?? 'Charge failed')
+      const data = await res.json() as { success?: boolean; error?: string; requires_action?: boolean; client_secret?: string }
+      if (!res.ok) throw new Error(data.error ?? 'Charge failed')
+
+      if (data.success) {
+        onAccept()
+        return
       }
-      onAccept()
+
+      // 3DS required — open Stripe's authentication flow
+      if (data.requires_action && data.client_secret) {
+        const { loadStripe } = await import('@stripe/stripe-js')
+        const publishableKey = document.querySelector<HTMLMetaElement>('meta[name="stripe-key"]')?.content ?? ''
+        const stripe = await loadStripe(publishableKey)
+        if (!stripe) throw new Error('Stripe failed to load')
+        const { error: confirmError } = await stripe.confirmCardPayment(data.client_secret)
+        if (confirmError) throw new Error(confirmError.message ?? 'Authentication failed')
+        onAccept()
+        return
+      }
+
+      throw new Error(data.error ?? 'Charge failed')
     } catch (err) {
       setState('error')
       setErrorMsg(err instanceof Error ? err.message : 'Something went wrong')
