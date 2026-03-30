@@ -20,8 +20,8 @@ export interface OrderBumpProps {
 export interface UpsellOfferProps {
   product: Product
   paymentIntentId: string
-  onAccept: () => void
-  onDecline: () => void
+  acceptUrl: string
+  declineUrl: string
 }
 
 export interface CheckoutConfig {

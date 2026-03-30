@@ -18,6 +18,8 @@ if (!paymentIntentId) {
 const products = await getProducts()
 
 const thankYouBase = `/thank-you?payment_intent=${paymentIntentId}&childName=${encodeURIComponent(childName)}&email=${encodeURIComponent(email)}&gender=${gender}&_fbp=${fbp}&_fbc=${fbc}`
+const acceptUrl  = `${thankYouBase}&upsell=success`
+const declineUrl = `${thankYouBase}&upsell=declined`
 ---
 
 <Base title="Special One-Time Offer — ADHD Personality Report">
@@ -37,12 +39,8 @@ const thankYouBase = `/thank-you?payment_intent=${paymentIntentId}&childName=${e
       client:load
       product={products.upsell}
       paymentIntentId={paymentIntentId}
-      onAccept={() => {
-        window.location.href = `${thankYouBase}&upsell=success`
-      }}
-      onDecline={() => {
-        window.location.href = `${thankYouBase}&upsell=declined`
-      }}
+      acceptUrl={acceptUrl}
+      declineUrl={declineUrl}
     />
 
   </div>

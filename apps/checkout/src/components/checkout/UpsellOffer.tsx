@@ -5,7 +5,7 @@ function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`
 }
 
-export default function UpsellOffer({ product, paymentIntentId, onAccept, onDecline }: UpsellOfferProps) {
+export default function UpsellOffer({ product, paymentIntentId, acceptUrl, declineUrl }: UpsellOfferProps) {
   const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -22,7 +22,7 @@ export default function UpsellOffer({ product, paymentIntentId, onAccept, onDecl
       if (!res.ok) throw new Error(data.error ?? 'Charge failed')
 
       if (data.success) {
-        onAccept()
+        window.location.href = acceptUrl
         return
       }
 
@@ -34,7 +34,7 @@ export default function UpsellOffer({ product, paymentIntentId, onAccept, onDecl
         if (!stripe) throw new Error('Stripe failed to load')
         const { error: confirmError } = await stripe.confirmCardPayment(data.client_secret)
         if (confirmError) throw new Error(confirmError.message ?? 'Authentication failed')
-        onAccept()
+        window.location.href = acceptUrl
         return
       }
 
@@ -149,7 +149,7 @@ export default function UpsellOffer({ product, paymentIntentId, onAccept, onDecl
         </button>
 
         <button
-          onClick={onDecline}
+          onClick={() => { window.location.href = declineUrl }}
           disabled={state === 'loading'}
           style={{
             background: 'none',
