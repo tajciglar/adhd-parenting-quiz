@@ -98,8 +98,16 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 async function handlePaymentIntentSucceeded(pi: Stripe.PaymentIntent) {
-  const billingDetails = pi.charges?.data?.[0]?.billing_details
-  const email     = pi.receipt_email ?? billingDetails?.email ?? ''
+  // Newer Stripe API versions don't expand charges by default — re-fetch with expansion
+  const stripe = getStripe()
+  let expandedPi = pi
+  try {
+    expandedPi = await stripe.paymentIntents.retrieve(pi.id, { expand: ['charges'] })
+  } catch {
+    // Fall back to original object
+  }
+  const billingDetails = expandedPi.charges?.data?.[0]?.billing_details
+  const email     = expandedPi.receipt_email ?? billingDetails?.email ?? ''
   const fullName  = billingDetails?.name  ?? ''
   const country   = billingDetails?.address?.country ?? ''
   const firstName = fullName.split(' ')[0] ?? fullName
