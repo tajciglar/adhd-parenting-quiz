@@ -107,11 +107,13 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   });
 
   // ── GET /api/admin/version-dropoff ──────────────────────────────────────
-  // Returns step dropoff for V1 (before Mar 28) or V2 (from Mar 28 onwards)
+  // Returns step dropoff for V1 (before Mar 26) or V2 (from Mar 26 onwards)
+  // V1 = old flow: child name captured as quiz step 43
+  // V2 = new flow: child name captured in processing screen popup (steps 43+44)
   fastify.get("/admin/version-dropoff", async (request, reply) => {
     const { version } = request.query as { version?: string };
     const v = version === "v1" ? "v1" : "v2";
-    const V2_CUTOFF = '2026-03-28T00:00:00.000Z';
+    const V2_CUTOFF = '2026-03-26T00:00:00.000Z';
 
     try {
       const sb = getSupabaseAdmin();

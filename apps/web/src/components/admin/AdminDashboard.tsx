@@ -138,9 +138,12 @@ function MetricCard({
 }
 
 function getStepLabel(step: number): string {
+  // V2 virtual steps (beyond quiz)
+  if (step === 44) return "Name Submitted (Popup)";
   const config = getStepConfig(step);
   if (!config) return `Step ${step}`;
   if (config.type === "basic-info") {
+    // Step 43 is the child name — in V2 this maps to the processing screen popup
     return config.question.title;
   }
   // Shorten long category subtitles
@@ -563,7 +566,7 @@ export default function AdminDashboard() {
           <div>
             <h2 className="text-lg font-semibold text-harbor-primary">Version Comparison</h2>
             <p className="text-xs text-harbor-text/40 mt-0.5">
-              V1 = before Mar 28 (name at start) · V2 = from Mar 28 (name at end)
+              V1 = before Mar 26 (name as quiz step 43) · V2 = from Mar 26 (name popup on processing screen, steps 43–44)
             </p>
           </div>
           {/* Version tabs */}
@@ -587,7 +590,7 @@ export default function AdminDashboard() {
           ) : versionView === 'compare' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-sm font-semibold text-harbor-text/60 mb-2">V1 — Before Mar 28</h3>
+                <h3 className="text-sm font-semibold text-harbor-text/60 mb-2">V1 — Before Mar 26</h3>
                 {versionDropoffV1?.length ? (
                   <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
                     {(() => {
@@ -602,7 +605,7 @@ export default function AdminDashboard() {
                 )}
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-harbor-text/60 mb-2">V2 — From Mar 28</h3>
+                <h3 className="text-sm font-semibold text-harbor-text/60 mb-2">V2 — From Mar 26</h3>
                 {versionDropoffV2?.length ? (
                   <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
                     {(() => {
