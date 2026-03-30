@@ -483,6 +483,35 @@ export default async function guestRoutes(fastify: FastifyInstance) {
     isTest: z.boolean().optional(),
   });
 
+  // ── ViewContent CAPI — fire server-side when results page loads ──
+  fastify.post(
+    "/guest/view-content",
+    {
+      config: {
+        rateLimit: { max: 60, timeWindow: "1 minute", keyGenerator: (req) => req.ip },
+      },
+    },
+    async (request, reply) => {
+      const body = request.body as { eventId?: string; sourceUrl?: string; fbp?: string; fbc?: string } | null;
+      const eventId = body?.eventId ?? `vc_${Date.now()}`;
+
+      void sendMetaEvent({
+        eventName: "ViewContent",
+        eventId,
+        email: "",             // no email yet on results page — match by fbp/fbc only
+        sourceUrl: body?.sourceUrl ?? "",
+        clientIp: request.ip ?? "",
+        userAgent: request.headers["user-agent"] ?? "",
+        fbc: body?.fbc,
+        fbp: body?.fbp,
+        customData: { content_type: "quiz_result", content_category: "adhd_profile" },
+        logger: request.log,
+      });
+
+      return reply.status(204).send();
+    },
+  );
+
   fastify.post(
     "/guest/track",
     {

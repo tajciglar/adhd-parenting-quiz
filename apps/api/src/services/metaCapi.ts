@@ -25,16 +25,17 @@ export async function sendMetaEvent(opts: MetaEventOpts): Promise<void> {
   if (!accessToken || !pixelId) return;
 
   try {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(opts.email.toLowerCase().trim());
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    const hashedEmail = Array.from(new Uint8Array(hashBuffer))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
+    const userData: Record<string, unknown> = {};
 
-    const userData: Record<string, unknown> = {
-      em: [hashedEmail],
-    };
+    if (opts.email) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(opts.email.toLowerCase().trim());
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashedEmail = Array.from(new Uint8Array(hashBuffer))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+      userData.em = [hashedEmail];
+    }
     if (opts.clientIp) userData.client_ip_address = opts.clientIp;
     if (opts.userAgent) userData.client_user_agent = opts.userAgent;
     if (opts.fbc) userData.fbc = opts.fbc;

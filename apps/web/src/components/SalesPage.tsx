@@ -284,7 +284,16 @@ export default function SalesPage() {
   useEffect(() => {
     if (!archetypeId || firedRef.current) return;
     firedRef.current = true;
-    trackPixelEvent("ViewContent", { content_type: "quiz_result", content_category: "adhd_profile" }, generateEventId());
+    const vcEventId = generateEventId();
+    // Client-side pixel
+    trackPixelEvent("ViewContent", { content_type: "quiz_result", content_category: "adhd_profile" }, vcEventId);
+    // Server-side CAPI with same event ID for deduplication
+    void api.post("/api/guest/view-content", {
+      eventId: vcEventId,
+      sourceUrl: window.location.href,
+      fbp: getFbp(),
+      fbc: getFbc(),
+    }).catch(() => { /* non-critical */ });
   }, [archetypeId]);
 
   const scrollToBuy = useCallback(() => {
@@ -316,6 +325,7 @@ export default function SalesPage() {
       }).catch(() => { /* API failure shouldn't block checkout */ });
 
       trackPixelEvent("Lead", { content_category: "adhd_report" }, eventId);
+      trackPixelEvent("InitiateCheckout", { value: 17.0, currency: "USD", num_items: 1, content_category: "adhd_report" }, generateEventId());
       trackFunnelEvent("checkout_started");
 
       const checkoutUrl = import.meta.env.VITE_CHECKOUT_URL;
