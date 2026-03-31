@@ -41,27 +41,56 @@ export async function insertQuizSubmission(
   const sb = getSupabaseAdmin();
   if (!sb) { console.warn("Supabase not configured — skipping quiz submission insert"); return null; }
 
-  // Use upsert so duplicate email submissions update instead of erroring.
-  // `onConflict: 'email'` requires a unique index on quiz_submissions(email).
+  // Try a plain insert first.
   const { data: row, error } = await sb
     .from("quiz_submissions")
-    .upsert(data, { onConflict: "email", ignoreDuplicates: false })
+    .insert(data)
     .select("id")
     .single();
 
-  if (error) {
-    // Log the full error object so Railway shows error code + hint
-    console.error("supabaseAdmin.insertQuizSubmission failed:", JSON.stringify({
-      code: error.code,
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-      email: data.email,
-    }));
-    return null;
+  if (!error) return row?.id ?? null;
+
+  // If the error is a unique-constraint violation (23505), the email already
+  // exists — update the existing row with the latest data and return its id.
+  if (error.code === "23505") {
+    const { data: updated, error: updateError } = await sb
+      .from("quiz_submissions")
+      .update({
+        child_name: data.child_name,
+        child_gender: data.child_gender,
+        caregiver_type: data.caregiver_type,
+        child_age_range: data.child_age_range,
+        adhd_journey: data.adhd_journey,
+        archetype_id: data.archetype_id,
+        trait_scores: data.trait_scores,
+        responses: data.responses,
+        pdf_url: data.pdf_url,
+      })
+      .eq("email", data.email)
+      .select("id")
+      .single();
+
+    if (updateError) {
+      console.error("supabaseAdmin.insertQuizSubmission update failed:", JSON.stringify({
+        code: updateError.code,
+        message: updateError.message,
+        hint: updateError.hint,
+        email: data.email,
+      }));
+      return null;
+    }
+    return updated?.id ?? null;
   }
 
-  return row?.id ?? null;
+  // Any other error — log full details so Railway shows what went wrong
+  console.error("supabaseAdmin.insertQuizSubmission failed:", JSON.stringify({
+    code: error.code,
+    message: error.message,
+    details: error.details,
+    hint: error.hint,
+    email: data.email,
+  }));
+  return null;
 }
 
 

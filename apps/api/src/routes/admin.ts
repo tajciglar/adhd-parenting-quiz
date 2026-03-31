@@ -480,31 +480,40 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     // Generate the signed PDF URL (same algorithm as guest.ts — deterministic)
     const pdfUrl = generatePdfUrl({ archetypeId, childName, childGender });
 
-    // Upsert into quiz_submissions
-    const { data: row, error } = await sb
+    // Insert or update quiz_submissions (no unique-constraint assumption)
+    const insertPayload = {
+      email,
+      child_name: childName,
+      child_gender: childGender,
+      archetype_id: archetypeId,
+      pdf_url: pdfUrl,
+      trait_scores: {},
+      responses: {},
+      is_test: false,
+    };
+
+    let submissionId: string | null = null;
+    const { data: inserted, error: insertError } = await sb
       .from("quiz_submissions")
-      .upsert(
-        {
-          email,
-          child_name: childName,
-          child_gender: childGender,
-          archetype_id: archetypeId,
-          pdf_url: pdfUrl,
-          trait_scores: {},
-          responses: {},
-          is_test: false,
-        },
-        { onConflict: "email", ignoreDuplicates: false },
-      )
+      .insert(insertPayload)
       .select("id")
       .single();
 
-    if (error) {
-      request.log.error({ err: error, email }, "admin.backfill.supabase_upsert_failed");
-      return reply.status(500).send({ error: "Supabase upsert failed", details: error.message });
+    if (!insertError) {
+      submissionId = inserted?.id ?? null;
+    } else if (insertError.code === "23505") {
+      // Duplicate — update existing row
+      const { data: updated } = await sb
+        .from("quiz_submissions")
+        .update({ child_name: childName, child_gender: childGender, archetype_id: archetypeId, pdf_url: pdfUrl })
+        .eq("email", email)
+        .select("id")
+        .single();
+      submissionId = updated?.id ?? null;
+    } else {
+      request.log.error({ err: insertError, email }, "admin.backfill.supabase_insert_failed");
+      return reply.status(500).send({ error: "Supabase insert failed", details: insertError.message });
     }
-
-    const submissionId = row?.id ?? null;
 
     // Push PDF URL to ActiveCampaign contact
     let acUpdated = false;
