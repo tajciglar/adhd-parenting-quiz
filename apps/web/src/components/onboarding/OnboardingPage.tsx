@@ -4,8 +4,9 @@ import { useOnboarding, clearOnboardingStorage } from "../../hooks/useOnboarding
 import { TOTAL_STEPS, getStepConfig, ASSESSMENT_CATEGORIES, BASIC_INFO_QUESTIONS } from "@adhd-parenting-quiz/shared";
 import type { CategoryId } from "@adhd-parenting-quiz/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
-import { trackFunnelEvent } from "../../lib/analytics";
-import { trackPixelEvent, generateEventId } from "../../lib/fbq";
+import { trackFunnelEvent, isTestMode } from "../../lib/analytics";
+import { trackPixelEvent, generateEventId, getFbp, getFbc } from "../../lib/fbq";
+import { api } from "../../lib/api";
 import OnboardingLayout from "./OnboardingLayout";
 import AnimationWrapper from "./AnimationWrapper";
 import StepRenderer from "./StepRenderer";
@@ -69,6 +70,7 @@ export default function OnboardingPage() {
   const [showCredibility, setShowCredibility] = useState(false);
   const [showCalculating, setShowCalculating] = useState(false);
   const [showEmailCapture, setShowEmailCapture] = useState(false);
+  const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
   const [calcResult, setCalcResult] = useState<{ childName: string; childGender: string; archetypeId: string } | null>(null);
   const [interstitialCategory, setInterstitialCategory] = useState<CategoryId | null>(null);
 
@@ -139,28 +141,54 @@ export default function OnboardingPage() {
   );
 
   if (showEmailCapture && calcResult) {
+    const handleEmailSubmit = async (email: string) => {
+      trackFunnelEvent("optin_completed", 46);
+      setIsSubmittingEmail(true);
+
+      // Call the API here — while the user is still on this page — so the
+      // request completes before any navigation. Saves to Supabase + AC.
+      let pdfUrl: string | undefined;
+      try {
+        const result = await api.post("/api/guest/submit", {
+          email,
+          responses,
+          childName: calcResult.childName,
+          childGender: calcResult.childGender,
+          fbc: getFbc(),
+          fbp: getFbp(),
+          eventSourceUrl: window.location.href,
+          ...(isTestMode() && { isTest: true }),
+        }) as { pdfUrl?: string; submissionId?: string };
+        pdfUrl = result?.pdfUrl;
+      } catch {
+        // Non-blocking — proceed even if API fails
+      }
+
+      sessionStorage.setItem("wildprint_responses", JSON.stringify(responses));
+      sessionStorage.setItem("wildprint_childName", calcResult.childName);
+      sessionStorage.setItem("wildprint_childGender", calcResult.childGender);
+      sessionStorage.setItem("wildprint_archetypeId", calcResult.archetypeId);
+      sessionStorage.setItem("wildprint_email", email);
+      if (pdfUrl) sessionStorage.setItem("wildprint_pdfUrl", pdfUrl);
+      clearOnboardingStorage();
+      navigate("/results", {
+        replace: true,
+        state: {
+          responses,
+          childName: calcResult.childName,
+          childGender: calcResult.childGender,
+          archetypeId: calcResult.archetypeId,
+          email,
+          pdfUrl,
+        },
+      });
+    };
+
     return (
       <EmailCaptureScreen
         childName={calcResult.childName}
-        onSubmit={(email) => {
-          trackFunnelEvent("optin_completed", 46);
-          sessionStorage.setItem("wildprint_responses", JSON.stringify(responses));
-          sessionStorage.setItem("wildprint_childName", calcResult.childName);
-          sessionStorage.setItem("wildprint_childGender", calcResult.childGender);
-          sessionStorage.setItem("wildprint_archetypeId", calcResult.archetypeId);
-          sessionStorage.setItem("wildprint_email", email);
-          clearOnboardingStorage();
-          navigate("/results", {
-            replace: true,
-            state: {
-              responses,
-              childName: calcResult.childName,
-              childGender: calcResult.childGender,
-              archetypeId: calcResult.archetypeId,
-              email,
-            },
-          });
-        }}
+        onSubmit={handleEmailSubmit}
+        isLoading={isSubmittingEmail}
       />
     );
   }

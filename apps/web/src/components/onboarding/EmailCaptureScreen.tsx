@@ -4,9 +4,11 @@ import { trackFunnelEvent } from "../../lib/analytics";
 export default function EmailCaptureScreen({
   childName,
   onSubmit,
+  isLoading = false,
 }: {
   childName: string;
   onSubmit: (email: string) => void;
+  isLoading?: boolean;
 }) {
   const [email, setEmail] = useState("");
 
@@ -17,7 +19,7 @@ export default function EmailCaptureScreen({
   const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const handleSubmit = () => {
-    if (!isValid) return;
+    if (!isValid || isLoading) return;
     onSubmit(email.trim());
   };
 
@@ -63,10 +65,10 @@ export default function EmailCaptureScreen({
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!isValid}
+            disabled={!isValid || isLoading}
             className="w-full rounded-xl bg-harbor-primary text-white px-5 py-4 font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
-            Continue
+            {isLoading ? "Preparing your report…" : "Continue"}
           </button>
         </div>
       </div>

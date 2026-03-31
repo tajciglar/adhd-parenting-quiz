@@ -308,22 +308,27 @@ export default function SalesPage() {
     try {
       const eventId = generateEventId();
 
-      // Fire API call (saves to DB, syncs AC, sends CAPI) — don't block checkout on failure
-      api.post("/api/guest/submit", {
-        email: email || "unknown@example.com",
-        parentName: "",
-        responses,
-        childName,
-        childGender,
-        fbc: getFbc(),
-        fbp: getFbp(),
-        eventSourceUrl: window.location.href,
-        ...(isTestMode() && { isTest: true }),
-      }).then((result: unknown) => {
-        const r = result as { report?: ArchetypeReportTemplate; pdfUrl?: string };
-        if (r.report) sessionStorage.setItem("wildprint_report", JSON.stringify(r.report));
-        if (r.pdfUrl) sessionStorage.setItem("wildprint_pdfUrl", r.pdfUrl);
-      }).catch(() => { /* API failure shouldn't block checkout */ });
+      // Only call guest/submit if the email-capture screen hasn't already done it
+      // (it runs the full submission at optin time — before any navigation happens).
+      // If pdfUrl is already in sessionStorage, the submission completed successfully.
+      const alreadySubmitted = !!sessionStorage.getItem("wildprint_pdfUrl");
+      if (!alreadySubmitted) {
+        api.post("/api/guest/submit", {
+          email: email || "unknown@example.com",
+          parentName: "",
+          responses,
+          childName,
+          childGender,
+          fbc: getFbc(),
+          fbp: getFbp(),
+          eventSourceUrl: window.location.href,
+          ...(isTestMode() && { isTest: true }),
+        }).then((result: unknown) => {
+          const r = result as { report?: ArchetypeReportTemplate; pdfUrl?: string };
+          if (r.report) sessionStorage.setItem("wildprint_report", JSON.stringify(r.report));
+          if (r.pdfUrl) sessionStorage.setItem("wildprint_pdfUrl", r.pdfUrl);
+        }).catch(() => { /* API failure shouldn't block checkout */ });
+      }
 
       trackPixelEvent("Lead", { content_category: "adhd_report" }, eventId);
       trackPixelEvent("InitiateCheckout", { value: 17.0, currency: "USD", num_items: 1, content_category: "adhd_report" }, generateEventId());
