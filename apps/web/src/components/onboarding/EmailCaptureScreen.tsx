@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { trackFunnelEvent } from "../../lib/analytics";
 
 export default function EmailCaptureScreen({
   childName,
@@ -8,6 +9,10 @@ export default function EmailCaptureScreen({
   onSubmit: (email: string) => void;
 }) {
   const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    trackFunnelEvent("step_viewed", 45);
+  }, []);
 
   const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 

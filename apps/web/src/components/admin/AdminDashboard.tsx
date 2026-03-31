@@ -141,6 +141,8 @@ function getStepLabel(step: number): string {
   // V2 virtual steps: 43 = processing screen reached, 44 = name submitted in popup
   if (step === 43) return "What's your child's name? ★";
   if (step === 44) return "Name Submitted (Popup)";
+  if (step === 45) return "Email Capture Screen ★";
+  if (step === 46) return "Email Submitted ★";
   const config = getStepConfig(step);
   if (!config) return `Step ${step}`;
   if (config.type === "basic-info") {
@@ -186,7 +188,7 @@ function DropoffBar({ step, views, dropoffRate, maxViews, version }: StepDropoff
   const label = version === "v1" ? getStepLabelV1(step) : getStepLabel(step);
   const width = maxViews > 0 ? (views / maxViews) * 100 : 0;
   // Step 43 was added Mar 26 — older sessions don't have it, so dropoff is artificially inflated
-  const isDataGap = step === 43;
+  const isDataGap = step === 43 || step === 45 || step === 46;
   const isHighDropoff = !isDataGap && dropoffRate > 15;
   const isMedDropoff = !isDataGap && dropoffRate > 8;
 
@@ -229,7 +231,8 @@ function getStepCategory(step: number, version: 'v1' | 'v2' | 'v2n'): string {
     if (!config || config.type === 'basic-info') return 'Basic Info';
     return config.categorySubtitle;
   }
-  if (step >= 43) return 'Processing Screen';
+  if (step === 43 || step === 44) return 'Processing Screen';
+  if (step === 45 || step === 46) return 'Email Capture';
   const config = getStepConfig(step);
   if (!config || config.type === 'basic-info') return 'Basic Info';
   return config.categorySubtitle;

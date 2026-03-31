@@ -143,7 +143,7 @@ export default function OnboardingPage() {
       <EmailCaptureScreen
         childName={calcResult.childName}
         onSubmit={(email) => {
-          trackFunnelEvent("optin_completed");
+          trackFunnelEvent("optin_completed", 46);
           sessionStorage.setItem("wildprint_responses", JSON.stringify(responses));
           sessionStorage.setItem("wildprint_childName", calcResult.childName);
           sessionStorage.setItem("wildprint_childGender", calcResult.childGender);
