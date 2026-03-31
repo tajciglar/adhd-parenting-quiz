@@ -84,16 +84,12 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     paymentMethodId,
   })
 
-  // Send to ActiveCampaign with purchase tag
+  // Send to ActiveCampaign with purchase tag (+ bump tag if bump was included)
   if (email) {
     const lastName = fullName.includes(' ') ? fullName.slice(fullName.indexOf(' ') + 1) : ''
-    await syncContactWithTags({
-      email,
-      firstName,
-      lastName,
-      country,
-      tags: ['ASTRO TEST PURCHASE'],
-    })
+    const tags = ['ASTRO TEST PURCHASE']
+    if (bumpIncluded) tags.push('ASTRO TEST BUMP')
+    await syncContactWithTags({ email, firstName, lastName, country, tags })
   }
 }
 
