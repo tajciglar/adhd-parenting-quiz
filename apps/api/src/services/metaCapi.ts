@@ -1,6 +1,6 @@
 /**
  * Shared Meta Conversions API (CAPI) utility.
- * Used by guest.ts (Lead event) and woocommerce.ts (Purchase event).
+ * Used by guest.ts for Lead and Purchase events.
  */
 
 export interface MetaEventOpts {
