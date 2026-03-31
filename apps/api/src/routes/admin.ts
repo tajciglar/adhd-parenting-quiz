@@ -111,8 +111,10 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   // V2 = from Mar 26  (childName moved to processing screen popup: step 43 = screen reached, step 44 = name submitted)
   fastify.get("/admin/version-dropoff", async (request, reply) => {
     const { version } = request.query as { version?: string };
-    const v = version === "v1" ? "v1" : "v2";
+    const v = version === "v1" ? "v1" : version === "v2n" ? "v2n" : "v2";
     const V2_CUTOFF = '2026-03-26T00:00:00.000Z';
+    // When we first started tracking the processing screen (step 43)
+    const NAME_TRACKING_START = '2026-03-30T13:53:00.000Z';
 
     try {
       const sb = getSupabaseAdmin();
@@ -128,6 +130,10 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       if (v === "v1") {
         rangeStart = resetAt ?? epoch;
         rangeEnd = V2_CUTOFF;
+      } else if (v === "v2n") {
+        // V2 with name tracking — only sessions from after we added step 43 tracking
+        rangeStart = resetAt && resetAt > NAME_TRACKING_START ? resetAt : NAME_TRACKING_START;
+        rangeEnd = now;
       } else {
         rangeStart = resetAt && resetAt > V2_CUTOFF ? resetAt : V2_CUTOFF;
         rangeEnd = now;
