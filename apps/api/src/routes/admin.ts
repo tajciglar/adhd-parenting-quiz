@@ -93,11 +93,26 @@ export default async function adminRoutes(fastify: FastifyInstance) {
         .map(([step, sessions]) => ({ step, views: sessions.size }))
         .sort((a, b) => a.step - b.step);
 
+      // Also count quiz_submissions for this day as the last step (server-side confirmed email)
+      const { count: submissionCount } = await sb
+        .from("quiz_submissions")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", effectiveStart)
+        .lte("created_at", dayEnd)
+        .eq("is_test", false);
+
       const stepDropoff = sortedSteps.map((item, i) => {
         const prev = i > 0 ? sortedSteps[i - 1].views : item.views;
         const dropoffRate = prev > 0 ? Number((((prev - item.views) / prev) * 100).toFixed(1)) : 0;
         return { ...item, dropoffRate };
       });
+
+      // Inject step 47 (Supabase submission) after the last tracked step
+      if (submissionCount != null && submissionCount > 0) {
+        const prev = sortedSteps.length > 0 ? sortedSteps[sortedSteps.length - 1].views : submissionCount;
+        const dropoffRate = prev > 0 ? Number((((prev - submissionCount) / prev) * 100).toFixed(1)) : 0;
+        stepDropoff.push({ step: 47, views: submissionCount, dropoffRate });
+      }
 
       return reply.send({ date, stepDropoff });
     } catch (err) {
