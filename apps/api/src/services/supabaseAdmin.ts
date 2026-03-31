@@ -207,7 +207,7 @@ export async function allRows<T = Record<string, unknown>>(
   const result: T[] = [];
   let offset = 0;
   while (true) {
-    const { data, error } = await applyFilters(sb.from(table).select(cols)).range(offset, offset + PAGE - 1);
+    const { data, error } = await applyFilters(sb.from(table).select(cols).order('created_at', { ascending: true })).range(offset, offset + PAGE - 1);
     if (error) { console.error(`allRows(${table}) offset=${offset}:`, error.message); break; }
     if (!data || data.length === 0) break;
     result.push(...(data as T[]));
