@@ -475,15 +475,14 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
     // Only count step 1 as "started" — otherwise sessions continuing on later steps inflate the count
     if (row.event_type === "step_viewed" && row.step_number === 1) day.started.add(row.session_id);
     if (row.event_type === "quiz_completed") day.completed.add(row.session_id);
-    if (row.event_type === "optin_completed") day.emailSubmitted.add(row.session_id);
     if (row.event_type === "purchase_completed") day.purchased.add(row.session_id);
   }
-  // Also count paid submissions by date
+  // Use quiz_submissions as the source of truth for emailSubmitted and purchased
   for (const row of submissionRows) {
-    if (!row.paid) continue;
     const date = row.created_at.slice(0, 10);
     if (!dailyMap.has(date)) dailyMap.set(date, { started: new Set(), completed: new Set(), emailSubmitted: new Set(), purchased: new Set() });
-    dailyMap.get(date)!.purchased.add(row.id);
+    dailyMap.get(date)!.emailSubmitted.add(row.id);
+    if (row.paid) dailyMap.get(date)!.purchased.add(row.id);
   }
   const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([date, sets]) => ({ date, started: sets.started.size, completed: sets.completed.size, emailSubmitted: sets.emailSubmitted.size, purchased: sets.purchased.size }));
 
