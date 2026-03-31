@@ -65,7 +65,9 @@ interface DailyTrend {
   date: string;
   started: number;
   completed: number;
+  nameSubmitted: number;
   emailSubmitted: number;
+  checkoutStarted: number;
   purchased: number;
 }
 
@@ -616,37 +618,117 @@ export default function AdminDashboard() {
         {/* Daily Trend */}
         {analytics?.dailyTrend.length ? (
           <div id="section-daily-trend" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
-            <h2 className="text-lg font-semibold text-harbor-primary">Daily Trend</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-harbor-primary">Daily Trend</h2>
+              <button
+                onClick={() => {
+                  const rows = analytics.dailyTrend;
+                  const totals = rows.reduce((acc, d) => ({
+                    started: acc.started + d.started,
+                    completed: acc.completed + d.completed,
+                    nameSubmitted: acc.nameSubmitted + (d.nameSubmitted ?? 0),
+                    emailSubmitted: acc.emailSubmitted + d.emailSubmitted,
+                    checkoutStarted: acc.checkoutStarted + (d.checkoutStarted ?? 0),
+                    purchased: acc.purchased + d.purchased,
+                  }), { started: 0, completed: 0, nameSubmitted: 0, emailSubmitted: 0, checkoutStarted: 0, purchased: 0 });
+                  const pct = (a: number, b: number) => b > 0 ? `${((a / b) * 100).toFixed(1)}%` : '-';
+                  const headers = ['Date','Started','Quiz Completed','Quiz %','Name Submitted','Name %','Email Submitted','Email %','Checkout Started','Checkout %','Purchased','Purchase Rate'];
+                  const toRow = (label: string, d: typeof totals) => [
+                    label, d.started, d.completed, pct(d.completed, d.started),
+                    d.nameSubmitted, pct(d.nameSubmitted, d.started),
+                    d.emailSubmitted, pct(d.emailSubmitted, d.started),
+                    d.checkoutStarted, pct(d.checkoutStarted, d.emailSubmitted),
+                    d.purchased, pct(d.purchased, d.checkoutStarted),
+                  ];
+                  const dataRows = rows.map((d) => toRow(d.date, { started: d.started, completed: d.completed, nameSubmitted: d.nameSubmitted ?? 0, emailSubmitted: d.emailSubmitted, checkoutStarted: d.checkoutStarted ?? 0, purchased: d.purchased }));
+                  dataRows.push(toRow('OVERALL', totals));
+                  const csv = [headers, ...dataRows].map((r) => r.join(',')).join('\n');
+                  const blob = new Blob([csv], { type: 'text/csv' });
+                  const a = document.createElement('a');
+                  a.href = URL.createObjectURL(blob);
+                  a.download = `adhd-quiz-analytics-${new Date().toISOString().slice(0, 10)}.csv`;
+                  a.click();
+                }}
+                className="px-3 py-1.5 rounded-lg text-sm font-medium border border-harbor-text/10 text-harbor-text/60 hover:border-harbor-primary/30 transition cursor-pointer"
+              >
+                ↓ Export CSV
+              </button>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-harbor-text/10">
-                    <th className="text-left py-2 pr-4 text-harbor-text/50 font-medium">Date</th>
-                    <th className="text-right py-2 px-4 text-harbor-text/50 font-medium">Started</th>
-                    <th className="text-right py-2 px-4 text-harbor-text/50 font-medium">Completed</th>
-                    <th className="text-right py-2 px-4 text-harbor-text/50 font-medium">Email Submitted</th>
-                    <th className="text-right py-2 pl-4 text-harbor-text/50 font-medium">Purchased</th>
+                  <tr className="border-b-2 border-harbor-text/10 bg-orange-50">
+                    <th className="text-left py-2 pr-4 text-harbor-text/60 font-semibold">Date</th>
+                    <th className="text-right py-2 px-3 text-harbor-text/60 font-semibold">Started</th>
+                    <th className="text-right py-2 px-3 text-harbor-text/60 font-semibold">Completed</th>
+                    <th className="text-right py-2 px-2 text-harbor-text/40 font-medium text-xs">%</th>
+                    <th className="text-right py-2 px-3 text-harbor-text/60 font-semibold">Name</th>
+                    <th className="text-right py-2 px-2 text-harbor-text/40 font-medium text-xs">%</th>
+                    <th className="text-right py-2 px-3 text-blue-600 font-semibold">Email</th>
+                    <th className="text-right py-2 px-2 text-harbor-text/40 font-medium text-xs">%</th>
+                    <th className="text-right py-2 px-3 text-amber-600 font-semibold">Checkout</th>
+                    <th className="text-right py-2 px-2 text-harbor-text/40 font-medium text-xs">%</th>
+                    <th className="text-right py-2 pl-3 text-green-600 font-semibold">Purchased</th>
+                    <th className="text-right py-2 pl-2 text-harbor-text/40 font-medium text-xs">Rate</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {analytics.dailyTrend.map((day) => (
-                    <tr
-                      key={day.date}
-                      className={`border-b border-harbor-text/5 cursor-pointer hover:bg-harbor-primary/5 transition-colors ${selectedDate === day.date ? "bg-harbor-primary/10" : ""}`}
-                      onClick={() => {
-                        setSelectedDate(day.date);
-                        void fetchDailyDropoff(day.date);
-                      }}
-                      title="Click to view step dropoff for this date"
-                    >
-                      <td className="py-2 pr-4 text-harbor-text/70">{day.date}</td>
-                      <td className="py-2 px-4 text-right tabular-nums">{day.started}</td>
-                      <td className="py-2 px-4 text-right tabular-nums text-harbor-accent">{day.completed}</td>
-                      <td className="py-2 px-4 text-right tabular-nums text-blue-600">{day.emailSubmitted ?? 0}</td>
-                      <td className="py-2 pl-4 text-right tabular-nums text-green-600 font-medium">{day.purchased}</td>
-                    </tr>
-                  ))}
+                  {analytics.dailyTrend.map((day) => {
+                    const pct = (a: number, b: number) => b > 0 ? `${((a / b) * 100).toFixed(1)}%` : '—';
+                    const ns = day.nameSubmitted ?? 0;
+                    const cs = day.checkoutStarted ?? 0;
+                    return (
+                      <tr
+                        key={day.date}
+                        className={`border-b border-harbor-text/5 cursor-pointer hover:bg-harbor-primary/5 transition-colors ${selectedDate === day.date ? "bg-harbor-primary/10" : ""}`}
+                        onClick={() => { setSelectedDate(day.date); void fetchDailyDropoff(day.date); }}
+                        title="Click to view step dropoff for this date"
+                      >
+                        <td className="py-2 pr-4 text-harbor-text/70 font-medium">{day.date}</td>
+                        <td className="py-2 px-3 text-right tabular-nums">{day.started}</td>
+                        <td className="py-2 px-3 text-right tabular-nums text-harbor-accent">{day.completed}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{pct(day.completed, day.started)}</td>
+                        <td className="py-2 px-3 text-right tabular-nums">{ns || '—'}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{ns ? pct(ns, day.started) : '—'}</td>
+                        <td className="py-2 px-3 text-right tabular-nums text-blue-600">{day.emailSubmitted}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{pct(day.emailSubmitted, day.started)}</td>
+                        <td className="py-2 px-3 text-right tabular-nums text-amber-600">{cs || '—'}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{cs ? pct(cs, day.emailSubmitted) : '—'}</td>
+                        <td className="py-2 pl-3 text-right tabular-nums text-green-600 font-medium">{day.purchased}</td>
+                        <td className="py-2 pl-2 text-right tabular-nums text-harbor-text/40 text-xs">{pct(day.purchased, day.started)}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
+                <tfoot>
+                  {(() => {
+                    const t = analytics.dailyTrend.reduce((acc, d) => ({
+                      started: acc.started + d.started,
+                      completed: acc.completed + d.completed,
+                      nameSubmitted: acc.nameSubmitted + (d.nameSubmitted ?? 0),
+                      emailSubmitted: acc.emailSubmitted + d.emailSubmitted,
+                      checkoutStarted: acc.checkoutStarted + (d.checkoutStarted ?? 0),
+                      purchased: acc.purchased + d.purchased,
+                    }), { started: 0, completed: 0, nameSubmitted: 0, emailSubmitted: 0, checkoutStarted: 0, purchased: 0 });
+                    const pct = (a: number, b: number) => b > 0 ? `${((a / b) * 100).toFixed(1)}%` : '—';
+                    return (
+                      <tr className="border-t-2 border-harbor-text/20 bg-orange-50 font-semibold">
+                        <td className="py-2 pr-4 text-harbor-text/70">Overall</td>
+                        <td className="py-2 px-3 text-right tabular-nums">{t.started}</td>
+                        <td className="py-2 px-3 text-right tabular-nums text-harbor-accent">{t.completed}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{pct(t.completed, t.started)}</td>
+                        <td className="py-2 px-3 text-right tabular-nums">{t.nameSubmitted || '—'}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{t.nameSubmitted ? pct(t.nameSubmitted, t.started) : '—'}</td>
+                        <td className="py-2 px-3 text-right tabular-nums text-blue-600">{t.emailSubmitted}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{pct(t.emailSubmitted, t.started)}</td>
+                        <td className="py-2 px-3 text-right tabular-nums text-amber-600">{t.checkoutStarted || '—'}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{t.checkoutStarted ? pct(t.checkoutStarted, t.emailSubmitted) : '—'}</td>
+                        <td className="py-2 pl-3 text-right tabular-nums text-green-600">{t.purchased}</td>
+                        <td className="py-2 pl-2 text-right tabular-nums text-harbor-text/40 text-xs">{pct(t.purchased, t.started)}</td>
+                      </tr>
+                    );
+                  })()}
+                </tfoot>
               </table>
             </div>
           </div>

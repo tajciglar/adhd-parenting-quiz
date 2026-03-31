@@ -467,24 +467,35 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   const submissionsByTraitPair = [...traitPairUserMap.entries()].map(([pair, users]) => ({ pair, users })).sort((a, b) => b.users.length - a.users.length);
 
   // Daily trend
-  const dailyMap = new Map<string, { started: Set<string>; completed: Set<string>; emailSubmitted: Set<string>; purchased: Set<string> }>();
+  type DayBuckets = { started: Set<string>; completed: Set<string>; nameSubmitted: Set<string>; emailSubmitted: Set<string>; checkoutStarted: Set<string>; purchased: Set<string> };
+  const emptyDay = (): DayBuckets => ({ started: new Set(), completed: new Set(), nameSubmitted: new Set(), emailSubmitted: new Set(), checkoutStarted: new Set(), purchased: new Set() });
+  const dailyMap = new Map<string, DayBuckets>();
   for (const row of funnelRows) {
     const date = row.created_at.slice(0, 10);
-    if (!dailyMap.has(date)) dailyMap.set(date, { started: new Set(), completed: new Set(), emailSubmitted: new Set(), purchased: new Set() });
+    if (!dailyMap.has(date)) dailyMap.set(date, emptyDay());
     const day = dailyMap.get(date)!;
-    // Only count step 1 as "started" — otherwise sessions continuing on later steps inflate the count
     if (row.event_type === "step_viewed" && row.step_number === 1) day.started.add(row.session_id);
     if (row.event_type === "quiz_completed") day.completed.add(row.session_id);
+    if (row.step_number === 44) day.nameSubmitted.add(row.session_id);
+    if (row.event_type === "checkout_started" || row.event_type === "wp_checkout_redirect") day.checkoutStarted.add(row.session_id);
     if (row.event_type === "purchase_completed") day.purchased.add(row.session_id);
   }
   // Use quiz_submissions as the source of truth for emailSubmitted and purchased
   for (const row of submissionRows) {
     const date = row.created_at.slice(0, 10);
-    if (!dailyMap.has(date)) dailyMap.set(date, { started: new Set(), completed: new Set(), emailSubmitted: new Set(), purchased: new Set() });
+    if (!dailyMap.has(date)) dailyMap.set(date, emptyDay());
     dailyMap.get(date)!.emailSubmitted.add(row.id);
     if (row.paid) dailyMap.get(date)!.purchased.add(row.id);
   }
-  const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([date, sets]) => ({ date, started: sets.started.size, completed: sets.completed.size, emailSubmitted: sets.emailSubmitted.size, purchased: sets.purchased.size }));
+  const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([date, sets]) => ({
+    date,
+    started: sets.started.size,
+    completed: sets.completed.size,
+    nameSubmitted: sets.nameSubmitted.size,
+    emailSubmitted: sets.emailSubmitted.size,
+    checkoutStarted: sets.checkoutStarted.size,
+    purchased: sets.purchased.size,
+  }));
 
   // Archetype + trait pair distribution
   const sinceDate = new Date(sinceTs);
