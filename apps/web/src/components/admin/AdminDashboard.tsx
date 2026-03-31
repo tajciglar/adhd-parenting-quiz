@@ -430,7 +430,6 @@ export default function AdminDashboard() {
   }
 
   const summary = analytics?.funnelSummary;
-  const maxViews = Math.max(...(analytics?.stepDropoff.map((s) => s.views) ?? [1]));
 
   return (
     <div className="min-h-screen bg-harbor-bg flex">
@@ -438,7 +437,7 @@ export default function AdminDashboard() {
       <nav className="hidden md:flex flex-col w-52 shrink-0 sticky top-0 h-screen overflow-y-auto bg-white border-r border-harbor-text/10 py-6 px-3 space-y-1">
         {[
           { emoji: '📊', label: 'Funnel Overview', id: 'section-funnel' },
-          { emoji: '📉', label: 'Step Dropoff', id: 'section-step-dropoff' },
+          { emoji: '📉', label: 'Step Dropoff', id: 'section-version-dropoff' },
           { emoji: '📅', label: 'Daily Dropoff', id: 'section-daily-dropoff' },
           { emoji: '🔀', label: 'Version Comparison', id: 'section-version-dropoff' },
           { emoji: '📈', label: 'Daily Trend', id: 'section-daily-trend' },
@@ -570,30 +569,6 @@ export default function AdminDashboard() {
           </div>
         ) : null}
 
-        {/* Step Dropoff */}
-        {analytics?.stepDropoff.length ? (
-          <div id="section-step-dropoff" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-harbor-primary">Step-by-Step Dropoff</h2>
-              <div className="flex items-center gap-3 text-xs text-harbor-text/40">
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded bg-harbor-accent" /> Normal
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded bg-amber-400" /> Medium
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded bg-red-400" /> High (&gt;15%)
-                </span>
-              </div>
-            </div>
-            <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
-              {analytics.stepDropoff.map((item) => (
-                <DropoffBar key={item.step} {...item} maxViews={maxViews} />
-              ))}
-            </div>
-          </div>
-        ) : null}
 
         {/* Per-Date Step Dropoff */}
         <div id="section-daily-dropoff" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
