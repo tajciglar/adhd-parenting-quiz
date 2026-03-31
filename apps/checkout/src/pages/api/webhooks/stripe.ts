@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro'
 import { getStripe } from '../../../lib/stripe'
 import { syncContactWithTags } from '../../../lib/activecampaign'
+import { sendFulfillmentEmail } from '../../../lib/email'
 import type Stripe from 'stripe'
 
 // In-memory idempotency guard for the POC.
@@ -84,12 +85,16 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     paymentMethodId,
   })
 
-  // Send to ActiveCampaign with purchase tag (+ bump tag if bump was included)
   if (email) {
     const lastName = fullName.includes(' ') ? fullName.slice(fullName.indexOf(' ') + 1) : ''
     const tags = ['ASTRO TEST PURCHASE']
     if (bumpIncluded) tags.push('ASTRO TEST BUMP')
-    await syncContactWithTags({ email, firstName, lastName, country, tags })
+
+    // Run AC sync and fulfillment email in parallel
+    await Promise.all([
+      syncContactWithTags({ email, firstName, lastName, country, tags }),
+      sendFulfillmentEmail({ email, firstName, bumpIncluded }),
+    ])
   }
 }
 
