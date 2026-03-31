@@ -47,6 +47,51 @@ function generatePdfUrl(opts: {
   return `${baseUrl}/api/guest/pdf?data=${data}&sig=${sig}`;
 }
 
+// Resolve or create the PDF_URL custom field and return its numeric id.
+// Cached in-memory so we only hit the AC API once per process lifetime.
+let cachedPdfFieldId: string | null = null;
+
+async function getPdfUrlFieldId(
+  apiUrl: string,
+  apiKey: string,
+  logger: AcLogger,
+): Promise<string | null> {
+  if (cachedPdfFieldId) return cachedPdfFieldId;
+
+  const headers = { "Content-Type": "application/json", "Api-Token": apiKey };
+
+  const searchRes = await fetch(`${apiUrl}/api/3/fields?limit=100`, { headers });
+  if (!searchRes.ok) return null;
+
+  const searchData = (await searchRes.json()) as {
+    fields: Array<{ id: number | string; perstag: string }>;
+  };
+
+  let fieldId = String(
+    searchData.fields.find((f) => f.perstag.replace(/%/g, "") === "PDF_URL")?.id ?? "",
+  );
+
+  if (!fieldId || fieldId === "undefined") {
+    const createRes = await fetch(`${apiUrl}/api/3/fields`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        field: { type: "text", title: "PDF URL", descript: "", isrequired: "0", perstag: "PDF_URL", visible: "1" },
+      }),
+    });
+    const createData = (await createRes.json()) as { field?: { id: number | string } };
+    if (createData.field?.id) fieldId = String(createData.field.id);
+  }
+
+  if (!fieldId || fieldId === "undefined") {
+    logger.warn("guest.submit.ac_field_id_missing — could not find or create PDF_URL field");
+    return null;
+  }
+
+  cachedPdfFieldId = fieldId;
+  return fieldId;
+}
+
 // Sync contact to AC: store PDF download URL as custom field, subscribe to list, apply tags
 async function syncToActiveCampaign(opts: {
   email: string;
@@ -64,17 +109,26 @@ async function syncToActiveCampaign(opts: {
   // Skip internal team emails
   if (opts.email.toLowerCase().includes('@wecreatecourses')) return;
 
-  const headers = {
-    "Content-Type": "application/json",
-    "Api-Token": apiKey,
-  };
+  const headers = { "Content-Type": "application/json", "Api-Token": apiKey };
 
   try {
-    // 1. Create or update contact
+    // 1. Resolve the PDF_URL field id
+    const fieldId = await getPdfUrlFieldId(apiUrl, apiKey, opts.logger);
+
+    // 2. Create or update contact — include fieldValues directly so AC handles
+    //    create AND update in one call (avoids the POST /fieldValues duplicate error)
+    const contactBody: Record<string, unknown> = {
+      email: opts.email,
+      ...(opts.parentName && { firstName: opts.parentName }),
+    };
+    if (fieldId) {
+      contactBody.fieldValues = [{ field: fieldId, value: opts.pdfUrl }];
+    }
+
     const contactRes = await fetch(`${apiUrl}/api/3/contact/sync`, {
       method: "POST",
       headers,
-      body: JSON.stringify({ contact: { email: opts.email, ...(opts.parentName && { firstName: opts.parentName }) } }),
+      body: JSON.stringify({ contact: contactBody }),
     });
 
     if (!contactRes.ok) {
@@ -82,67 +136,9 @@ async function syncToActiveCampaign(opts: {
       return;
     }
 
-    const contactData = (await contactRes.json()) as {
-      contact: { id: number | string };
-    };
+    const contactData = (await contactRes.json()) as { contact: { id: number | string } };
     const contactId = String(contactData.contact.id);
-
-    // 2. Find or create PDF_URL custom field, then set the signed download URL
-    // Fetch all fields (no search filter) and match by perstag — avoids title/search mismatch
-    const searchRes = await fetch(`${apiUrl}/api/3/fields?limit=100`, { headers });
-    const searchData = (await searchRes.json()) as {
-      fields: Array<{ id: number | string; perstag: string }>;
-    };
-
-    let fieldId = String(
-      searchData.fields.find((f) => f.perstag.replace(/%/g, "") === "PDF_URL")?.id ?? "",
-    );
-
-    if (!fieldId || fieldId === "undefined") {
-      const createRes = await fetch(`${apiUrl}/api/3/fields`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          field: {
-            type: "text",
-            title: "PDF URL",
-            descript: "",
-            isrequired: "0",
-            perstag: "PDF_URL",
-            visible: "1",
-          },
-        }),
-      });
-      const createData = (await createRes.json()) as {
-        field?: { id: number | string };
-      };
-      if (createData.field?.id) fieldId = String(createData.field.id);
-    }
-
-    if (fieldId && fieldId !== "undefined") {
-      opts.logger.warn(`guest.submit.ac_setting_pdf_url fieldId=${fieldId} contactId=${contactId}`);
-      const fvRes = await fetch(`${apiUrl}/api/3/fieldValues`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          fieldValue: { contact: contactId, field: fieldId, value: opts.pdfUrl },
-        }),
-      }).catch((err: unknown) => {
-        opts.logger.error({ err }, "guest.submit.ac_field_value_failed");
-        return null;
-      });
-      if (fvRes && !fvRes.ok) {
-        const body = await fvRes.json().catch(() => null);
-        opts.logger.error(
-          { status: fvRes.status, body, fieldId, contactId },
-          "guest.submit.ac_field_value_http_error",
-        );
-      } else if (fvRes?.ok) {
-        opts.logger.warn(`guest.submit.ac_pdf_url_set_ok contactId=${contactId}`);
-      }
-    } else {
-      opts.logger.warn("guest.submit.ac_field_id_missing — could not find or create PDF_URL field");
-    }
+    opts.logger.warn(`guest.submit.ac_contact_synced contactId=${contactId} pdfFieldId=${fieldId ?? "none"}`);
 
     // 3. Subscribe contact to list so automations fire
     const listId = process.env.AC_LIST_ID;
@@ -158,45 +154,30 @@ async function syncToActiveCampaign(opts: {
       });
     }
 
-    // 4. Apply tags
-    const tagNames = ["ADHD Personality Type Opt-In"];
+    // 4. Apply "ADHD Personality Type Opt-In" tag
+    const TAG_NAME = "ADHD Personality Type Opt-In";
+    const tagSearchRes = await fetch(`${apiUrl}/api/3/tags?search=${encodeURIComponent(TAG_NAME)}`, { headers });
+    const tagSearchData = (await tagSearchRes.json()) as { tags: Array<{ id: number | string; tag: string }> };
 
-    for (const tagName of tagNames) {
-      const tagSearchRes = await fetch(
-        `${apiUrl}/api/3/tags?search=${encodeURIComponent(tagName)}`,
-        { headers },
-      );
-      const tagSearchData = (await tagSearchRes.json()) as {
-        tags: Array<{ id: number | string; tag: string }>;
-      };
+    let tagId = String(tagSearchData.tags.find((t) => t.tag === TAG_NAME)?.id ?? "");
 
-      let tagId = String(
-        tagSearchData.tags.find((t) => t.tag === tagName)?.id ?? "",
-      );
+    if (!tagId || tagId === "undefined") {
+      const createRes = await fetch(`${apiUrl}/api/3/tags`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ tag: { tag: TAG_NAME, tagType: "contact", description: "" } }),
+      });
+      const createData = (await createRes.json()) as { tag?: { id: number | string } };
+      if (createData.tag?.id) tagId = String(createData.tag.id);
+    }
 
-      if (!tagId || tagId === "undefined") {
-        const createRes = await fetch(`${apiUrl}/api/3/tags`, {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            tag: { tag: tagName, tagType: "contact", description: "" },
-          }),
-        });
-        const createData = (await createRes.json()) as {
-          tag?: { id: number | string };
-        };
-        if (createData.tag?.id) tagId = String(createData.tag.id);
-      }
-
-      if (tagId && tagId !== "undefined") {
-        await fetch(`${apiUrl}/api/3/contactTags`, {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            contactTag: { contact: contactId, tag: tagId },
-          }),
-        });
-      }
+    if (tagId && tagId !== "undefined") {
+      await fetch(`${apiUrl}/api/3/contactTags`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ contactTag: { contact: contactId, tag: tagId } }),
+      });
+      opts.logger.warn(`guest.submit.ac_tag_applied contactId=${contactId}`);
     }
   } catch (err) {
     opts.logger.error({ err }, "guest.submit.activecampaign_sync_failed");
