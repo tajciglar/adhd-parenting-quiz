@@ -5,10 +5,12 @@ export default function EmailCaptureScreen({
   childName,
   onSubmit,
   isLoading = false,
+  error = null,
 }: {
   childName: string;
   onSubmit: (email: string) => void;
   isLoading?: boolean;
+  error?: string | null;
 }) {
   const [email, setEmail] = useState("");
 
@@ -62,13 +64,19 @@ export default function EmailCaptureScreen({
             We respect your privacy and are committed to protecting your personal data.
           </p>
 
+          {error && (
+            <p className="text-sm text-red-500 font-medium">
+              {error} — please try again.
+            </p>
+          )}
+
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!isValid || isLoading}
             className="w-full rounded-xl bg-harbor-primary text-white px-5 py-4 font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
-            {isLoading ? "Preparing your report…" : "Continue"}
+            {isLoading ? "Preparing your report…" : error ? "Try again" : "Continue"}
           </button>
         </div>
       </div>

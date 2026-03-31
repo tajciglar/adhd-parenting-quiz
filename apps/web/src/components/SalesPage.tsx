@@ -1,9 +1,8 @@
 import { useEffect, useRef, useCallback, useState, useMemo } from "react";
 import { useLocation, useNavigate, Navigate } from "react-router-dom";
 import { ARCHETYPES, getReportTemplate, renderReportTemplate, computeTraitProfile } from "@adhd-parenting-quiz/shared";
-import type { ArchetypeReportTemplate } from "@adhd-parenting-quiz/shared";
 import { trackPixelEvent, generateEventId, getFbp, getFbc } from "../lib/fbq";
-import { trackFunnelEvent, isTestMode } from "../lib/analytics";
+import { trackFunnelEvent } from "../lib/analytics";
 import { AnimalIcon } from "../lib/animalImages";
 import { api } from "../lib/api";
 import type { OnboardingResponses } from "../types/onboarding";
@@ -308,26 +307,14 @@ export default function SalesPage() {
     try {
       const eventId = generateEventId();
 
-      // Only call guest/submit if the email-capture screen hasn't already done it
-      // (it runs the full submission at optin time — before any navigation happens).
-      // If pdfUrl is already in sessionStorage, the submission completed successfully.
-      const alreadySubmitted = !!sessionStorage.getItem("wildprint_pdfUrl");
-      if (!alreadySubmitted) {
-        api.post("/api/guest/submit", {
-          email: email || "unknown@example.com",
-          parentName: "",
-          responses,
-          childName,
-          childGender,
-          fbc: getFbc(),
-          fbp: getFbp(),
-          eventSourceUrl: window.location.href,
-          ...(isTestMode() && { isTest: true }),
-        }).then((result: unknown) => {
-          const r = result as { report?: ArchetypeReportTemplate; pdfUrl?: string };
-          if (r.report) sessionStorage.setItem("wildprint_report", JSON.stringify(r.report));
-          if (r.pdfUrl) sessionStorage.setItem("wildprint_pdfUrl", r.pdfUrl);
-        }).catch(() => { /* API failure shouldn't block checkout */ });
+      // Guard — pdfUrl must exist before we allow checkout.
+      // It was set during email capture (OnboardingPage) after a confirmed API call.
+      // If it's missing here, the submission never landed — block the redirect.
+      const pdfUrlConfirmed = sessionStorage.getItem("wildprint_pdfUrl");
+      if (!pdfUrlConfirmed) {
+        setSubmitError("We couldn't save your report — please refresh the page and try again.");
+        setIsSubmitting(false);
+        return;
       }
 
       trackPixelEvent("Lead", { content_category: "adhd_report" }, eventId);

@@ -71,6 +71,7 @@ export default function OnboardingPage() {
   const [showCalculating, setShowCalculating] = useState(false);
   const [showEmailCapture, setShowEmailCapture] = useState(false);
   const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
+  const [emailSubmitError, setEmailSubmitError] = useState<string | null>(null);
   const [calcResult, setCalcResult] = useState<{ childName: string; childGender: string; archetypeId: string } | null>(null);
   const [interstitialCategory, setInterstitialCategory] = useState<CategoryId | null>(null);
 
@@ -145,23 +146,49 @@ export default function OnboardingPage() {
       trackFunnelEvent("optin_completed", 46);
       setIsSubmittingEmail(true);
 
-      // Call the API here — while the user is still on this page — so the
-      // request completes before any navigation. Saves to Supabase + AC.
+      // Backup to localStorage so data is recoverable even if everything fails
+      localStorage.setItem("wildprint_backup", JSON.stringify({
+        email,
+        responses,
+        childName: calcResult.childName,
+        childGender: calcResult.childGender,
+        archetypeId: calcResult.archetypeId,
+        savedAt: new Date().toISOString(),
+      }));
+
+      // Try up to 3 times — don't proceed until we have a pdfUrl
+      const MAX_RETRIES = 3;
       let pdfUrl: string | undefined;
-      try {
-        const result = await api.post("/api/guest/submit", {
-          email,
-          responses,
-          childName: calcResult.childName,
-          childGender: calcResult.childGender,
-          fbc: getFbc(),
-          fbp: getFbp(),
-          eventSourceUrl: window.location.href,
-          ...(isTestMode() && { isTest: true }),
-        }) as { pdfUrl?: string; submissionId?: string };
-        pdfUrl = result?.pdfUrl;
-      } catch {
-        // Non-blocking — proceed even if API fails
+      let lastError: string | undefined;
+
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          const result = await api.post("/api/guest/submit", {
+            email,
+            responses,
+            childName: calcResult.childName,
+            childGender: calcResult.childGender,
+            fbc: getFbc(),
+            fbp: getFbp(),
+            eventSourceUrl: window.location.href,
+            ...(isTestMode() && { isTest: true }),
+          }) as { pdfUrl?: string; submissionId?: string };
+          pdfUrl = result?.pdfUrl;
+          if (pdfUrl) break; // success
+        } catch (err) {
+          lastError = err instanceof Error ? err.message : "Network error";
+          if (attempt < MAX_RETRIES) {
+            await new Promise((r) => setTimeout(r, attempt * 1000)); // 1s, 2s backoff
+          }
+        }
+      }
+
+      // Hard block — don't let them through without a confirmed submission
+      if (!pdfUrl) {
+        setIsSubmittingEmail(false);
+        // Show error via EmailCaptureScreen's error prop
+        setEmailSubmitError(lastError ?? "Something went wrong. Please try again.");
+        return;
       }
 
       sessionStorage.setItem("wildprint_responses", JSON.stringify(responses));
@@ -169,7 +196,7 @@ export default function OnboardingPage() {
       sessionStorage.setItem("wildprint_childGender", calcResult.childGender);
       sessionStorage.setItem("wildprint_archetypeId", calcResult.archetypeId);
       sessionStorage.setItem("wildprint_email", email);
-      if (pdfUrl) sessionStorage.setItem("wildprint_pdfUrl", pdfUrl);
+      sessionStorage.setItem("wildprint_pdfUrl", pdfUrl);
       clearOnboardingStorage();
       navigate("/results", {
         replace: true,
@@ -189,6 +216,7 @@ export default function OnboardingPage() {
         childName={calcResult.childName}
         onSubmit={handleEmailSubmit}
         isLoading={isSubmittingEmail}
+        error={emailSubmitError}
       />
     );
   }
