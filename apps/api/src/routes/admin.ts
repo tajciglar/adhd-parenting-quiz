@@ -75,7 +75,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
         "funnel_events",
         "session_id, step_number",
         (q: any) =>
-          q.eq("event_type", "step_viewed")
+          q.not("step_number", "is", null)
             .gte("created_at", effectiveStart)
             .lte("created_at", dayEnd)
             .not("is_test", "eq", true),
