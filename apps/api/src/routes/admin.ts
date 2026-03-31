@@ -451,4 +451,133 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       return reply.status(500).send({ error: "Failed to export submissions" });
     }
   });
+
+  // ── POST /api/admin/backfill-submission ──────────────────────────────────
+  // Manually create or update a quiz_submissions row for a buyer who is
+  // missing from Supabase (e.g. Supabase was down, or they bought before the
+  // new flow was live).  Also pushes the PDF URL to their AC contact.
+  //
+  // Body: { email, childName, childGender?, archetypeId }
+  // Returns: { submissionId, pdfUrl, acUpdated }
+  fastify.post("/admin/backfill-submission", async (request, reply) => {
+    const body = request.body as {
+      email?: string;
+      childName?: string;
+      childGender?: string;
+      archetypeId?: string;
+    };
+
+    const { email, childName, archetypeId } = body ?? {};
+    const childGender = body?.childGender ?? "Other";
+
+    if (!email || !childName || !archetypeId) {
+      return reply.status(400).send({ error: "email, childName and archetypeId are required" });
+    }
+
+    const sb = getSupabaseAdmin();
+    if (!sb) return reply.status(503).send({ error: "Supabase not configured" });
+
+    // Generate the signed PDF URL (same algorithm as guest.ts — deterministic)
+    const pdfUrl = generatePdfUrl({ archetypeId, childName, childGender });
+
+    // Upsert into quiz_submissions
+    const { data: row, error } = await sb
+      .from("quiz_submissions")
+      .upsert(
+        {
+          email,
+          child_name: childName,
+          child_gender: childGender,
+          archetype_id: archetypeId,
+          pdf_url: pdfUrl,
+          trait_scores: {},
+          responses: {},
+          is_test: false,
+        },
+        { onConflict: "email", ignoreDuplicates: false },
+      )
+      .select("id")
+      .single();
+
+    if (error) {
+      request.log.error({ err: error, email }, "admin.backfill.supabase_upsert_failed");
+      return reply.status(500).send({ error: "Supabase upsert failed", details: error.message });
+    }
+
+    const submissionId = row?.id ?? null;
+
+    // Push PDF URL to ActiveCampaign contact
+    let acUpdated = false;
+    const apiUrl = process.env.AC_API_URL?.replace(/\/$/, "");
+    const apiKey = process.env.AC_API_KEY;
+
+    if (apiUrl && apiKey) {
+      try {
+        const headers = { "Content-Type": "application/json", "Api-Token": apiKey };
+
+        // 1. Sync contact
+        const syncRes = await fetch(`${apiUrl}/api/3/contact/sync`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ contact: { email } }),
+        });
+
+        if (syncRes.ok) {
+          const syncData = (await syncRes.json()) as { contact: { id: number | string } };
+          const contactId = String(syncData.contact.id);
+
+          // 2. Find PDF_URL field
+          const fieldsRes = await fetch(`${apiUrl}/api/3/fields?limit=100`, { headers });
+          const fieldsData = (await fieldsRes.json()) as {
+            fields: Array<{ id: number | string; perstag: string }>;
+          };
+          const fieldId = String(
+            fieldsData.fields.find((f) => f.perstag.replace(/%/g, "") === "PDF_URL")?.id ?? "",
+          );
+
+          if (fieldId && fieldId !== "undefined") {
+            const fvRes = await fetch(`${apiUrl}/api/3/fieldValues`, {
+              method: "POST",
+              headers,
+              body: JSON.stringify({
+                fieldValue: { contact: contactId, field: fieldId, value: pdfUrl },
+              }),
+            });
+            acUpdated = fvRes.ok;
+          }
+        }
+      } catch (acErr) {
+        request.log.warn({ acErr }, "admin.backfill.ac_update_failed");
+      }
+    }
+
+    request.log.info({ email, submissionId, acUpdated }, "admin.backfill.done");
+    return reply.send({ submissionId, pdfUrl, acUpdated });
+  });
+
+  // ── GET /api/admin/lookup-submission ─────────────────────────────────────
+  // Look up an existing quiz submission by email.
+  // Query param: ?email=foo@bar.com
+  // Returns: the submission row or 404
+  fastify.get("/admin/lookup-submission", async (request, reply) => {
+    const { email } = request.query as { email?: string };
+    if (!email) return reply.status(400).send({ error: "email query param required" });
+
+    const sb = getSupabaseAdmin();
+    if (!sb) return reply.status(503).send({ error: "Supabase not configured" });
+
+    const { data, error } = await sb
+      .from("quiz_submissions")
+      .select("id, email, child_name, child_gender, archetype_id, pdf_url, paid, created_at, trait_scores")
+      .eq("email", email)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error || !data) {
+      return reply.status(404).send({ error: "No submission found for that email" });
+    }
+
+    return reply.send(data);
+  });
 }

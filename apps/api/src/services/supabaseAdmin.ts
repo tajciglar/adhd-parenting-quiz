@@ -40,14 +40,24 @@ export async function insertQuizSubmission(
 ): Promise<string | null> {
   const sb = getSupabaseAdmin();
   if (!sb) { console.warn("Supabase not configured — skipping quiz submission insert"); return null; }
+
+  // Use upsert so duplicate email submissions update instead of erroring.
+  // `onConflict: 'email'` requires a unique index on quiz_submissions(email).
   const { data: row, error } = await sb
     .from("quiz_submissions")
-    .insert(data)
+    .upsert(data, { onConflict: "email", ignoreDuplicates: false })
     .select("id")
     .single();
 
   if (error) {
-    console.error("supabaseAdmin.insertQuizSubmission failed:", error.message);
+    // Log the full error object so Railway shows error code + hint
+    console.error("supabaseAdmin.insertQuizSubmission failed:", JSON.stringify({
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      email: data.email,
+    }));
     return null;
   }
 
