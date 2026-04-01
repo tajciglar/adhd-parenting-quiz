@@ -10,13 +10,20 @@ const { project: projectConfig } = await getProducts(project);
 const publishableKey = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 
 // Params passed from the quiz results/sales page
-const email = Astro.url.searchParams.get("email") ?? "";
+const email   = Astro.url.searchParams.get("email") ?? "";
+const pdfUrl  = Astro.url.searchParams.get("pdfUrl") ?? "";
+
+// Guard — require pdfUrl and email, otherwise redirect to quiz
+const quizUrl = import.meta.env.QUIZ_URL || "https://assessment.strategicparenting.com";
+if (!pdfUrl || !email) {
+  return Astro.redirect(quizUrl, 302);
+}
+
 const childName = Astro.url.searchParams.get("childName") ?? "";
 const archetype = Astro.url.searchParams.get("archetype") ?? "";
-const gender = Astro.url.searchParams.get("gender") ?? "";
-const pdfUrl = Astro.url.searchParams.get("pdfUrl") ?? "";
-const fbp = Astro.url.searchParams.get("_fbp") ?? "";
-const fbc = Astro.url.searchParams.get("_fbc") ?? "";
+const gender    = Astro.url.searchParams.get("gender") ?? "";
+const fbp       = Astro.url.searchParams.get("_fbp") ?? "";
+const fbc       = Astro.url.searchParams.get("_fbc") ?? "";
 ---
 
 <Base title="Complete Your Order — ADHD Personality Report">
