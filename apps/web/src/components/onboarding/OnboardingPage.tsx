@@ -195,8 +195,12 @@ export default function OnboardingPage() {
       // Hard block — don't let them through without a confirmed submission
       if (!pdfUrl) {
         setIsSubmittingEmail(false);
-        // Show error via EmailCaptureScreen's error prop
-        setEmailSubmitError(lastError ?? "Something went wrong. Please try again.");
+        // Translate raw API error codes to human-readable messages
+        const raw = lastError ?? "";
+        const friendlyError = raw === "already_submitted"
+          ? "ALREADY_SUBMITTED"
+          : (raw || "Something went wrong. Please try again.");
+        setEmailSubmitError(friendlyError);
         return;
       }
 
