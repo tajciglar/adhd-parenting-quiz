@@ -157,7 +157,11 @@ async function syncToActiveCampaign(opts: {
     // 4. Apply "ADHD Personality Type Opt-In" tag
     const TAG_NAME = "ADHD Personality Type Opt-In";
     const tagSearchRes = await fetch(`${apiUrl}/api/3/tags?search=${encodeURIComponent(TAG_NAME)}`, { headers });
-    const tagSearchData = (await tagSearchRes.json()) as { tags: Array<{ id: number | string; tag: string }> };
+    if (!tagSearchRes.ok) {
+      opts.logger.warn(`guest.submit.ac_tag_search_failed status=${tagSearchRes.status}`);
+      return;
+    }
+    const tagSearchData = (await tagSearchRes.json().catch(() => ({ tags: [] }))) as { tags: Array<{ id: number | string; tag: string }> };
 
     let tagId = String(tagSearchData.tags.find((t) => t.tag === TAG_NAME)?.id ?? "");
 
@@ -167,7 +171,11 @@ async function syncToActiveCampaign(opts: {
         headers,
         body: JSON.stringify({ tag: { tag: TAG_NAME, tagType: "contact", description: "" } }),
       });
-      const createData = (await createRes.json()) as { tag?: { id: number | string } };
+      if (!createRes.ok) {
+        opts.logger.warn(`guest.submit.ac_tag_create_failed status=${createRes.status}`);
+        return;
+      }
+      const createData = (await createRes.json().catch(() => ({}))) as { tag?: { id: number | string } };
       if (createData.tag?.id) tagId = String(createData.tag.id);
     }
 
@@ -176,6 +184,8 @@ async function syncToActiveCampaign(opts: {
         method: "POST",
         headers,
         body: JSON.stringify({ contactTag: { contact: contactId, tag: tagId } }),
+      }).catch((err: unknown) => {
+        opts.logger.error({ err }, "guest.submit.ac_contact_tag_failed");
       });
       opts.logger.warn(`guest.submit.ac_tag_applied contactId=${contactId}`);
     }
