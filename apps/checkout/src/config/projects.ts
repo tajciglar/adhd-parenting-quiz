@@ -56,7 +56,7 @@ export const PROJECTS: Record<string, ProjectConfig> = {
         regularPrice: 13300,
         salePrice: 1200,
         pdfUrl: 'https://wcc-files.b-cdn.net/Anger-Management-Adventures-StrategicParenting.pdf',
-        image: '/images/adhd-pocket-decoder_bump.webp',
+        image: undefined,
         description: 'A complete workbook that helps your child dissolve anger and regulate emotions — includes a parent guide, worksheets, activities, Big Feelings Cards, and Angry UNO.',
         bullets: [
           'Understand where anger comes from and what triggers it',
