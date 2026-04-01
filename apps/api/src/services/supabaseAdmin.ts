@@ -40,18 +40,57 @@ export async function insertQuizSubmission(
 ): Promise<string | null> {
   const sb = getSupabaseAdmin();
   if (!sb) { console.warn("Supabase not configured — skipping quiz submission insert"); return null; }
+
+  // Try a plain insert first.
   const { data: row, error } = await sb
     .from("quiz_submissions")
     .insert(data)
     .select("id")
     .single();
 
-  if (error) {
-    console.error("supabaseAdmin.insertQuizSubmission failed:", error.message);
-    return null;
+  if (!error) return row?.id ?? null;
+
+  // If the error is a unique-constraint violation (23505), the email already
+  // exists — update the existing row with the latest data and return its id.
+  if (error.code === "23505") {
+    const { data: updated, error: updateError } = await sb
+      .from("quiz_submissions")
+      .update({
+        child_name: data.child_name,
+        child_gender: data.child_gender,
+        caregiver_type: data.caregiver_type,
+        child_age_range: data.child_age_range,
+        adhd_journey: data.adhd_journey,
+        archetype_id: data.archetype_id,
+        trait_scores: data.trait_scores,
+        responses: data.responses,
+        pdf_url: data.pdf_url,
+      })
+      .eq("email", data.email)
+      .select("id")
+      .single();
+
+    if (updateError) {
+      console.error("supabaseAdmin.insertQuizSubmission update failed:", JSON.stringify({
+        code: updateError.code,
+        message: updateError.message,
+        hint: updateError.hint,
+        email: data.email,
+      }));
+      return null;
+    }
+    return updated?.id ?? null;
   }
 
-  return row?.id ?? null;
+  // Any other error — log full details so Railway shows what went wrong
+  console.error("supabaseAdmin.insertQuizSubmission failed:", JSON.stringify({
+    code: error.code,
+    message: error.message,
+    details: error.details,
+    hint: error.hint,
+    email: data.email,
+  }));
+  return null;
 }
 
 
@@ -207,7 +246,7 @@ export async function allRows<T = Record<string, unknown>>(
   const result: T[] = [];
   let offset = 0;
   while (true) {
-    const { data, error } = await applyFilters(sb.from(table).select(cols)).range(offset, offset + PAGE - 1);
+    const { data, error } = await applyFilters(sb.from(table).select(cols).order('created_at', { ascending: true })).range(offset, offset + PAGE - 1);
     if (error) { console.error(`allRows(${table}) offset=${offset}:`, error.message); break; }
     if (!data || data.length === 0) break;
     result.push(...(data as T[]));
@@ -331,7 +370,7 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
         }
       }
     }
-    const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, d]) => ({ date, ...d }));
+    const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([date, d]) => ({ date, ...d }));
 
     // Archetype distribution
     const archetypeDistribution = (archetypeData ?? []).map((r: any) => ({ archetypeId: String(r.archetype_id), count: Number(r.count) }));
@@ -467,25 +506,35 @@ export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   const submissionsByTraitPair = [...traitPairUserMap.entries()].map(([pair, users]) => ({ pair, users })).sort((a, b) => b.users.length - a.users.length);
 
   // Daily trend
-  const dailyMap = new Map<string, { started: Set<string>; completed: Set<string>; emailSubmitted: Set<string>; purchased: Set<string> }>();
+  type DayBuckets = { started: Set<string>; completed: Set<string>; nameSubmitted: Set<string>; emailSubmitted: Set<string>; checkoutStarted: Set<string>; purchased: Set<string> };
+  const emptyDay = (): DayBuckets => ({ started: new Set(), completed: new Set(), nameSubmitted: new Set(), emailSubmitted: new Set(), checkoutStarted: new Set(), purchased: new Set() });
+  const dailyMap = new Map<string, DayBuckets>();
   for (const row of funnelRows) {
     const date = row.created_at.slice(0, 10);
-    if (!dailyMap.has(date)) dailyMap.set(date, { started: new Set(), completed: new Set(), emailSubmitted: new Set(), purchased: new Set() });
+    if (!dailyMap.has(date)) dailyMap.set(date, emptyDay());
     const day = dailyMap.get(date)!;
-    // Only count step 1 as "started" — otherwise sessions continuing on later steps inflate the count
     if (row.event_type === "step_viewed" && row.step_number === 1) day.started.add(row.session_id);
     if (row.event_type === "quiz_completed") day.completed.add(row.session_id);
-    if (row.event_type === "optin_completed") day.emailSubmitted.add(row.session_id);
+    if (row.step_number === 44) day.nameSubmitted.add(row.session_id);
+    if (row.event_type === "checkout_started" || row.event_type === "wp_checkout_redirect") day.checkoutStarted.add(row.session_id);
     if (row.event_type === "purchase_completed") day.purchased.add(row.session_id);
   }
-  // Also count paid submissions by date
+  // Use quiz_submissions as the source of truth for emailSubmitted and purchased
   for (const row of submissionRows) {
-    if (!row.paid) continue;
     const date = row.created_at.slice(0, 10);
-    if (!dailyMap.has(date)) dailyMap.set(date, { started: new Set(), completed: new Set(), emailSubmitted: new Set(), purchased: new Set() });
-    dailyMap.get(date)!.purchased.add(row.id);
+    if (!dailyMap.has(date)) dailyMap.set(date, emptyDay());
+    dailyMap.get(date)!.emailSubmitted.add(row.id);
+    if (row.paid) dailyMap.get(date)!.purchased.add(row.id);
   }
-  const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, sets]) => ({ date, started: sets.started.size, completed: sets.completed.size, emailSubmitted: sets.emailSubmitted.size, purchased: sets.purchased.size }));
+  const dailyTrend = [...dailyMap.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([date, sets]) => ({
+    date,
+    started: sets.started.size,
+    completed: sets.completed.size,
+    nameSubmitted: sets.nameSubmitted.size,
+    emailSubmitted: sets.emailSubmitted.size,
+    checkoutStarted: sets.checkoutStarted.size,
+    purchased: sets.purchased.size,
+  }));
 
   // Archetype + trait pair distribution
   const sinceDate = new Date(sinceTs);

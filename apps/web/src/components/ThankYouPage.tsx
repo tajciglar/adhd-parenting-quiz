@@ -13,6 +13,8 @@ function getPronouns(gender?: string) {
 export default function ThankYouPage() {
   const [searchParams] = useSearchParams();
   const purchased = searchParams.get("purchased") === "true";
+  const orderId   = searchParams.get("order_id") ?? "";
+  const orderTotal = parseFloat(searchParams.get("total") ?? "17");
 
   // Read personalization from sessionStorage
   const childName = sessionStorage.getItem("wildprint_childName") || "your child";
@@ -27,11 +29,12 @@ export default function ThankYouPage() {
     firedRef.current = true;
 
     if (purchased) {
-      // User completed WP checkout — fire Purchase events
+      // Use same event ID format as WC webhook CAPI so Meta can deduplicate
+      const eventId = orderId ? `purchase_wc_${orderId}` : generateEventId();
       trackPixelEvent(
         "Purchase",
-        { content_category: "adhd_report", value: 17.0, currency: "USD" },
-        generateEventId(),
+        { content_category: "adhd_report", value: orderTotal, currency: "USD" },
+        eventId,
       );
       trackFunnelEvent("purchase_completed");
     } else {

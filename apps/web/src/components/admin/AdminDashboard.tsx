@@ -65,7 +65,9 @@ interface DailyTrend {
   date: string;
   started: number;
   completed: number;
+  nameSubmitted: number;
   emailSubmitted: number;
+  checkoutStarted: number;
   purchased: number;
 }
 
@@ -141,6 +143,9 @@ function getStepLabel(step: number): string {
   // V2 virtual steps: 43 = processing screen reached, 44 = name submitted in popup
   if (step === 43) return "What's your child's name? ★";
   if (step === 44) return "Name Submitted (Popup)";
+  if (step === 45) return "Email Capture Screen ★";
+  if (step === 46) return "Email Submitted ★";
+  if (step === 47) return "Email Saved (Supabase) ✓";
   const config = getStepConfig(step);
   if (!config) return `Step ${step}`;
   if (config.type === "basic-info") {
@@ -154,17 +159,46 @@ function getStepLabel(step: number): string {
   return `${shortCat} (Q${config.questionIndex + 1})`;
 }
 
-function DropoffBar({ step, views, dropoffRate, maxViews }: StepDropoff & { maxViews: number }) {
+// V1 had 6 basic-info steps (caregiverType, childAgeRange, childGender,
+// adhdJourney, learningEnvironment, childName) then 38 Likert starting at step 7.
+// V2/current has 4 basic-info + Likert from step 5 — so V1 Likert step N = current step (N-2).
+const V1_BASIC_LABELS: Record<number, string> = {
+  1: "You are (Caregiver)",
+  2: "How old is your child?",
+  3: "You are raising:",
+  4: "ADHD Journey",
+  5: "Learning Environment",
+  6: "Child's First Name ★",
+};
+
+function getStepLabelV1(step: number): string {
+  if (V1_BASIC_LABELS[step]) return V1_BASIC_LABELS[step];
+  // Likert questions in V1 start at step 7 → same as current config step (step - 2)
+  const shifted = step - 2;
+  const config = getStepConfig(shifted);
+  if (!config) return `Step ${step}`;
+  if (config.type === "likert") {
+    const shortCat = config.categorySubtitle
+      .replace(" Traits", "")
+      .replace("Hyperactive/Impulsive", "Hyperactive")
+      .replace("Executive Function", "Exec. Function");
+    return `${shortCat} (Q${config.questionIndex + 1})`;
+  }
+  return `Step ${step}`;
+}
+
+function DropoffBar({ step, views, dropoffRate, maxViews, version }: StepDropoff & { maxViews: number; version?: "v1" | "v2" }) {
+  const label = version === "v1" ? getStepLabelV1(step) : getStepLabel(step);
   const width = maxViews > 0 ? (views / maxViews) * 100 : 0;
   // Step 43 was added Mar 26 — older sessions don't have it, so dropoff is artificially inflated
-  const isDataGap = step === 43;
+  const isDataGap = step === 43 || step === 45 || step === 46 || step === 47;
   const isHighDropoff = !isDataGap && dropoffRate > 15;
   const isMedDropoff = !isDataGap && dropoffRate > 8;
 
   return (
     <div className="flex items-center gap-3 text-sm">
-      <span className="w-44 text-right text-harbor-text/50 truncate" title={`${step}. ${getStepLabel(step)}`}>
-        <span className="tabular-nums">{step}.</span> {getStepLabel(step)}
+      <span className="w-44 text-right text-harbor-text/50 truncate" title={`${step}. ${label}`}>
+        <span className="tabular-nums">{step}.</span> {label}
       </span>
       <div className="flex-1 h-6 bg-harbor-text/5 rounded overflow-hidden relative">
         <div
@@ -193,6 +227,41 @@ function DropoffBar({ step, views, dropoffRate, maxViews }: StepDropoff & { maxV
   );
 }
 
+function getStepCategory(step: number, version: 'v1' | 'v2' | 'v2n'): string {
+  if (version === 'v1') {
+    if (step <= 6) return 'Basic Info';
+    const config = getStepConfig(step - 2);
+    if (!config || config.type === 'basic-info') return 'Basic Info';
+    return config.categorySubtitle;
+  }
+  if (step === 43 || step === 44) return 'Processing Screen';
+  if (step === 45 || step === 46 || step === 47) return 'Email Capture';
+  const config = getStepConfig(step);
+  if (!config || config.type === 'basic-info') return 'Basic Info';
+  return config.categorySubtitle;
+}
+
+function DropoffList({ data, version }: { data: StepDropoff[]; version: 'v1' | 'v2' | 'v2n' }) {
+  const maxV = Math.max(...data.map((s) => s.views), 1);
+  const items: React.ReactNode[] = [];
+  let lastCategory = '';
+  for (const item of data) {
+    const cat = getStepCategory(item.step, version);
+    if (cat && cat !== lastCategory) {
+      items.push(
+        <div key={`cat-${cat}`} className="pt-2 pb-0.5 text-xs font-semibold text-harbor-text/40 uppercase tracking-wide">
+          {cat}
+        </div>
+      );
+      lastCategory = cat;
+    }
+    items.push(
+      <DropoffBar key={item.step} {...item} maxViews={maxV} version={version === 'v2n' ? 'v2' : version} />
+    );
+  }
+  return <div className="space-y-1.5">{items}</div>;
+}
+
 export default function AdminDashboard() {
   const [adminKey, setAdminKey] = useState(() => sessionStorage.getItem("admin_key") ?? "");
   const [authenticated, setAuthenticated] = useState(!!sessionStorage.getItem("admin_key"));
@@ -213,14 +282,15 @@ export default function AdminDashboard() {
   const [syncResult, setSyncResult] = useState<string | null>(null);
 
   // Per-date step dropoff
-  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [dailyDropoff, setDailyDropoff] = useState<StepDropoff[] | null>(null);
   const [dailyDropoffLoading, setDailyDropoffLoading] = useState(false);
 
-  // Version comparison (V1 vs V2)
-  const [versionView, setVersionView] = useState<'v1' | 'v2' | 'compare'>('v2');
+  // Version comparison (V1 vs V2 vs V2+)
+  const [versionView, setVersionView] = useState<'v1' | 'v2' | 'v2n' | 'compare'>('v2');
   const [versionDropoffV1, setVersionDropoffV1] = useState<StepDropoff[] | null>(null);
   const [versionDropoffV2, setVersionDropoffV2] = useState<StepDropoff[] | null>(null);
+  const [versionDropoffV2n, setVersionDropoffV2n] = useState<StepDropoff[] | null>(null);
   const [versionLoading, setVersionLoading] = useState(false);
 
   const fetchDailyDropoff = useCallback(
@@ -247,13 +317,15 @@ export default function AdminDashboard() {
   const fetchVersionDropoff = useCallback(async () => {
     setVersionLoading(true);
     try {
-      const [r1, r2] = await Promise.all([
+      const [r1, r2, r3] = await Promise.all([
         fetch(`${API_URL}/api/admin/version-dropoff?version=v1`, { headers: { 'x-admin-key': adminKey } }),
         fetch(`${API_URL}/api/admin/version-dropoff?version=v2`, { headers: { 'x-admin-key': adminKey } }),
+        fetch(`${API_URL}/api/admin/version-dropoff?version=v2n`, { headers: { 'x-admin-key': adminKey } }),
       ]);
-      const [d1, d2] = await Promise.all([r1.json(), r2.json()]) as [{ stepDropoff: StepDropoff[] }, { stepDropoff: StepDropoff[] }];
+      const [d1, d2, d3] = await Promise.all([r1.json(), r2.json(), r3.json()]) as [{ stepDropoff: StepDropoff[] }, { stepDropoff: StepDropoff[] }, { stepDropoff: StepDropoff[] }];
       setVersionDropoffV1(d1.stepDropoff);
       setVersionDropoffV2(d2.stepDropoff);
+      setVersionDropoffV2n(d3.stepDropoff);
     } catch {
       // silently fail
     } finally {
@@ -318,8 +390,11 @@ export default function AdminDashboard() {
     if (authenticated && adminKey) {
       void fetchAnalytics(adminKey, days);
       void fetchVersionDropoff();
+      void fetchDailyDropoff(selectedDate); // auto-load today on login
     }
-  }, [authenticated, adminKey, days, fetchAnalytics, fetchVersionDropoff]);
+    // selectedDate intentionally omitted — date changes are handled by the date picker onChange
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authenticated, adminKey, days, fetchAnalytics, fetchVersionDropoff, fetchDailyDropoff]);
 
   // Login gate
   if (!authenticated) {
@@ -343,7 +418,7 @@ export default function AdminDashboard() {
           ) : null}
           <button
             onClick={handleLogin}
-            className="w-full rounded-xl bg-harbor-primary text-white px-5 py-3 font-medium hover:opacity-90 transition"
+            className="w-full rounded-xl bg-harbor-primary text-white px-5 py-3 font-medium hover:opacity-90 transition cursor-pointer"
           >
             Sign In
           </button>
@@ -361,10 +436,33 @@ export default function AdminDashboard() {
   }
 
   const summary = analytics?.funnelSummary;
-  const maxViews = Math.max(...(analytics?.stepDropoff.map((s) => s.views) ?? [1]));
 
   return (
-    <div className="min-h-screen bg-harbor-bg px-6 py-8">
+    <div className="min-h-screen bg-harbor-bg flex">
+      {/* Sidebar */}
+      <nav className="hidden md:flex flex-col w-52 shrink-0 sticky top-0 h-screen overflow-y-auto bg-white border-r border-harbor-text/10 py-6 px-3 space-y-1">
+        {[
+          { emoji: '📊', label: 'Funnel Overview', id: 'section-funnel' },
+          { emoji: '📉', label: 'Step Dropoff', id: 'section-version-dropoff' },
+          { emoji: '📅', label: 'Daily Dropoff', id: 'section-daily-dropoff' },
+          { emoji: '🔀', label: 'Version Comparison', id: 'section-version-dropoff' },
+          { emoji: '📈', label: 'Daily Trend', id: 'section-daily-trend' },
+          { emoji: '🧬', label: 'Archetypes', id: 'section-archetypes' },
+          { emoji: '📋', label: 'Submissions', id: 'section-submissions' },
+          { emoji: '👥', label: 'By Category', id: 'section-category-users' },
+          { emoji: '⚙️', label: 'Settings', id: 'section-settings' },
+        ].map(({ emoji, label, id }) => (
+          <button
+            key={id}
+            onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })}
+            className="w-full text-left px-3 py-2 rounded-lg text-sm text-harbor-text/70 hover:bg-harbor-primary/5 hover:text-harbor-primary transition flex items-center gap-2"
+          >
+            <span>{emoji}</span> {label}
+          </button>
+        ))}
+      </nav>
+      {/* Main content */}
+      <div className="flex-1 px-6 py-8 min-w-0">
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
@@ -378,7 +476,7 @@ export default function AdminDashboard() {
                 <button
                   key={d}
                   onClick={() => setDays(d)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer ${
                     days === d
                       ? "bg-harbor-primary text-white"
                       : "bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30"
@@ -391,7 +489,7 @@ export default function AdminDashboard() {
             <button
               onClick={() => void fetchAnalytics(adminKey, days)}
               disabled={loading}
-              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30 transition disabled:opacity-50"
+              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30 transition disabled:opacity-50 cursor-pointer"
               title="Refresh data"
             >
               {loading ? "⏳" : "🔄"}
@@ -413,7 +511,7 @@ export default function AdminDashboard() {
                   URL.revokeObjectURL(url);
                 });
               }}
-              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30 transition"
+              className="px-3 py-1.5 rounded-lg text-sm font-medium bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30 transition cursor-pointer"
               title="Export all submissions as CSV"
             >
               Export CSV
@@ -436,7 +534,7 @@ export default function AdminDashboard() {
 
         {/* Funnel Summary Cards */}
         {summary ? (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div id="section-funnel" className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <MetricCard
               label="Quiz Started"
               value={summary.quizStarted}
@@ -477,33 +575,9 @@ export default function AdminDashboard() {
           </div>
         ) : null}
 
-        {/* Step Dropoff */}
-        {analytics?.stepDropoff.length ? (
-          <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-harbor-primary">Step-by-Step Dropoff</h2>
-              <div className="flex items-center gap-3 text-xs text-harbor-text/40">
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded bg-harbor-accent" /> Normal
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded bg-amber-400" /> Medium
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded bg-red-400" /> High (&gt;15%)
-                </span>
-              </div>
-            </div>
-            <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
-              {analytics.stepDropoff.map((item) => (
-                <DropoffBar key={item.step} {...item} maxViews={maxViews} />
-              ))}
-            </div>
-          </div>
-        ) : null}
 
         {/* Per-Date Step Dropoff */}
-        <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
+        <div id="section-daily-dropoff" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <h2 className="text-lg font-semibold text-harbor-primary">Daily Step Dropoff</h2>
@@ -543,38 +617,118 @@ export default function AdminDashboard() {
 
         {/* Daily Trend */}
         {analytics?.dailyTrend.length ? (
-          <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
-            <h2 className="text-lg font-semibold text-harbor-primary">Daily Trend</h2>
+          <div id="section-daily-trend" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-harbor-primary">Daily Trend</h2>
+              <button
+                onClick={() => {
+                  const rows = analytics.dailyTrend;
+                  const totals = rows.reduce((acc, d) => ({
+                    started: acc.started + d.started,
+                    completed: acc.completed + d.completed,
+                    nameSubmitted: acc.nameSubmitted + (d.nameSubmitted ?? 0),
+                    emailSubmitted: acc.emailSubmitted + d.emailSubmitted,
+                    checkoutStarted: acc.checkoutStarted + (d.checkoutStarted ?? 0),
+                    purchased: acc.purchased + d.purchased,
+                  }), { started: 0, completed: 0, nameSubmitted: 0, emailSubmitted: 0, checkoutStarted: 0, purchased: 0 });
+                  const pct = (a: number, b: number) => b > 0 ? `${((a / b) * 100).toFixed(1)}%` : '-';
+                  const headers = ['Date','Started','Quiz Completed','Quiz %','Name Submitted','Name %','Email Submitted','Email %','Checkout Started','Checkout %','Purchased','Purchase Rate'];
+                  const toRow = (label: string, d: typeof totals) => [
+                    label, d.started, d.completed, pct(d.completed, d.started),
+                    d.nameSubmitted, pct(d.nameSubmitted, d.started),
+                    d.emailSubmitted, pct(d.emailSubmitted, d.started),
+                    d.checkoutStarted, pct(d.checkoutStarted, d.emailSubmitted),
+                    d.purchased, pct(d.purchased, d.checkoutStarted),
+                  ];
+                  const dataRows = rows.map((d) => toRow(d.date, { started: d.started, completed: d.completed, nameSubmitted: d.nameSubmitted ?? 0, emailSubmitted: d.emailSubmitted, checkoutStarted: d.checkoutStarted ?? 0, purchased: d.purchased }));
+                  dataRows.push(toRow('OVERALL', totals));
+                  const csv = [headers, ...dataRows].map((r) => r.join(',')).join('\n');
+                  const blob = new Blob([csv], { type: 'text/csv' });
+                  const a = document.createElement('a');
+                  a.href = URL.createObjectURL(blob);
+                  a.download = `adhd-quiz-analytics-${new Date().toISOString().slice(0, 10)}.csv`;
+                  a.click();
+                }}
+                className="px-3 py-1.5 rounded-lg text-sm font-medium border border-harbor-text/10 text-harbor-text/60 hover:border-harbor-primary/30 transition cursor-pointer"
+              >
+                ↓ Export CSV
+              </button>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-harbor-text/10">
-                    <th className="text-left py-2 pr-4 text-harbor-text/50 font-medium">Date</th>
-                    <th className="text-right py-2 px-4 text-harbor-text/50 font-medium">Started</th>
-                    <th className="text-right py-2 px-4 text-harbor-text/50 font-medium">Completed</th>
-                    <th className="text-right py-2 px-4 text-harbor-text/50 font-medium">Email Submitted</th>
-                    <th className="text-right py-2 pl-4 text-harbor-text/50 font-medium">Purchased</th>
+                  <tr className="border-b-2 border-harbor-text/10 bg-orange-50">
+                    <th className="text-left py-2 pr-4 text-harbor-text/60 font-semibold">Date</th>
+                    <th className="text-right py-2 px-3 text-harbor-text/60 font-semibold">Started</th>
+                    <th className="text-right py-2 px-3 text-harbor-text/60 font-semibold">Completed</th>
+                    <th className="text-right py-2 px-2 text-harbor-text/40 font-medium text-xs">%</th>
+                    <th className="text-right py-2 px-3 text-harbor-text/60 font-semibold">Name</th>
+                    <th className="text-right py-2 px-2 text-harbor-text/40 font-medium text-xs">%</th>
+                    <th className="text-right py-2 px-3 text-blue-600 font-semibold">Email</th>
+                    <th className="text-right py-2 px-2 text-harbor-text/40 font-medium text-xs">%</th>
+                    <th className="text-right py-2 px-3 text-amber-600 font-semibold">Checkout</th>
+                    <th className="text-right py-2 px-2 text-harbor-text/40 font-medium text-xs">%</th>
+                    <th className="text-right py-2 pl-3 text-green-600 font-semibold">Purchased</th>
+                    <th className="text-right py-2 pl-2 text-harbor-text/40 font-medium text-xs">Rate</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {analytics.dailyTrend.map((day) => (
-                    <tr
-                      key={day.date}
-                      className={`border-b border-harbor-text/5 cursor-pointer hover:bg-harbor-primary/5 transition-colors ${selectedDate === day.date ? "bg-harbor-primary/10" : ""}`}
-                      onClick={() => {
-                        setSelectedDate(day.date);
-                        void fetchDailyDropoff(day.date);
-                      }}
-                      title="Click to view step dropoff for this date"
-                    >
-                      <td className="py-2 pr-4 text-harbor-text/70">{day.date}</td>
-                      <td className="py-2 px-4 text-right tabular-nums">{day.started}</td>
-                      <td className="py-2 px-4 text-right tabular-nums text-harbor-accent">{day.completed}</td>
-                      <td className="py-2 px-4 text-right tabular-nums text-blue-600">{day.emailSubmitted ?? 0}</td>
-                      <td className="py-2 pl-4 text-right tabular-nums text-green-600 font-medium">{day.purchased}</td>
-                    </tr>
-                  ))}
+                  {analytics.dailyTrend.map((day) => {
+                    const pct = (a: number, b: number) => b > 0 ? `${((a / b) * 100).toFixed(1)}%` : '—';
+                    const ns = day.nameSubmitted ?? 0;
+                    const cs = day.checkoutStarted ?? 0;
+                    return (
+                      <tr
+                        key={day.date}
+                        className={`border-b border-harbor-text/5 cursor-pointer hover:bg-harbor-primary/5 transition-colors ${selectedDate === day.date ? "bg-harbor-primary/10" : ""}`}
+                        onClick={() => { setSelectedDate(day.date); void fetchDailyDropoff(day.date); }}
+                        title="Click to view step dropoff for this date"
+                      >
+                        <td className="py-2 pr-4 text-harbor-text/70 font-medium">{day.date}</td>
+                        <td className="py-2 px-3 text-right tabular-nums">{day.started}</td>
+                        <td className="py-2 px-3 text-right tabular-nums text-harbor-accent">{day.completed}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{pct(day.completed, day.started)}</td>
+                        <td className="py-2 px-3 text-right tabular-nums">{ns || '—'}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{ns ? pct(ns, day.started) : '—'}</td>
+                        <td className="py-2 px-3 text-right tabular-nums text-blue-600">{day.emailSubmitted}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{pct(day.emailSubmitted, day.started)}</td>
+                        <td className="py-2 px-3 text-right tabular-nums text-amber-600">{cs || '—'}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{cs ? pct(cs, day.emailSubmitted) : '—'}</td>
+                        <td className="py-2 pl-3 text-right tabular-nums text-green-600 font-medium">{day.purchased}</td>
+                        <td className="py-2 pl-2 text-right tabular-nums text-harbor-text/40 text-xs">{pct(day.purchased, day.started)}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
+                <tfoot>
+                  {(() => {
+                    const t = analytics.dailyTrend.reduce((acc, d) => ({
+                      started: acc.started + d.started,
+                      completed: acc.completed + d.completed,
+                      nameSubmitted: acc.nameSubmitted + (d.nameSubmitted ?? 0),
+                      emailSubmitted: acc.emailSubmitted + d.emailSubmitted,
+                      checkoutStarted: acc.checkoutStarted + (d.checkoutStarted ?? 0),
+                      purchased: acc.purchased + d.purchased,
+                    }), { started: 0, completed: 0, nameSubmitted: 0, emailSubmitted: 0, checkoutStarted: 0, purchased: 0 });
+                    const pct = (a: number, b: number) => b > 0 ? `${((a / b) * 100).toFixed(1)}%` : '—';
+                    return (
+                      <tr className="border-t-2 border-harbor-text/20 bg-orange-50 font-semibold">
+                        <td className="py-2 pr-4 text-harbor-text/70">Overall</td>
+                        <td className="py-2 px-3 text-right tabular-nums">{t.started}</td>
+                        <td className="py-2 px-3 text-right tabular-nums text-harbor-accent">{t.completed}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{pct(t.completed, t.started)}</td>
+                        <td className="py-2 px-3 text-right tabular-nums">{t.nameSubmitted || '—'}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{t.nameSubmitted ? pct(t.nameSubmitted, t.started) : '—'}</td>
+                        <td className="py-2 px-3 text-right tabular-nums text-blue-600">{t.emailSubmitted}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{pct(t.emailSubmitted, t.started)}</td>
+                        <td className="py-2 px-3 text-right tabular-nums text-amber-600">{t.checkoutStarted || '—'}</td>
+                        <td className="py-2 px-2 text-right tabular-nums text-harbor-text/40 text-xs">{t.checkoutStarted ? pct(t.checkoutStarted, t.emailSubmitted) : '—'}</td>
+                        <td className="py-2 pl-3 text-right tabular-nums text-green-600">{t.purchased}</td>
+                        <td className="py-2 pl-2 text-right tabular-nums text-harbor-text/40 text-xs">{pct(t.purchased, t.started)}</td>
+                      </tr>
+                    );
+                  })()}
+                </tfoot>
               </table>
             </div>
           </div>
@@ -585,12 +739,12 @@ export default function AdminDashboard() {
           <div>
             <h2 className="text-lg font-semibold text-harbor-primary">Version Comparison</h2>
             <p className="text-xs text-harbor-text/40 mt-0.5">
-              V1 = before Mar 26 (name at start, step 5–6) · V2 = from Mar 26 (name in processing screen popup, steps 43–44)
+              V1 = before Mar 26 (name at start, step 5–6) · V2 = from Mar 26 (name popup on processing screen) · V2+ = from Mar 30 (name tracking live)
             </p>
           </div>
           {/* Version tabs */}
-          <div className="flex gap-1.5">
-            {(['v1', 'v2', 'compare'] as const).map((v) => (
+          <div className="flex flex-wrap gap-1.5">
+            {(['v1', 'v2', 'v2n', 'compare'] as const).map((v) => (
               <button
                 key={v}
                 onClick={() => setVersionView(v)}
@@ -600,7 +754,7 @@ export default function AdminDashboard() {
                     : 'bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30'
                 }`}
               >
-                {v === 'v1' ? 'V1' : v === 'v2' ? 'V2' : 'Side by Side'}
+                {v === 'v1' ? 'V1' : v === 'v2' ? 'V2' : v === 'v2n' ? 'V2+ (since Mar 30)' : 'Side by Side'}
               </button>
             ))}
           </div>
@@ -611,50 +765,40 @@ export default function AdminDashboard() {
               <div>
                 <h3 className="text-sm font-semibold text-harbor-text/60 mb-2">V1 — Before Mar 26</h3>
                 {versionDropoffV1?.length ? (
-                  <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
-                    {(() => {
-                      const maxV = Math.max(...versionDropoffV1.map((s) => s.views), 1);
-                      return versionDropoffV1.map((item) => (
-                        <DropoffBar key={item.step} {...item} maxViews={maxV} />
-                      ));
-                    })()}
+                  <div className="max-h-[500px] overflow-y-auto">
+                    <DropoffList data={versionDropoffV1} version="v1" />
                   </div>
                 ) : (
                   <p className="text-sm text-harbor-text/40 text-center py-4">No V1 data</p>
                 )}
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-harbor-text/60 mb-2">V2 — From Mar 26</h3>
-                {versionDropoffV2?.length ? (
-                  <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
-                    {(() => {
-                      const maxV = Math.max(...versionDropoffV2.map((s) => s.views), 1);
-                      return versionDropoffV2.map((item) => (
-                        <DropoffBar key={item.step} {...item} maxViews={maxV} />
-                      ));
-                    })()}
+                <h3 className="text-sm font-semibold text-harbor-text/60 mb-2">V2+ — Since Mar 30</h3>
+                {versionDropoffV2n?.length ? (
+                  <div className="max-h-[500px] overflow-y-auto">
+                    <DropoffList data={versionDropoffV2n} version="v2n" />
                   </div>
                 ) : (
-                  <p className="text-sm text-harbor-text/40 text-center py-4">No V2 data</p>
+                  <p className="text-sm text-harbor-text/40 text-center py-4">No V2+ data yet</p>
                 )}
               </div>
             </div>
           ) : (
-            <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
-              {(() => {
-                const data = versionView === 'v1' ? versionDropoffV1 : versionDropoffV2;
-                if (!data?.length) return <p className="text-sm text-harbor-text/40 text-center py-4">No data</p>;
-                const maxV = Math.max(...data.map((s) => s.views), 1);
-                return data.map((item) => (
-                  <DropoffBar key={item.step} {...item} maxViews={maxV} />
-                ));
-              })()}
-            </div>
+            (() => {
+              const data = versionView === 'v1' ? versionDropoffV1 : versionView === 'v2n' ? versionDropoffV2n : versionDropoffV2;
+              const ver = versionView === 'v1' ? 'v1' : versionView === 'v2n' ? 'v2n' : 'v2';
+              if (!data?.length) return <p className="text-sm text-harbor-text/40 text-center py-4">No data</p>;
+              return (
+                <div className="max-h-[500px] overflow-y-auto">
+                  <DropoffList data={data} version={ver} />
+                </div>
+              );
+            })()
           )}
         </div>
 
         {/* Avg Completion Time + Archetype Distribution */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div id="section-archetypes" className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Avg Completion Time */}
           <div className="bg-white rounded-xl border border-harbor-text/10 p-5 space-y-1">
             <p className="text-xs font-semibold uppercase tracking-wider text-harbor-text/40">
@@ -776,7 +920,7 @@ export default function AdminDashboard() {
           return (
             <>
               {onboarding.length ? (
-                <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
+                <div id="section-answers" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
                   <h2 className="text-lg font-semibold text-harbor-primary">Onboarding Answers</h2>
                   <p className="text-xs text-harbor-text/40">Demographics and basic info questions</p>
                   <AnswerTable items={onboarding} />
@@ -795,7 +939,7 @@ export default function AdminDashboard() {
 
         {/* Recent Submissions */}
         {analytics?.recentSubmissions.length ? (
-          <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
+          <div id="section-submissions" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-harbor-primary">Recent Submissions</h2>
               <span className="text-xs text-harbor-text/40">{analytics.recentSubmissions.length} results</span>
@@ -852,7 +996,7 @@ export default function AdminDashboard() {
 
         {/* Users by Category Pair */}
         {analytics?.submissionsByTraitPair?.length ? (
-          <div className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-5">
+          <div id="section-category-users" className="bg-white rounded-xl border border-harbor-text/10 p-6 space-y-5">
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="text-lg font-semibold text-harbor-primary">Users by Category Pair</h2>
@@ -928,7 +1072,7 @@ export default function AdminDashboard() {
         ) : null}
 
         {/* Sync Templates */}
-        <div className="bg-white rounded-xl border border-blue-200 p-6 space-y-4">
+        <div id="section-settings" className="bg-white rounded-xl border border-blue-200 p-6 space-y-4">
           <div>
             <h2 className="text-lg font-semibold text-blue-700">Sync Report Templates</h2>
             <p className="text-sm text-harbor-text/60 mt-1">
@@ -1101,7 +1245,7 @@ export default function AdminDashboard() {
                                   void navigator.clipboard.writeText(m.newPdfUrl!);
                                   alert(`Copied link for ${m.email}`);
                                 }}
-                                className="px-2 py-1 rounded text-xs bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition"
+                                className="px-2 py-1 rounded text-xs bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition cursor-pointer"
                               >
                                 Copy Link
                               </button>
@@ -1125,7 +1269,7 @@ export default function AdminDashboard() {
           </p>
           <button
             onClick={() => setShowResetConfirm(true)}
-            className="px-4 py-2 rounded-lg border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition"
+            className="px-4 py-2 rounded-lg border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition cursor-pointer"
           >
             Reset All Analytics
           </button>
@@ -1146,14 +1290,14 @@ export default function AdminDashboard() {
                 <button
                   onClick={() => setShowResetConfirm(false)}
                   disabled={resetting}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-harbor-text/20 text-harbor-text/70 text-sm font-medium hover:bg-harbor-text/5 transition disabled:opacity-50"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-harbor-text/20 text-harbor-text/70 text-sm font-medium hover:bg-harbor-text/5 transition disabled:opacity-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => void handleReset()}
                   disabled={resetting}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition disabled:opacity-50"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition disabled:opacity-50 cursor-pointer"
                 >
                   {resetting ? "Resetting..." : "Yes, Reset Dashboard"}
                 </button>
@@ -1161,6 +1305,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         ) : null}
+      </div>
       </div>
     </div>
   );

@@ -143,9 +143,12 @@ export default function LikertSelect({
 }: LikertSelectProps) {
   return (
     <div>
-      <h2 className="text-xl font-semibold text-harbor-text mb-10 text-center leading-snug">
-        {questionText}
-      </h2>
+      {/* Fixed-height question area so answer buttons don't jump between short and long questions */}
+      <div className="min-h-[6rem] flex items-center justify-center mb-8">
+        <h2 className="text-xl font-semibold text-harbor-text text-center leading-snug">
+          {questionText}
+        </h2>
+      </div>
 
       {variant === "circles" && <CirclesVariant value={value} onChange={onChange} />}
       {variant === "vertical" && <VerticalVariant value={value} onChange={onChange} />}

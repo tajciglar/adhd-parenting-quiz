@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { computeTraitProfile, ARCHETYPES } from "@adhd-parenting-quiz/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
+import { trackFunnelEvent } from "../../lib/analytics";
 
 const ANALYSIS_SECTIONS = [
   "Reviewing attention patterns…",
@@ -63,6 +64,11 @@ export default function CalculatingScreen({
   const pausedRef = useRef(false);
   const nameSubmittedRef = useRef(!!childName);
   const childNameRef = useRef(childName);
+
+  // Track processing screen reached (V2 equivalent of step 43)
+  useEffect(() => {
+    trackFunnelEvent("step_viewed", 43);
+  }, []);
 
   // Compute archetype client-side
   const traitProfile = useMemo(
@@ -142,6 +148,8 @@ export default function CalculatingScreen({
     setChildName(trimmed);
     childNameRef.current = trimmed;
     nameSubmittedRef.current = true;
+    // Track name submitted in processing screen popup (V2 step 44)
+    trackFunnelEvent("answer_submitted", 44, { questionKey: "childName" });
     onNameSubmit(trimmed);
     setShowNamePopup(false);
     pausedRef.current = false;
@@ -273,7 +281,7 @@ export default function CalculatingScreen({
               type="button"
               onClick={handleNameSubmit}
               disabled={!nameValue.trim()}
-              className="w-full rounded-xl bg-harbor-primary text-white px-5 py-4 font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full rounded-xl bg-harbor-primary text-white px-5 py-4 font-semibold text-base hover:opacity-90 active:scale-[0.98] transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               Continue
             </button>

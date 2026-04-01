@@ -75,10 +75,100 @@ export default async function adminRoutes(fastify: FastifyInstance) {
         "funnel_events",
         "session_id, step_number",
         (q: any) =>
-          q.eq("event_type", "step_viewed")
+          q.not("step_number", "is", null)
             .gte("created_at", effectiveStart)
             .lte("created_at", dayEnd)
             .not("is_test", "eq", true),
+      );
+
+      // Count unique sessions per step
+      const stepSessions = new Map<number, Set<string>>();
+      for (const row of rows) {
+        if (row.step_number == null) continue;
+        if (!stepSessions.has(row.step_number)) stepSessions.set(row.step_number, new Set());
+        stepSessions.get(row.step_number)!.add(row.session_id);
+      }
+
+      const sortedSteps = [...stepSessions.entries()]
+        .map(([step, sessions]) => ({ step, views: sessions.size }))
+        .sort((a, b) => a.step - b.step);
+
+      // Also count quiz_submissions for this day as the last step (server-side confirmed email)
+      const { count: submissionCount } = await sb
+        .from("quiz_submissions")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", effectiveStart)
+        .lte("created_at", dayEnd)
+        .eq("is_test", false);
+
+      const stepDropoff = sortedSteps.map((item, i) => {
+        const prev = i > 0 ? sortedSteps[i - 1].views : item.views;
+        const dropoffRate = prev > 0 ? Number((((prev - item.views) / prev) * 100).toFixed(1)) : 0;
+        return { ...item, dropoffRate };
+      });
+
+      // Inject step 47 (Supabase submission) after the last tracked step
+      if (submissionCount != null && submissionCount > 0) {
+        const prev = sortedSteps.length > 0 ? sortedSteps[sortedSteps.length - 1].views : submissionCount;
+        const dropoffRate = prev > 0 ? Number((((prev - submissionCount) / prev) * 100).toFixed(1)) : 0;
+        stepDropoff.push({ step: 47, views: submissionCount, dropoffRate });
+      }
+
+      return reply.send({ date, stepDropoff });
+    } catch (err) {
+      request.log.error({ err }, "admin.daily_step_dropoff.failed");
+      return reply.status(500).send({ error: "Failed to fetch daily step dropoff" });
+    }
+  });
+
+  // ── GET /api/admin/version-dropoff ──────────────────────────────────────
+  // V1 = before Mar 26 (childName was basic-info step 5-6, shown at start of quiz)
+  // V2 = from Mar 26  (childName moved to processing screen popup: step 43 = screen reached, step 44 = name submitted)
+  fastify.get("/admin/version-dropoff", async (request, reply) => {
+    const { version } = request.query as { version?: string };
+    const v = version === "v1" ? "v1" : version === "v2n" ? "v2n" : "v2";
+    const V2_CUTOFF = '2026-03-26T00:00:00.000Z';
+    // When we first started tracking the processing screen (step 43)
+    const NAME_TRACKING_START = '2026-03-30T13:53:00.000Z';
+
+    try {
+      const sb = getSupabaseAdmin();
+      if (!sb) return reply.status(503).send({ error: "Database not configured" });
+
+      const resetAt = await getAnalyticsResetAt();
+      const epoch = '1970-01-01T00:00:00.000Z';
+      const now = new Date().toISOString();
+
+      let rangeStart: string;
+      let rangeEnd: string;
+
+      if (v === "v1") {
+        rangeStart = resetAt ?? epoch;
+        rangeEnd = V2_CUTOFF;
+      } else if (v === "v2n") {
+        // V2 with name tracking — only sessions from after we added step 43 tracking
+        rangeStart = resetAt && resetAt > NAME_TRACKING_START ? resetAt : NAME_TRACKING_START;
+        rangeEnd = now;
+      } else {
+        rangeStart = resetAt && resetAt > V2_CUTOFF ? resetAt : V2_CUTOFF;
+        rangeEnd = now;
+      }
+
+      // If range is empty (e.g. reset is after V2_CUTOFF for v1), return empty
+      if (rangeStart >= rangeEnd) {
+        return reply.send({ version: v, stepDropoff: [] });
+      }
+
+      // Count all event types with a step_number — V1 uses answer_submitted, V2 also has step_viewed
+      const rows = await allRows<{ session_id: string; step_number: number | null }>(
+        sb,
+        "funnel_events",
+        "session_id, step_number",
+        (q) => q
+          .not("step_number", "is", null)
+          .eq("is_test", false)
+          .gte("created_at", rangeStart)
+          .lt("created_at", rangeEnd),
       );
 
       // Count unique sessions per step
@@ -99,10 +189,10 @@ export default async function adminRoutes(fastify: FastifyInstance) {
         return { ...item, dropoffRate };
       });
 
-      return reply.send({ date, stepDropoff });
+      return reply.send({ version: v, stepDropoff });
     } catch (err) {
-      request.log.error({ err }, "admin.daily_step_dropoff.failed");
-      return reply.status(500).send({ error: "Failed to fetch daily step dropoff" });
+      request.log.error({ err }, "admin.version_dropoff.failed");
+      return reply.status(500).send({ error: "Failed to fetch version dropoff" });
     }
   });
 
@@ -427,5 +517,143 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       request.log.error({ err }, "admin.export_csv.failed");
       return reply.status(500).send({ error: "Failed to export submissions" });
     }
+  });
+
+  // ── POST /api/admin/backfill-submission ──────────────────────────────────
+  // Manually create or update a quiz_submissions row for a buyer who is
+  // missing from Supabase (e.g. Supabase was down, or they bought before the
+  // new flow was live).  Also pushes the PDF URL to their AC contact.
+  //
+  // Body: { email, childName, childGender?, archetypeId }
+  // Returns: { submissionId, pdfUrl, acUpdated }
+  fastify.post("/admin/backfill-submission", async (request, reply) => {
+    const body = request.body as {
+      email?: string;
+      childName?: string;
+      childGender?: string;
+      archetypeId?: string;
+    };
+
+    const { email, childName, archetypeId } = body ?? {};
+    const childGender = body?.childGender ?? "Other";
+
+    if (!email || !childName || !archetypeId) {
+      return reply.status(400).send({ error: "email, childName and archetypeId are required" });
+    }
+
+    const sb = getSupabaseAdmin();
+    if (!sb) return reply.status(503).send({ error: "Supabase not configured" });
+
+    // Generate the signed PDF URL (same algorithm as guest.ts — deterministic)
+    const pdfUrl = generatePdfUrl({ archetypeId, childName, childGender });
+
+    // Insert or update quiz_submissions (no unique-constraint assumption)
+    const insertPayload = {
+      email,
+      child_name: childName,
+      child_gender: childGender,
+      archetype_id: archetypeId,
+      pdf_url: pdfUrl,
+      trait_scores: {},
+      responses: {},
+      is_test: false,
+    };
+
+    let submissionId: string | null = null;
+    const { data: inserted, error: insertError } = await sb
+      .from("quiz_submissions")
+      .insert(insertPayload)
+      .select("id")
+      .single();
+
+    if (!insertError) {
+      submissionId = inserted?.id ?? null;
+    } else if (insertError.code === "23505") {
+      // Duplicate — update existing row
+      const { data: updated } = await sb
+        .from("quiz_submissions")
+        .update({ child_name: childName, child_gender: childGender, archetype_id: archetypeId, pdf_url: pdfUrl })
+        .eq("email", email)
+        .select("id")
+        .single();
+      submissionId = updated?.id ?? null;
+    } else {
+      request.log.error({ err: insertError, email }, "admin.backfill.supabase_insert_failed");
+      return reply.status(500).send({ error: "Supabase insert failed", details: insertError.message });
+    }
+
+    // Push PDF URL to ActiveCampaign contact
+    let acUpdated = false;
+    const apiUrl = process.env.AC_API_URL?.replace(/\/$/, "");
+    const apiKey = process.env.AC_API_KEY;
+
+    if (apiUrl && apiKey) {
+      try {
+        const headers = { "Content-Type": "application/json", "Api-Token": apiKey };
+
+        // 1. Sync contact
+        const syncRes = await fetch(`${apiUrl}/api/3/contact/sync`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ contact: { email } }),
+        });
+
+        if (syncRes.ok) {
+          const syncData = (await syncRes.json()) as { contact: { id: number | string } };
+          const contactId = String(syncData.contact.id);
+
+          // 2. Find PDF_URL field
+          const fieldsRes = await fetch(`${apiUrl}/api/3/fields?limit=100`, { headers });
+          const fieldsData = (await fieldsRes.json()) as {
+            fields: Array<{ id: number | string; perstag: string }>;
+          };
+          const fieldId = String(
+            fieldsData.fields.find((f) => f.perstag.replace(/%/g, "") === "PDF_URL")?.id ?? "",
+          );
+
+          if (fieldId && fieldId !== "undefined") {
+            const fvRes = await fetch(`${apiUrl}/api/3/fieldValues`, {
+              method: "POST",
+              headers,
+              body: JSON.stringify({
+                fieldValue: { contact: contactId, field: fieldId, value: pdfUrl },
+              }),
+            });
+            acUpdated = fvRes.ok;
+          }
+        }
+      } catch (acErr) {
+        request.log.warn({ acErr }, "admin.backfill.ac_update_failed");
+      }
+    }
+
+    request.log.info({ email, submissionId, acUpdated }, "admin.backfill.done");
+    return reply.send({ submissionId, pdfUrl, acUpdated });
+  });
+
+  // ── GET /api/admin/lookup-submission ─────────────────────────────────────
+  // Look up an existing quiz submission by email.
+  // Query param: ?email=foo@bar.com
+  // Returns: the submission row or 404
+  fastify.get("/admin/lookup-submission", async (request, reply) => {
+    const { email } = request.query as { email?: string };
+    if (!email) return reply.status(400).send({ error: "email query param required" });
+
+    const sb = getSupabaseAdmin();
+    if (!sb) return reply.status(503).send({ error: "Supabase not configured" });
+
+    const { data, error } = await sb
+      .from("quiz_submissions")
+      .select("id, email, child_name, child_gender, archetype_id, pdf_url, paid, created_at, trait_scores")
+      .eq("email", email)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error || !data) {
+      return reply.status(404).send({ error: "No submission found for that email" });
+    }
+
+    return reply.send(data);
   });
 }

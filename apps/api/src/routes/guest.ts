@@ -47,6 +47,51 @@ function generatePdfUrl(opts: {
   return `${baseUrl}/api/guest/pdf?data=${data}&sig=${sig}`;
 }
 
+// Resolve or create the PDF_URL custom field and return its numeric id.
+// Cached in-memory so we only hit the AC API once per process lifetime.
+let cachedPdfFieldId: string | null = null;
+
+async function getPdfUrlFieldId(
+  apiUrl: string,
+  apiKey: string,
+  logger: AcLogger,
+): Promise<string | null> {
+  if (cachedPdfFieldId) return cachedPdfFieldId;
+
+  const headers = { "Content-Type": "application/json", "Api-Token": apiKey };
+
+  const searchRes = await fetch(`${apiUrl}/api/3/fields?limit=100`, { headers });
+  if (!searchRes.ok) return null;
+
+  const searchData = (await searchRes.json()) as {
+    fields: Array<{ id: number | string; perstag: string }>;
+  };
+
+  let fieldId = String(
+    searchData.fields.find((f) => f.perstag.replace(/%/g, "") === "PDF_URL")?.id ?? "",
+  );
+
+  if (!fieldId || fieldId === "undefined") {
+    const createRes = await fetch(`${apiUrl}/api/3/fields`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        field: { type: "text", title: "PDF URL", descript: "", isrequired: "0", perstag: "PDF_URL", visible: "1" },
+      }),
+    });
+    const createData = (await createRes.json()) as { field?: { id: number | string } };
+    if (createData.field?.id) fieldId = String(createData.field.id);
+  }
+
+  if (!fieldId || fieldId === "undefined") {
+    logger.warn("guest.submit.ac_field_id_missing — could not find or create PDF_URL field");
+    return null;
+  }
+
+  cachedPdfFieldId = fieldId;
+  return fieldId;
+}
+
 // Sync contact to AC: store PDF download URL as custom field, subscribe to list, apply tags
 async function syncToActiveCampaign(opts: {
   email: string;
@@ -61,17 +106,29 @@ async function syncToActiveCampaign(opts: {
   const apiKey = process.env.AC_API_KEY;
   if (!apiUrl || !apiKey) return;
 
-  const headers = {
-    "Content-Type": "application/json",
-    "Api-Token": apiKey,
-  };
+  // Skip internal team emails
+  if (opts.email.toLowerCase().includes('@wecreatecourses')) return;
+
+  const headers = { "Content-Type": "application/json", "Api-Token": apiKey };
 
   try {
-    // 1. Create or update contact
+    // 1. Resolve the PDF_URL field id
+    const fieldId = await getPdfUrlFieldId(apiUrl, apiKey, opts.logger);
+
+    // 2. Create or update contact — include fieldValues directly so AC handles
+    //    create AND update in one call (avoids the POST /fieldValues duplicate error)
+    const contactBody: Record<string, unknown> = {
+      email: opts.email,
+      ...(opts.parentName && { firstName: opts.parentName }),
+    };
+    if (fieldId) {
+      contactBody.fieldValues = [{ field: fieldId, value: opts.pdfUrl }];
+    }
+
     const contactRes = await fetch(`${apiUrl}/api/3/contact/sync`, {
       method: "POST",
       headers,
-      body: JSON.stringify({ contact: { email: opts.email, ...(opts.parentName && { firstName: opts.parentName }) } }),
+      body: JSON.stringify({ contact: contactBody }),
     });
 
     if (!contactRes.ok) {
@@ -79,67 +136,9 @@ async function syncToActiveCampaign(opts: {
       return;
     }
 
-    const contactData = (await contactRes.json()) as {
-      contact: { id: number | string };
-    };
+    const contactData = (await contactRes.json()) as { contact: { id: number | string } };
     const contactId = String(contactData.contact.id);
-
-    // 2. Find or create PDF_URL custom field, then set the signed download URL
-    // Fetch all fields (no search filter) and match by perstag — avoids title/search mismatch
-    const searchRes = await fetch(`${apiUrl}/api/3/fields?limit=100`, { headers });
-    const searchData = (await searchRes.json()) as {
-      fields: Array<{ id: number | string; perstag: string }>;
-    };
-
-    let fieldId = String(
-      searchData.fields.find((f) => f.perstag.replace(/%/g, "") === "PDF_URL")?.id ?? "",
-    );
-
-    if (!fieldId || fieldId === "undefined") {
-      const createRes = await fetch(`${apiUrl}/api/3/fields`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          field: {
-            type: "text",
-            title: "PDF URL",
-            descript: "",
-            isrequired: "0",
-            perstag: "PDF_URL",
-            visible: "1",
-          },
-        }),
-      });
-      const createData = (await createRes.json()) as {
-        field?: { id: number | string };
-      };
-      if (createData.field?.id) fieldId = String(createData.field.id);
-    }
-
-    if (fieldId && fieldId !== "undefined") {
-      opts.logger.warn(`guest.submit.ac_setting_pdf_url fieldId=${fieldId} contactId=${contactId}`);
-      const fvRes = await fetch(`${apiUrl}/api/3/fieldValues`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          fieldValue: { contact: contactId, field: fieldId, value: opts.pdfUrl },
-        }),
-      }).catch((err: unknown) => {
-        opts.logger.error({ err }, "guest.submit.ac_field_value_failed");
-        return null;
-      });
-      if (fvRes && !fvRes.ok) {
-        const body = await fvRes.json().catch(() => null);
-        opts.logger.error(
-          { status: fvRes.status, body, fieldId, contactId },
-          "guest.submit.ac_field_value_http_error",
-        );
-      } else if (fvRes?.ok) {
-        opts.logger.warn(`guest.submit.ac_pdf_url_set_ok contactId=${contactId}`);
-      }
-    } else {
-      opts.logger.warn("guest.submit.ac_field_id_missing — could not find or create PDF_URL field");
-    }
+    opts.logger.warn(`guest.submit.ac_contact_synced contactId=${contactId} pdfFieldId=${fieldId ?? "none"}`);
 
     // 3. Subscribe contact to list so automations fire
     const listId = process.env.AC_LIST_ID;
@@ -155,45 +154,40 @@ async function syncToActiveCampaign(opts: {
       });
     }
 
-    // 4. Apply tags
-    const tagNames = ["ADHD Personality Type Opt-In"];
+    // 4. Apply "ADHD Personality Type Opt-In" tag
+    const TAG_NAME = "ADHD Personality Type Opt-In";
+    const tagSearchRes = await fetch(`${apiUrl}/api/3/tags?search=${encodeURIComponent(TAG_NAME)}`, { headers });
+    if (!tagSearchRes.ok) {
+      opts.logger.warn(`guest.submit.ac_tag_search_failed status=${tagSearchRes.status}`);
+      return;
+    }
+    const tagSearchData = (await tagSearchRes.json().catch(() => ({ tags: [] }))) as { tags: Array<{ id: number | string; tag: string }> };
 
-    for (const tagName of tagNames) {
-      const tagSearchRes = await fetch(
-        `${apiUrl}/api/3/tags?search=${encodeURIComponent(tagName)}`,
-        { headers },
-      );
-      const tagSearchData = (await tagSearchRes.json()) as {
-        tags: Array<{ id: number | string; tag: string }>;
-      };
+    let tagId = String(tagSearchData.tags.find((t) => t.tag === TAG_NAME)?.id ?? "");
 
-      let tagId = String(
-        tagSearchData.tags.find((t) => t.tag === tagName)?.id ?? "",
-      );
-
-      if (!tagId || tagId === "undefined") {
-        const createRes = await fetch(`${apiUrl}/api/3/tags`, {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            tag: { tag: tagName, tagType: "contact", description: "" },
-          }),
-        });
-        const createData = (await createRes.json()) as {
-          tag?: { id: number | string };
-        };
-        if (createData.tag?.id) tagId = String(createData.tag.id);
+    if (!tagId || tagId === "undefined") {
+      const createRes = await fetch(`${apiUrl}/api/3/tags`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ tag: { tag: TAG_NAME, tagType: "contact", description: "" } }),
+      });
+      if (!createRes.ok) {
+        opts.logger.warn(`guest.submit.ac_tag_create_failed status=${createRes.status}`);
+        return;
       }
+      const createData = (await createRes.json().catch(() => ({}))) as { tag?: { id: number | string } };
+      if (createData.tag?.id) tagId = String(createData.tag.id);
+    }
 
-      if (tagId && tagId !== "undefined") {
-        await fetch(`${apiUrl}/api/3/contactTags`, {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            contactTag: { contact: contactId, tag: tagId },
-          }),
-        });
-      }
+    if (tagId && tagId !== "undefined") {
+      await fetch(`${apiUrl}/api/3/contactTags`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ contactTag: { contact: contactId, tag: tagId } }),
+      }).catch((err: unknown) => {
+        opts.logger.error({ err }, "guest.submit.ac_contact_tag_failed");
+      });
+      opts.logger.warn(`guest.submit.ac_tag_applied contactId=${contactId}`);
     }
   } catch (err) {
     opts.logger.error({ err }, "guest.submit.activecampaign_sync_failed");
@@ -364,24 +358,32 @@ export default async function guestRoutes(fastify: FastifyInstance) {
         logger: request.log,
       });
 
-      // 6. Save to Supabase (fire and forget — don't block response)
+      // 6. Save to Supabase — retry up to 3 times so we don't silently lose submissions
       let submissionId: string | null = null;
-      try {
-        submissionId = await insertQuizSubmission({
-          email,
-          child_name: childName,
-          child_gender: childGender ?? "Other",
-          caregiver_type: (responses.caregiverType as string) ?? null,
-          child_age_range: (responses.childAgeRange as string) ?? null,
-          adhd_journey: (responses.adhdJourney as string) ?? null,
-          archetype_id: traitProfile.archetypeId,
-          trait_scores: traitProfile.scores as unknown as Record<string, number>,
-          responses,
-          pdf_url: pdfUrl,
-          is_test: isTest ?? false,
-        });
-      } catch (err) {
-        request.log.error({ err }, "guest.submit.supabase_insert_failed");
+      const submissionPayload = {
+        email,
+        child_name: childName,
+        child_gender: childGender ?? "Other",
+        caregiver_type: (responses.caregiverType as string) ?? null,
+        child_age_range: (responses.childAgeRange as string) ?? null,
+        adhd_journey: (responses.adhdJourney as string) ?? null,
+        archetype_id: traitProfile.archetypeId,
+        trait_scores: traitProfile.scores as unknown as Record<string, number>,
+        responses,
+        pdf_url: pdfUrl,
+        is_test: isTest ?? false,
+      };
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          submissionId = await insertQuizSubmission(submissionPayload);
+          if (submissionId) break;
+        } catch (err) {
+          request.log.error({ err, attempt }, "guest.submit.supabase_insert_failed");
+          if (attempt < 3) await new Promise((r) => setTimeout(r, attempt * 500));
+        }
+      }
+      if (!submissionId) {
+        request.log.error({ email, archetypeId: traitProfile.archetypeId }, "guest.submit.supabase_insert_all_attempts_failed");
       }
 
       return reply.send({ report: rendered, submissionId, pdfUrl });
@@ -500,13 +502,13 @@ export default async function guestRoutes(fastify: FastifyInstance) {
       },
     },
     async (request, reply) => {
-      const body = request.body as { eventId?: string; sourceUrl?: string; fbp?: string; fbc?: string } | null;
+      const body = request.body as { eventId?: string; sourceUrl?: string; fbp?: string; fbc?: string; email?: string } | null;
       const eventId = body?.eventId ?? `vc_${Date.now()}`;
 
       void sendMetaEvent({
         eventName: "ViewContent",
         eventId,
-        email: "",             // no email yet on results page — match by fbp/fbc only
+        email: body?.email ?? "",
         sourceUrl: body?.sourceUrl ?? "",
         clientIp: request.ip ?? "",
         userAgent: request.headers["user-agent"] ?? "",

@@ -595,21 +595,28 @@ export function computeScores(
 
 /**
  * Determine cluster depth using natural break analysis.
- * Finds the largest gap between consecutive ranked traits
- * to determine how many traits form the child's natural cluster.
+ * Computes all 5 consecutive gaps between ranked traits (including gap[0→1])
+ * and uses the position of the largest gap to determine how many traits
+ * form the child's natural cluster. Ties prefer the deeper cluster.
  */
 function findClusterDepth(
   ranked: CategoryId[],
   scores: TraitScores,
 ): 2 | 3 | 4 {
-  const gapA = scores[ranked[1]] - scores[ranked[2]]; // between #2 and #3
-  const gapB = scores[ranked[2]] - scores[ranked[3]]; // between #3 and #4
-  const gapC = scores[ranked[3]] - scores[ranked[4]]; // between #4 and #5
-
-  // If two gaps are equal or within 0.1, prefer the deeper cluster
-  if (gapC >= gapB - 0.1 && gapC >= gapA - 0.1) return 4;
-  if (gapB >= gapA - 0.1) return 3;
-  return 2;
+  const gaps: number[] = [];
+  for (let i = 0; i < 5; i++) {
+    gaps.push(scores[ranked[i]] - scores[ranked[i + 1]]);
+  }
+  let maxPos = 0;
+  for (let i = 1; i < 5; i++) {
+    // >= prefers deeper clusters on ties
+    if (gaps[i] >= gaps[maxPos]) maxPos = i;
+  }
+  // maxPos 0 → gap after rank[0] → 1 trait cluster → clamp up to 2
+  // maxPos 1 → gap after rank[1] → depth 2
+  // maxPos 2 → gap after rank[2] → depth 3
+  // maxPos 3 or 4 → gap after rank[3/4] → depth 4
+  return Math.max(2, Math.min(4, maxPos + 1)) as 2 | 3 | 4;
 }
 
 /** Check if a set of CategoryIds matches an archetype's primaryTrait (order-insensitive) */
@@ -664,9 +671,11 @@ function nearestTier3Match(
  * Tier 1 (4-trait) → Tier 2 (3-trait) → Tier 3 (2-trait)
  */
 export function matchArchetype(scores: TraitScores): Archetype {
-  // Step 1: Vivid Octopus check
-  const highCount = CATEGORY_IDS.filter(id => scores[id] >= 3.0).length;
-  if (highCount >= 5) {
+  // Step 1: Vivid Octopus check — globally elevated profile (≥5 traits high, OR no trait below 2.5)
+  const vals = CATEGORY_IDS.map(id => scores[id]);
+  const highCount = vals.filter(s => s >= 3.0).length;
+  const minScore = Math.min(...vals);
+  if (highCount >= 5 || minScore >= 2.5) {
     return ARCHETYPES.find(a => a.id === "octopus")!;
   }
 
@@ -709,7 +718,7 @@ export const GIRL_VARIANTS: Record<string, string> = {
 };
 
 export function applyGenderVariant(archetypeId: string, gender?: string): string {
-  const isGirl = gender === "A Girl" || gender === "My Daughter";
+  const isGirl = gender === "My Daughter";
   if (isGirl && GIRL_VARIANTS[archetypeId]) {
     return GIRL_VARIANTS[archetypeId];
   }

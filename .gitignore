@@ -22,4 +22,6 @@ yarn-error.log*
 
 # Claude
 .claude/
-.vercel
+
+# Vercel build output (may contain secrets)
+.vercel/
