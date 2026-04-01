@@ -1,10 +1,10 @@
 import type { APIRoute } from 'astro'
 import { getStripe } from '../../../lib/stripe'
 import { syncContactWithTags } from '../../../lib/activecampaign'
+import { sendDeliveryEmail } from '../../../lib/brevo'
+import { getProject } from '../../../config/projects'
 import type Stripe from 'stripe'
 
-// In-memory idempotency guard for the POC.
-// Replace with a database check (e.g. a processed_events table) in production.
 const processedEvents = new Set<string>()
 
 export const POST: APIRoute = async ({ request }) => {
@@ -29,101 +29,72 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: message }, 400)
   }
 
-  // Idempotency — skip already-processed events
   if (processedEvents.has(event.id)) {
     return json({ received: true, skipped: true })
   }
   processedEvents.add(event.id)
 
-  switch (event.type) {
-    case 'checkout.session.completed': {
-      const session = event.data.object as Stripe.Checkout.Session
-      await handleCheckoutCompleted(session)
-      break
-    }
-    case 'payment_intent.succeeded': {
-      const pi = event.data.object as Stripe.PaymentIntent
-      await handlePaymentIntentSucceeded(pi)
-      break
-    }
-    default:
-      break
+  if (event.type === 'payment_intent.succeeded') {
+    const pi = event.data.object as Stripe.PaymentIntent
+    await handlePaymentSucceeded(pi)
   }
 
   return json({ received: true })
 }
 
-async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+async function handlePaymentSucceeded(pi: Stripe.PaymentIntent) {
   const stripe = getStripe()
-  const details = session.customer_details
 
-  const email     = details?.email ?? ''
-  const fullName  = details?.name  ?? ''
-  const country   = details?.address?.country ?? ''
-  const firstName = fullName.split(' ')[0] ?? fullName
-
-  const bumpIncluded = session.metadata?.bumpIncluded === 'true'
-
-  // Retrieve payment method for future upsell charges
-  let paymentMethodId: string | null = null
-  if (session.payment_intent) {
-    try {
-      const pi = await stripe.paymentIntents.retrieve(session.payment_intent as string)
-      paymentMethodId = pi.payment_method as string | null
-    } catch {
-      // Non-fatal
-    }
-  }
-
-  console.log('[webhook] checkout.session.completed', {
-    sessionId: session.id,
-    email,
-    fullName,
-    country,
-    bumpIncluded,
-    paymentMethodId,
-  })
-
-  if (email) {
-    const lastName = fullName.includes(' ') ? fullName.slice(fullName.indexOf(' ') + 1) : ''
-    const tags = ['ASTRO TEST PURCHASE']
-    if (bumpIncluded) tags.push('ASTRO TEST BUMP')
-
-    await syncContactWithTags({ email, firstName, lastName, country, tags })
-  }
-}
-
-async function handlePaymentIntentSucceeded(pi: Stripe.PaymentIntent) {
-  // Newer Stripe API versions don't expand charges by default — re-fetch with expansion
-  const stripe = getStripe()
+  // Re-fetch with charges expanded to get billing details
   let expandedPi = pi
   try {
     expandedPi = await stripe.paymentIntents.retrieve(pi.id, { expand: ['charges'] })
   } catch {
-    // Fall back to original object
+    // Fall back to original
   }
+
   const billingDetails = expandedPi.charges?.data?.[0]?.billing_details
-  const email     = expandedPi.receipt_email ?? billingDetails?.email ?? ''
-  const fullName  = billingDetails?.name  ?? ''
-  const country   = billingDetails?.address?.country ?? ''
-  const firstName = fullName.split(' ')[0] ?? fullName
+  const email     = pi.metadata.email || expandedPi.receipt_email || billingDetails?.email || ''
+  const fullName  = billingDetails?.name || ''
+  const country   = billingDetails?.address?.country || ''
+  const firstName = fullName.split(' ')[0] || fullName
+  const lastName  = fullName.includes(' ') ? fullName.slice(fullName.indexOf(' ') + 1) : ''
 
-  console.log('[webhook] payment_intent.succeeded', {
-    intentId: pi.id,
-    email,
-    fullName,
-    country,
-  })
+  // Read fulfillment data from PaymentIntent metadata
+  const projectId    = pi.metadata.project || 'adhd-parenting'
+  const childName    = pi.metadata.childName || 'your child'
+  const pdfUrl       = pi.metadata.pdfUrl || ''
+  const selectedBumps = (pi.metadata.selectedBumps || '').split(',').filter(Boolean)
 
+  console.log('[webhook] payment_intent.succeeded', { intentId: pi.id, email, projectId, childName, selectedBumps })
+
+  // ── 1. Brevo — send delivery email with PDF links ────────────────────────
+  if (email && pdfUrl) {
+    const project = getProject(projectId)
+    const bumpDetails = selectedBumps
+      .map(id => project.bumps.find(b => b.id === id))
+      .filter((b): b is NonNullable<typeof b> => Boolean(b))
+      .map(b => ({ name: b.name, pdfUrl: b.pdfUrl }))
+
+    await sendDeliveryEmail({
+      toEmail: email,
+      toName: firstName || email,
+      childName,
+      mainPdfUrl: pdfUrl,
+      bumps: bumpDetails,
+    }).catch(err => console.error('[Brevo] delivery email failed:', err))
+  } else {
+    console.warn('[webhook] skipping Brevo — missing email or pdfUrl', { email, pdfUrl: !!pdfUrl })
+  }
+
+  // ── 2. AC — apply tags for marketing automation ──────────────────────────
   if (email) {
-    const lastName = fullName.includes(' ') ? fullName.slice(fullName.indexOf(' ') + 1) : ''
-    await syncContactWithTags({
-      email,
-      firstName,
-      lastName,
-      country,
-      tags: ['ASTRO TEST PURCHASE'],
-    })
+    const tags = ['ADHD Personality Report']
+    if (selectedBumps.includes('anger-management')) tags.push('Bump: Anger Management')
+    if (selectedBumps.includes('adhd-game-plan')) tags.push('Bump: ADHD Game Plan')
+
+    await syncContactWithTags({ email, firstName, lastName, country, tags })
+      .catch(err => console.error('[AC] tag sync failed:', err))
   }
 }
 

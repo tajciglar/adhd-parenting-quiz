@@ -9,9 +9,13 @@ import {
 } from '@stripe/react-stripe-js'
 
 interface StripeElementsCheckoutProps {
-  bumpIncluded: boolean
+  selectedBumpIds: string[]
   publishableKey: string
   returnUrl: string
+  project: string
+  email: string
+  childName: string
+  pdfUrl: string
 }
 
 interface ContactInfo {
@@ -270,9 +274,13 @@ function CheckoutForm({ returnUrl }: { returnUrl: string }) {
 
 // ── Outer component — manages PaymentIntent + stripePromise ─────
 export default function StripeElementsCheckout({
-  bumpIncluded,
+  selectedBumpIds,
   publishableKey,
   returnUrl,
+  project,
+  email,
+  childName,
+  pdfUrl,
 }: StripeElementsCheckoutProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [error, setError] = useState('')
@@ -286,7 +294,7 @@ export default function StripeElementsCheckout({
     fetch('/api/create-payment-intent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bumpIncluded }),
+      body: JSON.stringify({ project, selectedBumpIds, email, childName, pdfUrl }),
     })
       .then(r => r.json())
       .then((data: { clientSecret?: string; error?: string }) => {
@@ -299,7 +307,7 @@ export default function StripeElementsCheckout({
       })
 
     return () => { cancelled = true }
-  }, [bumpIncluded])
+  }, [selectedBumpIds.join(','), project, email, childName, pdfUrl])
 
   if (error) {
     return (

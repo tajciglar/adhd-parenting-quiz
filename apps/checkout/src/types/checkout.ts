@@ -1,39 +1,16 @@
-export interface Product {
-  id: string
-  name: string
-  price: number           // in cents
-  stripePriceId: string
-  image?: string
-  description?: string
-  originalPrice?: number
-  bullets?: string[]
+import type { BumpConfig, ProjectConfig } from '../config/projects'
+
+export type { BumpConfig, ProjectConfig }
+
+export interface CheckoutConfig {
+  project: ProjectConfig
+  upsellPriceId: string
 }
 
 export interface OrderBumpProps {
-  product: Product
-  defaultChecked?: boolean
-  badgeText?: string
-  checkboxLabel?: string
-  onToggle: (checked: boolean) => void
-}
-
-export interface UpsellOfferProps {
-  product: Product
-  paymentIntentId: string
-  acceptUrl: string
-  declineUrl: string
-}
-
-export interface CheckoutConfig {
-  main: Product
-  bump: Product
-  upsell: Product
-}
-
-export interface ContactInfo {
-  firstName: string
-  email: string
-  country: string
+  bump: BumpConfig
+  checked: boolean
+  onToggle: (id: string, checked: boolean) => void
 }
 
 export interface Testimonial {

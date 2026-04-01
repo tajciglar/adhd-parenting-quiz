@@ -1,13 +1,16 @@
 import type { APIRoute } from 'astro'
 import { getStripe } from '../../lib/stripe'
+import { getProject, DEFAULT_PROJECT } from '../../config/projects'
 
 interface RequestBody {
-  bumpIncluded: boolean
+  project?: string
+  selectedBumpIds: string[]  // e.g. ['anger-management', 'adhd-game-plan']
+  email?: string
+  childName?: string
+  pdfUrl?: string
 }
 
 export const POST: APIRoute = async ({ request }) => {
-  const stripe = getStripe()
-
   let body: RequestBody
   try {
     body = await request.json() as RequestBody
@@ -15,32 +18,30 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ error: 'Invalid JSON' }, 400)
   }
 
-  const priceMain = import.meta.env.STRIPE_PRICE_MAIN as string
-  const priceBump = import.meta.env.STRIPE_PRICE_BUMP as string
+  const { project: projectId = DEFAULT_PROJECT, selectedBumpIds = [], email = '', childName = '', pdfUrl = '' } = body
 
-  if (!priceMain) {
-    return json({ error: 'Stripe price IDs not configured' }, 500)
-  }
+  const project = getProject(projectId)
+
+  // Calculate total from config — no extra Stripe API calls needed
+  const bumpTotal = selectedBumpIds.reduce((sum, id) => {
+    const bump = project.bumps.find(b => b.id === id)
+    return sum + (bump?.salePrice ?? 0)
+  }, 0)
+
+  const amount = project.price + bumpTotal
 
   try {
-    // Fetch live prices from Stripe
-    const mainPrice = await stripe.prices.retrieve(priceMain)
-    const mainAmount = mainPrice.unit_amount ?? 0
-
-    let bumpAmount = 0
-    if (body.bumpIncluded && priceBump) {
-      const bumpPrice = await stripe.prices.retrieve(priceBump)
-      bumpAmount = bumpPrice.unit_amount ?? 0
-    }
-
-    const amount = mainAmount + bumpAmount
-
+    const stripe = getStripe()
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
-      currency: mainPrice.currency ?? 'usd',
-      setup_future_usage: 'off_session',
+      currency: 'usd',
+      // Store everything needed for post-payment fulfillment
       metadata: {
-        bumpIncluded: String(body.bumpIncluded),
+        project: projectId,
+        email,
+        childName,
+        pdfUrl,
+        selectedBumps: selectedBumpIds.join(','),
       },
     })
 

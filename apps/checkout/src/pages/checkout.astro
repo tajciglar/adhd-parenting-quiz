@@ -2,17 +2,21 @@
 import Base from '../layouts/Base.astro'
 import CheckoutFlow from '../components/checkout/CheckoutFlow'
 import { getProducts } from '../lib/getProducts'
+import { DEFAULT_PROJECT } from '../config/projects'
+
+const project    = Astro.url.searchParams.get('project') ?? DEFAULT_PROJECT
+const { project: projectConfig } = await getProducts(project)
 
 const publishableKey = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ''
-const products = await getProducts()
 
-// Params passed from the quiz sales page
-const email       = Astro.url.searchParams.get('email') ?? ''
-const childName   = Astro.url.searchParams.get('childName') ?? ''
-const archetype   = Astro.url.searchParams.get('archetype') ?? ''
-const gender      = Astro.url.searchParams.get('gender') ?? ''
-const fbp         = Astro.url.searchParams.get('_fbp') ?? ''
-const fbc         = Astro.url.searchParams.get('_fbc') ?? ''
+// Params passed from the quiz results/sales page
+const email     = Astro.url.searchParams.get('email') ?? ''
+const childName = Astro.url.searchParams.get('childName') ?? ''
+const archetype = Astro.url.searchParams.get('archetype') ?? ''
+const gender    = Astro.url.searchParams.get('gender') ?? ''
+const pdfUrl    = Astro.url.searchParams.get('pdfUrl') ?? ''
+const fbp       = Astro.url.searchParams.get('_fbp') ?? ''
+const fbc       = Astro.url.searchParams.get('_fbc') ?? ''
 
 const testimonials = [
   {
@@ -20,7 +24,7 @@ const testimonials = [
     author: 'Vanessa',
   },
   {
-    quote: 'Simple, clear, to the point and awakening — taking away any guilt & shame both from parents & the child! Something that you can rarely find on this path these days. To me it even spoke from the spiritual perspective & got to know about my unanswered questions in a straightforward tone. I appreciate your hard kind work.',
+    quote: 'Simple, clear, to the point and awakening — taking away any guilt & shame both from parents & the child! Something that you can rarely find on this path these days.',
     author: 'Elham',
   },
   {
@@ -28,7 +32,7 @@ const testimonials = [
     author: 'Tamara',
   },
   {
-    quote: "By the end of page 3, I burst into tears. But those were tears of awareness after knowing that there's nothing wrong with any of us, but only wired differently. And unconditional love is the answer to almost any issue.",
+    quote: "By the end of page 3, I burst into tears. But those were tears of awareness after knowing that there's nothing wrong with any of us, but only wired differently.",
     author: 'Fiona',
   },
 ]
@@ -44,13 +48,13 @@ const testimonials = [
 
     <CheckoutFlow
       client:load
-      config={products}
+      project={projectConfig}
       publishableKey={publishableKey}
-      testimonials={testimonials}
       email={email}
       childName={childName}
       archetype={archetype}
       gender={gender}
+      pdfUrl={pdfUrl}
       fbp={fbp}
       fbc={fbc}
     />
