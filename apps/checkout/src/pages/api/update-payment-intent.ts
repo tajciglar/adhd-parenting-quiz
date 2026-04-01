@@ -23,8 +23,10 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     const stripe = getStripe()
+    // Fetch existing metadata first so we don't overwrite project/pdfUrl/selectedBumps
+    const existing = await stripe.paymentIntents.retrieve(paymentIntentId)
     await stripe.paymentIntents.update(paymentIntentId, {
-      metadata: { email, childName },
+      metadata: { ...existing.metadata, email, childName },
       ...(email ? { receipt_email: email } : {}),
     })
     return json({ success: true })

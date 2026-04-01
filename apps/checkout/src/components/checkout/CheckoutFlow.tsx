@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import OrderBump from './OrderBump'
 import StripeElementsCheckout from './StripeElementsCheckout'
 import type { ProjectConfig } from '../../config/projects'
+import { trackPixelEvent, generateEventId, getFbpFromUrl } from '../../lib/fbq'
 
 interface CheckoutFlowProps {
   project: ProjectConfig
@@ -54,6 +55,7 @@ export default function CheckoutFlow({
 }: CheckoutFlowProps) {
   // Track selected bump IDs independently
   const [selectedBumpIds, setSelectedBumpIds] = useState<string[]>([])
+  const initiateCheckoutFired = useRef(false)
 
   const [params, setParams] = useState({
     childName: childNameProp,
@@ -70,12 +72,37 @@ export default function CheckoutFlow({
       email:      p.get('email')      ?? emailProp,
       pdfUrl:     p.get('pdfUrl')     ?? pdfUrlProp,
     })
+
+    // Fire InitiateCheckout once on page load
+    if (!initiateCheckoutFired.current) {
+      initiateCheckoutFired.current = true
+      const { fbp, fbc } = getFbpFromUrl()
+      trackPixelEvent('InitiateCheckout', {
+        value: project.price / 100,
+        currency: 'USD',
+        num_items: 1,
+        content_category: 'adhd_report',
+        ...(fbp ? { fbp } : {}),
+        ...(fbc ? { fbc } : {}),
+      }, generateEventId())
+    }
   }, [])
 
   function handleBumpToggle(id: string, checked: boolean) {
     setSelectedBumpIds(prev =>
       checked ? [...prev, id] : prev.filter(b => b !== id)
     )
+    if (checked) {
+      const bump = project.bumps.find(b => b.id === id)
+      if (bump) {
+        trackPixelEvent('AddToCart', {
+          value: bump.salePrice / 100,
+          currency: 'USD',
+          content_name: bump.name,
+          content_category: 'bump',
+        }, generateEventId())
+      }
+    }
   }
 
   const bumpTotal = selectedBumpIds.reduce((sum, id) => {
@@ -97,6 +124,7 @@ export default function CheckoutFlow({
     if (gender)           p.set('gender', gender)
     if (fbp)              p.set('_fbp', fbp)
     if (fbc)              p.set('_fbc', fbc)
+    p.set('value', (total / 100).toFixed(2))
     return `${base}/thank-you?${p.toString()}`
   })()
 

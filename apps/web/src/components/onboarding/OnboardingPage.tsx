@@ -4,8 +4,9 @@ import { useOnboarding, clearOnboardingStorage } from "../../hooks/useOnboarding
 import { TOTAL_STEPS, getStepConfig, ASSESSMENT_CATEGORIES, BASIC_INFO_QUESTIONS } from "@adhd-parenting-quiz/shared";
 import type { CategoryId } from "@adhd-parenting-quiz/shared";
 import type { OnboardingResponses } from "../../types/onboarding";
-import { trackFunnelEvent } from "../../lib/analytics";
-import { trackPixelEvent, generateEventId } from "../../lib/fbq";
+import { trackFunnelEvent, isTestMode } from "../../lib/analytics";
+import { trackPixelEvent, generateEventId, getFbp, getFbc } from "../../lib/fbq";
+import { api } from "../../lib/api";
 import OnboardingLayout from "./OnboardingLayout";
 import AnimationWrapper from "./AnimationWrapper";
 import StepRenderer from "./StepRenderer";
@@ -66,9 +67,13 @@ export default function OnboardingPage() {
   } = useOnboarding();
 
   const navigate = useNavigate();
+  // Debounce ref: prevents multiple auto-advance timers firing when user clicks fast
+  const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showCredibility, setShowCredibility] = useState(false);
   const [showCalculating, setShowCalculating] = useState(false);
   const [showEmailCapture, setShowEmailCapture] = useState(false);
+  const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
+  const [emailSubmitError, setEmailSubmitError] = useState<string | null>(null);
   const [calcResult, setCalcResult] = useState<{ childName: string; childGender: string; archetypeId: string } | null>(null);
   const [interstitialCategory, setInterstitialCategory] = useState<CategoryId | null>(null);
 
@@ -132,35 +137,99 @@ export default function OnboardingPage() {
         config.type === "likert";
 
       if (shouldAutoAdvance) {
-        setTimeout(() => advanceFromStep(step), 400);
+        // Cancel any in-flight advance — only the last click within the window counts
+        if (advanceTimerRef.current !== null) {
+          clearTimeout(advanceTimerRef.current);
+        }
+        advanceTimerRef.current = setTimeout(() => {
+          advanceTimerRef.current = null;
+          advanceFromStep(step);
+        }, 400);
       }
     },
     [saveAnswer, advanceFromStep],
   );
 
   if (showEmailCapture && calcResult) {
+    const handleEmailSubmit = async (email: string) => {
+      trackFunnelEvent("optin_completed", 46);
+      setIsSubmittingEmail(true);
+
+      // Backup to localStorage so data is recoverable even if everything fails
+      localStorage.setItem("wildprint_backup", JSON.stringify({
+        email,
+        responses,
+        childName: calcResult.childName,
+        childGender: calcResult.childGender,
+        archetypeId: calcResult.archetypeId,
+        savedAt: new Date().toISOString(),
+      }));
+
+      // Try up to 3 times — don't proceed until we have a pdfUrl
+      const MAX_RETRIES = 3;
+      let pdfUrl: string | undefined;
+      let lastError: string | undefined;
+
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          const result = await api.post("/api/guest/submit", {
+            email,
+            responses,
+            childName: calcResult.childName,
+            childGender: calcResult.childGender,
+            fbc: getFbc(),
+            fbp: getFbp(),
+            eventSourceUrl: window.location.href,
+            ...(isTestMode() && { isTest: true }),
+          }) as { pdfUrl?: string; submissionId?: string };
+          pdfUrl = result?.pdfUrl;
+          if (pdfUrl) break; // success
+        } catch (err) {
+          lastError = err instanceof Error ? err.message : "Network error";
+          if (attempt < MAX_RETRIES) {
+            await new Promise((r) => setTimeout(r, attempt * 1000)); // 1s, 2s backoff
+          }
+        }
+      }
+
+      // Hard block — don't let them through without a confirmed submission
+      if (!pdfUrl) {
+        setIsSubmittingEmail(false);
+        // Translate raw API error codes to human-readable messages
+        const raw = lastError ?? "";
+        const friendlyError = raw === "already_submitted"
+          ? "ALREADY_SUBMITTED"
+          : (raw || "Something went wrong. Please try again.");
+        setEmailSubmitError(friendlyError);
+        return;
+      }
+
+      sessionStorage.setItem("wildprint_responses", JSON.stringify(responses));
+      sessionStorage.setItem("wildprint_childName", calcResult.childName);
+      sessionStorage.setItem("wildprint_childGender", calcResult.childGender);
+      sessionStorage.setItem("wildprint_archetypeId", calcResult.archetypeId);
+      sessionStorage.setItem("wildprint_email", email);
+      sessionStorage.setItem("wildprint_pdfUrl", pdfUrl);
+      clearOnboardingStorage();
+      navigate("/results", {
+        replace: true,
+        state: {
+          responses,
+          childName: calcResult.childName,
+          childGender: calcResult.childGender,
+          archetypeId: calcResult.archetypeId,
+          email,
+          pdfUrl,
+        },
+      });
+    };
+
     return (
       <EmailCaptureScreen
         childName={calcResult.childName}
-        onSubmit={(email) => {
-          trackFunnelEvent("optin_completed");
-          sessionStorage.setItem("wildprint_responses", JSON.stringify(responses));
-          sessionStorage.setItem("wildprint_childName", calcResult.childName);
-          sessionStorage.setItem("wildprint_childGender", calcResult.childGender);
-          sessionStorage.setItem("wildprint_archetypeId", calcResult.archetypeId);
-          sessionStorage.setItem("wildprint_email", email);
-          clearOnboardingStorage();
-          navigate("/results", {
-            replace: true,
-            state: {
-              responses,
-              childName: calcResult.childName,
-              childGender: calcResult.childGender,
-              archetypeId: calcResult.archetypeId,
-              email,
-            },
-          });
-        }}
+        onSubmit={handleEmailSubmit}
+        isLoading={isSubmittingEmail}
+        error={emailSubmitError}
       />
     );
   }

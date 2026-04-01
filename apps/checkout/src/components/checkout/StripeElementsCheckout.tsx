@@ -117,6 +117,17 @@ function CheckoutForm({ returnUrl, clientSecret, initialEmail, childName }: {
           setStatus('submitting')
           setErrorMsg('')
 
+          // Sync email into PI metadata for express checkout (Apple Pay / Google Pay)
+          const piId = clientSecret.split('_secret_')[0]
+          const expressEmail = event.billingDetails?.email ?? contact.email ?? ''
+          if (piId && expressEmail) {
+            await fetch('/api/update-payment-intent', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paymentIntentId: piId, email: expressEmail, childName }),
+            }).catch(() => {})
+          }
+
           const result = await stripe.confirmPayment({
             elements,
             confirmParams: {

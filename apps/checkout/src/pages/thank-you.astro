@@ -4,11 +4,21 @@ import Base from '../layouts/Base.astro'
 const childName = Astro.url.searchParams.get('childName') ?? 'your child'
 const email     = Astro.url.searchParams.get('email') ?? ''
 const gender    = Astro.url.searchParams.get('gender') ?? ''
+const value     = Astro.url.searchParams.get('value') ?? '19'
 
 const pronoun = gender === 'male' ? 'his' : gender === 'female' ? 'her' : 'their'
 ---
 
 <Base title="Thank You! — ADHD Personality Report">
+<script define:vars={{ purchaseValue: value, purchaseEmail: email }}>
+  if (window.fbq) {
+    window.fbq('track', 'Purchase', {
+      value: parseFloat(purchaseValue) || 19,
+      currency: 'USD',
+      content_category: 'adhd_report',
+    })
+  }
+</script>
   <div style="max-width:640px; margin:0 auto; padding:48px 20px 80px;">
 
     {/* Success card */}

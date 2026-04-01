@@ -3,10 +3,8 @@ import { getStripe } from '../../../lib/stripe'
 import { syncContactWithTags } from '../../../lib/activecampaign'
 import { sendDeliveryEmail } from '../../../lib/brevo'
 import { getProject } from '../../../config/projects'
-import { getPdfUrlByEmail } from '../../../lib/supabase'
+import { getPdfUrlByEmail, getSupabase } from '../../../lib/supabase'
 import type Stripe from 'stripe'
-
-const processedEvents = new Set<string>()
 
 export const POST: APIRoute = async ({ request }) => {
   const stripe = getStripe()
@@ -29,11 +27,6 @@ export const POST: APIRoute = async ({ request }) => {
     const message = err instanceof Error ? err.message : 'Webhook verification failed'
     return json({ error: message }, 400)
   }
-
-  if (processedEvents.has(event.id)) {
-    return json({ received: true, skipped: true })
-  }
-  processedEvents.add(event.id)
 
   if (event.type === 'payment_intent.succeeded') {
     const pi = event.data.object as Stripe.PaymentIntent
@@ -80,6 +73,24 @@ async function handlePaymentSucceeded(pi: Stripe.PaymentIntent) {
   console.log('[webhook] payment_intent.succeeded', { intentId: pi.id, email, projectId, childName, selectedBumps, hasPdfUrl: !!pdfUrl })
 
   // ── 1. Brevo — send delivery email with PDF links ────────────────────────
+  // Guard against duplicate webhook delivery — check if already marked paid
+  if (email) {
+    try {
+      const sb = getSupabase()
+      const { data: sub } = await sb
+        .from('quiz_submissions')
+        .select('paid')
+        .eq('email', email.toLowerCase())
+        .maybeSingle()
+      if (sub?.paid === true) {
+        console.log('[webhook] already processed for:', email, '— skipping')
+        return json({ received: true, skipped: true })
+      }
+      // Mark as paid immediately to prevent race condition on duplicate delivery
+      await sb.from('quiz_submissions').update({ paid: true }).eq('email', email.toLowerCase())
+    } catch { /* non-blocking — proceed anyway */ }
+  }
+
   if (email && pdfUrl) {
     const project = getProject(projectId)
     const bumpDetails = selectedBumps
