@@ -294,7 +294,15 @@ export default async function guestRoutes(fastify: FastifyInstance) {
       // 0. Duplicate email check
       const alreadySubmitted = await checkAlreadySubmitted(email);
       if (alreadySubmitted) {
-        return reply.status(409).send({ error: "already_submitted" });
+        // Return existing pdfUrl so checkout can still deliver the report
+        const { data: existing } = await request.server.supabase
+          .from("quiz_submissions")
+          .select("pdf_url")
+          .eq("email", email.toLowerCase())
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        return reply.status(409).send({ error: "already_submitted", pdfUrl: existing?.pdf_url ?? "" });
       }
 
       // 1. Compute trait profile

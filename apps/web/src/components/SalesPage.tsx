@@ -307,26 +307,34 @@ export default function SalesPage() {
     try {
       const eventId = generateEventId();
 
-      // Fire API call (saves to DB, syncs AC, sends CAPI) — don't block checkout on failure
-      api.post("/api/guest/submit", {
-        email: email || "unknown@example.com",
-        parentName: "",
-        responses,
-        childName,
-        childGender,
-        fbc: getFbc(),
-        fbp: getFbp(),
-        eventSourceUrl: window.location.href,
-        ...(isTestMode() && { isTest: true }),
-      }).then((result: unknown) => {
-        const r = result as { report?: ArchetypeReportTemplate; pdfUrl?: string };
-        if (r.report) sessionStorage.setItem("wildprint_report", JSON.stringify(r.report));
-        if (r.pdfUrl) sessionStorage.setItem("wildprint_pdfUrl", r.pdfUrl);
-      }).catch(() => { /* API failure shouldn't block checkout */ });
-
       trackPixelEvent("Lead", { content_category: "adhd_report" }, eventId);
       trackPixelEvent("InitiateCheckout", { value: 17.0, currency: "USD", num_items: 1, content_category: "adhd_report" }, generateEventId());
       trackFunnelEvent("checkout_started");
+
+      // Await submit to get pdfUrl — needed for Astro checkout delivery email
+      let pdfUrl = "";
+      try {
+        const result = await api.post("/api/guest/submit", {
+          email: email || "unknown@example.com",
+          parentName: "",
+          responses,
+          childName,
+          childGender,
+          fbc: getFbc(),
+          fbp: getFbp(),
+          eventSourceUrl: window.location.href,
+          ...(isTestMode() && { isTest: true }),
+        }) as { report?: ArchetypeReportTemplate; pdfUrl?: string; error?: string };
+        if (result.report) sessionStorage.setItem("wildprint_report", JSON.stringify(result.report));
+        if (result.pdfUrl) {
+          pdfUrl = result.pdfUrl;
+          sessionStorage.setItem("wildprint_pdfUrl", result.pdfUrl);
+        }
+      } catch (err: unknown) {
+        // On 409 already_submitted, API returns pdfUrl of existing submission
+        const e = err as { pdfUrl?: string };
+        if (e?.pdfUrl) pdfUrl = e.pdfUrl;
+      }
 
       const checkoutUrl = import.meta.env.VITE_CHECKOUT_URL;
       if (checkoutUrl) {
@@ -336,12 +344,13 @@ export default function SalesPage() {
         params.set("archetype", archetypeId);
         params.set("archetype_name", archetype.typeName);
         params.set("gender", childGender ?? "");
+        if (pdfUrl) params.set("pdfUrl", pdfUrl);
         const fbp = getFbp();
         const fbc = getFbc();
         if (fbp) params.set("_fbp", fbp);
         if (fbc) params.set("_fbc", fbc);
         const separator = checkoutUrl.includes("?") ? "&" : "?";
-        trackFunnelEvent("wp_checkout_redirect");
+        trackFunnelEvent("checkout_redirect");
         window.location.href = `${checkoutUrl}${separator}${params.toString()}`;
       } else {
         navigate("/thank-you", { replace: true });

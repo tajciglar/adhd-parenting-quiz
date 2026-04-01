@@ -17,10 +17,10 @@ async function request(
   });
 
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ error: "Request failed" }));
-    throw new Error(
-      (error as { error?: string }).error || `API error: ${res.status}`,
-    );
+    const body = await res.json().catch(() => ({ error: "Request failed" }));
+    const err = new Error((body as { error?: string }).error || `API error: ${res.status}`) as Error & Record<string, unknown>;
+    Object.assign(err, body);
+    throw err;
   }
 
   return res.json();
