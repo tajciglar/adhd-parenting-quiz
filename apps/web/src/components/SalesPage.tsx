@@ -311,30 +311,8 @@ export default function SalesPage() {
       trackPixelEvent("InitiateCheckout", { value: 17.0, currency: "USD", num_items: 1, content_category: "adhd_report" }, generateEventId());
       trackFunnelEvent("checkout_started");
 
-      // Await submit to get pdfUrl — needed for Astro checkout delivery email
-      let pdfUrl = "";
-      try {
-        const result = await api.post("/api/guest/submit", {
-          email: email || "unknown@example.com",
-          parentName: "",
-          responses,
-          childName,
-          childGender,
-          fbc: getFbc(),
-          fbp: getFbp(),
-          eventSourceUrl: window.location.href,
-          ...(isTestMode() && { isTest: true }),
-        }) as { report?: ArchetypeReportTemplate; pdfUrl?: string; error?: string };
-        if (result.report) sessionStorage.setItem("wildprint_report", JSON.stringify(result.report));
-        if (result.pdfUrl) {
-          pdfUrl = result.pdfUrl;
-          sessionStorage.setItem("wildprint_pdfUrl", result.pdfUrl);
-        }
-      } catch (err: unknown) {
-        // On 409 already_submitted, API returns pdfUrl of existing submission
-        const e = err as { pdfUrl?: string };
-        if (e?.pdfUrl) pdfUrl = e.pdfUrl;
-      }
+      // pdfUrl is already in sessionStorage from email capture step
+      const pdfUrl = sessionStorage.getItem("wildprint_pdfUrl") ?? "";
 
       const checkoutUrl = import.meta.env.VITE_CHECKOUT_URL;
       if (checkoutUrl) {
