@@ -100,7 +100,7 @@ async function handlePaymentSucceeded(pi: Stripe.PaymentIntent) {
 
   // ── 2. AC — apply tags for marketing automation ──────────────────────────
   if (email) {
-    const tags = ['ADHD Personality Report']
+    const tags = ['ADHD Personality Type']
     if (selectedBumps.includes('anger-management')) tags.push('Bump: Anger Management')
     if (selectedBumps.includes('adhd-game-plan')) tags.push('Bump: ADHD Game Plan')
 
