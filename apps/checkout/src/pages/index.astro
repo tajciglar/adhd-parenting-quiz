@@ -1,3 +1,52 @@
 ---
-return Astro.redirect('/checkout', 301)
+import Base from "../layouts/Base.astro";
+import CheckoutFlow from "../components/checkout/CheckoutFlow";
+import { getProducts } from "../lib/getProducts";
+import { DEFAULT_PROJECT } from "../config/projects";
+
+const project = Astro.url.searchParams.get("project") ?? DEFAULT_PROJECT;
+const { project: projectConfig } = await getProducts(project);
+
+const publishableKey = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
+
+// Params passed from the quiz results/sales page
+const email   = Astro.url.searchParams.get("email") ?? "";
+const pdfUrl  = Astro.url.searchParams.get("pdfUrl") ?? "";
+
+// Guard — require pdfUrl and email, otherwise redirect to quiz
+const quizUrl = import.meta.env.QUIZ_URL || "https://assessment.strategicparenting.com";
+if (!pdfUrl || !email) {
+  return Astro.redirect(quizUrl, 302);
+}
+
+const childName = Astro.url.searchParams.get("childName") ?? "";
+const archetype = Astro.url.searchParams.get("archetype") ?? "";
+const gender    = Astro.url.searchParams.get("gender") ?? "";
+const fbp       = Astro.url.searchParams.get("_fbp") ?? "";
+const fbc       = Astro.url.searchParams.get("_fbc") ?? "";
 ---
+
+<Base title="Complete Your Order — ADHD Personality Report">
+  <div class="checkout-wrapper">
+    <header style="text-align:center; margin-bottom: 28px;">
+      <p
+        style="font-size: var(--text-sm); color: var(--color-text-muted); margin-top: 4px;"
+      >
+        Secure checkout · 14-day money-back guarantee
+      </p>
+    </header>
+
+    <CheckoutFlow
+      client:load
+      project={projectConfig}
+      publishableKey={publishableKey}
+      email={email}
+      childName={childName}
+      archetype={archetype}
+      gender={gender}
+      pdfUrl={pdfUrl}
+      fbp={fbp}
+      fbc={fbc}
+    />
+  </div>
+</Base>
