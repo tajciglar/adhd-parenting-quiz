@@ -67,6 +67,8 @@ export default function OnboardingPage() {
   } = useOnboarding();
 
   const navigate = useNavigate();
+  // Debounce ref: prevents multiple auto-advance timers firing when user clicks fast
+  const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showCredibility, setShowCredibility] = useState(false);
   const [showCalculating, setShowCalculating] = useState(false);
   const [showEmailCapture, setShowEmailCapture] = useState(false);
@@ -135,7 +137,14 @@ export default function OnboardingPage() {
         config.type === "likert";
 
       if (shouldAutoAdvance) {
-        setTimeout(() => advanceFromStep(step), 400);
+        // Cancel any in-flight advance — only the last click within the window counts
+        if (advanceTimerRef.current !== null) {
+          clearTimeout(advanceTimerRef.current);
+        }
+        advanceTimerRef.current = setTimeout(() => {
+          advanceTimerRef.current = null;
+          advanceFromStep(step);
+        }, 400);
       }
     },
     [saveAnswer, advanceFromStep],
