@@ -24,7 +24,12 @@ interface ContactInfo {
 }
 
 // ── Inner form (must be inside <Elements>) ──────────────────────
-function CheckoutForm({ returnUrl }: { returnUrl: string }) {
+function CheckoutForm({ returnUrl, clientSecret, initialEmail, childName }: {
+  returnUrl: string
+  clientSecret: string
+  initialEmail: string
+  childName: string
+}) {
   const stripe = useStripe()
   const elements = useElements()
   const [status, setStatus] = useState<'idle' | 'submitting' | 'error'>('idle')
@@ -32,14 +37,14 @@ function CheckoutForm({ returnUrl }: { returnUrl: string }) {
   const [contact, setContact] = useState<ContactInfo>({ email: '', name: '' })
   const [showExpressOr, setShowExpressOr] = useState(false)
 
-  // Pre-fill from URL params
+  // Pre-fill email from URL params or prop
   useEffect(() => {
     const p = new URLSearchParams(window.location.search)
-    setContact({
-      email: p.get('email') ?? '',
-      name: p.get('childName') ? '' : '',  // name not in URL, start blank
-    })
-  }, [])
+    setContact(c => ({
+      ...c,
+      email: p.get('email') || initialEmail || c.email,
+    }))
+  }, [initialEmail])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -47,6 +52,16 @@ function CheckoutForm({ returnUrl }: { returnUrl: string }) {
 
     setStatus('submitting')
     setErrorMsg('')
+
+    // Sync email + childName into PaymentIntent metadata before confirming
+    const piId = clientSecret.split('_secret_')[0]
+    if (piId && contact.email) {
+      await fetch('/api/update-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentIntentId: piId, email: contact.email, childName }),
+      }).catch(() => {}) // non-blocking
+    }
 
     const result = await stripe.confirmPayment({
       elements,
@@ -385,7 +400,7 @@ export default function StripeElementsCheckout({
         },
       }}
     >
-      <CheckoutForm returnUrl={returnUrl} />
+      <CheckoutForm returnUrl={returnUrl} clientSecret={clientSecret} initialEmail={email} childName={childName} />
     </Elements>
   )
 }

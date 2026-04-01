@@ -48,12 +48,13 @@ async function handlePaymentSucceeded(pi: Stripe.PaymentIntent) {
   // Re-fetch with charges expanded to get billing details
   let expandedPi = pi
   try {
-    expandedPi = await stripe.paymentIntents.retrieve(pi.id, { expand: ['charges'] })
+    expandedPi = await stripe.paymentIntents.retrieve(pi.id, { expand: ['latest_charge'] })
   } catch {
     // Fall back to original
   }
 
-  const billingDetails = expandedPi.charges?.data?.[0]?.billing_details
+  const latestCharge = expandedPi.latest_charge as Stripe.Charge | null
+  const billingDetails = latestCharge?.billing_details
   const email     = pi.metadata.email || expandedPi.receipt_email || billingDetails?.email || ''
   const fullName  = billingDetails?.name || ''
   const country   = billingDetails?.address?.country || ''
