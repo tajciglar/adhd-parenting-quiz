@@ -14,7 +14,7 @@ export function getSupabase() {
 export async function getPdfUrlByEmail(email: string): Promise<string | null> {
   try {
     const sb = getSupabase()
-    const { data } = await sb
+    const { data, error } = await sb
       .from('quiz_submissions')
       .select('pdf_url')
       .eq('email', email.toLowerCase())
@@ -22,8 +22,15 @@ export async function getPdfUrlByEmail(email: string): Promise<string | null> {
       .limit(1)
       .maybeSingle()
 
+    if (error) {
+      console.error('[Supabase] DB lookup error:', error.message)
+      return null
+    }
+
+    console.log('[Supabase] DB lookup for', email, '→', data?.pdf_url ? 'found' : 'not found')
     return data?.pdf_url ?? null
-  } catch {
+  } catch (err) {
+    console.error('[Supabase] getPdfUrlByEmail threw:', err instanceof Error ? err.message : err)
     return null
   }
 }
