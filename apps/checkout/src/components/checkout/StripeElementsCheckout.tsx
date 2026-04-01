@@ -56,11 +56,16 @@ function CheckoutForm({ returnUrl, clientSecret, initialEmail, childName }: {
     // Sync email + childName into PaymentIntent metadata before confirming
     const piId = clientSecret.split('_secret_')[0]
     if (piId && contact.email) {
-      await fetch('/api/update-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentIntentId: piId, email: contact.email, childName }),
-      }).catch(() => {}) // non-blocking
+      try {
+        await fetch('/api/update-payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentIntentId: piId, email: contact.email, childName }),
+        })
+      } catch {
+        // Non-critical — proceed with payment even if metadata sync fails
+        console.warn('[checkout] update-payment-intent failed — proceeding anyway')
+      }
     }
 
     const result = await stripe.confirmPayment({

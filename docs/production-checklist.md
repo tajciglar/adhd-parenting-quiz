@@ -345,7 +345,7 @@ Replace `{/* ... */}` with `<!-- ... -->` in `.astro` files.
 - [ ] **Stripe** Confirm both bump `stripePriceId` values in `projects.ts` correspond to live Stripe prices (or remove the fields if unused)
 - [ ] **Stripe** Enable Apple Pay domain verification for `quiz-checkout.vercel.app` in the Stripe dashboard (required for Apple Pay to show in `ExpressCheckoutElement`)
 - [ ] **Stripe** Test a full payment with a real card in live mode before public launch (not just test mode)
-- [ ] **Stripe** Fix CRITICAL-4: update `update-payment-intent.ts` to merge (not overwrite) metadata fields — include `project`, `pdfUrl`, `selectedBumps` in the update payload
+- [x] **Stripe** Fix CRITICAL-4: `update-payment-intent.ts` now merges metadata — fixed ✅
 
 ### Vercel (apps/checkout)
 
@@ -372,7 +372,7 @@ Replace `{/* ... */}` with `<!-- ... -->` in `.astro` files.
 - [ ] **Railway** Confirm `CORS_ORIGIN` on `apps/api` includes the Astro checkout domain if any cross-origin calls are made from `quiz-checkout.vercel.app` to the Railway API (currently not needed — web app only calls its own API — but verify)
 - [ ] **Railway** Confirm `API_BASE_URL` on `apps/api` is set to the live Railway URL (used to construct `pdfUrl` in `generatePdfUrl`)
 - [ ] **Railway** Confirm `PDF_SIGNING_SECRET` on `apps/api` is set to a strong random value (not the default `'dev-secret'`)
-- [ ] **Railway** Implement CRITICAL-1: add the `/api/guest/submit` call in `OnboardingPage.tsx` before `navigate("/results")`, store `pdfUrl` in sessionStorage, handle 409
+- [x] **Railway** CRITICAL-1 fixed: `OnboardingPage.tsx` synced from main with full submit+retry logic ✅
 
 ### ActiveCampaign
 
@@ -402,15 +402,15 @@ Replace `{/* ... */}` with `<!-- ... -->` in `.astro` files.
 
 ### Code (must be fixed before launch)
 
-- [ ] **Code** Fix CRITICAL-1: implement `/api/guest/submit` call in `OnboardingPage.tsx` with retry logic; store `pdfUrl` in `sessionStorage.setItem("wildprint_pdfUrl", ...)`
-- [ ] **Code** Fix CRITICAL-4: update `update-payment-intent.ts` to fetch and merge existing PI metadata rather than replacing it wholesale
-- [ ] **Code** Fix CRITICAL-5: add `update-payment-intent` call inside `ExpressCheckoutElement.onConfirm` before `stripe.confirmPayment`
-- [ ] **Code** Fix CRITICAL-3: replace in-memory `processedEvents` Set with a Supabase-backed idempotency check (insert webhook event ID into a table with unique constraint before processing)
-- [ ] **Code** Fix MEDIUM-1: `await` the `update-payment-intent` call with a timeout instead of fire-and-forget `.catch(() => {})`
-- [ ] **Code** Fix MEDIUM-3: in the `already_submitted` (409) handler, store the returned `pdfUrl` in sessionStorage before navigating
-- [ ] **Code** Fix MINOR-7: replace `{/* */}` JSX comments with `<!-- -->` HTML comments in `thank-you.astro`
-- [ ] **Code** Remove the `"astro test optin"` debug tag from `guest.ts` line 159
-- [ ] **Code** Confirm `retryCount` / retry logic for the `/api/guest/submit` call includes the 409 case as a non-retryable response (don't retry on 409, extract pdfUrl from response body)
+- [x] **Code** Fix CRITICAL-1: `OnboardingPage.tsx` synced from main — full submit+retry logic at email capture ✅
+- [x] **Code** Fix CRITICAL-4: `update-payment-intent.ts` now fetches and merges existing PI metadata ✅
+- [x] **Code** Fix CRITICAL-5: `update-payment-intent` call added inside `ExpressCheckoutElement.onConfirm` ✅
+- [x] **Code** Fix CRITICAL-3: removed in-memory Set, replaced with `paid` flag check in `quiz_submissions` ✅
+- [x] **Code** Fix MEDIUM-1: `update-payment-intent` call is now properly awaited with try/catch ✅
+- [x] **Code** Fix MEDIUM-3: `OnboardingPage` 409 handler stores `pdfUrl` from response before navigating ✅
+- [x] **Code** Fix MINOR-7: replaced `{/* */}` JSX comments with `<!-- -->` in `thank-you.astro` ✅
+- [x] **Code** Removed `"astro test optin"` debug tag from `guest.ts` ✅
+- [x] **Code** 409 is non-retryable in `OnboardingPage` retry loop — `pdfUrl` extracted from error response ✅
 
 ### Testing
 

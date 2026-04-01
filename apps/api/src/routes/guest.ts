@@ -156,7 +156,7 @@ async function syncToActiveCampaign(opts: {
     }
 
     // 4. Apply tags
-    const tagNames = ["ADHD Personality Type Opt-In", "astro test optin"];
+    const tagNames = ["ADHD Personality Type Opt-In"];
 
     for (const tagName of tagNames) {
       const tagSearchRes = await fetch(
