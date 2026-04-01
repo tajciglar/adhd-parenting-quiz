@@ -3,6 +3,7 @@ import { getStripe } from '../../../lib/stripe'
 import { syncContactWithTags } from '../../../lib/activecampaign'
 import { sendDeliveryEmail } from '../../../lib/brevo'
 import { getProject } from '../../../config/projects'
+import { getPdfUrlByEmail } from '../../../lib/supabase'
 import type Stripe from 'stripe'
 
 const processedEvents = new Set<string>()
@@ -62,12 +63,21 @@ async function handlePaymentSucceeded(pi: Stripe.PaymentIntent) {
   const lastName  = fullName.includes(' ') ? fullName.slice(fullName.indexOf(' ') + 1) : ''
 
   // Read fulfillment data from PaymentIntent metadata
-  const projectId    = pi.metadata.project || 'adhd-parenting'
-  const childName    = pi.metadata.childName || 'your child'
-  const pdfUrl       = pi.metadata.pdfUrl || ''
+  const projectId     = pi.metadata.project || 'adhd-parenting'
+  const childName     = pi.metadata.childName || 'your child'
+  let   pdfUrl        = pi.metadata.pdfUrl || ''
   const selectedBumps = (pi.metadata.selectedBumps || '').split(',').filter(Boolean)
 
-  console.log('[webhook] payment_intent.succeeded', { intentId: pi.id, email, projectId, childName, selectedBumps })
+  // Fallback: look up pdfUrl from quiz_submissions if not in metadata
+  if (!pdfUrl && email) {
+    const dbPdfUrl = await getPdfUrlByEmail(email)
+    if (dbPdfUrl) {
+      pdfUrl = dbPdfUrl
+      console.log('[webhook] pdfUrl resolved from DB for:', email)
+    }
+  }
+
+  console.log('[webhook] payment_intent.succeeded', { intentId: pi.id, email, projectId, childName, selectedBumps, hasPdfUrl: !!pdfUrl })
 
   // ── 1. Brevo — send delivery email with PDF links ────────────────────────
   if (email && pdfUrl) {
