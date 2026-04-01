@@ -5,8 +5,8 @@ import helmet from "@fastify/helmet";
 import rawBody from "fastify-raw-body";
 import healthRoutes from "./routes/health.js";
 import guestRoutes from "./routes/guest.js";
-
 import adminRoutes from "./routes/admin.js";
+import woocommerceRoutes from "./routes/woocommerce.js";
 
 const envToLogger: Record<string, object | boolean> = {
   development: {
@@ -88,8 +88,8 @@ async function buildServer() {
 
   await server.register(healthRoutes);
   await server.register(guestRoutes, { prefix: "/api" });
-
   await server.register(adminRoutes, { prefix: "/api" });
+  await server.register(woocommerceRoutes, { prefix: "/api" });
 
   server.setErrorHandler((error: FastifyError, _request, reply) => {
     server.log.error(error);

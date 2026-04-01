@@ -97,7 +97,7 @@ export default function CheckoutFlow({
     if (gender)           p.set('gender', gender)
     if (fbp)              p.set('_fbp', fbp)
     if (fbc)              p.set('_fbc', fbc)
-    return `${base}/upsell?${p.toString()}`
+    return `${base}/thank-you?${p.toString()}`
   })()
 
   return (

@@ -4,7 +4,6 @@ export type { BumpConfig, ProjectConfig }
 
 export interface CheckoutConfig {
   project: ProjectConfig
-  upsellPriceId: string
 }
 
 export interface OrderBumpProps {

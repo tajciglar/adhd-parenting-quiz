@@ -1,15 +1,11 @@
 ---
 import Base from '../layouts/Base.astro'
-import { getProducts } from '../lib/getProducts'
 
-const upsellStatus = Astro.url.searchParams.get('upsell')
-const childName    = Astro.url.searchParams.get('childName') ?? 'your child'
-const email        = Astro.url.searchParams.get('email') ?? ''
-const gender       = Astro.url.searchParams.get('gender') ?? ''
+const childName = Astro.url.searchParams.get('childName') ?? 'your child'
+const email     = Astro.url.searchParams.get('email') ?? ''
+const gender    = Astro.url.searchParams.get('gender') ?? ''
 
 const pronoun = gender === 'male' ? 'his' : gender === 'female' ? 'her' : 'their'
-
-const products = await getProducts()
 ---
 
 <Base title="Thank You! — ADHD Personality Report">
@@ -42,14 +38,6 @@ const products = await getProducts()
         </a>
       </p>
     </div>
-
-    {upsellStatus === 'success' && (
-      <div class="card" style="border-color:var(--color-success); margin-bottom:24px;">
-        <p style="font-size:var(--text-base); color:var(--color-success); font-weight:var(--weight-medium);">
-          ✅ {products.upsell.name} added to your order!
-        </p>
-      </div>
-    )}
 
     {/* What happens next */}
     <div class="card">

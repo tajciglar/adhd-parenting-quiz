@@ -26,11 +26,6 @@ export interface BumpConfig {
   checkboxLabel: string
 }
 
-export interface UpsellConfig {
-  stripePriceId: string
-  name: string
-}
-
 export interface ProjectConfig {
   id: string
   name: string
@@ -38,7 +33,6 @@ export interface ProjectConfig {
   price: number         // cents
   originalPrice?: number
   bumps: BumpConfig[]
-  upsell?: UpsellConfig
 }
 
 export const PROJECTS: Record<string, ProjectConfig> = {
@@ -84,10 +78,6 @@ export const PROJECTS: Record<string, ProjectConfig> = {
         checkboxLabel: 'Yes! I want my child to become more organised, focused, and productive.',
       },
     ],
-    upsell: {
-      stripePriceId: '', // Set via STRIPE_PRICE_UPSELL env var in getProducts.ts
-      name: 'Sanity School Mastery Program',
-    },
   },
 
   // ── Add future projects below ────────────────────────────────────────────────
