@@ -350,24 +350,32 @@ export default async function guestRoutes(fastify: FastifyInstance) {
         logger: request.log,
       });
 
-      // 6. Save to Supabase (fire and forget — don't block response)
+      // 6. Save to Supabase — retry up to 3 times so we don't silently lose submissions
       let submissionId: string | null = null;
-      try {
-        submissionId = await insertQuizSubmission({
-          email,
-          child_name: childName,
-          child_gender: childGender ?? "Other",
-          caregiver_type: (responses.caregiverType as string) ?? null,
-          child_age_range: (responses.childAgeRange as string) ?? null,
-          adhd_journey: (responses.adhdJourney as string) ?? null,
-          archetype_id: traitProfile.archetypeId,
-          trait_scores: traitProfile.scores as unknown as Record<string, number>,
-          responses,
-          pdf_url: pdfUrl,
-          is_test: isTest ?? false,
-        });
-      } catch (err) {
-        request.log.error({ err }, "guest.submit.supabase_insert_failed");
+      const submissionPayload = {
+        email,
+        child_name: childName,
+        child_gender: childGender ?? "Other",
+        caregiver_type: (responses.caregiverType as string) ?? null,
+        child_age_range: (responses.childAgeRange as string) ?? null,
+        adhd_journey: (responses.adhdJourney as string) ?? null,
+        archetype_id: traitProfile.archetypeId,
+        trait_scores: traitProfile.scores as unknown as Record<string, number>,
+        responses,
+        pdf_url: pdfUrl,
+        is_test: isTest ?? false,
+      };
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          submissionId = await insertQuizSubmission(submissionPayload);
+          if (submissionId) break;
+        } catch (err) {
+          request.log.error({ err, attempt }, "guest.submit.supabase_insert_failed");
+          if (attempt < 3) await new Promise((r) => setTimeout(r, attempt * 500));
+        }
+      }
+      if (!submissionId) {
+        request.log.error({ email, archetypeId: traitProfile.archetypeId }, "guest.submit.supabase_insert_all_attempts_failed");
       }
 
       return reply.send({ report: rendered, submissionId, pdfUrl });
