@@ -1,47 +1,30 @@
 ---
-import Base from '../layouts/Base.astro'
-import CheckoutFlow from '../components/checkout/CheckoutFlow'
-import { getProducts } from '../lib/getProducts'
-import { DEFAULT_PROJECT } from '../config/projects'
+import Base from "../layouts/Base.astro";
+import CheckoutFlow from "../components/checkout/CheckoutFlow";
+import { getProducts } from "../lib/getProducts";
+import { DEFAULT_PROJECT } from "../config/projects";
 
-const project    = Astro.url.searchParams.get('project') ?? DEFAULT_PROJECT
-const { project: projectConfig } = await getProducts(project)
+const project = Astro.url.searchParams.get("project") ?? DEFAULT_PROJECT;
+const { project: projectConfig } = await getProducts(project);
 
-const publishableKey = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ''
+const publishableKey = import.meta.env.PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 
 // Params passed from the quiz results/sales page
-const email     = Astro.url.searchParams.get('email') ?? ''
-const childName = Astro.url.searchParams.get('childName') ?? ''
-const archetype = Astro.url.searchParams.get('archetype') ?? ''
-const gender    = Astro.url.searchParams.get('gender') ?? ''
-const pdfUrl    = Astro.url.searchParams.get('pdfUrl') ?? ''
-const fbp       = Astro.url.searchParams.get('_fbp') ?? ''
-const fbc       = Astro.url.searchParams.get('_fbc') ?? ''
-
-const testimonials = [
-  {
-    quote: 'My son took the assessment with me so that I could make sure the questions were answered accurately and not just from my perspective. He read the final report and said, "How do they know who I am?!"',
-    author: 'Vanessa',
-  },
-  {
-    quote: 'Simple, clear, to the point and awakening — taking away any guilt & shame both from parents & the child! Something that you can rarely find on this path these days.',
-    author: 'Elham',
-  },
-  {
-    quote: "This made me realize that Harry isn't alone and his traits fit a pattern and type that just need the right kind of support.",
-    author: 'Tamara',
-  },
-  {
-    quote: "By the end of page 3, I burst into tears. But those were tears of awareness after knowing that there's nothing wrong with any of us, but only wired differently.",
-    author: 'Fiona',
-  },
-]
+const email = Astro.url.searchParams.get("email") ?? "";
+const childName = Astro.url.searchParams.get("childName") ?? "";
+const archetype = Astro.url.searchParams.get("archetype") ?? "";
+const gender = Astro.url.searchParams.get("gender") ?? "";
+const pdfUrl = Astro.url.searchParams.get("pdfUrl") ?? "";
+const fbp = Astro.url.searchParams.get("_fbp") ?? "";
+const fbc = Astro.url.searchParams.get("_fbc") ?? "";
 ---
 
 <Base title="Complete Your Order — ADHD Personality Report">
   <div class="checkout-wrapper">
     <header style="text-align:center; margin-bottom: 28px;">
-      <p style="font-size: var(--text-sm); color: var(--color-text-muted); margin-top: 4px;">
+      <p
+        style="font-size: var(--text-sm); color: var(--color-text-muted); margin-top: 4px;"
+      >
         Secure checkout · 14-day money-back guarantee
       </p>
     </header>
