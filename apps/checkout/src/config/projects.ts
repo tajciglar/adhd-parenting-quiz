@@ -57,7 +57,7 @@ export const PROJECTS: Record<string, ProjectConfig> = {
         salePrice: 1200,
         pdfUrl: 'https://wcc-files.b-cdn.net/Anger-Management-Adventures-StrategicParenting.pdf',
         image: '/images/anger-management-adventures-_book-mockup.png',
-        description: 'A complete workbook that helps your child dissolve anger and regulate emotions — includes a parent guide, worksheets, activities, Big Feelings Cards, and Angry UNO.',
+        description: 'The Anger Management Adventures Kit is a 66-page printable pack with activities based on the revolutionary PER (Playful Emotional Regulation) Method.\n\nThese activities, games and tools will help your child dissolve their anger and navigate the driving thoughts behind it by:',
         bullets: [
           'Understand where anger comes from and what triggers it',
           'Teach your child to recognise and name their emotions',
@@ -73,7 +73,7 @@ export const PROJECTS: Record<string, ProjectConfig> = {
         regularPrice: 5900,
         salePrice: 700,
         pdfUrl: 'https://wcc-files.b-cdn.net/the-adhd-game-plan-strategicparenting.pdf',
-        image: '/the-adhd-gameplan-book.png',
+        image: '/images/the-adhd-gameplan-book.png',
         description: 'The ADHD Game Plan includes 25 printable templates to help your child stay regulated and on track every day.',
         bullets: [
           'Easily plan their daily and weekly obligations',
