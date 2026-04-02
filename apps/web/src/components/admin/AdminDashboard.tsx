@@ -269,7 +269,7 @@ export default function AdminDashboard() {
   const [allTimeSummary, setAllTimeSummary] = useState<FunnelSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [days, setDays] = useState(7);
+  const days = 30;
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [rescoreChecking, setRescoreChecking] = useState(false);
@@ -380,7 +380,7 @@ export default function AdminDashboard() {
     setAuthenticated(true);
     void fetchAnalytics(adminKey.trim(), days);
     void fetchAllTimeSummary(adminKey.trim());
-  }, [adminKey, days, fetchAnalytics, fetchAllTimeSummary]);
+  }, [adminKey, fetchAnalytics, fetchAllTimeSummary]);
 
   const handleReset = useCallback(async () => {
     setResetting(true);
@@ -399,7 +399,7 @@ export default function AdminDashboard() {
     } finally {
       setResetting(false);
     }
-  }, [adminKey, days, fetchAnalytics]);
+  }, [adminKey, fetchAnalytics]);
 
   useEffect(() => {
     if (authenticated && adminKey) {
@@ -409,7 +409,7 @@ export default function AdminDashboard() {
     }
     // selectedDate intentionally omitted — date changes are handled by the date picker onChange
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authenticated, adminKey, days, fetchAnalytics, fetchVersionDropoff, fetchDailyDropoff]);
+  }, [authenticated, adminKey, fetchAnalytics, fetchVersionDropoff, fetchDailyDropoff]);
 
   // All-time summary: fetch once on auth, not on every days change
   useEffect(() => {
@@ -491,21 +491,6 @@ export default function AdminDashboard() {
             <p className="text-sm text-harbor-text/50">ADHD Personality Quiz Dashboard</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex gap-1.5">
-              {[7, 14, 30].map((d) => (
-                <button
-                  key={d}
-                  onClick={() => setDays(d)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer ${
-                    days === d
-                      ? "bg-harbor-primary text-white"
-                      : "bg-white text-harbor-text/60 border border-harbor-text/10 hover:border-harbor-primary/30"
-                  }`}
-                >
-                  {d}d
-                </button>
-              ))}
-            </div>
             <button
               onClick={() => void fetchAnalytics(adminKey, days)}
               disabled={loading}
