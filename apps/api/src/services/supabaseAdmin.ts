@@ -259,8 +259,9 @@ export async function allRows<T = Record<string, unknown>>(
 export async function getAnalytics(days: number = 7): Promise<FunnelAnalytics> {
   const sb = getSupabaseAdmin();
   if (!sb) return EMPTY_ANALYTICS;
-  const since = new Date();
-  since.setDate(since.getDate() - days);
+  // days=0 means all-time: use epoch as the floor
+  const since = days === 0 ? new Date(0) : new Date();
+  if (days !== 0) since.setDate(since.getDate() - days);
   const sinceTs = since.toISOString();
 
   // If analytics were reset, use the reset timestamp as the floor for ALL queries

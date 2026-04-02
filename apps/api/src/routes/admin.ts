@@ -35,7 +35,8 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   // ── GET /api/admin/analytics ──────────────────────────────────────────────
   fastify.get("/admin/analytics", async (request, reply) => {
     const { days } = request.query as { days?: string };
-    const numDays = Math.min(Math.max(Number(days) || 7, 1), 90);
+    const parsed = Number(days);
+    const numDays = parsed === 0 ? 0 : Math.min(Math.max(parsed || 7, 1), 90);
 
     try {
       const analytics = await getAnalytics(numDays);
