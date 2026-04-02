@@ -266,6 +266,7 @@ export default function AdminDashboard() {
   const [adminKey, setAdminKey] = useState(() => sessionStorage.getItem("admin_key") ?? "");
   const [authenticated, setAuthenticated] = useState(!!sessionStorage.getItem("admin_key"));
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [allTimeSummary, setAllTimeSummary] = useState<FunnelSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [days, setDays] = useState(7);
@@ -333,6 +334,19 @@ export default function AdminDashboard() {
     }
   }, [adminKey]);
 
+  const fetchAllTimeSummary = useCallback(async (key: string) => {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/analytics?days=0`, {
+        headers: { "x-admin-key": key },
+      });
+      if (!res.ok) return;
+      const data = (await res.json()) as Analytics;
+      setAllTimeSummary(data.funnelSummary);
+    } catch {
+      // silently fail — all-time summary is supplementary
+    }
+  }, []);
+
   const fetchAnalytics = useCallback(
     async (key: string, numDays: number) => {
       setLoading(true);
@@ -365,7 +379,8 @@ export default function AdminDashboard() {
     sessionStorage.setItem("admin_key", adminKey.trim());
     setAuthenticated(true);
     void fetchAnalytics(adminKey.trim(), days);
-  }, [adminKey, days, fetchAnalytics]);
+    void fetchAllTimeSummary(adminKey.trim());
+  }, [adminKey, days, fetchAnalytics, fetchAllTimeSummary]);
 
   const handleReset = useCallback(async () => {
     setResetting(true);
@@ -395,6 +410,13 @@ export default function AdminDashboard() {
     // selectedDate intentionally omitted — date changes are handled by the date picker onChange
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticated, adminKey, days, fetchAnalytics, fetchVersionDropoff, fetchDailyDropoff]);
+
+  // All-time summary: fetch once on auth, not on every days change
+  useEffect(() => {
+    if (authenticated && adminKey) {
+      void fetchAllTimeSummary(adminKey);
+    }
+  }, [authenticated, adminKey, fetchAllTimeSummary]);
 
   // Login gate
   if (!authenticated) {
@@ -434,8 +456,6 @@ export default function AdminDashboard() {
       </div>
     );
   }
-
-  const summary = analytics?.funnelSummary;
 
   return (
     <div className="min-h-screen bg-harbor-bg flex">
@@ -532,48 +552,34 @@ export default function AdminDashboard() {
           <p className="text-red-600 bg-red-50 rounded-lg px-4 py-3">{error}</p>
         ) : null}
 
-        {/* Funnel Summary Cards */}
-        {summary ? (
-          <div id="section-funnel" className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <MetricCard
-              label="Quiz Started"
-              value={summary.quizStarted}
-              color="text-harbor-primary"
-            />
-            <MetricCard
-              label="Quiz Completed"
-              value={summary.quizCompleted}
-              rate={summary.quizCompletionRate}
-              color="text-harbor-accent"
-            />
-            <MetricCard
-              label="Email Submitted"
-              value={summary.emailSubmitted ?? 0}
-              rate={summary.emailSubmitRate ?? 0}
-              color="text-blue-600"
-            />
-            <MetricCard
-              label="Checkout Started"
-              value={summary.checkoutStarted}
-              rate={summary.checkoutRate}
-              color="text-amber-600"
-            />
-            <MetricCard
-              label="Purchased"
-              value={summary.purchaseCompleted}
-              rate={summary.purchaseRate}
-              color="text-green-600"
-            />
+        {/* Funnel Summary Cards — All Time */}
+        <div id="section-funnel" className="space-y-3">
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-harbor-text/40">All Time</h2>
+            <span className="h-px flex-1 bg-harbor-text/10" />
           </div>
-        ) : null}
-
-        {/* Overall Conversion */}
-        {summary ? (
-          <div className="bg-white rounded-xl border border-harbor-text/10 p-5 text-center">
-            <p className="text-sm text-harbor-text/50">Overall Conversion (Quiz Start → Purchase)</p>
-            <p className="text-4xl font-bold text-harbor-primary mt-1">{summary.overallConversion}%</p>
-          </div>
-        ) : null}
+          {allTimeSummary ? (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <MetricCard label="Quiz Started" value={allTimeSummary.quizStarted} color="text-harbor-primary" />
+                <MetricCard label="Quiz Completed" value={allTimeSummary.quizCompleted} rate={allTimeSummary.quizCompletionRate} color="text-harbor-accent" />
+                <MetricCard label="Email Submitted" value={allTimeSummary.emailSubmitted ?? 0} rate={allTimeSummary.emailSubmitRate ?? 0} color="text-blue-600" />
+                <MetricCard label="Checkout Started" value={allTimeSummary.checkoutStarted} rate={allTimeSummary.checkoutRate} color="text-amber-600" />
+                <MetricCard label="Purchased" value={allTimeSummary.purchaseCompleted} rate={allTimeSummary.purchaseRate} color="text-green-600" />
+              </div>
+              <div className="bg-white rounded-xl border border-harbor-text/10 p-5 text-center">
+                <p className="text-sm text-harbor-text/50">Overall Conversion (Quiz Start → Purchase)</p>
+                <p className="text-4xl font-bold text-harbor-primary mt-1">{allTimeSummary.overallConversion}%</p>
+              </div>
+            </>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="bg-white rounded-xl border border-harbor-text/10 p-5 h-24 animate-pulse" />
+              ))}
+            </div>
+          )}
+        </div>
 
 
         {/* Per-Date Step Dropoff */}

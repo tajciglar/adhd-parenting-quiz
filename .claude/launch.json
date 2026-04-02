@@ -4,14 +4,22 @@
     {
       "name": "api",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "@adhd-ai-assistant/api", "dev"],
-      "port": 3001
+      "runtimeArgs": ["--filter", "@adhd-parenting-quiz/api", "dev"],
+      "port": 3001,
+      "autoPort": true
     },
     {
       "name": "web",
+      "runtimeExecutable": "/Users/tajbrzovic/.nvm/versions/node/v22.12.0/bin/node",
+      "runtimeArgs": ["/Users/tajbrzovic/wcc-projects/adhd-parenting-quiz/node_modules/.pnpm/vite@7.3.1_@types+node@24.11.0_jiti@2.6.1_lightningcss@1.31.1_tsx@4.21.0/node_modules/vite/bin/vite.js", "--config", "/Users/tajbrzovic/wcc-projects/adhd-parenting-quiz/.claude/worktrees/busy-hellman/apps/web/vite.config.ts", "--port", "5174", "--strictPort", "false"],
+      "port": 5174,
+      "cwd": "/Users/tajbrzovic/wcc-projects/adhd-parenting-quiz/.claude/worktrees/busy-hellman/apps/web"
+    },
+    {
+      "name": "checkout",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "web", "dev"],
-      "port": 5173
+      "runtimeArgs": ["--filter", "@adhd-parenting-quiz/checkout", "dev"],
+      "port": 4321
     }
   ]
 }
