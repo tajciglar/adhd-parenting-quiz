@@ -123,7 +123,7 @@ export default function StepRenderer({
               Discover Your Child's Unique ADHD Personality Type
             </h1>
             <p className="text-sm text-harbor-text/60 leading-relaxed">
-              The support your child needs starts here.
+              So you can finally parent them the way their brain actually needs.
             </p>
           </div>
 
